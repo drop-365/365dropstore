@@ -600,6 +600,33 @@ main,header,footer,.sec,.trust,.mq{position:relative;z-index:2}
 @keyframes crtflick{0%,100%{opacity:.5}50%{opacity:.62}97%{opacity:.4}}
 .spark{position:fixed;width:4px;height:4px;border-radius:50%;background:var(--glow,#C0392B);pointer-events:none;z-index:9997;mix-blend-mode:screen;box-shadow:0 0 8px 2px var(--glow,#C0392B);transition:opacity .5s,transform .5s}
 @media(prefers-reduced-motion:reduce){#netfx{display:none}#crtfx{animation:none;opacity:.3}.spark{display:none}}
+/* Drop countdown */
+.dropcount{display:flex;flex-direction:column;gap:6px;margin:0 0 22px}
+.dc-label{font-family:var(--bod);font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:var(--off)}
+.dc-clock{font-family:var(--dsp);font-size:clamp(28px,4vw,42px);letter-spacing:.04em;color:var(--accent);display:flex;align-items:baseline;gap:2px}
+.dc-clock span{min-width:1.3em;display:inline-block;text-align:center}
+.dc-clock i{font-family:var(--bod);font-size:.4em;font-style:normal;color:var(--red);margin:0 6px 0 1px;font-weight:600}
+.dc-clock span.tick{animation:dctick .4s var(--ease)}
+@keyframes dctick{0%{transform:translateY(-4px);opacity:.4;color:var(--red)}100%{transform:translateY(0);opacity:1}}
+/* HUD frame */
+#hud{position:fixed;inset:0;pointer-events:none;z-index:9996}
+.hud-c{position:absolute;width:26px;height:26px;border-color:var(--glow,#C0392B);opacity:.5}
+.hud-c.tl{top:14px;left:14px;border-top:1.5px solid;border-left:1.5px solid}
+.hud-c.tr{top:14px;right:14px;border-top:1.5px solid;border-right:1.5px solid}
+.hud-c.bl{bottom:14px;left:14px;border-bottom:1.5px solid;border-left:1.5px solid}
+.hud-c.br{bottom:14px;right:14px;border-bottom:1.5px solid;border-right:1.5px solid}
+@media(max-width:640px){.hud-c{width:16px;height:16px;top:8px!important;bottom:8px!important;left:8px;right:8px}}
+/* Scanline sweep on load */
+#scansweep{position:fixed;left:0;right:0;top:0;height:2px;z-index:9995;pointer-events:none;background:linear-gradient(90deg,transparent,var(--glow,#C0392B),transparent);opacity:0;box-shadow:0 0 12px 2px var(--glow,#C0392B)}
+#scansweep.run{animation:sweep 1.6s var(--ease) forwards}
+@keyframes sweep{0%{top:0;opacity:0}8%{opacity:.85}92%{opacity:.85}100%{top:100vh;opacity:0}}
+/* Product card 3D tilt */
+.pcard{transition:transform .25s var(--ease),box-shadow .25s var(--ease);transform-style:preserve-3d;will-change:transform}
+.pcard.tilt{transition:transform .08s linear}
+/* Sold hologram stamp */
+.pcard.so .pimg::before{content:"SOLD OUT";position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-12deg);font-family:var(--dsp);font-size:clamp(28px,5vw,46px);letter-spacing:.08em;color:var(--red);border:3px solid var(--red);padding:6px 18px;border-radius:6px;z-index:5;opacity:.85;mix-blend-mode:screen;animation:holoflick 2.4s steps(40) infinite;pointer-events:none;text-shadow:0 0 12px var(--red)}
+@keyframes holoflick{0%,100%{opacity:.85}48%{opacity:.6}50%{opacity:.9}94%{opacity:.5}}
+@media(prefers-reduced-motion:reduce){#scansweep{display:none}.pcard{transition:none}.pcard.so .pimg::before{animation:none}.dc-clock span.tick{animation:none}}
 @media(max-width:640px){#crtfx{opacity:.35}#netfx{opacity:.4}}
 /* ===== SCI-FI: DECODE HEADINGS ===== */
 [data-dec]{font-variant-ligatures:none}
@@ -608,6 +635,8 @@ main,header,footer,.sec,.trust,.mq{position:relative;z-index:2}
 </head>
 <body>
 <div id="crtfx" aria-hidden="true"></div>
+<div id="hud" aria-hidden="true"><span class="hud-c tl"></span><span class="hud-c tr"></span><span class="hud-c bl"></span><span class="hud-c br"></span></div>
+<div id="scansweep" aria-hidden="true"></div>
 
 <div id="boot" aria-hidden="true">
   <svg class="boot-loop" viewBox="0 0 100 50"><path d="M50 25 C50 8 28 8 28 25 C28 42 50 42 50 25 C50 8 72 8 72 25 C72 42 50 42 50 25 Z"/></svg>
@@ -658,6 +687,10 @@ main,header,footer,.sec,.trust,.mq{position:relative;z-index:2}
   <canvas id="netfx" aria-hidden="true"></canvas>
   <div class="hleft sr">
     <div class="hey"><span class="dot"></span> DROP 001 · DELHI · LIVE NOW</div>
+    <div id="dropcount" class="dropcount" aria-hidden="true" style="display:none">
+      <span class="dc-label">Next drop in</span>
+      <span class="dc-clock"><span id="dc-d">00</span><i>d</i><span id="dc-h">00</span><i>h</i><span id="dc-m">00</span><i>m</i><span id="dc-s">00</span><i>s</i></span>
+    </div>
     <h1 class="hh1" id="hero-h1"><span class="hero-gradient">365 DROP</span><span>STORE</span></h1>
     <p class="hsub" id="hero-sub">Premium denim built from zero in Delhi — wide-leg, baggy, straight. Dropped limited, worn everywhere.</p>
     <div class="hctas">
@@ -1637,6 +1670,70 @@ async function uploadImageToBlob(file){
     if(!r.ok)return null;const j=await r.json();return j.url||null;
   }catch(e){return null;}
 }
+/* ===== SCI-FI FX: drop countdown ===== */
+(function(){
+  // Set your next drop date here, or via siteContent.dropDate (ISO string). Default: 7 days out, refreshed weekly.
+  const el=document.getElementById("dropcount");if(!el)return;
+  let target;
+  try{ if(typeof siteContent!=="undefined"&&siteContent.dropDate){target=new Date(siteContent.dropDate).getTime();} }catch(e){}
+  if(!target||isNaN(target)||target<Date.now()){
+    // rolling weekly drop: next Friday 8pm IST
+    const now=new Date();const d=new Date(now);d.setHours(20,0,0,0);
+    const day=d.getDay();let add=(5-day+7)%7;if(add===0&&now.getTime()>d.getTime())add=7;
+    d.setDate(d.getDate()+add);target=d.getTime();
+  }
+  el.style.display="flex";
+  const pad=n=>String(n).padStart(2,"0");
+  const fields={d:document.getElementById("dc-d"),h:document.getElementById("dc-h"),m:document.getElementById("dc-m"),s:document.getElementById("dc-s")};
+  const last={};
+  function set(k,v){const f=fields[k];if(!f)return;if(last[k]!==v){f.textContent=v;f.classList.remove("tick");void f.offsetWidth;f.classList.add("tick");last[k]=v;}}
+  function tick(){
+    let diff=Math.max(0,target-Date.now());const s=Math.floor(diff/1000);
+    set("d",pad(Math.floor(s/86400)));set("h",pad(Math.floor(s%86400/3600)));
+    set("m",pad(Math.floor(s%3600/60)));set("s",pad(s%60));
+    if(diff<=0){const lbl=el.querySelector(".dc-label");if(lbl)lbl.textContent="Drop is LIVE";}
+  }
+  tick();setInterval(tick,1000);
+})();
+/* ===== SCI-FI FX: scanline sweep on load ===== */
+(function(){
+  if(window.matchMedia&&window.matchMedia("(prefers-reduced-motion:reduce)").matches)return;
+  const s=document.getElementById("scansweep");if(!s)return;
+  setTimeout(()=>{s.classList.add("run");setTimeout(()=>s.classList.remove("run"),1700);},600);
+})();
+/* ===== SCI-FI FX: product card 3D tilt ===== */
+(function(){
+  if(window.matchMedia&&window.matchMedia("(prefers-reduced-motion:reduce)").matches)return;
+  if(window.matchMedia&&window.matchMedia("(pointer:coarse)").matches)return; // skip touch
+  document.addEventListener("mousemove",e=>{
+    const card=e.target.closest&&e.target.closest(".pcard");
+    if(!card)return;
+    const r=card.getBoundingClientRect();
+    const px=(e.clientX-r.left)/r.width-0.5, py=(e.clientY-r.top)/r.height-0.5;
+    card.classList.add("tilt");
+    card.style.transform=`perspective(900px) rotateY(${px*6}deg) rotateX(${-py*6}deg) translateZ(6px)`;
+  },{passive:true});
+  document.addEventListener("mouseout",e=>{
+    const card=e.target.closest&&e.target.closest(".pcard");
+    if(card&&!card.contains(e.relatedTarget)){card.classList.remove("tilt");card.style.transform="";}
+  },{passive:true});
+})();
+/* ===== SCI-FI FX: product name/price decode on scroll ===== */
+(function(){
+  if(window.matchMedia&&window.matchMedia("(prefers-reduced-motion:reduce)").matches)return;
+  if(!("IntersectionObserver" in window))return;
+  function wire(){
+    const targets=document.querySelectorAll(".pname:not([data-dec-done])");
+    const io=new IntersectionObserver((es)=>{
+      es.forEach(en=>{if(en.isIntersecting){en.target.setAttribute("data-dec-done","1");if(typeof decodeText==="function")decodeText(en.target);io.unobserve(en.target);}});
+    },{threshold:0.5});
+    targets.forEach(t=>io.observe(t));
+  }
+  // re-wire whenever the grid re-renders
+  const grid=document.getElementById("pgrid");
+  if(grid){new MutationObserver(()=>setTimeout(wire,50)).observe(grid,{childList:true});}
+  setTimeout(wire,800);
+})();
 buildFilterUI();populateFitSelect();setCat("All");renderGrid();renderCart();renderRevs();applyPalette();
 loadPublished();
 </script>
