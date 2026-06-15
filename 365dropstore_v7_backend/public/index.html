@@ -1223,7 +1223,7 @@ function openMo(id){
     <button class="share-btn" onclick="shareProduct('${p.id}','${(p.name||"").replace(/'/g,"\\'")}','${plink}')">🔗 Share Product</button>
     <button class="share-btn" onclick="window.open('https://api.whatsapp.com/send?text='+encodeURIComponent('Check this out: ${p.name} — ${plink}'),'_blank')">📲 Share on WhatsApp</button>
   </div>`;
-  const scHtml=(p.sizeChartImg||globalSc)?`<div onclick="openSizeChart('${p.id}','${_scImg?'has':''}')" style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--accsub);cursor:pointer;margin-bottom:14px;padding:10px;background:var(--glass);border:1px solid var(--line);border-radius:8px;">📏 <span>View Size Chart</span> <span style="margin-left:auto;color:var(--off)">↗</span></div>`:'';
+  const _scImg=p.sizeChartImg||globalSc||'';const scHtml=_scImg?`<div onclick="openSizeChart('${p.id}')" style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--accsub);cursor:pointer;margin-bottom:14px;padding:10px;background:var(--glass);border:1px solid var(--line);border-radius:8px;">📏 <span>View Size Chart</span> <span style="margin-left:auto;color:var(--off)">↗</span></div>`:'';
   const descFull=p.desc2?`<div class="mo-expander"><div class="mo-exp-row" onclick="toggleExp(this)"><span>Description</span><span class="arr">+</span></div><div class="mo-exp-body"><p>${p.desc2}</p></div></div>`:'';
   const shipHtml=p.shippingInfo?`<div class="mo-expander"><div class="mo-exp-row" onclick="toggleExp(this)"><span>Shipping & Returns</span><span class="arr">+</span></div><div class="mo-exp-body"><ul>${p.shippingInfo.split('·').map(s=>s.trim()).filter(Boolean).map(s=>`<li>${s}</li>`).join('')}</ul></div></div>`:'';
   document.getElementById("mo").innerHTML=`
@@ -1302,17 +1302,8 @@ function editP(id){const p=products.find(x=>x.id===id);if(!p)return;editId=id;do
 function resetF(){editId=null;["pf0","pf2","pf3","pf4","pf-desc2","pf5","pf6","pf-reel","pf-scimg"].forEach(id=>{const e=document.getElementById(id);if(e)e.value=""});document.getElementById("pf7").value="new";document.getElementById("pf8").value=1;pendingImgs=[];renderThumbs();document.getElementById("sc-prv").innerHTML="";document.getElementById("add-title").textContent="ADD NEW PRODUCT";const m=document.getElementById("pf-msg");if(m)m.style.display="none";}
 let pendingImgs=[];
 function handleImgs(inp){const files=[...inp.files].slice(0,5-pendingImgs.length);files.forEach(async f=>{if(pendingImgs.length>=5)return;
-  // Live mode + token available: upload real file to Blobs, store the URL
-  if(typeof API!=="undefined"&&API.live&&localStorage.getItem("ds_pub_token")){
-    const idx=pendingImgs.push("__uploading__")-1;renderThumbs();
-    try{
-      // compress first to keep Blob size sane, then convert dataURL back to a Blob for upload
-      const dataUrl=await compressImg(f,1600,0.82);
-      const blob=await(await fetch(dataUrl)).blob();
-      const url=await uploadImageToBlob(new File([blob],f.name||"img.jpg",{type:"image/jpeg"}));
-      pendingImgs[idx]=url||dataUrl; // fall back to inline if upload failed
-    }catch(e){pendingImgs[idx]=null;pendingImgs=pendingImgs.filter(Boolean);}
-    renderThumbs();return;
+  // Always use compressed base64 - reliable, works offline and online
+  if(false){
   }
   // Local/offline: original base64 behavior
   const rd=new FileReader();rd.onload=e=>{pendingImgs.push(e.target.result);renderThumbs();};rd.readAsDataURL(f);
