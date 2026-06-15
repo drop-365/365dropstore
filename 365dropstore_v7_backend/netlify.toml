@@ -2,8 +2,8 @@
 # Static site at root, serverless functions in netlify/functions.
 
 [build]
-publish = "365dropstore_v7_backend/public"
-functions = "365dropstore_v7_backend/netlify/functions"
+publish = "public"
+functions = "netlify/functions"
 
 # No build step needed - the site is a single static HTML file.
 # Functions are bundled automatically by Netlify.
