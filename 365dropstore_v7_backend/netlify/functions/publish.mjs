@@ -11,10 +11,11 @@ export default async (req, context) => {
     const { getStore } = await import("@netlify/blobs");
     const store = getStore("dropstore");
     body._publishedAt = Date.now();
-    await store.setJSON("state", body);
+    await store.set("state", JSON.stringify(body), { metadata: { contentType: "application/json" } });
     return json({ ok: true, publishedAt: body._publishedAt });
   } catch (e) {
-    return json({ error: "write_failed", detail: e.message }, 500);
+    console.log("BLOB ERROR:", e.message, e.stack);
+    return json({ error: "write_failed", detail: String(e.message) }, 500);
   }
 };
 function json(obj, status = 200) {
