@@ -1,0 +1,12 @@
+# 365 Drop Store - Netlify config
+# Static site at root, serverless functions in netlify/functions.
+
+[build]
+  publish = "public"
+  functions = "netlify/functions"
+
+# No build step needed - the site is a single static HTML file.
+# Functions are bundled automatically by Netlify.
+
+[functions]
+  node_bundler = "esbuild"
