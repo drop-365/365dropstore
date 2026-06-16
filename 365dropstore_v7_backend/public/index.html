@@ -1212,7 +1212,7 @@ function applySiteContent(){
   if(s.trust){const tg=document.getElementById("trust-grid");if(tg){const items=s.trust.split("\n").filter(l=>l.trim()).slice(0,4);if(items.length)tg.innerHTML=items.map(l=>{const[ic,ti,su]=l.split("|").map(x=>(x||"").trim());return`<div class="titem"><div class="tic">${ic}</div><div><div class="tit">${ti}</div><div class="tis">${su}</div></div></div>`;}).join("");}}
   applyGallery("ed-img",s.edImgs,s.edImg);
   applyGallery("story-img",s.stImgs,s.stImg);
-  renderHeroShowcase();
+  if(typeof window.rebuildHeroShowcase==="function")window.rebuildHeroShowcase();else renderHeroShowcase();
   // Marquee
   if(s.marquee){const mt=document.getElementById("mqt");if(mt){const items=s.marquee.split("|").map(x=>x.trim()).filter(Boolean);const b=items.map(i=>'<span class="mi">'+i+'</span><span class="md">·</span>').join("");mt.innerHTML=b.repeat(6);}}
   // Hero stats
@@ -1888,47 +1888,42 @@ async function uploadImageToBlob(file){
   function build(){
     if(typeof products==="undefined"||!products.length){setTimeout(build,250);return;}
     const live=products.filter(p=>(p.images||[]).length);
-    if(!live.length)return;
+    // proceed even with no products - hero images load from overrides
     // featured = heroP1 if set, else first bestseller, else first
     let feat=null;
     let heroImgOverride="",heroThumb1Override="",heroThumb2Override="";
     try{const s=(typeof siteContent!=="undefined")?siteContent:{};
-      if(s.heroImg)heroImgOverride=s.heroImg;
-      if(s.heroThumb1)heroThumb1Override=s.heroThumb1;
-      if(s.heroThumb2)heroThumb2Override=s.heroThumb2;
+      heroImgOverride=s.heroImg||"https://raw.githubusercontent.com/drop-365/365dropstore/main/images/Hero.jpeg";
+      heroThumb1Override=s.heroThumb1||"https://raw.githubusercontent.com/drop-365/365dropstore/main/images/Her.jpeg";
+      heroThumb2Override=s.heroThumb2||"https://raw.githubusercontent.com/drop-365/365dropstore/main/images/He.jpeg";
       if(s.heroP1)feat=products.find(p=>p.id===s.heroP1);
     }catch(e){}
-    if(!feat)feat=live.find(p=>(p.badges||[]).includes("best"))||live[0];
+    if(!feat)feat=live.length?(live.find(p=>(p.badges||[]).includes("best"))||live[0]):null;
     // ensure featured actually has a loadable image; else pick first that does
-    if(!((feat.images||[])[0]))feat=live[0];
-    const others=live.filter(p=>p.id!==feat.id).slice(0,2);
+    if(feat&&!((feat.images||[])[0]))feat=live[0]||null;
+    const others=feat?live.filter(p=>p.id!==feat.id).slice(0,2):[];
     const main=document.getElementById("sc-main");
     const price=document.getElementById("sc-price");
     const tag=document.getElementById("sc-tag");
     const mini=document.getElementById("sc-mini");
     const spec=document.getElementById("sc-spec");
     if(main){
-      const src=heroImgOverride||((feat.images||[])[0])||"";
-      main.onerror=function(){this.style.opacity="0";};
+      main.onerror=function(){this.style.opacity="0.3";};
       main.onload=function(){this.style.opacity="1";};
-      main.src=src;window._scId=feat.id;
+      main.src=heroImgOverride;window._scId=feat?feat.id:"";
     }
-    if(price)price.textContent=inr((typeof eff==="function")?eff(feat):(feat.offerPrice||feat.price));
-    if(tag)tag.textContent="DROP_001 \u00B7 "+((feat.badges||[]).includes("best")?"BESTSELLER":(feat.category||"DROP").toUpperCase());
+    if(price&&feat)price.textContent=inr((typeof eff==="function")?eff(feat):(feat.offerPrice||feat.price));
+    if(tag)tag.textContent="DROP_001 \u00B7 "+(feat&&(feat.badges||[]).includes("best")?"BESTSELLER":"NEW DROP");
     if(mini){
-      if(heroThumb1Override||heroThumb2Override){
-        const t1=heroThumb1Override||((others[0]&&(others[0].images||[])[0])||"");
-        const t2=heroThumb2Override||((others[1]&&(others[1].images||[])[0])||"");
-        mini.innerHTML=[t1,t2].filter(Boolean).map((s,i)=>{
-          const p=others[i];
-          const click=p?`onclick="openMo('${p.id}')"`:""
-          return`<img src="${s}" alt="product ${i+1}" ${click}/>`;
-        }).join("");
-      }else{
-        mini.innerHTML=others.map(p=>`<img src="${(p.images||[])[0]}" alt="${(p.name||'').replace(/"/g,'')}" onclick="openMo('${p.id}')"/>`).join("");
-      }
+      const t1=heroThumb1Override;
+      const t2=heroThumb2Override;
+      mini.innerHTML=[t1,t2].filter(Boolean).map((s,i)=>{
+        const p=others[i];
+        const click=p?`onclick="openMo('${p.id}')"`:""
+        return`<img src="${s}" alt="product ${i+1}" ${click}/>`;
+      }).join("");
     }
-    if(spec){
+    if(spec&&feat){
       const fit=(feat.fit||"\u2014").toUpperCase();
       const wash=(feat.colors&&feat.colors[0]?feat.colors[0]:"\u2014").toUpperCase();
       const szc=(feat.sizes||[]).length;
