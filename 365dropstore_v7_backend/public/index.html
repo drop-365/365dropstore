@@ -1886,9 +1886,8 @@ async function uploadImageToBlob(file){
 (function(){
   function inr(n){try{return"\u20B9"+Number(n).toLocaleString("en-IN");}catch(e){return"\u20B9"+n;}}
   function build(){
-    if(typeof products==="undefined"||!products.length){setTimeout(build,250);return;}
-    const live=products.filter(p=>(p.images||[]).length);
-    // proceed even with no products - hero images load from overrides
+    const products_=typeof products!=="undefined"?products:[];
+    const live=products_.filter(p=>(p.images||[]).length);
     // featured = heroP1 if set, else first bestseller, else first
     let feat=null;
     let heroImgOverride="",heroThumb1Override="",heroThumb2Override="";
@@ -1896,7 +1895,7 @@ async function uploadImageToBlob(file){
       heroImgOverride=s.heroImg||"https://raw.githubusercontent.com/drop-365/365dropstore/main/images/Hero.jpeg";
       heroThumb1Override=s.heroThumb1||"https://raw.githubusercontent.com/drop-365/365dropstore/main/images/Her.jpeg";
       heroThumb2Override=s.heroThumb2||"https://raw.githubusercontent.com/drop-365/365dropstore/main/images/He.jpeg";
-      if(s.heroP1)feat=products.find(p=>p.id===s.heroP1);
+      if(s.heroP1)feat=products_.find(p=>p.id===s.heroP1);
     }catch(e){}
     if(!feat)feat=live.length?(live.find(p=>(p.badges||[]).includes("best"))||live[0]):null;
     // ensure featured actually has a loadable image; else pick first that does
