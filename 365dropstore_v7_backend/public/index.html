@@ -763,7 +763,7 @@ main,header,footer,.sec,.trust,.mq{position:relative;z-index:2}
   <div class="hright">
     <div class="showcase" id="hshowcase">
       <div class="scframe2"></div><div class="scframe"></div>
-      <img class="scmain" id="sc-main" alt="Featured drop" onclick="if(window._scId)openMo(window._scId)"/>
+      <img class="scmain" id="sc-main" alt="Featured drop"/>
       <div class="scan"></div>
       <div class="sctag" id="sc-tag">DROP_001 · BESTSELLER</div>
       <div class="scprice" id="sc-price">—</div>
@@ -1899,7 +1899,15 @@ async function uploadImageToBlob(file){
     const mini=document.getElementById("sc-mini");
     const spec=document.getElementById("sc-spec");
     const mainSrc=s.heroImg||((feat.images||[])[0])||"";
-    if(main){main.src=mainSrc;window._scId=feat.id;}
+    if(main){
+      main.src=mainSrc;
+      if(s.heroImg){
+        // custom image set — clicking main image does nothing (image doesn't match a specific product)
+        main.onclick=null;main.style.cursor="default";window._scId="";
+      }else{
+        main.onclick=function(){if(window._scId)openMo(window._scId);};main.style.cursor="pointer";window._scId=feat?feat.id:"";
+      }
+    }
     if(price)price.textContent=inr((typeof eff==="function")?eff(feat):(feat.offerPrice||feat.price));
     if(tag)tag.textContent="DROP_001 \u00B7 "+((feat.badges||[]).includes("best")?"BESTSELLER":"NEW DROP");
     if(mini){
