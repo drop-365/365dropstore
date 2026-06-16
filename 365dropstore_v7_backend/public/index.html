@@ -958,6 +958,19 @@ https://raw.githubusercontent.com/drop-365/365dropstore/main/images/jean2.jpg" s
     <div class="pff full" style="border-top:0"><label>HERO HEADLINE (line 1 | line 2 | line 3 — pipe separated)</label><input type="text" id="site-hero-h1" placeholder="365|DROPS|DAILY"/><small>3 words, one per line. First and third go white, middle goes muted.</small></div>
     <div class="pff full"><label>HERO SUBTITLE</label><textarea id="site-hero-sub" rows="2"></textarea></div>
     <!-- hero showcase removed -->
+    <div class="pff full" style="border-bottom:1px solid var(--line);padding-bottom:14px;margin-bottom:4px">
+      <label>HERO IMAGE (right side) — paste GitHub raw link</label>
+      <input type="url" id="site-hero-img" placeholder="https://raw.githubusercontent.com/drop-365/365dropstore/main/images/hero.jpg"/>
+      <small>This overrides the auto-picked product image on the right side of the homepage hero.</small>
+    </div>
+    <div class="pff full" style="border-bottom:1px solid var(--line);padding-bottom:14px;margin-bottom:4px">
+      <label>HERO SMALL GRID — top thumbnail</label>
+      <input type="url" id="site-hero-thumb1" placeholder="https://raw.githubusercontent.com/drop-365/365dropstore/main/images/thumb1.jpg"/>
+    </div>
+    <div class="pff full" style="border-bottom:1px solid var(--line);padding-bottom:14px;margin-bottom:4px">
+      <label>HERO SMALL GRID — bottom thumbnail</label>
+      <input type="url" id="site-hero-thumb2" placeholder="https://raw.githubusercontent.com/drop-365/365dropstore/main/images/thumb2.jpg"/>
+    </div>
     <div class="pff full" style="padding-bottom:14px;border-bottom:1px solid var(--line)">
       <label>EDITORIAL GALLERY — multiple photos (day-to-day life)</label>
       <input type="file" accept="image/*" multiple onchange="galleryUp('ed',this)"/>
@@ -1468,9 +1481,9 @@ function togOOS(pid,size){const p=products.find(x=>x.id===pid);if(!p)return;if(!
 
 // SITE EDITOR
 function populateFitSelect(){const sel=document.getElementById("pf-fit");if(!sel)return;sel.innerHTML=fits.map(f=>`<option value="${f}">${f}</option>`).join("");}
-function loadSiteEd(){const s=siteContent;const sv=(id,v)=>{const el=document.getElementById(id);if(el)el.value=v||"";};sv("site-ann",s.ann);sv("site-hero-h1",s.heroH1);sv("site-hero-sub",s.heroSub);sv("site-ed-h2",s.edH2);sv("site-ed-p",s.edP);sv("site-story-h2",s.storyH2);sv("site-story-p1",s.storyP1);sv("site-story-p2",s.storyP2);sv("site-trust",s.trust);sv("site-shipping",s.shipping);sv("site-marquee",s.marquee);sv("site-stats",s.stats);sv("site-phone",s.phone);sv("site-email",s.email);sv("site-address",s.address);sv("site-insta",s.insta);sv("site-fb",s.fb);if(s.edImg&&!(s.edImgs&&s.edImgs.length))s.edImgs=[s.edImg];if(s.stImg&&!(s.stImgs&&s.stImgs.length))s.stImgs=[s.stImg];renderGmgr("ed");renderGmgr("st");}
+function loadSiteEd(){const s=siteContent;const sv=(id,v)=>{const el=document.getElementById(id);if(el)el.value=v||"";};sv("site-ann",s.ann);sv("site-hero-h1",s.heroH1);sv("site-hero-sub",s.heroSub);sv("site-ed-h2",s.edH2);sv("site-ed-p",s.edP);sv("site-story-h2",s.storyH2);sv("site-story-p1",s.storyP1);sv("site-story-p2",s.storyP2);sv("site-trust",s.trust);sv("site-shipping",s.shipping);sv("site-marquee",s.marquee);sv("site-stats",s.stats);sv("site-phone",s.phone);sv("site-email",s.email);sv("site-address",s.address);sv("site-insta",s.insta);sv("site-fb",s.fb);sv("site-hero-img",s.heroImg);sv("site-hero-thumb1",s.heroThumb1);sv("site-hero-thumb2",s.heroThumb2);if(s.edImg&&!(s.edImgs&&s.edImgs.length))s.edImgs=[s.edImg];if(s.stImg&&!(s.stImgs&&s.stImgs.length))s.stImgs=[s.stImg];renderGmgr("ed");renderGmgr("st");}
 function siteImgUp(k,inp){if(!inp.files||!inp.files[0])return;const rd=new FileReader();rd.onload=e=>{document.getElementById('site-'+k+'-imgdata').value=e.target.result;document.getElementById('site-'+k+'-prv').innerHTML=`<img src="${e.target.result}" style="width:110px;border-radius:7px"/>`;};rd.readAsDataURL(inp.files[0]);}
-function saveSite(){const _edI=siteContent.edImgs||[];const _stI=siteContent.stImgs||[];const _edS=siteContent.edImg||"";const _stS=siteContent.stImg||"";const g=id=>{const el=document.getElementById(id);return el?el.value:"";};siteContent={ann:g("site-ann"),heroH1:g("site-hero-h1"),heroSub:g("site-hero-sub"),trust:g("site-trust"),edH2:g("site-ed-h2"),edP:g("site-ed-p"),edImgs:_edI,stImgs:_stI,edImg:_edS,stImg:_stS,storyH2:g("site-story-h2"),storyP1:g("site-story-p1"),storyP2:g("site-story-p2"),shipping:g("site-shipping"),marquee:g("site-marquee"),stats:g("site-stats"),phone:g("site-phone"),email:g("site-email"),address:g("site-address"),insta:g("site-insta"),fb:g("site-fb")};lsSafeSet("ds_site",siteContent);applySiteContent();const m=document.getElementById("site-msg");if(m){m.textContent="Saved ✓";m.style.color="#4ade80";m.style.background="rgba(74,222,128,.08)";m.style.display="block";setTimeout(()=>m.style.display="none",2000);}}
+function saveSite(){const _edI=siteContent.edImgs||[];const _stI=siteContent.stImgs||[];const _edS=siteContent.edImg||"";const _stS=siteContent.stImg||"";const g=id=>{const el=document.getElementById(id);return el?el.value:"";};siteContent={ann:g("site-ann"),heroH1:g("site-hero-h1"),heroSub:g("site-hero-sub"),trust:g("site-trust"),edH2:g("site-ed-h2"),edP:g("site-ed-p"),edImgs:_edI,stImgs:_stI,edImg:_edS,stImg:_stS,storyH2:g("site-story-h2"),storyP1:g("site-story-p1"),storyP2:g("site-story-p2"),shipping:g("site-shipping"),marquee:g("site-marquee"),stats:g("site-stats"),phone:g("site-phone"),email:g("site-email"),address:g("site-address"),insta:g("site-insta"),fb:g("site-fb"),heroImg:g("site-hero-img"),heroThumb1:g("site-hero-thumb1"),heroThumb2:g("site-hero-thumb2")};lsSafeSet("ds_site",siteContent);applySiteContent();const m=document.getElementById("site-msg");if(m){m.textContent="Saved ✓";m.style.color="#4ade80";m.style.background="rgba(74,222,128,.08)";m.style.display="block";setTimeout(()=>m.style.display="none",2000);}}
 
 // BANNER ADMIN
 function loadBannerAdmin(){document.getElementById("ban-text").value=banner.text||"";document.getElementById("ban-show").checked=banner.show||false;}
@@ -1687,6 +1700,7 @@ function applyState(d){if(!d)return;
   LS.set("ds_gsc",globalSc);LS.set("ds_stories",stories);
   applySiteContent();applyBanner();renderStoriesRail();
   buildFilterUI();populateFitSelect();setCat("All");renderGrid();renderRevs();applyPalette();
+  if(typeof window.rebuildHeroShowcase==="function")window.rebuildHeroShowcase();
 }
 // On storefront load, pull published state from backend (if live). Falls back silently to localStorage.
 async function loadPublished(){
@@ -1877,18 +1891,43 @@ async function uploadImageToBlob(file){
     if(!live.length)return;
     // featured = heroP1 if set, else first bestseller, else first
     let feat=null;
-    try{const s=(typeof siteContent!=="undefined")?siteContent:{};if(s.heroP1)feat=products.find(p=>p.id===s.heroP1);}catch(e){}
+    let heroImgOverride="",heroThumb1Override="",heroThumb2Override="";
+    try{const s=(typeof siteContent!=="undefined")?siteContent:{};
+      if(s.heroImg)heroImgOverride=s.heroImg;
+      if(s.heroThumb1)heroThumb1Override=s.heroThumb1;
+      if(s.heroThumb2)heroThumb2Override=s.heroThumb2;
+      if(s.heroP1)feat=products.find(p=>p.id===s.heroP1);
+    }catch(e){}
     if(!feat)feat=live.find(p=>(p.badges||[]).includes("best"))||live[0];
+    // ensure featured actually has a loadable image; else pick first that does
+    if(!((feat.images||[])[0]))feat=live[0];
     const others=live.filter(p=>p.id!==feat.id).slice(0,2);
     const main=document.getElementById("sc-main");
     const price=document.getElementById("sc-price");
     const tag=document.getElementById("sc-tag");
     const mini=document.getElementById("sc-mini");
     const spec=document.getElementById("sc-spec");
-    if(main){main.src=(feat.images||[])[0]||"";window._scId=feat.id;}
+    if(main){
+      const src=heroImgOverride||((feat.images||[])[0])||"";
+      main.onerror=function(){this.style.opacity="0";};
+      main.onload=function(){this.style.opacity="1";};
+      main.src=src;window._scId=feat.id;
+    }
     if(price)price.textContent=inr((typeof eff==="function")?eff(feat):(feat.offerPrice||feat.price));
     if(tag)tag.textContent="DROP_001 \u00B7 "+((feat.badges||[]).includes("best")?"BESTSELLER":(feat.category||"DROP").toUpperCase());
-    if(mini)mini.innerHTML=others.map(p=>`<img src="${(p.images||[])[0]}" alt="${(p.name||'').replace(/"/g,'')}" onclick="openMo('${p.id}')"/>`).join("");
+    if(mini){
+      if(heroThumb1Override||heroThumb2Override){
+        const t1=heroThumb1Override||((others[0]&&(others[0].images||[])[0])||"");
+        const t2=heroThumb2Override||((others[1]&&(others[1].images||[])[0])||"");
+        mini.innerHTML=[t1,t2].filter(Boolean).map((s,i)=>{
+          const p=others[i];
+          const click=p?`onclick="openMo('${p.id}')"`:""
+          return`<img src="${s}" alt="product ${i+1}" ${click}/>`;
+        }).join("");
+      }else{
+        mini.innerHTML=others.map(p=>`<img src="${(p.images||[])[0]}" alt="${(p.name||'').replace(/"/g,'')}" onclick="openMo('${p.id}')"/>`).join("");
+      }
+    }
     if(spec){
       const fit=(feat.fit||"\u2014").toUpperCase();
       const wash=(feat.colors&&feat.colors[0]?feat.colors[0]:"\u2014").toUpperCase();
@@ -1897,6 +1936,7 @@ async function uploadImageToBlob(file){
     }
   }
   setTimeout(build,400);
+  window.rebuildHeroShowcase=build;
   const grid=document.getElementById("pgrid");
   if(grid&&"MutationObserver" in window){new MutationObserver(()=>setTimeout(build,80)).observe(grid,{childList:true});}
 })();
