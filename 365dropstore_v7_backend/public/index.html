@@ -1887,46 +1887,28 @@ async function uploadImageToBlob(file){
   function inr(n){try{return"\u20B9"+Number(n).toLocaleString("en-IN");}catch(e){return"\u20B9"+n;}}
   function build(){
     const products_=typeof products!=="undefined"?products:[];
+    if(!products_.length){setTimeout(build,300);return;}
     const live=products_.filter(p=>(p.images||[]).length);
-    // featured = heroP1 if set, else first bestseller, else first
-    let feat=null;
-    let heroImgOverride="",heroThumb1Override="",heroThumb2Override="";
-    try{const s=(typeof siteContent!=="undefined")?siteContent:{};
-      heroImgOverride=s.heroImg||"https://raw.githubusercontent.com/drop-365/365dropstore/main/images/Hero.jpeg";
-      heroThumb1Override=s.heroThumb1||"https://raw.githubusercontent.com/drop-365/365dropstore/main/images/Her.jpeg";
-      heroThumb2Override=s.heroThumb2||"https://raw.githubusercontent.com/drop-365/365dropstore/main/images/He.jpeg";
-      if(s.heroP1)feat=products_.find(p=>p.id===s.heroP1);
-    }catch(e){}
-    if(!feat)feat=live.length?(live.find(p=>(p.badges||[]).includes("best"))||live[0]):null;
-    // ensure featured actually has a loadable image; else pick first that does
-    if(feat&&!((feat.images||[])[0]))feat=live[0]||null;
-    const others=feat?live.filter(p=>p.id!==feat.id).slice(0,2):[];
+    if(!live.length){setTimeout(build,300);return;}
+    const s=(typeof siteContent!=="undefined")?siteContent:{};
+    let feat=products_.find(p=>p.id===(s.heroP1||"DR-001"))||live.find(p=>(p.badges||[]).includes("best"))||live[0];
+    const others=live.filter(p=>p.id!==feat.id).slice(0,2);
     const main=document.getElementById("sc-main");
     const price=document.getElementById("sc-price");
     const tag=document.getElementById("sc-tag");
     const mini=document.getElementById("sc-mini");
     const spec=document.getElementById("sc-spec");
-    if(main){
-      main.onerror=function(){this.style.opacity="0.3";};
-      main.onload=function(){this.style.opacity="1";};
-      main.src=heroImgOverride;window._scId=feat?feat.id:"";
-    }
-    if(price&&feat)price.textContent=inr((typeof eff==="function")?eff(feat):(feat.offerPrice||feat.price));
-    if(tag)tag.textContent="DROP_001 \u00B7 "+(feat&&(feat.badges||[]).includes("best")?"BESTSELLER":"NEW DROP");
+    const mainSrc=s.heroImg||((feat.images||[])[0])||"";
+    if(main){main.src=mainSrc;window._scId=feat.id;}
+    if(price)price.textContent=inr((typeof eff==="function")?eff(feat):(feat.offerPrice||feat.price));
+    if(tag)tag.textContent="DROP_001 \u00B7 "+((feat.badges||[]).includes("best")?"BESTSELLER":"NEW DROP");
     if(mini){
-      const t1=heroThumb1Override;
-      const t2=heroThumb2Override;
-      mini.innerHTML=[t1,t2].filter(Boolean).map((s,i)=>{
-        const p=others[i];
-        const click=p?`onclick="openMo('${p.id}')"`:""
-        return`<img src="${s}" alt="product ${i+1}" ${click}/>`;
-      }).join("");
+      const t1=s.heroThumb1||((others[0]&&(others[0].images||[])[0])||"");
+      const t2=s.heroThumb2||((others[1]&&(others[1].images||[])[0])||"");
+      mini.innerHTML=[t1,t2].filter(Boolean).map((src,i)=>{const p=others[i];return`<img src="${src}" alt="product" ${p?`onclick="openMo('${p.id}')"`:""}/>`;}).join("");
     }
-    if(spec&&feat){
-      const fit=(feat.fit||"\u2014").toUpperCase();
-      const wash=(feat.colors&&feat.colors[0]?feat.colors[0]:"\u2014").toUpperCase();
-      const szc=(feat.sizes||[]).length;
-      spec.innerHTML=`<div>FIT <b>${fit}</b></div><div>SIZES <b>${szc}</b></div><div>WASH <b>${wash}</b></div>`;
+    if(spec){
+      spec.innerHTML=`<div>FIT <b>${(feat.fit||"\u2014").toUpperCase()}</b></div><div>SIZES <b>${(feat.sizes||[]).length}</b></div><div>WASH <b>${((feat.colors||[])[0]||"\u2014").toUpperCase()}</b></div>`;
     }
   }
   setTimeout(build,400);
