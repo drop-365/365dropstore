@@ -1435,7 +1435,13 @@ function openMo(id){
   moEl.classList.remove("modopen");
   void moEl.offsetWidth;
   moEl.classList.add("modopen");
-  setTimeout(()=>moEl.classList.remove("modopen"),600);
+  const cleanupModopen=(e)=>{
+    if(e&&e.target!==moEl)return;
+    moEl.classList.remove("modopen");
+    moEl.removeEventListener("animationend",cleanupModopen);
+  };
+  moEl.addEventListener("animationend",cleanupModopen);
+  setTimeout(cleanupModopen,650);
 }
 function openSizeChart(id){const p=products.find(x=>x.id===id);if(!p)return;const scSrc=p.sizeChartImg||globalSc;if(!scSrc)return;const d=document.createElement('div');d.style.cssText='position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.9);display:flex;align-items:center;justify-content:center;padding:20px;cursor:pointer;z-index:9999';d.onclick=()=>d.remove();d.innerHTML=`<div style="background:var(--bg2);border-radius:12px;padding:16px;max-width:700px;width:100%;max-height:90vh;overflow-y:auto"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><h3 style="font-family:var(--dsp);font-size:20px;color:var(--white)">SIZE CHART</h3><button onclick="this.closest('[style]').remove()" style="background:var(--glass);border:1px solid var(--line);color:var(--white);width:34px;height:34px;border-radius:8px;font-size:20px;cursor:pointer">×</button></div><img src="${scSrc}" style="width:100%;border-radius:8px"/></div>`;document.body.appendChild(d);}
 function toggleExp(row){row.classList.toggle("open");row.nextElementSibling.classList.toggle("open");}
@@ -1467,7 +1473,8 @@ function checkWA(){
   const gw=document.getElementById("glitchwipe");
   if(gw&&!(window.matchMedia&&window.matchMedia("(prefers-reduced-motion:reduce)").matches)){
     gw.classList.remove("run");void gw.offsetWidth;gw.classList.add("run");
-    setTimeout(()=>gw.classList.remove("run"),550);
+    const cleanup=()=>{gw.classList.remove("run");gw.removeEventListener("animationend",cleanup);};
+    gw.addEventListener("animationend",cleanup);
   }
   if(!win||typeof win.closed==="undefined"){
     showWaFallback(waUrl);
@@ -1806,7 +1813,10 @@ async function revImgUp(inp){if(!inp.files||!inp.files.length)return;let added=0
 
 
 // SCI-FI hero RGB glitch (subtle, periodic)
-(function heroGlitch(){const h=document.getElementById("hero-h1");if(!h)return;if(window.matchMedia&&window.matchMedia("(prefers-reduced-motion:reduce)").matches)return;function tick(){if(!document.hidden&&h.getBoundingClientRect().bottom>0){h.classList.add("glitch");setTimeout(()=>h.classList.remove("glitch"),430);}setTimeout(tick,5500+Math.random()*4500);}setTimeout(tick,3800);})();
+(function heroGlitch(){const h=document.getElementById("hero-h1");if(!h)return;if(window.matchMedia&&window.matchMedia("(prefers-reduced-motion:reduce)").matches)return;
+  let fallbackT=null;
+  h.addEventListener("animationend",()=>{h.classList.remove("glitch");if(fallbackT){clearTimeout(fallbackT);fallbackT=null;}});
+  function tick(){if(!document.hidden&&h.getBoundingClientRect().bottom>0){h.classList.add("glitch");fallbackT=setTimeout(()=>h.classList.remove("glitch"),450);}setTimeout(tick,5500+Math.random()*4500);}setTimeout(tick,3800);})();
 // SCI-FI boot intro runner (self-contained; gated by inline script + sessionStorage)
 (function runBoot(){const b=document.getElementById("boot");if(!b)return;const ro=document.getElementById("boot-readout");const lines=["> INITIALIZING DROP PROTOCOL","> SYNCING INVENTORY <span class='ok'>OK</span>","> SECURE CHANNEL <span class='ok'>READY</span>","> MIDDLEMEN DETECTED <span class='ok'>0</span>","> WELCOME TO THE DROP<span class='cur'> _</span>"];let i=0;function type(){if(i<lines.length&&ro){ro.innerHTML=lines.slice(0,i+1).join("\n");i++;setTimeout(type,300);}}setTimeout(type,560);let done=false;function finish(){if(done)return;done=true;try{localStorage.setItem("ds_boot_ts",String(Date.now()));}catch(e){}b.classList.add("lift");document.documentElement.style.overflow="";document.body.style.overflow="";setTimeout(()=>{if(b&&b.parentNode)b.remove();},650);}b.addEventListener("click",finish);setTimeout(finish,2050);})();
 /* ===== HERO BG: reactive constellation (cursor-aware) ===== */
@@ -2023,7 +2033,12 @@ async function uploadImageToBlob(file){
 (function(){
   if(window.matchMedia&&window.matchMedia("(prefers-reduced-motion:reduce)").matches)return;
   const s=document.getElementById("scansweep");if(!s)return;
-  setTimeout(()=>{s.classList.add("run");setTimeout(()=>s.classList.remove("run"),1700);},600);
+  setTimeout(()=>{
+    s.classList.add("run");
+    const cleanup=()=>{s.classList.remove("run");s.removeEventListener("animationend",cleanup);};
+    s.addEventListener("animationend",cleanup);
+    setTimeout(cleanup,1800);
+  },600);
 })();
 /* ===== SCI-FI FX: product card 3D tilt ===== */
 (function(){
@@ -2101,7 +2116,9 @@ async function uploadImageToBlob(file){
   window.goTo=function(sel){
     gw.classList.remove("run");void gw.offsetWidth;gw.classList.add("run");
     setTimeout(()=>{ if(_goTo)_goTo(sel); },150);
-    setTimeout(()=>gw.classList.remove("run"),550);
+    const cleanup=()=>{gw.classList.remove("run");gw.removeEventListener("animationend",cleanup);};
+    gw.addEventListener("animationend",cleanup);
+    setTimeout(cleanup,650);
   };
 })();
 /* ===== SCI-FI FX: reactive weave ripple (feeds cursor into existing weave) ===== */
@@ -2202,6 +2219,12 @@ loadPublished();
     if(currentId&&typeof openMo==="function")openMo(currentId);
   });
   let shown=false;
+  let glitchFallbackT=null;
+  bar.addEventListener("animationend",(e)=>{
+    if(e.target!==bar)return;
+    bar.classList.remove("glitch");
+    if(glitchFallbackT){clearTimeout(glitchFallbackT);glitchFallbackT=null;}
+  });
   function setShown(v){
     if(v===shown)return;
     shown=v;
@@ -2209,10 +2232,12 @@ loadPublished();
       fill();
       bar.classList.add("show");
       bar.classList.remove("glitch");
-      requestAnimationFrame(()=>bar.classList.add("glitch"));
-      setTimeout(()=>bar.classList.remove("glitch"),420);
+      requestAnimationFrame(()=>{
+        bar.classList.add("glitch");
+        glitchFallbackT=setTimeout(()=>bar.classList.remove("glitch"),450);
+      });
     }
-    else{bar.classList.remove("show","glitch");}
+    else{bar.classList.remove("show","glitch");if(glitchFallbackT){clearTimeout(glitchFallbackT);glitchFallbackT=null;}}
   }
   if(hero&&"IntersectionObserver" in window){
     const io=new IntersectionObserver(entries=>{
