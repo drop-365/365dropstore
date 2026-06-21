@@ -970,6 +970,7 @@ main,header,footer,.sec,.trust,.mq{position:relative;z-index:2}
 <div class="apbar"><h1>365 DROP STORE — ADMIN</h1><button class="btn btn-g" onclick="admOut()" style="padding:8px 16px">Sign out</button></div>
 <div class="aptabs">
   <button class="atab act" onclick="apTab('products')">Products</button>
+  <button class="atab" onclick="apTab('orders')">Orders</button>
   <button class="atab" onclick="apTab('add')">Add / Edit</button>
   <button class="atab" onclick="apTab('site')">Edit Site</button>
   <button class="atab" onclick="apTab('banner')">Live Banner</button>
@@ -988,6 +989,16 @@ main,header,footer,.sec,.trust,.mq{position:relative;z-index:2}
     </div>
     <div class="apstats" id="apstats"></div>
     <div style="overflow-x:auto"><table class="ptbl"><thead><tr><th>Photo</th><th>Name</th><th>Cat</th><th>Fit</th><th>Price</th><th>Status</th><th>Actions</th></tr></thead><tbody id="ptbd"></tbody></table></div>
+  </div>
+
+  <!-- orders tab -->
+  <div id="tab-orders" class="apsec" style="display:none">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+      <h3 style="margin:0">ORDERS <span id="ocnt" style="color:var(--off);font-size:14px;font-weight:400"></span></h3>
+      <button class="btn btn-g" onclick="rnAdmOrders()">↻ Refresh</button>
+    </div>
+    <div class="apstats" id="ordstats"></div>
+    <div id="ord-list" style="margin-top:18px"></div>
   </div>
 
   <!-- add/edit tab -->
@@ -1163,6 +1174,12 @@ https://raw.githubusercontent.com/drop-365/365dropstore/main/images/jean2.jpg" s
       </div>
       <div id="pub-msg" style="display:none;padding:10px;border-radius:9px;margin-top:12px;font-size:13px"></div>
       <p style="color:var(--off)!important;font-size:11px;line-height:1.5;margin-top:10px;opacity:.7">First time? You'll be asked for your publish token once (set in Netlify env vars). It's stored locally after.</p>
+    </div>
+    <div class="pff full" style="border:1px solid var(--line);border-radius:12px;padding:18px;margin-bottom:6px;background:var(--glass,rgba(20,19,18,.03))">
+      <label style="font-size:15px">💾 BROWSER STORAGE</label>
+      <p style="color:var(--off)!important;font-size:12px;line-height:1.55;margin:8px 0 12px">Everything (products, photos, orders, reviews) lives in this browser's storage — capped around 5MB. Past ~80% you risk failed saves on the next image upload or order.</p>
+      <div id="storage-view"></div>
+      <button class="btn btn-g" onclick="rnStorageView()" style="margin-top:10px">↻ Refresh</button>
     </div>
     <div class="pff full"><label>New Password</label><input type="password" id="st0" placeholder="Min 8 characters"/></div>
     <div class="pff full"><input type="password" id="st1" placeholder="Confirm new password"/></div>
@@ -1406,7 +1423,7 @@ function renderGrid(){
 // SHARE PRODUCT
 function shareProduct(id,name,link){
   if(navigator.share){navigator.share({title:name+' — 365 Drop Store',text:'Check out '+name+' on 365 Drop Store',url:link}).catch(()=>{});}
-  else{navigator.clipboard.writeText(link).then(()=>showToast('🔗 Link copied! Share it anywhere.'),()=>{const wa=`https://wa.me/?text=${encodeURIComponent(name+' — 365 Drop Store\n'+link)}`;window.open(wa,'_blank');});}
+  else{navigator.clipboard.writeText(link).then(()=>showCustomerToast('🔗 Link copied! Share it anywhere.'),()=>{const wa=`https://wa.me/?text=${encodeURIComponent(name+' — 365 Drop Store\n'+link)}`;window.open(wa,'_blank');});}
 }
 
 // REVIEWS
@@ -1505,7 +1522,7 @@ function showCkStep(step){
 function openCart(){showCkStep("bag");document.getElementById("cdrawer").classList.add("op");document.getElementById("cscrim").classList.add("op");}
 function closeCart(){document.getElementById("cdrawer").classList.remove("op");document.getElementById("cscrim").classList.remove("op");}
 function goToDetails(){
-  if(!cart.length){showToast("Your bag is empty — pick a fit first.");return;}
+  if(!cart.length){showCustomerToast("Your bag is empty — pick a fit first.");return;}
   showCkStep("details");
 }
 function backToBag(){showCkStep("bag");}
@@ -1541,7 +1558,7 @@ function founderCta(){
   else{
     const grid=document.getElementById("pgrid");
     if(grid)grid.scrollIntoView({behavior:"smooth",block:"start"});
-    showToast("Pick a fit, then checkout on WhatsApp →");
+    showCustomerToast("Pick a fit, then checkout on WhatsApp →");
   }
 }
 function sendOrderToWA(msg){
@@ -1560,13 +1577,13 @@ function sendOrderToWA(msg){
   }
 }
 function checkWA(){
-  if(!cart.length){showToast("Your bag is empty — pick a fit first.");return;}
+  if(!cart.length){showCustomerToast("Your bag is empty — pick a fit first.");return;}
   const lines=cart.map(i=>`• ${i.name} (${i.size}, ${i.color}) x${i.qty} — ${inr(i.price*i.qty)}\n  Product link: ${i.link||'https://365dropstore.com'}`);
   const sub=cart.reduce((s,i)=>s+i.price*i.qty,0);
   const msg=`Hi 365 Drop Store!\n\nI'd like to order:\n\n${lines.join("\n\n")}\n\nTotal: ${inr(sub)}\n\nPlease confirm availability, payment & delivery. Thanks!`;
   sendOrderToWA(msg);
 }
-function showToast(html,opts){
+function showCustomerToast(html,opts){
   opts=opts||{};
   const id=opts.id||"sitetoast";
   let n=document.getElementById(id);
@@ -1585,7 +1602,7 @@ function showToast(html,opts){
   },opts.duration||3200);
 }
 function showWaFallback(url){
-  showToast(`<span>Popup blocked — </span><a href="${url}" target="_blank" rel="noopener" style="color:#C0392B;font-weight:700;text-decoration:underline">tap here to open WhatsApp</a>`,{id:"wafallback",duration:8000});
+  showCustomerToast(`<span>Popup blocked — </span><a href="${url}" target="_blank" rel="noopener" style="color:#C0392B;font-weight:700;text-decoration:underline">tap here to open WhatsApp</a>`,{id:"wafallback",duration:8000});
 }
 function nlSub(e){e.preventDefault();const v=document.getElementById("nli").value;window.open(`https://wa.me/${WA}?text=${encodeURIComponent("Hi! Add me to 365 Drop Store early access. My number: "+v)}`,"_blank");e.target.reset();}
 
@@ -1601,7 +1618,7 @@ function chkRoute(){const h=location.hash.replace("#","");if(h===AP){document.ge
 async function admLogin(){if(locked){shAErr("Locked. Run: localStorage.removeItem('adm_lk') in console.");return;}const e=document.getElementById("age").value.trim();const pw=document.getElementById("agp").value;const h=await sha256(pw);if(e===AE&&h===AH){document.getElementById("ag").style.display="none";document.getElementById("ap").style.display="block";attCnt=0;LS.set("adm_att",0);LS.set("adm_lk",false);ldProds();apSts();rnAdmRev();loadSiteEd();loadFitsAdmin();loadBannerAdmin();loadPaletteAdmin();loadGlobalScAdmin();}else{attCnt++;LS.set("adm_att",attCnt);const left=MA-attCnt;if(left<=0){locked=true;LS.set("adm_lk",true);shAErr("Locked.");}else shAErr(`Wrong — ${left} left.`);document.getElementById("agatt").textContent=`${attCnt}/${MA}`;}}
 function shAErr(t){const e=document.getElementById("agerr");e.textContent=t;e.style.display="block";}
 function admOut(){document.getElementById("ap").style.display="none";location.hash="";document.body.style.overflow="";}
-function apTab(t){const all=["products","add","site","banner","fits","reviews","stories","settings"];all.forEach(id=>document.getElementById("tab-"+id).style.display=id===t?"block":"none");document.querySelectorAll(".atab").forEach((b,i)=>b.classList.toggle("act",all[i]===t));if(t==="products"){ldProds();apSts();}if(t==="reviews")rnAdmRev();if(t==="site")loadSiteEd();if(t==="fits")loadFitsAdmin();if(t==="settings"){loadPaletteAdmin();loadGlobalScAdmin();}if(t==="banner")loadBannerAdmin();if(t==="stories")renderStoryAdmin();}
+function apTab(t){const all=["products","orders","add","site","banner","fits","reviews","stories","settings"];all.forEach(id=>document.getElementById("tab-"+id).style.display=id===t?"block":"none");document.querySelectorAll(".atab").forEach((b,i)=>b.classList.toggle("act",all[i]===t));if(t==="products"){ldProds();apSts();}if(t==="orders")rnAdmOrders();if(t==="reviews")rnAdmRev();if(t==="site")loadSiteEd();if(t==="fits")loadFitsAdmin();if(t==="settings"){loadPaletteAdmin();loadGlobalScAdmin();rnStorageView();}if(t==="banner")loadBannerAdmin();if(t==="stories")renderStoryAdmin();}
 function apSts(){const tot=products.length,sold=products.filter(p=>p.badges&&p.badges.includes("sold")).length,cats=[...new Set(products.map(p=>p.category))].length;document.getElementById("apstats").innerHTML=`<div class="apstat"><div class="v">${tot}</div><div class="k">Total</div></div><div class="apstat"><div class="v">${tot-sold}</div><div class="k">Active</div></div><div class="apstat"><div class="v">${sold}</div><div class="k">Sold Out</div></div><div class="apstat"><div class="v">${cats}</div><div class="k">Categories</div></div>`;}
 
 function ldProds(){
@@ -1734,6 +1751,83 @@ function remFit(i){if(fits.length<=1){alert("Need at least one fit.");return;}fi
 // REVIEWS ADMIN
 function saveRev(){const n=document.getElementById("rv0").value.trim();const t=document.getElementById("rv3").value.trim();if(!n||!t)return;reviews.unshift({id:"R"+uid(),stars:Number(document.getElementById("rv2").value)||5,text:t,who:n,where:document.getElementById("rv1").value.trim()||"India"});LS.set("ds_r",reviews);renderRevs();rnAdmRev();["rv0","rv1","rv3"].forEach(id=>document.getElementById(id).value="");}
 function delRev(id){reviews=reviews.filter(r=>r.id!==id);LS.set("ds_r",reviews);renderRevs();rnAdmRev();}
+function rnStorageView(){
+  const el=document.getElementById("storage-view");if(!el)return;
+  let totalBytes=0;const rows=[];
+  const keys={"ds_p":"Products","ds_orders":"Orders","ds_r":"Reviews","ds_stories":"Story Updates","ds_cart":"Cart","ds_pal":"Palette","gsc-data":"Global Size Chart"};
+  try{
+    for(let i=0;i<localStorage.length;i++){
+      const k=localStorage.key(i);
+      const v=localStorage.getItem(k)||"";
+      const bytes=new Blob([v]).size;
+      totalBytes+=bytes;
+      if(keys[k])rows.push({label:keys[k],bytes});
+    }
+  }catch(e){el.innerHTML='<p style="color:var(--off);font-size:13px">Could not read storage.</p>';return;}
+  const capBytes=5*1024*1024;
+  const pct=Math.min(100,Math.round((totalBytes/capBytes)*100));
+  const fmtKB=(b)=>b>1024*1024?(b/(1024*1024)).toFixed(2)+" MB":(b/1024).toFixed(1)+" KB";
+  const barColor=pct>=90?"#C0392B":pct>=70?"#E67E22":"#27AE60";
+  rows.sort((a,b)=>b.bytes-a.bytes);
+  el.innerHTML=`
+    <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px">
+      <span style="font-weight:700;color:var(--white)">${fmtKB(totalBytes)} used of ~5 MB</span>
+      <span style="color:${barColor};font-weight:700;font-size:13px">${pct}%</span>
+    </div>
+    <div style="height:8px;border-radius:6px;background:var(--line2);overflow:hidden">
+      <div style="height:100%;width:${pct}%;background:${barColor};transition:width .3s"></div>
+    </div>
+    <div style="margin-top:14px;font-size:12.5px;color:var(--off)">
+      ${rows.map(r=>`<div style="display:flex;justify-content:space-between;padding:4px 0">${r.label}<span>${fmtKB(r.bytes)}</span></div>`).join("")}
+    </div>
+    ${pct>=80?'<p style="color:#C0392B;font-size:12px;margin-top:10px;font-weight:600">⚠ Getting close to the limit — consider downloading a ZIP backup and trimming old data.</p>':''}
+  `;
+  if(pct>=80&&!window._storageWarnedThisSession){
+    window._storageWarnedThisSession=true;
+    showToast("⚠ Storage at "+pct+"% — back up via ZIP soon.",false);
+  }
+}
+function rnAdmOrders(){
+  document.getElementById("ocnt").textContent=orders.length?`(${orders.length})`:"";
+  const pend=orders.filter(o=>o.status==="pending").length;
+  const conf=orders.filter(o=>o.status==="confirmed").length;
+  const fulf=orders.filter(o=>o.status==="fulfilled").length;
+  const canc=orders.filter(o=>o.status==="cancelled").length;
+  document.getElementById("ordstats").innerHTML=`<div class="apstat"><div class="v">${orders.length}</div><div class="k">Total</div></div><div class="apstat"><div class="v">${pend}</div><div class="k">Pending</div></div><div class="apstat"><div class="v">${conf}</div><div class="k">Confirmed</div></div><div class="apstat"><div class="v">${fulf}</div><div class="k">Fulfilled</div></div>`;
+  const list=document.getElementById("ord-list");
+  if(!orders.length){list.innerHTML='<p style="color:var(--off);font-size:13px">No orders yet.</p>';return;}
+  const statusColor={pending:"#C0392B",confirmed:"#2980B9",fulfilled:"#27AE60",cancelled:"#7A756E"};
+  list.innerHTML=orders.map(o=>{
+    const itemsHtml=(o.items||[]).map(i=>`${i.name} (${i.size}, ${i.color}) x${i.qty} — ${inr(i.price*i.qty)}`).join("<br>");
+    const when=new Date(o.placedAt).toLocaleString("en-IN",{day:"numeric",month:"short",hour:"numeric",minute:"2-digit"});
+    const waLink=`https://wa.me/91${o.phone}`;
+    return`<div style="border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap">
+        <div>
+          <b style="color:var(--white)">${o.orderId}</b>
+          <span style="color:var(--off);font-size:12.5px;margin-left:8px">${when}</span>
+        </div>
+        <select onchange="setOrderStatus('${o.orderId}',this.value)" style="font-size:12.5px;padding:5px 8px;border-radius:6px;border:1px solid var(--line);background:#fff;color:${statusColor[o.status]||'#141312'};font-weight:700">
+          <option value="pending" ${o.status==="pending"?"selected":""}>Pending</option>
+          <option value="confirmed" ${o.status==="confirmed"?"selected":""}>Confirmed</option>
+          <option value="fulfilled" ${o.status==="fulfilled"?"selected":""}>Fulfilled</option>
+          <option value="cancelled" ${o.status==="cancelled"?"selected":""}>Cancelled</option>
+        </select>
+      </div>
+      <div style="margin-top:10px;font-size:13.5px;color:var(--white)"><b>${o.name}</b> · <a href="${waLink}" target="_blank" rel="noopener" style="color:#2980B9">${o.phone}</a></div>
+      <div style="font-size:13px;color:var(--off);margin-top:2px">${o.addr} — ${o.pin}</div>
+      <div style="font-size:13px;color:var(--off);margin-top:8px;line-height:1.6">${itemsHtml}</div>
+      <div style="margin-top:8px;font-weight:700;color:var(--white)">Total: ${inr(o.total)}</div>
+    </div>`;
+  }).join("");
+}
+function setOrderStatus(orderId,status){
+  const o=orders.find(x=>x.orderId===orderId);if(!o)return;
+  o.status=status;
+  try{localStorage.setItem("ds_orders",JSON.stringify(orders));}catch(e){}
+  rnAdmOrders();
+  showToast("Order "+orderId+" marked "+status,true);
+}
 function rnAdmRev(){document.getElementById("rev-adm").innerHTML=reviews.length?reviews.map(r=>r.type==="img"?`<div style="display:flex;gap:12px;padding:11px 0;border-bottom:1px solid var(--line);align-items:center"><img src="${r.img}" style="width:44px;height:60px;object-fit:cover;border-radius:6px"/><div style="flex:1;color:var(--off);font-size:13px">Image review</div><button class="tb tb-del" onclick="delRev('${r.id}')">Del</button></div>`:`<div style="display:flex;gap:12px;padding:11px 0;border-bottom:1px solid var(--line);align-items:flex-start"><div style="flex:1"><b style="color:var(--white)">${r.who||""}</b> · ${r.where||""} · ${"★".repeat(r.stars||5)}<br><span style="color:var(--off);font-size:13px">"${r.text}"</span></div><button class="tb tb-del" onclick="delRev('${r.id}')">Del</button></div>`).join(""):'<p style="color:var(--off);font-size:13px">No reviews yet.</p>';}
 
 // SETTINGS
