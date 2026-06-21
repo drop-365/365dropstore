@@ -187,8 +187,17 @@ header{position:sticky;top:0;z-index:100;background:rgba(20,19,18,.95);backdrop-
 /* product card actions overlay */
 .pactions{position:absolute;left:0;right:0;bottom:0;z-index:3;display:flex;gap:1px;transform:translateY(100%);transition:.28s var(--ease)}
 .pcard:hover .pactions{transform:translateY(0)}
-.patc{flex:1;background:#141312;color:#F8F7F4;font-size:13px;font-weight:700;padding:13px 8px;text-align:center;cursor:pointer;transition:.15s}
+.patc{flex:1;background:#141312;color:#F8F7F4;font-size:13px;font-weight:700;padding:13px 8px;text-align:center;cursor:pointer;transition:.15s;position:relative;overflow:hidden}
 .patc:hover{background:#2A2826}
+@keyframes atbGlitch{
+  0%,100%{clip-path:inset(0 0 0 0);transform:translate(0,0)}
+  20%{clip-path:inset(20% 0 60% 0);transform:translate(-2px,0)}
+  40%{clip-path:inset(60% 0 10% 0);transform:translate(2px,0)}
+  60%{clip-path:inset(10% 0 70% 0);transform:translate(-1px,0)}
+  80%{clip-path:inset(70% 0 5% 0);transform:translate(1px,0)}
+}
+.patc::after{content:attr(data-label);position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--red2);mix-blend-mode:screen;opacity:0;pointer-events:none}
+.patc:hover::after{opacity:.7;animation:atbGlitch .35s steps(2) 1}
 .pshare{width:44px;background:#EDECE8;border-left:1px solid rgba(0,0,0,.06);color:#7A756E;display:grid;place-content:center;font-size:16px;cursor:pointer;transition:.15s}
 .pshare:hover{background:var(--bg4);color:var(--white)}
 .pcard.so .pactions{display:none}
@@ -203,6 +212,17 @@ header{position:sticky;top:0;z-index:100;background:rgba(20,19,18,.95);backdrop-
 .psizes{display:flex;gap:4px;margin-top:7px;flex-wrap:wrap}
 .sz{font-size:10px;border:1px solid var(--line);padding:3px 6px;color:var(--off);border-radius:4px}
 .sz.oos{color:#333;border-color:#222;text-decoration:line-through}
+.plowstock{font-size:11px;font-weight:700;color:var(--red);margin-top:5px;display:flex;align-items:center;gap:4px}
+.plowstock::before{content:"●";font-size:8px;animation:lowPulse 1.4s ease-in-out infinite}
+@keyframes lowPulse{0%,100%{opacity:1}50%{opacity:.25}}
+#stickybuy{position:fixed;left:0;right:0;bottom:0;z-index:60;background:var(--white);color:var(--bg);display:flex;align-items:center;gap:14px;padding:12px 20px;transform:translateY(110%);transition:transform .32s var(--ease);box-shadow:0 -8px 24px rgba(0,0,0,.18)}
+#stickybuy.show{transform:translateY(0)}
+#stickybuy img{width:42px;height:54px;object-fit:cover;border-radius:6px;flex-shrink:0}
+#stickybuy .sb-info{flex:1;min-width:0}
+#stickybuy .sb-name{font-size:13px;font-weight:700;color:var(--bg);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#stickybuy .sb-price{font-size:12px;color:var(--mid)}
+#stickybuy .sb-btn{background:var(--red);color:#fff;font-size:13px;font-weight:700;padding:11px 20px;border-radius:8px;cursor:pointer;white-space:nowrap;flex-shrink:0;border:none}
+@media (max-width:640px){#stickybuy{padding:10px 14px;gap:10px}#stickybuy .sb-name{font-size:12px}#stickybuy .sb-btn{padding:10px 14px;font-size:12px}}
 .rl-btn{position:absolute;top:10px;right:10px;z-index:2;background:rgba(15,15,15,.7);border:1px solid var(--line);color:var(--w2);font-size:11px;font-weight:600;padding:6px 11px;border-radius:7px;display:none;cursor:pointer;letter-spacing:.04em}
 .pcard:hover .rl-btn{display:flex;align-items:center;gap:4px}
 .np{grid-column:1/-1;text-align:center;color:var(--off);padding:50px 0}
@@ -1314,6 +1334,8 @@ function renderGrid(){
     const bgs=(p.badges||[]).filter(b=>BM[b]).map(b=>`<span class="bdg ${BM[b].c}">${BM[b].t}</span>`).join("");
     const pr=p.offerPrice?`<span class="pnow">${inr(p.offerPrice)}</span><span class="pwas">${inr(p.price)}</span><span class="psave">-${Math.round((1-p.offerPrice/p.price)*100)}%</span>`:`<span class="pnow">${inr(p.price)}</span>`;
     const szs=(p.sizes||[]).slice(0,5).map(s=>`<span class="sz${(p.oosizes||[]).includes(s)?' oos':''}">${s}</span>`).join("");
+    const liveCount=(p.sizes||[]).filter(s=>!(p.oosizes||[]).includes(s)).length;
+    const lowStock=!isSold(p)&&liveCount>0&&liveCount<=2?`<div class="plowstock">Only ${liveCount} size${liveCount>1?'s':''} left</div>`:'';
     const rbl=p.reelUrl?`<div class="rl-btn" onclick="event.stopPropagation();window.open('${p.reelUrl}','_blank')">▶ Reel</div>`:'';
     const plink=`https://365dropstore.com/#product-${p.id}`;
     return`<div class="pcard${isSold(p)?' so':''}" onclick="openMo('${p.id}')">
@@ -1323,11 +1345,11 @@ function renderGrid(){
         <img class="pback" src="${img2}" alt="${p.name}" loading="lazy"/>
         ${rbl}
         ${!isSold(p)?`<div class="pactions">
-          <div class="patc" onclick="event.stopPropagation();openMo('${p.id}')">Add to Bag</div>
+          <div class="patc" data-label="Add to Bag" onclick="event.stopPropagation();openMo('${p.id}')">Add to Bag</div>
           <div class="pshare" onclick="event.stopPropagation();shareProduct('${p.id}','${p.name.replace(/'/g,"\\'")}','${plink}')" title="Share">🔗</div>
         </div>`:''}
       </div>
-      <div class="pmeta"><div class="pname">${p.name}</div><div class="pfit">${p.fit||''} · ${p.category}</div><div class="pprices">${pr}</div><div class="psizes">${szs}</div></div>
+      <div class="pmeta"><div class="pname">${p.name}</div><div class="pfit">${p.fit||''} · ${p.category}</div><div class="pprices">${pr}</div><div class="psizes">${szs}</div>${lowStock}</div>
     </div>`;
   }).join(""):`<div class="np">No products match your filters.</div>`;}
 
@@ -2047,5 +2069,53 @@ async function uploadImageToBlob(file){
 })();
 buildFilterUI();populateFitSelect();setCat("All");renderGrid();renderCart();renderRevs();applyPalette();
 loadPublished();
+</script>
+<div id="stickybuy">
+  <img id="sb-img" alt=""/>
+  <div class="sb-info"><div class="sb-name" id="sb-name"></div><div class="sb-price" id="sb-price"></div></div>
+  <button class="sb-btn" id="sb-btn">🛒 Buy Now</button>
+</div>
+<script>
+(function(){
+  const bar=document.getElementById("stickybuy");
+  const hero=document.getElementById("hero");
+  if(!bar)return;
+  let currentId="";
+  function pickFeatured(){
+    const products_=typeof products!=="undefined"?products:[];
+    if(!products_.length)return null;
+    const live=products_.filter(p=>(p.images||[]).length&&!(p.badges&&p.badges.includes("sold")));
+    if(!live.length)return null;
+    const s=(typeof siteContent!=="undefined")?siteContent:{};
+    return products_.find(p=>p.id===(s.heroP1||"DR-001")&&(p.images||[]).length&&!(p.badges&&p.badges.includes("sold")))||live.find(p=>(p.badges||[]).includes("best"))||live[0];
+  }
+  function fill(){
+    const p=pickFeatured();if(!p)return;
+    currentId=p.id;
+    const img=document.getElementById("sb-img");
+    const name=document.getElementById("sb-name");
+    const price=document.getElementById("sb-price");
+    if(img)img.src=(p.images||[])[0]||"";
+    if(name)name.textContent=p.name||"";
+    if(price&&typeof inr==="function"&&typeof eff==="function")price.textContent=inr(eff(p));
+  }
+  document.getElementById("sb-btn").addEventListener("click",function(){
+    if(currentId&&typeof openMo==="function")openMo(currentId);
+  });
+  let lastShow=null;
+  function onScroll(){
+    if(!hero)return;
+    const heroBottom=hero.getBoundingClientRect().bottom;
+    const shouldShow=heroBottom<0;
+    if(shouldShow!==lastShow){
+      lastShow=shouldShow;
+      if(shouldShow){fill();bar.classList.add("show");}
+      else{bar.classList.remove("show");}
+    }
+  }
+  window.addEventListener("scroll",onScroll,{passive:true});
+  setTimeout(onScroll,500);
+  window.rebuildStickyBuy=fill;
+})();
 </script>
 </body></html>
