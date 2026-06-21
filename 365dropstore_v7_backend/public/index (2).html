@@ -115,7 +115,11 @@ header{position:sticky;top:0;z-index:100;background:rgba(20,19,18,.95);backdrop-
 .scframe{position:absolute;inset:-16px;border:1px solid var(--glow,#C0392B);border-radius:20px;opacity:.45;z-index:-1}
 .scframe2{position:absolute;inset:-30px;border:1px solid var(--line);border-radius:24px;z-index:-2}
 .sctag{position:absolute;left:-18px;top:26px;background:#141312;color:#F8F7F4;font-family:var(--mono,monospace);font-size:11px;letter-spacing:.07em;padding:8px 14px;border-radius:9px;z-index:4}
-.scprice{position:absolute;right:-16px;bottom:32px;background:var(--glow,#C0392B);color:#fff;font-family:var(--dsp);font-size:30px;padding:7px 17px;border-radius:11px;z-index:4;letter-spacing:.04em;box-shadow:0 14px 30px -10px rgba(192,57,43,.5)}
+.scprice{position:absolute;right:-16px;bottom:32px;background:var(--glow,#C0392B);color:#fff;font-family:var(--dsp);font-size:30px;padding:7px 17px;border-radius:11px;z-index:4;letter-spacing:.04em;box-shadow:0 14px 30px -10px rgba(192,57,43,.5);transition:.25s cubic-bezier(.16,1,.3,1)}
+.scprice.clickable{cursor:pointer}
+.scprice.clickable:hover{transform:scale(1.06) translateY(-2px)}
+.scbuy{position:absolute;left:18px;bottom:18px;z-index:4;background:#141312;color:#F8F7F4;font-family:var(--bod),sans-serif;font-weight:700;font-size:13px;padding:11px 18px;border-radius:30px;display:flex;align-items:center;gap:6px;cursor:pointer;box-shadow:0 14px 30px -10px rgba(20,19,18,.5);transition:.25s cubic-bezier(.16,1,.3,1)}
+.scbuy:hover{transform:translateY(-3px) scale(1.04)}
 .scmini{position:absolute;right:-44px;top:30%;display:flex;flex-direction:column;gap:12px;z-index:5}
 .scmini img{width:74px;height:94px;object-fit:cover;border-radius:9px;border:2px solid var(--bg);box-shadow:0 14px 28px -12px rgba(20,19,18,.45);cursor:pointer;transition:.25s cubic-bezier(.16,1,.3,1)}
 .scmini img:hover{transform:scale(1.1) translateX(-8px)}
@@ -569,6 +573,8 @@ main,header,footer,.sec,.trust,.mq{position:relative;z-index:2}
 .sv-cap{position:absolute;bottom:0;left:0;right:0;padding:40px 18px 24px;background:linear-gradient(0deg,rgba(0,0,0,.75),transparent);color:#fff;font-size:14px;font-family:var(--ui);line-height:1.45;z-index:7}
 .sv-tap{position:absolute;top:0;bottom:0;width:34%;z-index:6}
 .sv-tap.left{left:0}.sv-tap.right{right:0}
+.sv-buy{position:absolute;left:16px;right:16px;bottom:22px;z-index:9;display:flex;align-items:center;justify-content:center;gap:8px;background:#fff;color:#141312;font-family:var(--bod),sans-serif;font-weight:700;font-size:14px;padding:14px;border-radius:11px;cursor:pointer;box-shadow:0 14px 30px -10px rgba(0,0,0,.5);transition:.2s cubic-bezier(.16,1,.3,1)}
+.sv-buy:active{transform:scale(.97)}
 
 /* ===== EDITORIAL/STORY GALLERY STRIP ===== */
 .gstrip{position:absolute;bottom:10px;left:10px;right:10px;display:flex;gap:7px;z-index:3;overflow-x:auto;scrollbar-width:none}
@@ -767,6 +773,7 @@ main,header,footer,.sec,.trust,.mq{position:relative;z-index:2}
       <div class="scan"></div>
       <div class="sctag" id="sc-tag">DROP_001 · BESTSELLER</div>
       <div class="scprice" id="sc-price">—</div>
+      <div class="scbuy" id="sc-buy" style="display:none" onclick="if(window._scId)openMo(window._scId)">🛒 Buy Now</div>
       <div class="scmini" id="sc-mini"></div>
       <div class="spec" id="sc-spec"></div>
     </div>
@@ -878,6 +885,7 @@ main,header,footer,.sec,.trust,.mq{position:relative;z-index:2}
     <div class="sv-head"><img id="sv-av" src="" alt=""/><div><div class="sv-name" id="sv-name">365 Drop Store</div><div class="sv-date" id="sv-date"></div></div><button class="sv-close" onclick="svClose()">×</button></div>
     <img class="sv-img" id="sv-img" src="" alt=""/>
     <div class="sv-cap" id="sv-cap"></div>
+    <div class="sv-buy" id="sv-buy" style="display:none" onclick="svBuyNow(event)">🛒 Buy Now</div>
     <div class="sv-tap left" onclick="svNav(-1)"></div>
     <div class="sv-tap right" onclick="svNav(1)"></div>
   </div>
@@ -907,13 +915,21 @@ main,header,footer,.sec,.trust,.mq{position:relative;z-index:2}
 
   <!-- products tab -->
   <div id="tab-products" class="apsec">
-    <h3>ALL PRODUCTS <span id="pcnt" style="color:var(--off);font-size:14px;font-weight:400"></span></h3>
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+      <h3 style="margin:0">ALL PRODUCTS <span id="pcnt" style="color:var(--off);font-size:14px;font-weight:400"></span></h3>
+      <button class="btn btn-w" onclick="resetF();apTab('add')">+ Add New Product</button>
+    </div>
     <div class="apstats" id="apstats"></div>
     <div style="overflow-x:auto"><table class="ptbl"><thead><tr><th>Photo</th><th>Name</th><th>Cat</th><th>Fit</th><th>Price</th><th>Status</th><th>Actions</th></tr></thead><tbody id="ptbd"></tbody></table></div>
   </div>
 
   <!-- add/edit tab -->
-  <div id="tab-add" class="apsec" style="display:none"><h3 id="add-title">ADD NEW PRODUCT</h3><div class="pfgrid">
+  <div id="tab-add" class="apsec" style="display:none">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+      <h3 id="add-title" style="margin:0">ADD NEW PRODUCT</h3>
+      <button class="btn btn-g" onclick="resetF()" style="padding:8px 16px;font-size:13px">+ New / Clear Form</button>
+    </div>
+    <div class="pfgrid">
     <div class="pff"><label>Product Name *</label><input type="text" id="pf0" placeholder="e.g. Faded Wide-Leg Jeans"/></div>
     <div class="pff"><label>Category *</label><select id="pf1"><option>Jeans</option><option>T-Shirts</option></select></div>
     <div class="pff"><label>Fit *</label><select id="pf-fit"></select></div>
@@ -928,7 +944,7 @@ main,header,footer,.sec,.trust,.mq{position:relative;z-index:2}
     <div class="pff"><label>Instagram Reel Link</label><input type="url" id="pf-reel" placeholder="https://instagram.com/reel/..."/></div>
     <div class="pff full">
       <label>Product Images * (up to 5 — first = main card image)</label>
-      <input type="file" id="pf9" accept="image/*" multiple onchange="handleImgs(this)"/>
+      <input type="file" id="pf9" accept="image/*,.heic,.heif" multiple onchange="handleImgs(this)"/>
       <small>Upload from phone/computer, OR paste image links below (one per line). First image = product card thumbnail.</small>
       <textarea id="pf-imgurls" rows="3" placeholder="Paste image links — one per line:
 https://raw.githubusercontent.com/drop-365/365dropstore/main/images/jean1.jpg
@@ -940,7 +956,7 @@ https://raw.githubusercontent.com/drop-365/365dropstore/main/images/jean2.jpg" s
     </div>
     <div class="pff full">
       <label>Size Chart Image (upload your measurement guide)</label>
-      <input type="file" id="pf-sc" accept="image/*" onchange="scImgUpload(this)"/>
+      <input type="file" id="pf-sc" accept="image/*,.heic,.heif" onchange="scImgUpload(this)"/>
       <small>Upload a size chart image — shown in product modal as a popup. Recommended: table screenshot or measurement diagram.</small>
       <div id="sc-prv" style="margin-top:8px"></div>
       <input type="hidden" id="pf-scimg"/>
@@ -973,13 +989,13 @@ https://raw.githubusercontent.com/drop-365/365dropstore/main/images/jean2.jpg" s
     </div>
     <div class="pff full" style="padding-bottom:14px;border-bottom:1px solid var(--line)">
       <label>EDITORIAL GALLERY — multiple photos (day-to-day life)</label>
-      <input type="file" accept="image/*" multiple onchange="galleryUp('ed',this)"/>
+      <input type="file" accept="image/*,.heic,.heif" multiple onchange="galleryUp('ed',this)"/>
       <small>Upload one or many. First photo is the main banner; the rest show as a thumbnail strip. Click any on the live site to zoom full-screen.</small>
       <div class="gmgr" id="ed-gmgr"></div>
     </div>
     <div class="pff full" style="padding-bottom:14px;border-bottom:1px solid var(--line)">
       <label>STORY GALLERY — multiple photos (day-to-day life)</label>
-      <input type="file" accept="image/*" multiple onchange="galleryUp('st',this)"/>
+      <input type="file" accept="image/*,.heic,.heif" multiple onchange="galleryUp('st',this)"/>
       <small>Upload one or many. First photo is the main image; the rest show as a thumbnail strip. Click any on the live site to zoom full-screen.</small>
       <div class="gmgr" id="st-gmgr"></div>
     </div>
@@ -1043,7 +1059,7 @@ https://raw.githubusercontent.com/drop-365/365dropstore/main/images/jean2.jpg" s
   </div>
 
   <!-- reviews tab -->
-  <div id="tab-reviews" class="apsec" style="display:none"><h3>REVIEWS</h3><div class="pfgrid"><div class="pff"><label>Customer Name</label><input type="text" id="rv0" placeholder="Aryan M."/></div><div class="pff"><label>City</label><input type="text" id="rv1" placeholder="Delhi"/></div><div class="pff"><label>Stars (1–5)</label><input type="number" id="rv2" min="1" max="5" value="5"/></div><div class="pff full"><label>Review Text</label><textarea id="rv3" rows="3" placeholder="What they said…"></textarea></div><div class="pff full"><button class="btn btn-w" onclick="saveRev()">Add Text Review</button></div><div class="pff full" style="border-top:1px solid var(--line);padding-top:16px;margin-top:6px"><label>OR ADD IMAGE REVIEWS — buyer screenshots (Insta story / WhatsApp chat)</label><input type="file" accept="image/*" multiple onchange="revImgUp(this)"/><small>Upload buyer screenshots. Each becomes a tap-to-zoom card in the reviews grid. Multiple allowed.</small></div></div><div style="margin-top:22px" id="rev-adm"></div></div>
+  <div id="tab-reviews" class="apsec" style="display:none"><h3>REVIEWS</h3><div class="pfgrid"><div class="pff"><label>Customer Name</label><input type="text" id="rv0" placeholder="Aryan M."/></div><div class="pff"><label>City</label><input type="text" id="rv1" placeholder="Delhi"/></div><div class="pff"><label>Stars (1–5)</label><input type="number" id="rv2" min="1" max="5" value="5"/></div><div class="pff full"><label>Review Text</label><textarea id="rv3" rows="3" placeholder="What they said…"></textarea></div><div class="pff full"><button class="btn btn-w" onclick="saveRev()">Add Text Review</button></div><div class="pff full" style="border-top:1px solid var(--line);padding-top:16px;margin-top:6px"><label>OR ADD IMAGE REVIEWS — buyer screenshots (Insta story / WhatsApp chat)</label><input type="file" accept="image/*,.heic,.heif" multiple onchange="revImgUp(this)"/><small>Upload buyer screenshots. Each becomes a tap-to-zoom card in the reviews grid. Multiple allowed.</small></div></div><div style="margin-top:22px" id="rev-adm"></div></div>
 
   <!-- story updates tab -->
   <div id="tab-stories" class="apsec" style="display:none"><h3>STORY UPDATES</h3>
@@ -1051,7 +1067,8 @@ https://raw.githubusercontent.com/drop-365/365dropstore/main/images/jean2.jpg" s
     <div class="pfgrid">
       <div class="pff"><label>Story Label (under the circle)</label><input type="text" id="sty-label" placeholder="New Drop"/></div>
       <div class="pff"><label>Caption (shown over the story)</label><input type="text" id="sty-cap" placeholder="Drop 002 live now — DM to cop"/></div>
-      <div class="pff full"><label>Story Image (portrait 9:16 works best)</label><input type="file" accept="image/*" onchange="styUp(this)"/><small>Auto-compressed for fast load.</small><div id="sty-prv" style="margin-top:8px"></div><input type="hidden" id="sty-imgdata"/></div>
+      <div class="pff full"><label>Story Image (portrait 9:16 works best)</label><input type="file" accept="image/*,.heic,.heif" onchange="styUp(this)"/><small>Auto-compressed for fast load.</small><div id="sty-prv" style="margin-top:8px"></div><input type="hidden" id="sty-imgdata"/></div>
+      <div class="pff full"><label>Link to a Product (optional — shows a Buy Now button on the story)</label><select id="sty-product"><option value="">— None —</option></select></div>
       <div class="pff full"><button class="btn btn-w" onclick="saveStory()">Add Story</button></div>
       <div id="sty-msg" class="pff full" style="display:none;padding:10px;border-radius:9px"></div>
     </div>
@@ -1105,7 +1122,7 @@ https://raw.githubusercontent.com/drop-365/365dropstore/main/images/jean2.jpg" s
     <div class="pff full" style="border-top:1px solid var(--line);padding-top:18px;margin-top:8px">
       <label>📏 DEFAULT SIZE CHART</label>
       <p style="color:var(--off)!important;font-size:12px;line-height:1.55;margin:8px 0 10px">Upload a default size chart image. This shows on any product that doesn't have its own size chart uploaded.</p>
-      <input type="file" accept="image/*" onchange="globalScUpload(this)" style="margin-bottom:8px"/>
+      <input type="file" accept="image/*,.heic,.heif" onchange="globalScUpload(this)" style="margin-bottom:8px"/>
       <div id="gsc-prv" style="margin-top:4px"></div>
       <input type="hidden" id="gsc-data"/>
       <button class="btn btn-w" onclick="saveGlobalSc()" style="margin-top:10px">Save Size Chart</button>
@@ -1419,12 +1436,19 @@ function delP(id){if(!confirm("Delete? Cannot be undone."))return;products=produ
 function editP(id){const p=products.find(x=>x.id===id);if(!p)return;editId=id;document.getElementById("pf0").value=p.name;document.getElementById("pf1").value=p.category;populateFitSelect();document.getElementById("pf-fit").value=p.fit||"Baggy";document.getElementById("pf2").value=p.price;document.getElementById("pf3").value=p.offerPrice||"";document.getElementById("pf4").value=p.desc;document.getElementById("pf-desc2").value=p.desc2||"";document.getElementById("pf5").value=(p.sizes||[]).join("|");document.getElementById("pf6").value=(p.colors||[]).join("|");document.getElementById("pf7").value=(p.badges||[]).filter(b=>b!=="sold")[0]||"";document.getElementById("pf8").value=p.order||1;document.getElementById("pf-reel").value=p.reelUrl||"";pendingImgs=[...(p.images||[])];renderThumbs();if(p.sizeChartImg){document.getElementById("pf-scimg").value=p.sizeChartImg;document.getElementById("sc-prv").innerHTML=`<img src="${p.sizeChartImg}" style="width:120px;border-radius:7px"/>`;}document.getElementById("add-title").textContent="EDIT PRODUCT";apTab("add");}
 function resetF(){editId=null;["pf0","pf2","pf3","pf4","pf-desc2","pf5","pf6","pf-reel","pf-scimg","pf-imgurls"].forEach(id=>{const e=document.getElementById(id);if(e)e.value=""});document.getElementById("pf7").value="new";document.getElementById("pf8").value=1;pendingImgs=[];renderThumbs();document.getElementById("sc-prv").innerHTML="";document.getElementById("add-title").textContent="ADD NEW PRODUCT";const m=document.getElementById("pf-msg");if(m)m.style.display="none";}
 let pendingImgs=[];
-function handleImgs(inp){const files=[...inp.files].slice(0,5-pendingImgs.length);files.forEach(async f=>{if(pendingImgs.length>=5)return;
-  // Always use compressed base64 - reliable, works offline and online
-  if(false){
-  }
-  // Local/offline: original base64 behavior
-  const rd=new FileReader();rd.onload=e=>{pendingImgs.push(e.target.result);renderThumbs();};rd.readAsDataURL(f);
+function handleImgs(inp){const files=[...inp.files].slice(0,5-pendingImgs.length);files.forEach(f=>{if(pendingImgs.length>=5)return;
+  const slot=pendingImgs.length;pendingImgs.push("__uploading__");renderThumbs();
+  (async()=>{
+    try{
+      const bf=await toBrowserFile(f);
+      const d=await compressImg(bf,1600,0.85);
+      pendingImgs[slot]=d;
+    }catch(e){
+      pendingImgs[slot]="__error__";
+      shPMsg("Couldn't read \""+(f.name||"that image")+"\" — try saving it as JPEG/PNG first.","#c0392b");
+    }
+    renderThumbs();
+  })();
 });inp.value="";}
 function addImgUrls(){
   const ta=document.getElementById("pf-imgurls");if(!ta)return;
@@ -1443,16 +1467,23 @@ function addImgUrls(){
   if(bad)msg+=" · "+bad+" skipped (not a valid link)";
   shPMsg(msg,added?"#4ade80":"#c0392b");
 }
-function renderThumbs(){document.getElementById("ithumbs").innerHTML=pendingImgs.map((s,i)=>s==="__uploading__"?`<div class="ithm" style="display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--off)">↑…</div>`:`<div class="ithm${i===0?' main-tag':''}"><img src="${s}"/><button class="irm" onclick="rmPI(${i})">×</button></div>`).join("");}
+function renderThumbs(){document.getElementById("ithumbs").innerHTML=pendingImgs.map((s,i)=>{
+  if(s==="__uploading__")return `<div class="ithm" style="display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--off)">↑…</div>`;
+  if(s==="__error__")return `<div class="ithm" style="display:flex;align-items:center;justify-content:center;font-size:16px;color:#c0392b">✗<button class="irm" onclick="rmPI(${i})">×</button></div>`;
+  return `<div class="ithm${i===0?' main-tag':''}"><img src="${s}"/><button class="irm" onclick="rmPI(${i})">×</button></div>`;
+}).join("");}
 function rmPI(i){pendingImgs.splice(i,1);renderThumbs();}
-function scImgUpload(inp){if(!inp.files||!inp.files[0])return;const rd=new FileReader();rd.onload=e=>{document.getElementById("pf-scimg").value=e.target.result;document.getElementById("sc-prv").innerHTML=`<img src="${e.target.result}" style="width:120px;border-radius:7px;margin-top:8px"/>`;};rd.readAsDataURL(inp.files[0]);}
+async function scImgUpload(inp){if(!inp.files||!inp.files[0])return;const f=inp.files[0];try{const bf=await toBrowserFile(f);const d=await compressImg(bf,1400,0.85);document.getElementById("pf-scimg").value=d;document.getElementById("sc-prv").innerHTML=`<img src="${d}" style="width:120px;border-radius:7px;margin-top:8px"/>`;}catch(e){shPMsg("Couldn't read that size chart image — try JPEG/PNG.","#c0392b");}}
 function saveProd(){
   const name=document.getElementById("pf0").value.trim();const price=Number(document.getElementById("pf2").value);
   if(!name||!price){shPMsg("Fill in Name & Price.","#c0392b");return;}
-  if(!pendingImgs.length){shPMsg("Upload at least one image.","#c0392b");return;}
+  if(pendingImgs.includes("__uploading__")){shPMsg("Still processing your photos — wait a second and hit Save again.","#c0392b");return;}
+  const cleanImgs=pendingImgs.filter(s=>s&&s!=="__error__");
+  if(!cleanImgs.length){shPMsg("Upload at least one image.","#c0392b");return;}
   const offer=document.getElementById("pf3").value?Number(document.getElementById("pf3").value):null;
   const badge=document.getElementById("pf7").value;
-  const prod={id:editId||("P-"+uid()),name,category:document.getElementById("pf1").value,fit:document.getElementById("pf-fit").value,price,offerPrice:offer,images:[...pendingImgs],sizeChartImg:document.getElementById("pf-scimg").value||"",badges:badge?[badge]:[],sizes:document.getElementById("pf5").value.split("|").map(s=>s.trim()).filter(Boolean),colors:document.getElementById("pf6").value.split("|").map(c=>c.trim()).filter(Boolean)||["As shown"],desc:document.getElementById("pf4").value.trim(),desc2:document.getElementById("pf-desc2").value.trim(),shippingInfo:"Delivery in 3-5 working days · Free shipping all over India · Only damaged or defective items can be returned · Unboxing video required for all return claims · Size exchange available for ₹200 fee · Item must be returned in original condition · Check size before ordering",reelUrl:document.getElementById("pf-reel").value.trim(),features:[],order:Number(document.getElementById("pf8").value)||99,addedAt:editId?(products.find(p=>p.id===editId)||{}).addedAt||Date.now():Date.now()};
+  const prod={id:editId||("P-"+uid()),name,category:document.getElementById("pf1").value,fit:document.getElementById("pf-fit").value,price,offerPrice:offer,images:[...cleanImgs],sizeChartImg:document.getElementById("pf-scimg").value||"",badges:badge?[badge]:[],sizes:document.getElementById("pf5").value.split("|").map(s=>s.trim()).filter(Boolean),colors:document.getElementById("pf6").value.split("|").map(c=>c.trim()).filter(Boolean)||["As shown"],desc:document.getElementById("pf4").value.trim(),desc2:document.getElementById("pf-desc2").value.trim(),shippingInfo:"Delivery in 3-5 working days · Free shipping all over India · Only damaged or defective items can be returned · Unboxing video required for all return claims · Size exchange available for ₹200 fee · Item must be returned in original condition · Check size before ordering",reelUrl:document.getElementById("pf-reel").value.trim(),features:[],order:Number(document.getElementById("pf8").value)||99,addedAt:editId?(products.find(p=>p.id===editId)||{}).addedAt||Date.now():Date.now()};
+  const wasEdit=!!editId;
   if(editId)products=products.map(p=>p.id===editId?prod:p);else products.unshift(prod);
   LS.set("ds_p",products);renderGrid();renderHeroShowcase();
   // Marquee
@@ -1469,8 +1500,10 @@ function saveProd(){
     const insta=s.insta||DSite.insta;const fb=s.fb||DSite.fb;
     const socDiv=footEl.querySelector(".fsoc");
     if(socDiv)socDiv.innerHTML='<a class="fsoca" href="'+insta+'" target="_blank">📸</a><a class="fsoca" href="https://wa.me/919990905969" target="_blank">✆</a><a class="fsoca" href="'+fb+'" target="_blank">f</a>';
-  }shPMsg(editId?"Updated ✓":"Product added ✓","#4ade80");
-  setTimeout(()=>{resetF();apTab("products");},1000);
+  }
+  const okMsg=wasEdit?"Updated ✓ — saved to this device.":"Product added ✓ — saved to this device.";
+  shPMsg(okMsg,"#4ade80");showToast(okMsg+" Don't forget to hit Publish to Live in Settings.",true);
+  setTimeout(()=>{resetF();apTab("products");},1800);
 }
 function shPMsg(t,c){const m=document.getElementById("pf-msg");m.textContent=t;m.style.color=c;m.style.background=c.includes("4a")?"rgba(74,222,128,.08)":"rgba(192,57,43,.08)";m.style.display="block";}
 
@@ -1482,12 +1515,12 @@ function togOOS(pid,size){const p=products.find(x=>x.id===pid);if(!p)return;if(!
 // SITE EDITOR
 function populateFitSelect(){const sel=document.getElementById("pf-fit");if(!sel)return;sel.innerHTML=fits.map(f=>`<option value="${f}">${f}</option>`).join("");}
 function loadSiteEd(){const s=siteContent;const sv=(id,v)=>{const el=document.getElementById(id);if(el)el.value=v||"";};sv("site-ann",s.ann);sv("site-hero-h1",s.heroH1);sv("site-hero-sub",s.heroSub);sv("site-ed-h2",s.edH2);sv("site-ed-p",s.edP);sv("site-story-h2",s.storyH2);sv("site-story-p1",s.storyP1);sv("site-story-p2",s.storyP2);sv("site-trust",s.trust);sv("site-shipping",s.shipping);sv("site-marquee",s.marquee);sv("site-stats",s.stats);sv("site-phone",s.phone);sv("site-email",s.email);sv("site-address",s.address);sv("site-insta",s.insta);sv("site-fb",s.fb);sv("site-hero-img",s.heroImg);sv("site-hero-thumb1",s.heroThumb1);sv("site-hero-thumb2",s.heroThumb2);if(s.edImg&&!(s.edImgs&&s.edImgs.length))s.edImgs=[s.edImg];if(s.stImg&&!(s.stImgs&&s.stImgs.length))s.stImgs=[s.stImg];renderGmgr("ed");renderGmgr("st");}
-function siteImgUp(k,inp){if(!inp.files||!inp.files[0])return;const rd=new FileReader();rd.onload=e=>{document.getElementById('site-'+k+'-imgdata').value=e.target.result;document.getElementById('site-'+k+'-prv').innerHTML=`<img src="${e.target.result}" style="width:110px;border-radius:7px"/>`;};rd.readAsDataURL(inp.files[0]);}
-function saveSite(){const _edI=siteContent.edImgs||[];const _stI=siteContent.stImgs||[];const _edS=siteContent.edImg||"";const _stS=siteContent.stImg||"";const g=id=>{const el=document.getElementById(id);return el?el.value:"";};siteContent={ann:g("site-ann"),heroH1:g("site-hero-h1"),heroSub:g("site-hero-sub"),trust:g("site-trust"),edH2:g("site-ed-h2"),edP:g("site-ed-p"),edImgs:_edI,stImgs:_stI,edImg:_edS,stImg:_stS,storyH2:g("site-story-h2"),storyP1:g("site-story-p1"),storyP2:g("site-story-p2"),shipping:g("site-shipping"),marquee:g("site-marquee"),stats:g("site-stats"),phone:g("site-phone"),email:g("site-email"),address:g("site-address"),insta:g("site-insta"),fb:g("site-fb"),heroImg:g("site-hero-img"),heroThumb1:g("site-hero-thumb1"),heroThumb2:g("site-hero-thumb2")};lsSafeSet("ds_site",siteContent);applySiteContent();const m=document.getElementById("site-msg");if(m){m.textContent="Saved ✓";m.style.color="#4ade80";m.style.background="rgba(74,222,128,.08)";m.style.display="block";setTimeout(()=>m.style.display="none",2000);}}
+async function siteImgUp(k,inp){if(!inp.files||!inp.files[0])return;try{const bf=await toBrowserFile(inp.files[0]);const d=await compressImg(bf,1600,0.85);document.getElementById('site-'+k+'-imgdata').value=d;document.getElementById('site-'+k+'-prv').innerHTML=`<img src="${d}" style="width:110px;border-radius:7px"/>`;}catch(e){alert("Couldn't read that image — try a JPEG/PNG.");}}
+function saveSite(){const _edI=siteContent.edImgs||[];const _stI=siteContent.stImgs||[];const _edS=siteContent.edImg||"";const _stS=siteContent.stImg||"";const g=id=>{const el=document.getElementById(id);return el?el.value:"";};siteContent={ann:g("site-ann"),heroH1:g("site-hero-h1"),heroSub:g("site-hero-sub"),trust:g("site-trust"),edH2:g("site-ed-h2"),edP:g("site-ed-p"),edImgs:_edI,stImgs:_stI,edImg:_edS,stImg:_stS,storyH2:g("site-story-h2"),storyP1:g("site-story-p1"),storyP2:g("site-story-p2"),shipping:g("site-shipping"),marquee:g("site-marquee"),stats:g("site-stats"),phone:g("site-phone"),email:g("site-email"),address:g("site-address"),insta:g("site-insta"),fb:g("site-fb"),heroImg:g("site-hero-img"),heroThumb1:g("site-hero-thumb1"),heroThumb2:g("site-hero-thumb2")};lsSafeSet("ds_site",siteContent);applySiteContent();const m=document.getElementById("site-msg");if(m){m.textContent="Saved ✓";m.style.color="#4ade80";m.style.background="rgba(74,222,128,.08)";m.style.display="block";setTimeout(()=>m.style.display="none",2000);}showToast("Site content saved ✓ — hit Publish to Live to push it.",true);}
 
 // BANNER ADMIN
 function loadBannerAdmin(){document.getElementById("ban-text").value=banner.text||"";document.getElementById("ban-show").checked=banner.show||false;}
-function saveBanner(){banner={text:document.getElementById("ban-text").value,show:document.getElementById("ban-show").checked};LS.set("ds_ban",banner);applyBanner();const m=document.getElementById("ban-msg");m.textContent="Banner saved ✓";m.style.color="#4ade80";m.style.background="rgba(74,222,128,.08)";m.style.display="block";setTimeout(()=>m.style.display="none",2000);}
+function saveBanner(){banner={text:document.getElementById("ban-text").value,show:document.getElementById("ban-show").checked};LS.set("ds_ban",banner);applyBanner();const m=document.getElementById("ban-msg");m.textContent="Banner saved ✓";m.style.color="#4ade80";m.style.background="rgba(74,222,128,.08)";m.style.display="block";setTimeout(()=>m.style.display="none",2000);showToast("Banner saved ✓",true);}
 
 // FITS MANAGER
 function loadFitsAdmin(){renderFitsList();}
@@ -1569,7 +1602,7 @@ function resetPalette(){palette={...DPAL};LS.set('ds_pal',palette);applyPalette(
 
 // GLOBAL SIZE CHART
 let globalSc=LS.get('ds_gsc','');
-function globalScUpload(inp){if(!inp.files||!inp.files[0])return;const rd=new FileReader();rd.onload=e=>{document.getElementById('gsc-data').value=e.target.result;document.getElementById('gsc-prv').innerHTML='<img src="'+e.target.result+'" style="width:160px;border-radius:8px;border:1px solid rgba(255,255,255,.1)"/>';};rd.readAsDataURL(inp.files[0]);}
+async function globalScUpload(inp){if(!inp.files||!inp.files[0])return;try{const bf=await toBrowserFile(inp.files[0]);const d=await compressImg(bf,1400,0.85);document.getElementById('gsc-data').value=d;document.getElementById('gsc-prv').innerHTML='<img src="'+d+'" style="width:160px;border-radius:8px;border:1px solid rgba(255,255,255,.1)"/>';}catch(e){alert("Couldn't read that image — try a JPEG/PNG.");}}
 function saveGlobalSc(){const v=document.getElementById('gsc-data').value;if(v)globalSc=v;LS.set('ds_gsc',globalSc);const m=document.getElementById('gsc-msg');m.textContent='Size chart saved ✓';m.style.color='#4ade80';m.style.background='rgba(74,222,128,.08)';m.style.display='block';setTimeout(()=>m.style.display='none',2500);}
 function loadGlobalScAdmin(){if(globalSc){document.getElementById('gsc-data').value=globalSc;document.getElementById('gsc-prv').innerHTML='<img src="'+globalSc+'" style="width:160px;border-radius:8px;border:1px solid rgba(255,255,255,.1)"/>';}}
 
@@ -1581,6 +1614,42 @@ function openGlobalSizeGuide(){if(!globalSc){alert('Size guide is available on e
 
 // ===== IMAGE COMPRESSION =====
 function compressImg(file,maxDim,q){maxDim=maxDim||1600;q=q||0.82;return new Promise((res,rej)=>{const rd=new FileReader();rd.onload=e=>{const img=new Image();img.onload=()=>{let{width:w,height:h}=img;if(w>maxDim||h>maxDim){if(w>h){h=Math.round(h*maxDim/w);w=maxDim;}else{w=Math.round(w*maxDim/h);h=maxDim;}}const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);try{res(c.toDataURL('image/jpeg',q));}catch(err){res(e.target.result);}};img.onerror=()=>res(e.target.result);img.src=e.target.result;};rd.onerror=rej;rd.readAsDataURL(file);});}
+// ===== HEIC/HEIF support: most browsers (Chrome, Firefox, Android) cannot decode HEIC files from an iPhone.
+// We lazy-load a small conversion library only when a HEIC/HEIF file is actually picked, convert it to a
+// normal JPEG blob, then hand it to compressImg() like any other photo. PNG/JPEG/WEBP files skip this entirely.
+let _heicLibPromise=null;
+function loadHeicLib(){
+  if(window.heic2any)return Promise.resolve();
+  if(_heicLibPromise)return _heicLibPromise;
+  _heicLibPromise=new Promise((res,rej)=>{
+    const s=document.createElement('script');
+    s.src='https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js';
+    s.onload=()=>res();s.onerror=()=>rej(new Error('heic2any failed to load'));
+    document.head.appendChild(s);
+  });
+  return _heicLibPromise;
+}
+function isHeicFile(f){if(!f)return false;const n=(f.name||'').toLowerCase();const t=(f.type||'').toLowerCase();return t==='image/heic'||t==='image/heif'||n.endsWith('.heic')||n.endsWith('.heif');}
+// Returns a browser-renderable image File. If it's already PNG/JPEG/WEBP/etc, returns it untouched.
+// If it's HEIC/HEIF (iPhone default photo format), converts it to JPEG first.
+async function toBrowserFile(f){
+  if(!isHeicFile(f))return f;
+  await loadHeicLib();
+  const out=await window.heic2any({blob:f,toType:'image/jpeg',quality:0.85});
+  const blob=Array.isArray(out)?out[0]:out;
+  return new File([blob],(f.name||'image').replace(/\.(heic|heif)$/i,'.jpg'),{type:'image/jpeg'});
+}
+// Lightweight toast — stacks in the top-right corner and self-dismisses. Used so confirmations
+// (saved/published/failed) stay visible even if the admin panel switches tabs right after.
+function showToast(msg,ok){
+  let host=document.getElementById('ds-toast-host');
+  if(!host){host=document.createElement('div');host.id='ds-toast-host';host.style.cssText='position:fixed;top:18px;right:18px;z-index:99999;display:flex;flex-direction:column;gap:10px;pointer-events:none;max-width:90vw';document.body.appendChild(host);}
+  const t=document.createElement('div');
+  t.style.cssText='pointer-events:auto;min-width:220px;max-width:340px;padding:13px 16px;border-radius:10px;font-family:var(--bod,sans-serif);font-size:13px;font-weight:600;line-height:1.4;box-shadow:0 14px 30px -10px rgba(0,0,0,.45);transition:opacity .35s,transform .35s;opacity:0;transform:translateY(-8px)'+(ok?';background:#1e3b2a;color:#4ade80;border:1px solid rgba(74,222,128,.35)':';background:#3a1f1d;color:#ff8a7a;border:1px solid rgba(192,57,43,.4)');
+  t.textContent=msg;host.appendChild(t);
+  requestAnimationFrame(()=>{t.style.opacity='1';t.style.transform='none';});
+  setTimeout(()=>{t.style.opacity='0';t.style.transform='translateY(-8px)';setTimeout(()=>t.remove(),400);},3400);
+}
 function lsSafeSet(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true;}catch(e){alert("⚠ Storage limit reached. This browser caps saved data (~5MB). Remove some images or download your ZIP, then continue. Newest change was NOT saved.");return false;}}
 
 // ===== UNIVERSAL LIGHTBOX (Amazon-style zoom/pan) =====
@@ -1608,7 +1677,7 @@ function lbClose(){document.getElementById('lb').classList.remove('op');document
 })();
 
 // ===== EDITORIAL / STORY GALLERIES =====
-async function galleryUp(k,inp){if(!inp.files||!inp.files.length)return;const key=k==='ed'?'edImgs':'stImgs';if(!Array.isArray(siteContent[key]))siteContent[key]=[];for(const f of inp.files){const d=await compressImg(f,1600,0.82);siteContent[key].push(d);}lsSafeSet('ds_site',siteContent);renderGmgr(k);applySiteContent();inp.value='';}
+async function galleryUp(k,inp){if(!inp.files||!inp.files.length)return;const key=k==='ed'?'edImgs':'stImgs';if(!Array.isArray(siteContent[key]))siteContent[key]=[];for(const f of inp.files){try{const bf=await toBrowserFile(f);const d=await compressImg(bf,1600,0.82);siteContent[key].push(d);}catch(e){showToast("Skipped \""+(f.name||"an image")+"\" — couldn't read it.",false);}}lsSafeSet('ds_site',siteContent);renderGmgr(k);applySiteContent();inp.value='';}
 function renderGmgr(k){const key=k==='ed'?'edImgs':'stImgs';const el=document.getElementById(k+'-gmgr');if(!el)return;const arr=siteContent[key]||[];el.innerHTML=arr.map((s,i)=>`<div class="gmgr-item"><img src="${s}"/><button class="gmgr-rm" onclick="rmGalleryImg('${k}',${i})">×</button></div>`).join('')||'<span style="color:var(--off);font-size:12px">No photos yet — uploads appear here. If empty, the default image is used.</span>';}
 function rmGalleryImg(k,i){const key=k==='ed'?'edImgs':'stImgs';siteContent[key].splice(i,1);lsSafeSet('ds_site',siteContent);renderGmgr(k);applySiteContent();}
 
@@ -1617,18 +1686,21 @@ function renderStoriesRail(){const w=document.getElementById('srail-wrap');const
 let _sv={i:0,timer:null};
 function openStoryViewer(i){if(!stories.length)return;_sv.i=i;document.getElementById('sviewer').classList.add('op');document.body.style.overflow='hidden';svRender();}
 function svRender(){const s=stories[_sv.i];if(!s){svClose();return;}document.getElementById('sv-img').src=s.img;document.getElementById('sv-cap').textContent=s.caption||'';document.getElementById('sv-cap').style.display=s.caption?'block':'none';document.getElementById('sv-date').textContent=s.date||'';const av=document.getElementById('sv-av');av.src=(typeof LOGO_SRC!=='undefined'&&LOGO_SRC)?LOGO_SRC:s.img;
+  const buyEl=document.getElementById('sv-buy');if(buyEl){const hasProd=s.productId&&typeof products!=='undefined'&&products.find(p=>p.id===s.productId);buyEl.style.display=hasProd?'flex':'none';}
   const bars=document.getElementById('sv-bars');bars.innerHTML=stories.map((_,j)=>`<div class="sv-bar${j<_sv.i?' done':''}" id="svb${j}"><div class="sv-bar-fill"></div></div>`).join('');
   clearTimeout(_sv.timer);const fill=document.querySelector(`#svb${_sv.i} .sv-bar-fill`);if(fill){fill.style.transition='none';fill.style.width='0';requestAnimationFrame(()=>{fill.style.transition='width 5s linear';fill.style.width='100%';});}
   _sv.timer=setTimeout(()=>svNav(1),5000);}
+function svBuyNow(e){if(e)e.stopPropagation();const s=stories[_sv.i];if(!s||!s.productId)return;const pid=s.productId;svClose();openMo(pid);}
 function svNav(d){clearTimeout(_sv.timer);const n=stories.length;const ni=_sv.i+d;if(ni<0){_sv.i=0;svRender();return;}if(ni>=n){svClose();return;}_sv.i=ni;svRender();}
 function svClose(){clearTimeout(_sv.timer);document.getElementById('sviewer').classList.remove('op');document.body.style.overflow='';}
-async function styUp(inp){if(!inp.files||!inp.files[0])return;const d=await compressImg(inp.files[0],1400,0.8);document.getElementById('sty-imgdata').value=d;document.getElementById('sty-prv').innerHTML=`<img src="${d}" style="width:90px;border-radius:8px"/>`;}
-function saveStory(){const img=document.getElementById('sty-imgdata').value;if(!img){alert('Upload a story image first.');return;}const label=document.getElementById('sty-label').value.trim()||'Update';const cap=document.getElementById('sty-cap').value.trim();const date=new Date().toLocaleDateString('en-IN',{day:'numeric',month:'short'});stories.unshift({id:'S'+uid(),img,label,caption:cap,date});if(!lsSafeSet('ds_stories',stories)){stories.shift();return;}document.getElementById('sty-imgdata').value='';document.getElementById('sty-prv').innerHTML='';document.getElementById('sty-label').value='';document.getElementById('sty-cap').value='';renderStoryAdmin();renderStoriesRail();const m=document.getElementById('sty-msg');m.textContent='Story added ✓';m.style.color='#4ade80';m.style.background='rgba(74,222,128,.08)';m.style.display='block';setTimeout(()=>m.style.display='none',2000);}
+async function styUp(inp){if(!inp.files||!inp.files[0])return;try{const bf=await toBrowserFile(inp.files[0]);const d=await compressImg(bf,1400,0.8);document.getElementById('sty-imgdata').value=d;document.getElementById('sty-prv').innerHTML=`<img src="${d}" style="width:90px;border-radius:8px"/>`;}catch(e){alert("Couldn't read that image — try a JPEG/PNG.");}}
+function saveStory(){const img=document.getElementById('sty-imgdata').value;if(!img){alert('Upload a story image first.');return;}const label=document.getElementById('sty-label').value.trim()||'Update';const cap=document.getElementById('sty-cap').value.trim();const prodSel=document.getElementById('sty-product');const productId=prodSel?prodSel.value:'';const date=new Date().toLocaleDateString('en-IN',{day:'numeric',month:'short'});stories.unshift({id:'S'+uid(),img,label,caption:cap,productId,date});if(!lsSafeSet('ds_stories',stories)){stories.shift();return;}document.getElementById('sty-imgdata').value='';document.getElementById('sty-prv').innerHTML='';document.getElementById('sty-label').value='';document.getElementById('sty-cap').value='';if(prodSel)prodSel.value='';renderStoryAdmin();renderStoriesRail();const m=document.getElementById('sty-msg');m.textContent='Story added ✓';m.style.color='#4ade80';m.style.background='rgba(74,222,128,.08)';m.style.display='block';setTimeout(()=>m.style.display='none',2000);showToast(productId?'Story added ✓ — linked to a product Buy Now button.':'Story added ✓',true);}
 function delStory(id){stories=stories.filter(s=>s.id!==id);lsSafeSet('ds_stories',stories);renderStoryAdmin();renderStoriesRail();}
-function renderStoryAdmin(){const el=document.getElementById('sty-adm');if(!el)return;el.innerHTML=stories.length?stories.map(s=>`<div style="display:flex;gap:12px;padding:11px 0;border-bottom:1px solid var(--line);align-items:center"><img src="${s.img}" style="width:46px;height:62px;object-fit:cover;border-radius:6px"/><div style="flex:1"><div style="color:var(--w2);font-weight:600;font-size:14px">${(s.label||'').replace(/</g,'&lt;')}</div><div style="color:var(--off);font-size:12px">${(s.caption||'').replace(/</g,'&lt;')} · ${s.date||''}</div></div><button class="btn btn-g" style="padding:6px 12px" onclick="delStory('${s.id}')">Delete</button></div>`).join(''):'<p style="color:var(--off);font-size:13px">No stories yet.</p>';}
+function populateStoryProductSelect(){const sel=document.getElementById('sty-product');if(!sel)return;const cur=sel.value;sel.innerHTML='<option value="">— None —</option>'+products.map(p=>`<option value="${p.id}">${(p.name||'').replace(/</g,'&lt;')}</option>`).join('');sel.value=cur;}
+function renderStoryAdmin(){populateStoryProductSelect();const el=document.getElementById('sty-adm');if(!el)return;el.innerHTML=stories.length?stories.map(s=>`<div style="display:flex;gap:12px;padding:11px 0;border-bottom:1px solid var(--line);align-items:center"><img src="${s.img}" style="width:46px;height:62px;object-fit:cover;border-radius:6px"/><div style="flex:1"><div style="color:var(--w2);font-weight:600;font-size:14px">${(s.label||'').replace(/</g,'&lt;')}</div><div style="color:var(--off);font-size:12px">${(s.caption||'').replace(/</g,'&lt;')} · ${s.date||''}${s.productId?' · 🛒 linked':''}</div></div><button class="btn btn-g" style="padding:6px 12px" onclick="delStory('${s.id}')">Delete</button></div>`).join(''):'<p style="color:var(--off);font-size:13px">No stories yet.</p>';}
 
 // ===== IMAGE REVIEWS =====
-async function revImgUp(inp){if(!inp.files||!inp.files.length)return;for(const f of inp.files){const d=await compressImg(f,1400,0.82);reviews.unshift({id:'R'+uid(),type:'img',img:d});}if(!lsSafeSet('ds_r',reviews))return;renderRevs();rnAdmRev();inp.value='';alert('✓ Image review(s) added.');}
+async function revImgUp(inp){if(!inp.files||!inp.files.length)return;let added=0;for(const f of inp.files){try{const bf=await toBrowserFile(f);const d=await compressImg(bf,1400,0.82);reviews.unshift({id:'R'+uid(),type:'img',img:d});added++;}catch(e){}}if(!added){showToast("Couldn't read those images — try JPEG/PNG.",false);return;}if(!lsSafeSet('ds_r',reviews))return;renderRevs();rnAdmRev();inp.value='';showToast('✓ '+added+' image review(s) added.',true);}
 
 
 // SCI-FI hero RGB glitch (subtle, periodic)
@@ -1729,11 +1801,22 @@ async function publishLive(){
   const btn=document.getElementById("pub-btn");if(btn){btn.disabled=true;btn.textContent="Publishing…";}
   let token=getToken(false);
   if(!token){pubMsg("Publish cancelled — no token entered.",false);if(btn){btn.disabled=false;btn.textContent="🚀 Publish to Live";}return;}
+  const payload=JSON.stringify(buildState());
+  const sizeMB=(payload.length/1024/1024).toFixed(2);
+  if(payload.length>5.5*1024*1024){
+    pubMsg("⚠ Your data is "+sizeMB+"MB — most hosting functions reject requests over ~6MB. This is almost always too many/too-large product or story photos saved as base64. Remove a few images (or re-upload smaller ones) and try again.",false);
+    if(btn){btn.disabled=false;btn.textContent="🚀 Publish to Live";}
+    return;
+  }
   try{
-    const r=await fetch(API.publish,{method:"POST",headers:{"content-type":"application/json","authorization":"Bearer "+token},body:JSON.stringify(buildState())});
+    const r=await fetch(API.publish,{method:"POST",headers:{"content-type":"application/json","authorization":"Bearer "+token},body:payload});
     if(r.status===401){localStorage.removeItem("ds_pub_token");pubMsg("Wrong token. Click Publish again to re-enter.",false);}
-    else if(r.ok){const j=await r.json();pubMsg("✅ Published! Live for everyone now. ("+new Date(j.publishedAt).toLocaleTimeString()+")",true);sessionStorage.removeItem("ds_preview");}
-    else{const j=await r.json().catch(()=>({}));pubMsg("Publish failed: "+(j.error||r.status),false);}
+    else if(r.ok){const j=await r.json();pubMsg("✅ Published! Live for everyone now. ("+new Date(j.publishedAt).toLocaleTimeString()+")",true);showToast("✅ Published — live for everyone now.",true);sessionStorage.removeItem("ds_preview");}
+    else{const j=await r.json().catch(()=>({}));
+      let hint=j.error||r.status;
+      if(r.status===400)hint+=" — usually means the payload ("+sizeMB+"MB) is too large or malformed for the publish function. Try removing a couple of product images and publish again.";
+      pubMsg("Publish failed: "+hint,false);showToast("Publish failed ("+r.status+"). See Settings for details.",false);
+    }
   }catch(e){pubMsg("Network error while publishing. Try again.",false);}
   if(btn){btn.disabled=false;btn.textContent="🚀 Publish to Live";}
 }
@@ -1908,12 +1991,22 @@ async function uploadImageToBlob(file){
         main.onclick=function(){if(window._scId)openMo(window._scId);};main.style.cursor="pointer";window._scId=feat?feat.id:"";
       }
     }
+    const priceEl=document.getElementById("sc-price");
+    const buyEl=document.getElementById("sc-buy");
+    if(priceEl){
+      if(s.heroImg){priceEl.classList.remove("clickable");priceEl.onclick=null;}
+      else{priceEl.classList.add("clickable");priceEl.onclick=function(){if(window._scId)openMo(window._scId);};}
+    }
+    if(buyEl)buyEl.style.display=(!s.heroImg&&window._scId)?"flex":"none";
     if(price)price.textContent=inr((typeof eff==="function")?eff(feat):(feat.offerPrice||feat.price));
     if(tag)tag.textContent="DROP_001 \u00B7 "+((feat.badges||[]).includes("best")?"BESTSELLER":"NEW DROP");
     if(mini){
       const t1=s.heroThumb1||((others[0]&&(others[0].images||[])[0])||"");
       const t2=s.heroThumb2||((others[1]&&(others[1].images||[])[0])||"");
-      mini.innerHTML=[t1,t2].filter(Boolean).map((src,i)=>{return`<img src="${src}" alt="product ${i+1}" onclick="document.getElementById('sc-main').src='${src}'" style="cursor:pointer"/>`;}).join("");
+      const pid1=(!s.heroThumb1&&others[0])?others[0].id:"";
+      const pid2=(!s.heroThumb2&&others[1])?others[1].id:"";
+      const items=[[t1,pid1],[t2,pid2]].filter(x=>x[0]);
+      mini.innerHTML=items.map(([src,pid],i)=>{return`<img src="${src}" alt="product ${i+1}" data-pid="${pid}" onclick="scMiniClick(this)" style="cursor:pointer"/>`;}).join("");
     }
     if(spec){
       spec.innerHTML=`<div>FIT <b>${(feat.fit||"\u2014").toUpperCase()}</b></div><div>SIZES <b>${(feat.sizes||[]).length}</b></div><div>WASH <b>${((feat.colors||[])[0]||"\u2014").toUpperCase()}</b></div>`;
@@ -1921,6 +2014,13 @@ async function uploadImageToBlob(file){
   }
   setTimeout(build,400);
   window.rebuildHeroShowcase=build;
+  window.scMiniClick=function(el){
+    const src=el.getAttribute('src');const main=document.getElementById('sc-main');if(main)main.src=src;
+    const pid=el.getAttribute('data-pid');
+    const buyEl=document.getElementById('sc-buy');
+    if(pid){window._scId=pid;if(buyEl)buyEl.style.display='flex';}
+    else{if(buyEl)buyEl.style.display='none';}
+  };
   const grid=document.getElementById("pgrid");
   if(grid&&"MutationObserver" in window){new MutationObserver(()=>setTimeout(build,80)).observe(grid,{childList:true});}
 })();
