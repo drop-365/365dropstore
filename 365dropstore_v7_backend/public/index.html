@@ -201,7 +201,9 @@ header{position:sticky;top:0;z-index:100;background:rgba(20,19,18,.95);backdrop-
 .pshare{width:44px;background:#EDECE8;border-left:1px solid rgba(0,0,0,.06);color:#7A756E;display:grid;place-content:center;font-size:16px;cursor:pointer;transition:.15s}
 .pshare:hover{background:var(--bg4);color:var(--white)}
 .pcard.so .pactions{display:none}
-.pcard.so{opacity:.55}
+.pcard.so{opacity:.55;cursor:default}
+.prestock{font-size:11px;font-weight:700;color:var(--off);margin-top:5px;letter-spacing:.02em}
+.prestock b{color:var(--white)}
 .pmeta{padding:12px 12px 14px}
 .pname{font-size:14px;font-weight:600;margin-bottom:3px;line-height:1.3;color:var(--white)}
 .pfit{font-size:11px;color:var(--off);margin-bottom:7px}
@@ -1336,9 +1338,11 @@ function renderGrid(){
     const szs=(p.sizes||[]).slice(0,5).map(s=>`<span class="sz${(p.oosizes||[]).includes(s)?' oos':''}">${s}</span>`).join("");
     const liveCount=(p.sizes||[]).filter(s=>!(p.oosizes||[]).includes(s)).length;
     const lowStock=!isSold(p)&&liveCount>0&&liveCount<=2?`<div class="plowstock">Only ${liveCount} size${liveCount>1?'s':''} left</div>`:'';
+    const restockNote=isSold(p)&&p.restockAt?`<div class="prestock" data-restock="${p.restockAt}" data-pid="${p.id}">Back in —</div>`:'';
     const rbl=p.reelUrl?`<div class="rl-btn" onclick="event.stopPropagation();window.open('${p.reelUrl}','_blank')">▶ Reel</div>`:'';
     const plink=`https://365dropstore.com/#product-${p.id}`;
-    return`<div class="pcard${isSold(p)?' so':''}" onclick="openMo('${p.id}')">
+    const cardClick=isSold(p)?'':` onclick="openMo('${p.id}')"`;
+    return`<div class="pcard${isSold(p)?' so':''}"${cardClick}>
       <div class="pimg">
         <div class="pbadges">${bgs}</div>
         <img class="pfront" src="${img1}" alt="${p.name}" loading="lazy"/>
@@ -1349,7 +1353,7 @@ function renderGrid(){
           <div class="pshare" onclick="event.stopPropagation();shareProduct('${p.id}','${p.name.replace(/'/g,"\\'")}','${plink}')" title="Share">🔗</div>
         </div>`:''}
       </div>
-      <div class="pmeta"><div class="pname">${p.name}</div><div class="pfit">${p.fit||''} · ${p.category}</div><div class="pprices">${pr}</div><div class="psizes">${szs}</div>${lowStock}</div>
+      <div class="pmeta"><div class="pname">${p.name}</div><div class="pfit">${p.fit||''} · ${p.category}</div><div class="pprices">${pr}</div><div class="psizes">${szs}</div>${lowStock}${restockNote}</div>
     </div>`;
   }).join(""):`<div class="np">No products match your filters.</div>`;}
 
@@ -1461,9 +1465,9 @@ function apSts(){const tot=products.length,sold=products.filter(p=>p.badges&&p.b
 
 function ldProds(){
   document.getElementById("pcnt").textContent=`(${products.length})`;
-  document.getElementById("ptbd").innerHTML=products.map(p=>{const sold=p.badges&&p.badges.includes("sold");return`<tr><td><img src="${(p.images||[])[0]||''}" alt="${p.name}"/></td><td><b style="color:var(--white)">${p.name}</b></td><td>${p.category}</td><td>${p.fit||''}</td><td>${p.offerPrice?`<b style="color:var(--white)">${inr(p.offerPrice)}</b> <s style="color:var(--off);font-size:11px">${inr(p.price)}</s>`:inr(p.price)}</td><td><span class="bdg ${sold?'b-so':'b-new'}">${sold?'Sold Out':'Active'}</span></td><td><div class="tba"><button class="tb" onclick="editP('${p.id}')">Edit</button><button class="tb" onclick="manageSizes('${p.id}')" style="color:#a0d060;border-color:rgba(160,208,96,.3)">Sizes</button><button class="tb tb-sold" onclick="togSold('${p.id}')">${sold?'Restock':'Mark Sold'}</button><button class="tb tb-del" onclick="delP('${p.id}')">Delete</button></div></td></tr>`;}).join("");
+  document.getElementById("ptbd").innerHTML=products.map(p=>{const sold=p.badges&&p.badges.includes("sold");return`<tr><td><img src="${(p.images||[])[0]||''}" alt="${p.name}"/></td><td><b style="color:var(--white)">${p.name}</b></td><td>${p.category}</td><td>${p.fit||''}</td><td>${p.offerPrice?`<b style="color:var(--white)">${inr(p.offerPrice)}</b> <s style="color:var(--off);font-size:11px">${inr(p.price)}</s>`:inr(p.price)}</td><td><span class="bdg ${sold?'b-so':'b-new'}">${sold?'Sold Out':'Active'}</span></td><td><div class="tba"><button class="tb" onclick="editP('${p.id}')">Edit</button><button class="tb" onclick="manageSizes('${p.id}')" style="color:#a0d060;border-color:rgba(160,208,96,.3)">Sizes</button><button class="tb tb-sold" onclick="togSold('${p.id}')">${sold?'Restock':'Mark Sold'}</button>${sold?`<button class="tb" onclick="setRestockDate('${p.id}')" style="color:#7ab0e0;border-color:rgba(122,176,224,.3)">Restock Date</button>`:''}<button class="tb tb-del" onclick="delP('${p.id}')">Delete</button></div></td></tr>`;}).join("");
 }
-function togSold(id){const p=products.find(x=>x.id===id);if(!p)return;if(!p.badges)p.badges=[];if(p.badges.includes("sold"))p.badges=p.badges.filter(b=>b!=="sold");else p.badges.push("sold");LS.set("ds_p",products);renderGrid();ldProds();apSts();}
+function togSold(id){const p=products.find(x=>x.id===id);if(!p)return;if(!p.badges)p.badges=[];if(p.badges.includes("sold")){p.badges=p.badges.filter(b=>b!=="sold");p.restockAt='';}else p.badges.push("sold");LS.set("ds_p",products);renderGrid();ldProds();apSts();}
 function delP(id){if(!confirm("Delete? Cannot be undone."))return;products=products.filter(p=>p.id!==id);LS.set("ds_p",products);renderGrid();ldProds();apSts();}
 function editP(id){const p=products.find(x=>x.id===id);if(!p)return;editId=id;document.getElementById("pf0").value=p.name;document.getElementById("pf1").value=p.category;populateFitSelect();document.getElementById("pf-fit").value=p.fit||"Baggy";document.getElementById("pf2").value=p.price;document.getElementById("pf3").value=p.offerPrice||"";document.getElementById("pf4").value=p.desc;document.getElementById("pf-desc2").value=p.desc2||"";document.getElementById("pf5").value=(p.sizes||[]).join("|");document.getElementById("pf6").value=(p.colors||[]).join("|");document.getElementById("pf7").value=(p.badges||[]).filter(b=>b!=="sold")[0]||"";document.getElementById("pf8").value=p.order||1;document.getElementById("pf-reel").value=p.reelUrl||"";pendingImgs=[...(p.images||[])];renderThumbs();if(p.sizeChartImg){document.getElementById("pf-scimg").value=p.sizeChartImg;document.getElementById("sc-prv").innerHTML=`<img src="${p.sizeChartImg}" style="width:120px;border-radius:7px"/>`;}document.getElementById("add-title").textContent="EDIT PRODUCT";apTab("add");}
 function resetF(){editId=null;["pf0","pf2","pf3","pf4","pf-desc2","pf5","pf6","pf-reel","pf-scimg","pf-imgurls"].forEach(id=>{const e=document.getElementById(id);if(e)e.value=""});document.getElementById("pf7").value="new";document.getElementById("pf8").value=1;pendingImgs=[];renderThumbs();document.getElementById("sc-prv").innerHTML="";document.getElementById("add-title").textContent="ADD NEW PRODUCT";const m=document.getElementById("pf-msg");if(m)m.style.display="none";}
@@ -1541,6 +1545,31 @@ function shPMsg(t,c){const m=document.getElementById("pf-msg");m.textContent=t;m
 
 // SIZE MANAGEMENT
 function manageSizes(id){const p=products.find(x=>x.id===id);if(!p)return;if(!p.oosizes)p.oosizes=[];const d=document.createElement('div');d.style.cssText='position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;padding:18px';d.onclick=e=>{if(e.target===d)d.remove();};d.innerHTML='<div style="background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:28px;max-width:460px;width:100%"><h3 style="font-family:var(--dsp);font-size:21px;margin-bottom:5px;color:var(--white)">SIZE AVAILABILITY</h3><p style="color:var(--off);font-size:13px;margin-bottom:18px">'+p.name+'</p><div id="sztog" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px"></div><button class="btn btn-w" onclick="this.closest(\'div[style]\').remove()" style="width:100%;justify-content:center">Done</button></div>';document.body.appendChild(d);renderSzTog(id);}
+function setRestockDate(id){
+  const p=products.find(x=>x.id===id);if(!p)return;
+  const d=document.createElement('div');
+  d.style.cssText='position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;padding:18px';
+  d.onclick=e=>{if(e.target===d)d.remove();};
+  let curVal='';
+  if(p.restockAt){try{const dt=new Date(p.restockAt);if(!isNaN(dt))curVal=new Date(dt.getTime()-dt.getTimezoneOffset()*60000).toISOString().slice(0,16);}catch(e){}}
+  d.innerHTML='<div style="background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:28px;max-width:440px;width:100%">'
+    +'<h3 style="font-family:var(--dsp);font-size:21px;margin-bottom:5px;color:var(--white)">RESTOCK DATE</h3>'
+    +'<p style="color:var(--off);font-size:13px;margin-bottom:18px">'+p.name+'</p>'
+    +'<input type="datetime-local" id="rsd-input" value="'+curVal+'" style="width:100%;background:var(--bg3);border:1px solid var(--line);border-radius:9px;padding:12px;color:var(--white);font-size:14px;margin-bottom:8px"/>'
+    +'<small style="color:var(--off);display:block;margin-bottom:18px">Shows a "Back in X" countdown on the sold-out card. Leave blank to remove the countdown.</small>'
+    +'<div style="display:flex;gap:10px">'
+    +'<button class="btn btn-g" id="rsd-clear" style="flex:1;justify-content:center">Clear</button>'
+    +'<button class="btn btn-w" id="rsd-save" style="flex:1;justify-content:center">Save</button>'
+    +'</div></div>';
+  document.body.appendChild(d);
+  document.getElementById('rsd-clear').onclick=function(){p.restockAt='';LS.set("ds_p",products);ldProds();if(typeof renderGrid==="function")renderGrid();if(typeof window.rebuildRestockCountdowns==="function")setTimeout(window.rebuildRestockCountdowns,80);d.remove();};
+  document.getElementById('rsd-save').onclick=function(){
+    const raw=document.getElementById('rsd-input').value;
+    if(raw){const dt=new Date(raw);if(!isNaN(dt))p.restockAt=dt.toISOString();}
+    else{p.restockAt='';}
+    LS.set("ds_p",products);ldProds();if(typeof renderGrid==="function")renderGrid();if(typeof window.rebuildRestockCountdowns==="function")setTimeout(window.rebuildRestockCountdowns,80);d.remove();
+  };
+}
 function renderSzTog(id){const p=products.find(x=>x.id===id);const c=document.getElementById('sztog');if(!c||!p)return;c.innerHTML=(p.sizes||[]).map(s=>{const oos=(p.oosizes||[]).includes(s);return'<button onclick="togOOS(\''+id+'\',\''+s+'\')" style="padding:12px 20px;border-radius:9px;font-size:14px;font-weight:700;cursor:pointer;border:2px solid '+(oos?'#c0392b':'#4ade80')+';background:'+(oos?'rgba(192,57,43,.1)':'rgba(74,222,128,.07)')+';color:'+(oos?'#c0392b':'#4ade80')+'">'+s+' '+(oos?'✗':'✓')+'</button>';}).join('');}
 function togOOS(pid,size){const p=products.find(x=>x.id===pid);if(!p)return;if(!p.oosizes)p.oosizes=[];if(p.oosizes.includes(size))p.oosizes=p.oosizes.filter(s=>s!==size);else p.oosizes.push(size);LS.set("ds_p",products);renderGrid();renderSzTog(pid);}
 
@@ -1919,6 +1948,36 @@ async function uploadImageToBlob(file){
   }
   setTimeout(build,0);
   window.rebuildDropCountdown=build;
+})();
+/* ===== SCI-FI FX: per-product restock countdown (sold-out cards) ===== */
+(function(){
+  let rcInterval=null;
+  function fmtRemain(diff){
+    if(diff<=0)return"Restocking soon";
+    const days=Math.floor(diff/86400000);
+    const hrs=Math.floor(diff%86400000/3600000);
+    if(days>0)return`Back in <b>${days}d ${hrs}h</b>`;
+    const mins=Math.floor(diff%3600000/60000);
+    if(hrs>0)return`Back in <b>${hrs}h ${mins}m</b>`;
+    return`Back in <b>${mins}m</b>`;
+  }
+  function tick(){
+    document.querySelectorAll("[data-restock]").forEach(el=>{
+      const iso=el.getAttribute("data-restock");
+      const target=new Date(iso).getTime();
+      if(isNaN(target)){el.textContent="";return;}
+      el.innerHTML=fmtRemain(target-Date.now());
+    });
+  }
+  function build(){
+    if(rcInterval){clearInterval(rcInterval);rcInterval=null;}
+    tick();
+    if(document.querySelectorAll("[data-restock]").length)rcInterval=setInterval(tick,60000);
+  }
+  setTimeout(build,0);
+  const grid=document.getElementById("pgrid");
+  if(grid&&"MutationObserver" in window){new MutationObserver(()=>setTimeout(build,80)).observe(grid,{childList:true});}
+  window.rebuildRestockCountdowns=build;
 })();
 /* ===== SCI-FI FX: scanline sweep on load ===== */
 (function(){
