@@ -2161,19 +2161,27 @@ loadPublished();
   document.getElementById("sb-btn").addEventListener("click",function(){
     if(currentId&&typeof openMo==="function")openMo(currentId);
   });
-  let lastShow=null;
-  function onScroll(){
-    if(!hero)return;
-    const heroBottom=hero.getBoundingClientRect().bottom;
-    const shouldShow=heroBottom<0;
-    if(shouldShow!==lastShow){
-      lastShow=shouldShow;
-      if(shouldShow){fill();bar.classList.add("show");}
-      else{bar.classList.remove("show");}
-    }
+  let shown=false;
+  function setShown(v){
+    if(v===shown)return;
+    shown=v;
+    if(v){fill();bar.classList.add("show");}
+    else{bar.classList.remove("show");}
   }
-  window.addEventListener("scroll",onScroll,{passive:true});
-  setTimeout(onScroll,500);
+  if(hero&&"IntersectionObserver" in window){
+    const io=new IntersectionObserver(entries=>{
+      entries.forEach(en=>{setShown(!en.isIntersecting);});
+    },{threshold:0,rootMargin:"0px"});
+    io.observe(hero);
+  }else if(hero){
+    // fallback for very old browsers without IntersectionObserver
+    function onScroll(){
+      const heroBottom=hero.getBoundingClientRect().bottom;
+      setShown(heroBottom<0);
+    }
+    window.addEventListener("scroll",onScroll,{passive:true});
+    setTimeout(onScroll,500);
+  }
   window.rebuildStickyBuy=fill;
 })();
 </script>
