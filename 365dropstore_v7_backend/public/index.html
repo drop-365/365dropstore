@@ -1199,7 +1199,7 @@ let siteContent=LS.get("ds_site",DSite);
 let banner=LS.get("ds_ban",DBanner);
 let fits=LS.get("ds_fits",DFits);
 let stories=LS.get("ds_stories",[]);
-let cart=[];let editId=null;
+let cart=LS.get("ds_cart",[])||[];let editId=null;
 let attCnt=LS.get("adm_att",0);let locked=LS.get("adm_lk",false);
 const pwOv=LS.get("adm_pd",null);if(pwOv)AH=pwOv;
 let fCat="All",fSizes=[],fFits=[],fMaxPrice=5000;
@@ -1428,8 +1428,8 @@ function stp(d){ms.qty=Math.max(1,ms.qty+d);const e=document.getElementById("mqt
 function closeMo(){document.getElementById("ov").classList.remove("op");document.body.style.overflow="";}
 
 // CART
-function addCart(){const{p,size,color,qty}=ms;const key=p.id+size+color;const ex=cart.find(i=>i.key===key);if(ex)ex.qty+=qty;else cart.push({key,id:p.id,name:p.name,price:eff(p),image:(p.images||[])[0]||"",size,color,qty,link:"https://365dropstore.com/#product-"+p.id});closeMo();renderCart();openCart();}
-function rmItem(key){cart=cart.filter(i=>i.key!==key);renderCart();}
+function addCart(){const{p,size,color,qty}=ms;const key=p.id+size+color;const ex=cart.find(i=>i.key===key);if(ex)ex.qty+=qty;else cart.push({key,id:p.id,name:p.name,price:eff(p),image:(p.images||[])[0]||"",size,color,qty,link:"https://365dropstore.com/#product-"+p.id});LS.set("ds_cart",cart);closeMo();renderCart();openCart();}
+function rmItem(key){cart=cart.filter(i=>i.key!==key);LS.set("ds_cart",cart);renderCart();}
 function renderCart(){
   document.getElementById("ccount").textContent=cart.reduce((s,i)=>s+i.qty,0);
   const box=document.getElementById("cditems");
