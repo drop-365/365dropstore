@@ -973,6 +973,16 @@ https://raw.githubusercontent.com/drop-365/365dropstore/main/images/jean2.jpg" s
     <div class="pff full" style="padding-bottom:14px;border-bottom:1px solid var(--line)"><label>ANNOUNCEMENT BAR (small text below nav)</label><input type="text" id="site-ann" placeholder="Drop 001 · Delhi · WhatsApp-only checkout · Pan India shipping"/></div>
     <div class="pff full" style="border-top:0"><label>HERO HEADLINE (line 1 | line 2 | line 3 — pipe separated)</label><input type="text" id="site-hero-h1" placeholder="365|DROPS|DAILY"/><small>3 words, one per line. First and third go white, middle goes muted.</small></div>
     <div class="pff full"><label>HERO SUBTITLE</label><textarea id="site-hero-sub" rows="2"></textarea></div>
+    <div class="pff full" style="border-bottom:1px solid var(--line);padding-bottom:14px;margin-bottom:4px">
+      <label>HERO PRODUCT — clicking the hero image/price opens this product</label>
+      <select id="site-hero-product"><option value="">— Auto (bestseller / first live product) —</option></select>
+      <small>Pick which product the hero showcase links to. Same idea as linking a Story to a product.</small>
+    </div>
+    <div class="pff full" style="border-bottom:1px solid var(--line);padding-bottom:14px;margin-bottom:4px">
+      <label>NEXT DROP COUNTDOWN — set the exact date &amp; time</label>
+      <input type="datetime-local" id="site-drop-date"/>
+      <small>Countdown on the homepage ticks down to this. Leave blank to fall back to the default (next Friday 8pm IST).</small>
+    </div>
     <!-- hero showcase removed -->
     <div class="pff full" style="border-bottom:1px solid var(--line);padding-bottom:14px;margin-bottom:4px">
       <label>HERO IMAGE (right side) — paste GitHub raw link</label>
@@ -1514,9 +1524,10 @@ function togOOS(pid,size){const p=products.find(x=>x.id===pid);if(!p)return;if(!
 
 // SITE EDITOR
 function populateFitSelect(){const sel=document.getElementById("pf-fit");if(!sel)return;sel.innerHTML=fits.map(f=>`<option value="${f}">${f}</option>`).join("");}
-function loadSiteEd(){const s=siteContent;const sv=(id,v)=>{const el=document.getElementById(id);if(el)el.value=v||"";};sv("site-ann",s.ann);sv("site-hero-h1",s.heroH1);sv("site-hero-sub",s.heroSub);sv("site-ed-h2",s.edH2);sv("site-ed-p",s.edP);sv("site-story-h2",s.storyH2);sv("site-story-p1",s.storyP1);sv("site-story-p2",s.storyP2);sv("site-trust",s.trust);sv("site-shipping",s.shipping);sv("site-marquee",s.marquee);sv("site-stats",s.stats);sv("site-phone",s.phone);sv("site-email",s.email);sv("site-address",s.address);sv("site-insta",s.insta);sv("site-fb",s.fb);sv("site-hero-img",s.heroImg);sv("site-hero-thumb1",s.heroThumb1);sv("site-hero-thumb2",s.heroThumb2);if(s.edImg&&!(s.edImgs&&s.edImgs.length))s.edImgs=[s.edImg];if(s.stImg&&!(s.stImgs&&s.stImgs.length))s.stImgs=[s.stImg];renderGmgr("ed");renderGmgr("st");}
+function loadSiteEd(){const s=siteContent;const sv=(id,v)=>{const el=document.getElementById(id);if(el)el.value=v||"";};sv("site-ann",s.ann);sv("site-hero-h1",s.heroH1);sv("site-hero-sub",s.heroSub);sv("site-ed-h2",s.edH2);sv("site-ed-p",s.edP);sv("site-story-h2",s.storyH2);sv("site-story-p1",s.storyP1);sv("site-story-p2",s.storyP2);sv("site-trust",s.trust);sv("site-shipping",s.shipping);sv("site-marquee",s.marquee);sv("site-stats",s.stats);sv("site-phone",s.phone);sv("site-email",s.email);sv("site-address",s.address);sv("site-insta",s.insta);sv("site-fb",s.fb);sv("site-hero-img",s.heroImg);sv("site-hero-thumb1",s.heroThumb1);sv("site-hero-thumb2",s.heroThumb2);populateHeroProductSelect();const hpSel=document.getElementById("site-hero-product");if(hpSel)hpSel.value=s.heroP1||"";const ddEl=document.getElementById("site-drop-date");if(ddEl){if(s.dropDate){try{const d=new Date(s.dropDate);if(!isNaN(d))ddEl.value=new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,16);}catch(e){}}else{ddEl.value="";}}if(s.edImg&&!(s.edImgs&&s.edImgs.length))s.edImgs=[s.edImg];if(s.stImg&&!(s.stImgs&&s.stImgs.length))s.stImgs=[s.stImg];renderGmgr("ed");renderGmgr("st");}
+function populateHeroProductSelect(){const sel=document.getElementById("site-hero-product");if(!sel)return;const cur=sel.value;sel.innerHTML='<option value="">— Auto (bestseller / first live product) —</option>'+products.map(p=>`<option value="${p.id}">${(p.name||'').replace(/</g,'&lt;')}</option>`).join('');sel.value=cur;}
 async function siteImgUp(k,inp){if(!inp.files||!inp.files[0])return;try{const bf=await toBrowserFile(inp.files[0]);const d=await compressImg(bf,1600,0.85);document.getElementById('site-'+k+'-imgdata').value=d;document.getElementById('site-'+k+'-prv').innerHTML=`<img src="${d}" style="width:110px;border-radius:7px"/>`;}catch(e){alert("Couldn't read that image — try a JPEG/PNG.");}}
-function saveSite(){const _edI=siteContent.edImgs||[];const _stI=siteContent.stImgs||[];const _edS=siteContent.edImg||"";const _stS=siteContent.stImg||"";const g=id=>{const el=document.getElementById(id);return el?el.value:"";};siteContent={ann:g("site-ann"),heroH1:g("site-hero-h1"),heroSub:g("site-hero-sub"),trust:g("site-trust"),edH2:g("site-ed-h2"),edP:g("site-ed-p"),edImgs:_edI,stImgs:_stI,edImg:_edS,stImg:_stS,storyH2:g("site-story-h2"),storyP1:g("site-story-p1"),storyP2:g("site-story-p2"),shipping:g("site-shipping"),marquee:g("site-marquee"),stats:g("site-stats"),phone:g("site-phone"),email:g("site-email"),address:g("site-address"),insta:g("site-insta"),fb:g("site-fb"),heroImg:g("site-hero-img"),heroThumb1:g("site-hero-thumb1"),heroThumb2:g("site-hero-thumb2")};lsSafeSet("ds_site",siteContent);applySiteContent();const m=document.getElementById("site-msg");if(m){m.textContent="Saved ✓";m.style.color="#4ade80";m.style.background="rgba(74,222,128,.08)";m.style.display="block";setTimeout(()=>m.style.display="none",2000);}showToast("Site content saved ✓ — hit Publish to Live to push it.",true);}
+function saveSite(){const _edI=siteContent.edImgs||[];const _stI=siteContent.stImgs||[];const _edS=siteContent.edImg||"";const _stS=siteContent.stImg||"";const g=id=>{const el=document.getElementById(id);return el?el.value:"";};const ddRaw=g("site-drop-date");let ddIso="";if(ddRaw){const d=new Date(ddRaw);if(!isNaN(d))ddIso=d.toISOString();}siteContent={ann:g("site-ann"),heroH1:g("site-hero-h1"),heroSub:g("site-hero-sub"),heroP1:g("site-hero-product"),dropDate:ddIso,trust:g("site-trust"),edH2:g("site-ed-h2"),edP:g("site-ed-p"),edImgs:_edI,stImgs:_stI,edImg:_edS,stImg:_stS,storyH2:g("site-story-h2"),storyP1:g("site-story-p1"),storyP2:g("site-story-p2"),shipping:g("site-shipping"),marquee:g("site-marquee"),stats:g("site-stats"),phone:g("site-phone"),email:g("site-email"),address:g("site-address"),insta:g("site-insta"),fb:g("site-fb"),heroImg:g("site-hero-img"),heroThumb1:g("site-hero-thumb1"),heroThumb2:g("site-hero-thumb2")};lsSafeSet("ds_site",siteContent);applySiteContent();if(typeof window.rebuildHeroShowcase==="function")window.rebuildHeroShowcase();if(typeof window.rebuildDropCountdown==="function")window.rebuildDropCountdown();const m=document.getElementById("site-msg");if(m){m.textContent="Saved ✓";m.style.color="#4ade80";m.style.background="rgba(74,222,128,.08)";m.style.display="block";setTimeout(()=>m.style.display="none",2000);}showToast("Site content saved ✓ — hit Publish to Live to push it.",true);}
 
 // BANNER ADMIN
 function loadBannerAdmin(){document.getElementById("ban-text").value=banner.text||"";document.getElementById("ban-show").checked=banner.show||false;}
@@ -1850,28 +1861,42 @@ async function uploadImageToBlob(file){
 })();
 /* ===== SCI-FI FX: drop countdown ===== */
 (function(){
-  // Set your next drop date here, or via siteContent.dropDate (ISO string). Default: 7 days out, refreshed weekly.
-  const el=document.getElementById("dropcount");if(!el)return;
-  let target;
-  try{ if(typeof siteContent!=="undefined"&&siteContent.dropDate){target=new Date(siteContent.dropDate).getTime();} }catch(e){}
-  if(!target||isNaN(target)||target<Date.now()){
-    // rolling weekly drop: next Friday 8pm IST
-    const now=new Date();const d=new Date(now);d.setHours(20,0,0,0);
-    const day=d.getDay();let add=(5-day+7)%7;if(add===0&&now.getTime()>d.getTime())add=7;
-    d.setDate(d.getDate()+add);target=d.getTime();
+  // Date comes from siteContent.dropDate (ISO string, admin-set). Falls back to next Friday 8pm IST only if unset.
+  let dcInterval=null;
+  function build(){
+    const el=document.getElementById("dropcount");if(!el)return;
+    if(dcInterval){clearInterval(dcInterval);dcInterval=null;}
+    let target;
+    try{ if(typeof siteContent!=="undefined"&&siteContent.dropDate){target=new Date(siteContent.dropDate).getTime();} }catch(e){}
+    if(!target||isNaN(target)){
+      // rolling weekly drop: next Friday 8pm IST (fallback only — no admin date set)
+      const now=new Date();const d=new Date(now);d.setHours(20,0,0,0);
+      const day=d.getDay();let add=(5-day+7)%7;if(add===0&&now.getTime()>d.getTime())add=7;
+      d.setDate(d.getDate()+add);target=d.getTime();
+    }
+    el.style.display="flex";
+    const pad=n=>String(n).padStart(2,"0");
+    const fields={d:document.getElementById("dc-d"),h:document.getElementById("dc-h"),m:document.getElementById("dc-m"),s:document.getElementById("dc-s")};
+    const last={};
+    function set(k,v){const f=fields[k];if(!f)return;if(last[k]!==v){f.textContent=v;f.classList.remove("tick");void f.offsetWidth;f.classList.add("tick");last[k]=v;}}
+    const lbl=el.querySelector(".dc-label");if(lbl)lbl.textContent=lbl.dataset.orig||lbl.textContent;
+    if(lbl&&!lbl.dataset.orig)lbl.dataset.orig=lbl.textContent;
+    function tick(){
+      let diff=target-Date.now();
+      if(diff<=0){
+        set("d","00");set("h","00");set("m","00");set("s","00");
+        if(lbl)lbl.textContent="Drop is LIVE";
+        if(dcInterval){clearInterval(dcInterval);dcInterval=null;}
+        return;
+      }
+      const s=Math.floor(diff/1000);
+      set("d",pad(Math.floor(s/86400)));set("h",pad(Math.floor(s%86400/3600)));
+      set("m",pad(Math.floor(s%3600/60)));set("s",pad(s%60));
+    }
+    tick();dcInterval=setInterval(tick,1000);
   }
-  el.style.display="flex";
-  const pad=n=>String(n).padStart(2,"0");
-  const fields={d:document.getElementById("dc-d"),h:document.getElementById("dc-h"),m:document.getElementById("dc-m"),s:document.getElementById("dc-s")};
-  const last={};
-  function set(k,v){const f=fields[k];if(!f)return;if(last[k]!==v){f.textContent=v;f.classList.remove("tick");void f.offsetWidth;f.classList.add("tick");last[k]=v;}}
-  function tick(){
-    let diff=Math.max(0,target-Date.now());const s=Math.floor(diff/1000);
-    set("d",pad(Math.floor(s/86400)));set("h",pad(Math.floor(s%86400/3600)));
-    set("m",pad(Math.floor(s%3600/60)));set("s",pad(s%60));
-    if(diff<=0){const lbl=el.querySelector(".dc-label");if(lbl)lbl.textContent="Drop is LIVE";}
-  }
-  tick();setInterval(tick,1000);
+  setTimeout(build,0);
+  window.rebuildDropCountdown=build;
 })();
 /* ===== SCI-FI FX: scanline sweep on load ===== */
 (function(){
