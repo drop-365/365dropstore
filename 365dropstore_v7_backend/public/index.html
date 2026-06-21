@@ -1982,22 +1982,18 @@ async function uploadImageToBlob(file){
     const mini=document.getElementById("sc-mini");
     const spec=document.getElementById("sc-spec");
     const mainSrc=s.heroImg||((feat.images||[])[0])||"";
+    window._scId=feat?feat.id:"";
+    window._scFeatId=feat?feat.id:"";
     if(main){
       main.src=mainSrc;
-      if(s.heroImg){
-        // custom image set — clicking main image does nothing (image doesn't match a specific product)
-        main.onclick=null;main.style.cursor="default";window._scId="";
-      }else{
-        main.onclick=function(){if(window._scId)openMo(window._scId);};main.style.cursor="pointer";window._scId=feat?feat.id:"";
-      }
+      main.onclick=function(){if(window._scId)openMo(window._scId);};main.style.cursor="pointer";
     }
     const priceEl=document.getElementById("sc-price");
     const buyEl=document.getElementById("sc-buy");
     if(priceEl){
-      if(s.heroImg){priceEl.classList.remove("clickable");priceEl.onclick=null;}
-      else{priceEl.classList.add("clickable");priceEl.onclick=function(){if(window._scId)openMo(window._scId);};}
+      priceEl.classList.add("clickable");priceEl.onclick=function(){if(window._scId)openMo(window._scId);};
     }
-    if(buyEl)buyEl.style.display=(!s.heroImg&&window._scId)?"flex":"none";
+    if(buyEl)buyEl.style.display=window._scId?"flex":"none";
     if(price)price.textContent=inr((typeof eff==="function")?eff(feat):(feat.offerPrice||feat.price));
     if(tag)tag.textContent="DROP_001 \u00B7 "+((feat.badges||[]).includes("best")?"BESTSELLER":"NEW DROP");
     if(mini){
@@ -2016,10 +2012,10 @@ async function uploadImageToBlob(file){
   window.rebuildHeroShowcase=build;
   window.scMiniClick=function(el){
     const src=el.getAttribute('src');const main=document.getElementById('sc-main');if(main)main.src=src;
-    const pid=el.getAttribute('data-pid');
+    const pid=el.getAttribute('data-pid')||window._scFeatId||"";
     const buyEl=document.getElementById('sc-buy');
-    if(pid){window._scId=pid;if(buyEl)buyEl.style.display='flex';}
-    else{if(buyEl)buyEl.style.display='none';}
+    window._scId=pid;
+    if(buyEl)buyEl.style.display=pid?'flex':'none';
   };
   const grid=document.getElementById("pgrid");
   if(grid&&"MutationObserver" in window){new MutationObserver(()=>setTimeout(build,80)).observe(grid,{childList:true});}
