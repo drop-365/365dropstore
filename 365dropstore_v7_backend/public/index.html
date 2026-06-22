@@ -10,6 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{
   --bg:#F8F7F4;--bg2:#FFFFFF;--bg3:#EDECE8;--bg4:#E2E0DC;
@@ -2371,8 +2372,57 @@ async function uploadImageToBlob(file){
   const grid=document.getElementById("pgrid");
   if(grid&&"MutationObserver" in window){new MutationObserver(()=>setTimeout(build,80)).observe(grid,{childList:true});}
 })();
-buildFilterUI();populateFitSelect();setCat("All");renderGrid();renderCart();renderRevs();applyPalette();
-loadPublished();
+const SUPABASE_URL = "https://fhiivshoikcnanbvdtxm.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_LPwVp36pEOfQIEchjefMfw_SmGNcxUt";
+let sbClient = null;
+try { if(typeof supabase!=="undefined") sbClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY); } catch(e) { /* supabase-js failed to load (offline, blocked, etc) */ }
+
+async function loadFromSupabaseIfAvailable(){
+  if(!sbClient) return false;
+  try{
+    const [prodRes, revRes, siteRes] = await Promise.all([
+      sbClient.from('products').select('*'),
+      sbClient.from('reviews').select('*'),
+      sbClient.from('site_content').select('content').eq('id',1).single()
+    ]);
+    if(prodRes.error || !prodRes.data || !prodRes.data.length) return false;
+    products = prodRes.data.map(p=>({
+      id:p.id, name:p.name, category:p.category, fit:p.fit,
+      price:p.price, offerPrice:p.offer_price,
+      images:p.images||[], sizeChartImg:p.size_chart_img||'',
+      badges:p.badges||[], sizes:p.sizes||[], colors:p.colors||[],
+      desc:p.description||'', desc2:p.description_long||'',
+      shippingInfo:p.shipping_info||'', features:p.features||[],
+      reelUrl:p.reel_url||'', order:p.display_order||0,
+      addedAt:p.added_at?new Date(p.added_at).getTime():undefined
+    }));
+    if(!revRes.error && revRes.data && revRes.data.length){
+      reviews = revRes.data.map(r=>({
+        id:r.id, type:r.type, stars:r.stars, text:r.text_content,
+        who:r.who, where:r.where_loc, img:r.img
+      }));
+    }
+    if(!siteRes.error && siteRes.data && siteRes.data.content && Object.keys(siteRes.data.content).length){
+      siteContent = Object.assign({}, siteContent, siteRes.data.content);
+    }
+    return true;
+  }catch(e){
+    console.log('Supabase fetch failed, falling back to localStorage:', e.message);
+    return false;
+  }
+}
+const _isAdminRoute = (location.hash||"").indexOf("admin-")!==-1;
+const _isPreview = sessionStorage.getItem("ds_preview")==="1";
+(async function(){
+  let usedSupabase = false;
+  if(!_isAdminRoute && !_isPreview){
+    usedSupabase = await loadFromSupabaseIfAvailable();
+  }
+  buildFilterUI();populateFitSelect();setCat("All");renderGrid();renderCart();renderRevs();applyPalette();
+  if(!usedSupabase){
+    loadPublished();
+  }
+})();
 </script>
 <div id="stickybuy">
   <img id="sb-img" alt=""/>
