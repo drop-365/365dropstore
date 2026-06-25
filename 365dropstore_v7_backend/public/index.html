@@ -1085,15 +1085,21 @@ https://raw.githubusercontent.com/drop-365/365dropstore/main/images/jean2.jpg" s
       <input type="url" id="site-hero-thumb2" placeholder="https://raw.githubusercontent.com/drop-365/365dropstore/main/images/thumb2.jpg"/>
     </div>
     <div class="pff full" style="padding-bottom:14px;border-bottom:1px solid var(--line)">
-      <label>EDITORIAL GALLERY — multiple photos (day-to-day life)</label>
-      <input type="file" accept="image/*,.heic,.heif" multiple onchange="galleryUp('ed',this)"/>
-      <small>Upload one or many. First photo is the main banner; the rest show as a thumbnail strip. Click any on the live site to zoom full-screen.</small>
+      <label>EDITORIAL GALLERY — paste image link</label>
+      <div style="display:flex;gap:8px">
+        <input type="url" id="ed-gallery-link" placeholder="https://raw.githubusercontent.com/drop-365/365dropstore/main/images/example.jpg" style="flex:1"/>
+        <button class="btn btn-w" style="white-space:nowrap" onclick="addGalleryLink('ed')">Add Photo</button>
+      </div>
+      <small>Paste a direct image link and click Add. First photo is the main banner; the rest show as a thumbnail strip. Click any on the live site to zoom full-screen.</small>
       <div class="gmgr" id="ed-gmgr"></div>
     </div>
     <div class="pff full" style="padding-bottom:14px;border-bottom:1px solid var(--line)">
-      <label>STORY GALLERY — multiple photos (day-to-day life)</label>
-      <input type="file" accept="image/*,.heic,.heif" multiple onchange="galleryUp('st',this)"/>
-      <small>Upload one or many. First photo is the main image; the rest show as a thumbnail strip. Click any on the live site to zoom full-screen.</small>
+      <label>STORY GALLERY — paste image link</label>
+      <div style="display:flex;gap:8px">
+        <input type="url" id="st-gallery-link" placeholder="https://raw.githubusercontent.com/drop-365/365dropstore/main/images/example.jpg" style="flex:1"/>
+        <button class="btn btn-w" style="white-space:nowrap" onclick="addGalleryLink('st')">Add Photo</button>
+      </div>
+      <small>Paste a direct image link and click Add. First photo is the main image; the rest show as a thumbnail strip. Click any on the live site to zoom full-screen.</small>
       <div class="gmgr" id="st-gmgr"></div>
     </div>
     <div class="pff full" style="padding-bottom:14px;border-bottom:1px solid var(--line)">
@@ -2016,6 +2022,19 @@ function lbClose(){document.getElementById('lb').classList.remove('op');document
 })();
 
 // ===== EDITORIAL / STORY GALLERIES =====
+function addGalleryLink(k){
+  const inp=document.getElementById(k==='ed'?'ed-gallery-link':'st-gallery-link');
+  const url=inp.value.trim();
+  if(!url){showToast("Paste an image link first.",false);return;}
+  const key=k==='ed'?'edImgs':'stImgs';
+  if(!Array.isArray(siteContent[key]))siteContent[key]=[];
+  siteContent[key].push(url);
+  lsSafeSet('ds_site',siteContent);
+  renderGmgr(k);applySiteContent();
+  inp.value='';
+  showToast("Photo added ✓ — syncing live...",true);
+  syncSiteToSupabase();
+}
 async function galleryUp(k,inp){if(!inp.files||!inp.files.length)return;const key=k==='ed'?'edImgs':'stImgs';if(!Array.isArray(siteContent[key]))siteContent[key]=[];for(const f of inp.files){try{const bf=await toBrowserFile(f);const d=await compressImg(bf,1600,0.82);siteContent[key].push(d);}catch(e){showToast("Skipped \""+(f.name||"an image")+"\" — couldn't read it.",false);}}lsSafeSet('ds_site',siteContent);renderGmgr(k);applySiteContent();inp.value='';syncSiteToSupabase();}
 function renderGmgr(k){const key=k==='ed'?'edImgs':'stImgs';const el=document.getElementById(k+'-gmgr');if(!el)return;const arr=siteContent[key]||[];el.innerHTML=arr.map((s,i)=>`<div class="gmgr-item"><img src="${s}" alt="Preview"/><button class="gmgr-rm" onclick="rmGalleryImg('${k}',${i})">×</button></div>`).join('')||'<span style="color:var(--off);font-size:12px">No photos yet — uploads appear here. If empty, the default image is used.</span>';}
 function rmGalleryImg(k,i){const key=k==='ed'?'edImgs':'stImgs';siteContent[key].splice(i,1);lsSafeSet('ds_site',siteContent);renderGmgr(k);applySiteContent();syncSiteToSupabase();}
@@ -2482,7 +2501,7 @@ const _isPreview = sessionStorage.getItem("ds_preview")==="1";
   if(!_isAdminRoute && !_isPreview){
     usedSupabase = await loadFromSupabaseIfAvailable();
   }
-  buildFilterUI();populateFitSelect();setCat("All");renderGrid();renderCart();renderRevs();applyPalette();
+  buildFilterUI();populateFitSelect();setCat("All");renderGrid();renderCart();renderRevs();applyPalette();applyBanner();renderStoriesRail();
   if(!usedSupabase){
     loadPublished();
   }
