@@ -1194,7 +1194,11 @@ https://raw.githubusercontent.com/drop-365/365dropstore/main/images/jean2.jpg" s
       <label style="font-size:15px">💾 BROWSER STORAGE</label>
       <p style="color:var(--off)!important;font-size:12px;line-height:1.55;margin:8px 0 12px">Everything (products, photos, orders, reviews) lives in this browser's storage — capped around 5MB. Past ~80% you risk failed saves on the next image upload or order.</p>
       <div id="storage-view"></div>
-      <button class="btn btn-g" onclick="rnStorageView()" style="margin-top:10px">↻ Refresh</button>
+      <div style="display:flex;gap:10px;margin-top:10px;flex-wrap:wrap">
+        <button class="btn btn-g" onclick="rnStorageView()">↻ Refresh</button>
+        <button class="btn btn-w" onclick="cleanupProductStorage()">🧹 Clean Up Storage</button>
+      </div>
+      <p id="cleanup-msg" style="display:none;font-size:12px;margin-top:8px"></p>
     </div>
     <div class="pff full"><label>New Password</label><input type="password" id="st0" placeholder="Min 8 characters"/></div>
     <div class="pff full"><input type="password" id="st1" placeholder="Confirm new password"/></div>
@@ -1705,6 +1709,36 @@ async function syncSettingsToSupabase(table,content){return _callAdminFn("admin-
 async function syncStoryToSupabase(action,story){return _callAdminFn("admin-stories",{action,story});}
 async function syncReviewToSupabase(action,review){return _callAdminFn("admin-reviews",{action,review});}
 
+async function cleanupProductStorage(){
+  const m=document.getElementById('cleanup-msg');
+  const needsCleanup=products.filter(p=>{
+    const imgs=p.images||[];
+    return imgs.some(i=>i&&i.startsWith('data:'))||(p.sizeChartImg&&p.sizeChartImg.startsWith('data:'));
+  });
+  if(!needsCleanup.length){
+    m.textContent='Nothing to clean up — all products already use lightweight links ✓';
+    m.style.color='#4ade80';m.style.background='rgba(74,222,128,.08)';m.style.display='block';
+    return;
+  }
+  m.style.color='#aaa';m.style.background='rgba(255,255,255,.04)';m.style.display='block';
+  let done=0;
+  for(const p of needsCleanup){
+    m.textContent=`Cleaning up ${p.name} (${done+1}/${needsCleanup.length})...`;
+    try{
+      const res=await syncProductToSupabase("save",p);
+      if(res&&res.images){
+        p.images=res.images;
+        if(res.sizeChartImg)p.sizeChartImg=res.sizeChartImg;
+        products=products.map(x=>x.id===p.id?p:x);
+        LS.set("ds_p",products);
+      }
+    }catch(e){}
+    done++;
+  }
+  renderGrid();rnStorageView();
+  m.textContent=`Done — cleaned up ${done} product(s). Storage usage updated above ✓`;
+  m.style.color='#4ade80';m.style.background='rgba(74,222,128,.08)';
+}
 function saveProd(){
   const name=document.getElementById("pf0").value.trim();const price=Number(document.getElementById("pf2").value);
   if(!name||!price){shPMsg("Fill in Name & Price.","#c0392b");return;}
@@ -1734,7 +1768,14 @@ function saveProd(){
   }
   const okMsg=wasEdit?"Updated ✓ — saved to this device.":"Product added ✓ — saved to this device.";
   shPMsg(okMsg,"#4ade80");showToast(okMsg+" Syncing live...",true);
-  syncProductToSupabase("save",prod);
+  syncProductToSupabase("save",prod).then(res=>{
+    if(res&&res.images){
+      prod.images=res.images;
+      if(res.sizeChartImg)prod.sizeChartImg=res.sizeChartImg;
+      products=products.map(p=>p.id===prod.id?prod:p);
+      LS.set("ds_p",products);renderGrid();
+    }
+  });
   setTimeout(()=>{resetF();apTab("products");},1800);
 }
 function shPMsg(t,c){const m=document.getElementById("pf-msg");m.textContent=t;m.style.color=c;m.style.background=c.includes("4a")?"rgba(74,222,128,.08)":"rgba(192,57,43,.08)";m.style.display="block";}
