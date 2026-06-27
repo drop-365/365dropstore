@@ -1751,21 +1751,6 @@ function saveProd(){
   const wasEdit=!!editId;
   if(editId)products=products.map(p=>p.id===editId?prod:p);else products.unshift(prod);
   LS.set("ds_p",products);renderGrid();renderHeroShowcase();
-  // Marquee
-  if(s.marquee){const mt=document.getElementById("mqt");if(mt){const items=s.marquee.split("|").map(x=>x.trim()).filter(Boolean);const b=items.map(i=>'<span class="mi">'+i+'</span><span class="md">·</span>').join("");mt.innerHTML=b.repeat(6);}}
-  // Hero stats
-  if(s.stats){const hstats=document.querySelector(".hstats");if(hstats){const items=s.stats.split(",").map(x=>x.trim()).filter(Boolean);hstats.innerHTML=items.map(item=>{const[num,lbl]=(item+"| ").split("|");return'<div class="hstat"><span class="num">'+num.trim()+'</span><span class="lbl">'+lbl.trim()+'</span></div>';}).join("");}}
-  // Footer contact
-  const footEl=document.querySelector("footer");
-  if(footEl){
-    const phone=s.phone||DSite.phone;const email=s.email||DSite.email;const addr=s.address||DSite.address;
-    const contactCol=footEl.querySelectorAll(".fcol")[2];
-    if(contactCol)contactCol.innerHTML='<h4>Contact</h4><a href="tel:'+phone.replace(/\s/g,"")+'">'+phone+'</a><a href="mailto:'+email+'">'+email+'</a><a>'+addr+'</a>';
-    // Social links
-    const insta=s.insta||DSite.insta;const fb=s.fb||DSite.fb;
-    const socDiv=footEl.querySelector(".fsoc");
-    if(socDiv)socDiv.innerHTML='<a class="fsoca" href="'+insta+'" target="_blank">📸</a><a class="fsoca" href="https://wa.me/919990905969" target="_blank">✆</a><a class="fsoca" href="'+fb+'" target="_blank">f</a>';
-  }
   const okMsg=wasEdit?"Updated ✓ — saved to this device.":"Product added ✓ — saved to this device.";
   shPMsg(okMsg,"#4ade80");showToast(okMsg+" Syncing live...",true);
   syncProductToSupabase("save",prod).then(res=>{
