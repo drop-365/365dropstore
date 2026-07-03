@@ -994,7 +994,10 @@ main,header,footer,.sec,.trust,.mq{position:relative;z-index:2}
   <div id="tab-products" class="apsec">
     <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
       <h3 style="margin:0">ALL PRODUCTS <span id="pcnt" style="color:var(--off);font-size:14px;font-weight:400"></span></h3>
-      <button class="btn btn-w" onclick="resetF();apTab('add')">+ Add New Product</button>
+      <div style="display:flex;gap:10px">
+        <button class="btn btn-g" onclick="refreshProductsFromSupabase()">↻ Refresh from live</button>
+        <button class="btn btn-w" onclick="resetF();apTab('add')">+ Add New Product</button>
+      </div>
     </div>
     <div class="apstats" id="apstats"></div>
     <div style="overflow-x:auto"><table class="ptbl"><thead><tr><th>Photo</th><th>Name</th><th>Cat</th><th>Fit</th><th>Price</th><th>Status</th><th>Actions</th></tr></thead><tbody id="ptbd"></tbody></table></div>
@@ -1641,7 +1644,9 @@ function closeMob(){document.getElementById("mbnav").classList.remove("op");docu
 
 // ADMIN
 function chkRoute(){const h=location.hash.replace("#","");if(h===AP){document.getElementById("ag").style.display="block";document.body.style.overflow="hidden";return;}if(h.indexOf("product-")===0){const id=h.slice(8);if(products&&products.find(x=>String(x.id)===id)){const b=document.getElementById("boot");if(b)b.remove();document.documentElement.style.overflow="";openMo(id);}}}
-async function admLogin(){if(locked){shAErr("Locked. Run: localStorage.removeItem('adm_lk') in console.");return;}const e=document.getElementById("age").value.trim();const pw=document.getElementById("agp").value;const h=await sha256(pw);if(e===AE&&h===AH){_adminPw=pw;document.getElementById("ag").style.display="none";document.getElementById("ap").style.display="block";attCnt=0;LS.set("adm_att",0);LS.set("adm_lk",false);ldProds();apSts();rnAdmRev();loadSiteEd();loadFitsAdmin();loadBannerAdmin();loadPaletteAdmin();loadGlobalScAdmin();}else{attCnt++;LS.set("adm_att",attCnt);const left=MA-attCnt;if(left<=0){locked=true;LS.set("adm_lk",true);shAErr("Locked.");}else shAErr(`Wrong — ${left} left.`);document.getElementById("agatt").textContent=`${attCnt}/${MA}`;}}
+async function admLogin(){if(locked){shAErr("Locked. Run: localStorage.removeItem('adm_lk') in console.");return;}const e=document.getElementById("age").value.trim();const pw=document.getElementById("agp").value;const h=await sha256(pw);if(e===AE&&h===AH){_adminPw=pw;document.getElementById("ag").style.display="none";document.getElementById("ap").style.display="block";attCnt=0;LS.set("adm_att",0);LS.set("adm_lk",false);
+    await loadFromSupabaseIfAvailable();
+    ldProds();apSts();rnAdmRev();loadSiteEd();loadFitsAdmin();loadBannerAdmin();loadPaletteAdmin();loadGlobalScAdmin();}else{attCnt++;LS.set("adm_att",attCnt);const left=MA-attCnt;if(left<=0){locked=true;LS.set("adm_lk",true);shAErr("Locked.");}else shAErr(`Wrong — ${left} left.`);document.getElementById("agatt").textContent=`${attCnt}/${MA}`;}}
 function shAErr(t){const e=document.getElementById("agerr");e.textContent=t;e.style.display="block";}
 function admOut(){document.getElementById("ap").style.display="none";location.hash="";document.body.style.overflow="";}
 function apTab(t){const all=["products","orders","add","site","banner","fits","reviews","stories","settings"];all.forEach(id=>document.getElementById("tab-"+id).style.display=id===t?"block":"none");document.querySelectorAll(".atab").forEach((b,i)=>b.classList.toggle("act",all[i]===t));if(t==="products"){ldProds();apSts();}if(t==="orders"){rnAdmOrders();loadOrdersFromSupabase().then(ok=>{if(ok)rnAdmOrders();});}if(t==="reviews")rnAdmRev();if(t==="site")loadSiteEd();if(t==="fits")loadFitsAdmin();if(t==="settings"){loadPaletteAdmin();loadGlobalScAdmin();rnStorageView();}if(t==="banner")loadBannerAdmin();if(t==="stories")renderStoryAdmin();}
@@ -2514,6 +2519,26 @@ const SUPABASE_ANON_KEY = "sb_publishable_LPwVp36pEOfQIEchjefMfw_SmGNcxUt";
 let sbClient = null;
 try { if(typeof supabase!=="undefined") sbClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY); } catch(e) { /* supabase-js failed to load (offline, blocked, etc) */ }
 
+async function refreshProductsFromSupabase(){
+  if(!sbClient){showToast("⚠️ Can't reach Supabase right now.",false);return;}
+  try{
+    const {data,error}=await sbClient.from('products').select('*');
+    if(error||!data){showToast("⚠️ Refresh failed: "+(error?error.message:"no data"),false);return;}
+    products=data.map(p=>({
+      id:p.id,name:p.name,category:p.category,fit:p.fit,
+      price:p.price,offerPrice:p.offer_price,
+      images:p.images||[],sizeChartImg:p.size_chart_img||'',
+      badges:p.badges||[],sizes:p.sizes||[],oosizes:p.oosizes||[],colors:p.colors||[],
+      desc:p.description||'',desc2:p.description_long||'',
+      shippingInfo:p.shipping_info||'',features:p.features||[],
+      reelUrl:p.reel_url||'',order:p.display_order||0,
+      addedAt:p.added_at?new Date(p.added_at).getTime():Date.now()
+    }));
+    LS.set("ds_p",products);
+    ldProds();apSts();renderGrid();
+    showToast("✓ Refreshed — "+products.length+" products from live.",true);
+  }catch(e){showToast("⚠️ Refresh failed (network).",false);}
+}
 async function loadFromSupabaseIfAvailable(){
   if(!sbClient) return false;
   try{
