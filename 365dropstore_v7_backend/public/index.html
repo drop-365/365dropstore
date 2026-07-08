@@ -1656,7 +1656,7 @@ function ldProds(){
   document.getElementById("pcnt").textContent=`(${products.length})`;
   document.getElementById("ptbd").innerHTML=products.map(p=>{const sold=p.badges&&p.badges.includes("sold");return`<tr><td><img src="${(p.images||[])[0]||''}" alt="${p.name}"/></td><td><b style="color:var(--white)">${p.name}</b></td><td>${p.category}</td><td>${p.fit||''}</td><td>${p.offerPrice?`<b style="color:var(--white)">${inr(p.offerPrice)}</b> <s style="color:var(--off);font-size:11px">${inr(p.price)}</s>`:inr(p.price)}</td><td><span class="bdg ${sold?'b-so':'b-new'}">${sold?'Sold Out':'Active'}</span></td><td><div class="tba"><button class="tb" onclick="editP('${p.id}')">Edit</button><button class="tb" onclick="manageSizes('${p.id}')" style="color:#a0d060;border-color:rgba(160,208,96,.3)">Sizes</button><button class="tb tb-sold" onclick="togSold('${p.id}')">${sold?'Restock':'Mark Sold'}</button>${sold?`<button class="tb" onclick="setRestockDate('${p.id}')" style="color:#7ab0e0;border-color:rgba(122,176,224,.3)">Restock Date</button>`:''}<button class="tb tb-del" onclick="delP('${p.id}')">Delete</button></div></td></tr>`;}).join("");
 }
-function togSold(id){const p=products.find(x=>x.id===id);if(!p)return;if(!p.badges)p.badges=[];if(p.badges.includes("sold")){p.badges=p.badges.filter(b=>b!=="sold");p.restockAt='';}else p.badges.push("sold");LS.set("ds_p",products);renderGrid();ldProds();apSts();}
+function togSold(id){const p=products.find(x=>x.id===id);if(!p)return;if(!p.badges)p.badges=[];if(p.badges.includes("sold")){p.badges=p.badges.filter(b=>b!=="sold");p.restockAt='';}else p.badges.push("sold");LS.set("ds_p",products);renderGrid();ldProds();apSts();syncProductToSupabase("save",p);}
 function delP(id){if(!confirm("Delete? Cannot be undone."))return;products=products.filter(p=>p.id!==id);LS.set("ds_p",products);renderGrid();ldProds();apSts();syncProductToSupabase("delete",{id});}
 function editP(id){const p=products.find(x=>x.id===id);if(!p)return;editId=id;document.getElementById("pf0").value=p.name;document.getElementById("pf1").value=p.category;populateFitSelect();document.getElementById("pf-fit").value=p.fit||"Baggy";document.getElementById("pf2").value=p.price;document.getElementById("pf3").value=p.offerPrice||"";document.getElementById("pf4").value=p.desc;document.getElementById("pf-desc2").value=p.desc2||"";document.getElementById("pf5").value=(p.sizes||[]).join("|");document.getElementById("pf6").value=(p.colors||[]).join("|");document.getElementById("pf7").value=(p.badges||[]).filter(b=>b!=="sold")[0]||"";document.getElementById("pf8").value=p.order||1;document.getElementById("pf-reel").value=p.reelUrl||"";pendingImgs=[...(p.images||[])];renderThumbs();if(p.sizeChartImg){document.getElementById("pf-scimg").value=p.sizeChartImg;document.getElementById("sc-prv").innerHTML=`<img src="${p.sizeChartImg}" style="width:120px;border-radius:7px" alt="Size chart"/>`;}document.getElementById("add-title").textContent="EDIT PRODUCT";apTab("add");}
 function resetF(){editId=null;["pf0","pf2","pf3","pf4","pf-desc2","pf5","pf6","pf-reel","pf-scimg","pf-imgurls"].forEach(id=>{const e=document.getElementById(id);if(e)e.value=""});document.getElementById("pf7").value="new";document.getElementById("pf8").value=1;pendingImgs=[];renderThumbs();document.getElementById("sc-prv").innerHTML="";document.getElementById("add-title").textContent="ADD NEW PRODUCT";const m=document.getElementById("pf-msg");if(m)m.style.display="none";}
@@ -1799,12 +1799,12 @@ function setRestockDate(id){
     +'<button class="btn btn-w" id="rsd-save" style="flex:1;justify-content:center">Save</button>'
     +'</div></div>';
   document.body.appendChild(d);
-  document.getElementById('rsd-clear').onclick=function(){p.restockAt='';LS.set("ds_p",products);ldProds();if(typeof renderGrid==="function")renderGrid();if(typeof window.rebuildRestockCountdowns==="function")setTimeout(window.rebuildRestockCountdowns,80);d.remove();};
+  document.getElementById('rsd-clear').onclick=function(){p.restockAt='';LS.set("ds_p",products);ldProds();if(typeof renderGrid==="function")renderGrid();if(typeof window.rebuildRestockCountdowns==="function")setTimeout(window.rebuildRestockCountdowns,80);syncProductToSupabase("save",p);d.remove();};
   document.getElementById('rsd-save').onclick=function(){
     const raw=document.getElementById('rsd-input').value;
     if(raw){const dt=new Date(raw);if(!isNaN(dt))p.restockAt=dt.toISOString();}
     else{p.restockAt='';}
-    LS.set("ds_p",products);ldProds();if(typeof renderGrid==="function")renderGrid();if(typeof window.rebuildRestockCountdowns==="function")setTimeout(window.rebuildRestockCountdowns,80);d.remove();
+    LS.set("ds_p",products);ldProds();if(typeof renderGrid==="function")renderGrid();if(typeof window.rebuildRestockCountdowns==="function")setTimeout(window.rebuildRestockCountdowns,80);syncProductToSupabase("save",p);d.remove();
   };
 }
 function renderSzTog(id){const p=products.find(x=>x.id===id);const c=document.getElementById('sztog');if(!c||!p)return;c.innerHTML=(p.sizes||[]).map(s=>{const oos=(p.oosizes||[]).includes(s);return'<button onclick="togOOS(\''+id+'\',\''+s+'\')" style="padding:12px 20px;border-radius:9px;font-size:14px;font-weight:700;cursor:pointer;border:2px solid '+(oos?'#c0392b':'#4ade80')+';background:'+(oos?'rgba(192,57,43,.1)':'rgba(74,222,128,.07)')+';color:'+(oos?'#c0392b':'#4ade80')+'">'+s+' '+(oos?'✗':'✓')+'</button>';}).join('');}
@@ -2532,7 +2532,8 @@ async function refreshProductsFromSupabase(){
       desc:p.description||'',desc2:p.description_long||'',
       shippingInfo:p.shipping_info||'',features:p.features||[],
       reelUrl:p.reel_url||'',order:p.display_order||0,
-      addedAt:p.added_at?new Date(p.added_at).getTime():Date.now()
+      addedAt:p.added_at?new Date(p.added_at).getTime():Date.now(),
+      restockAt:p.restock_at||''
     }));
     LS.set("ds_p",products);
     ldProds();apSts();renderGrid();
@@ -2561,7 +2562,8 @@ async function loadFromSupabaseIfAvailable(){
       desc:p.description||'', desc2:p.description_long||'',
       shippingInfo:p.shipping_info||'', features:p.features||[],
       reelUrl:p.reel_url||'', order:p.display_order||0,
-      addedAt:p.added_at?new Date(p.added_at).getTime():undefined
+      addedAt:p.added_at?new Date(p.added_at).getTime():undefined,
+      restockAt:p.restock_at||''
     }));
     if(!revRes.error && revRes.data && revRes.data.length){
       reviews = revRes.data.map(r=>({
