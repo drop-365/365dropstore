@@ -187,6 +187,10 @@ header{position:sticky;top:0;z-index:100;background:rgba(20,19,18,.95);backdrop-
 .pcard:hover .pfront{opacity:0}
 .pcard:hover .pback{opacity:1}
 .pbadges{position:absolute;top:10px;left:10px;display:flex;flex-direction:column;gap:4px;z-index:2}
+.pwish{position:absolute;top:8px;right:8px;z-index:3;width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.85);display:flex;align-items:center;justify-content:center;font-size:16px;color:#141312;cursor:pointer;transition:.2s}
+.pwish.on{color:#C0392B}
+.pwish:hover{background:#fff}
+.pfitband{position:absolute;bottom:0;left:0;right:0;background:rgba(20,19,18,.82);color:#fff;font-size:10.5px;font-weight:700;letter-spacing:.08em;text-align:center;padding:6px 0;z-index:2}
 .bdg{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:4px 8px;border-radius:5px}
 .b-new{background:var(--white);color:var(--bg)}
 .b-best{background:var(--bg);color:var(--white);border:1px solid var(--line)}
@@ -241,7 +245,7 @@ header{position:sticky;top:0;z-index:100;background:rgba(20,19,18,.95);backdrop-
 @keyframes sbFlicker{0%{filter:drop-shadow(0 0 0 transparent);transform:translate(0)}25%{filter:drop-shadow(-2px 0 #C0392B) drop-shadow(2px 0 #38e8ff);transform:translate(1px,0)}50%{filter:drop-shadow(2px 0 #C0392B) drop-shadow(-2px 0 #38e8ff);transform:translate(-1px,0)}75%{filter:drop-shadow(-1px 0 #C0392B);transform:translate(1px,0)}100%{filter:drop-shadow(0 0 0 transparent);transform:translate(0)}}
 @media(prefers-reduced-motion:reduce){#stickybuy.show::before{animation:none;opacity:.6}#stickybuy.show.glitch{animation:none}}
 @media (max-width:640px){#stickybuy{padding:10px 14px;gap:10px}#stickybuy .sb-name{font-size:12px}#stickybuy .sb-btn{padding:10px 14px;font-size:12px}}
-.rl-btn{position:absolute;top:10px;right:10px;z-index:2;background:rgba(15,15,15,.7);border:1px solid var(--line);color:var(--w2);font-size:11px;font-weight:600;padding:6px 11px;border-radius:7px;display:none;cursor:pointer;letter-spacing:.04em}
+.rl-btn{position:absolute;top:46px;right:10px;z-index:2;background:rgba(15,15,15,.7);border:1px solid var(--line);color:var(--w2);font-size:11px;font-weight:600;padding:6px 11px;border-radius:7px;display:none;cursor:pointer;letter-spacing:.04em}
 .pcard:hover .rl-btn{display:flex;align-items:center;gap:4px}
 .np{grid-column:1/-1;text-align:center;color:var(--off);padding:50px 0}
 
@@ -259,6 +263,8 @@ header{position:sticky;top:0;z-index:100;background:rgba(20,19,18,.95);backdrop-
 .fsec h4{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--accsub);margin-bottom:12px;font-weight:600}
 .fchips{display:flex;flex-wrap:wrap;gap:7px}
 .fchip{background:#F5F5F2;border:1px solid rgba(0,0,0,.08);color:var(--off);padding:8px 14px;border-radius:99px;font-size:13px;font-weight:500;cursor:pointer;transition:.2s}
+.fchip-cnt{opacity:.6;font-size:11px}
+.fchip-empty{opacity:.4;cursor:not-allowed}
 .fchip:hover,.fchip.sel{background:#141312;color:#F8F7F4;border-color:#141312}
 .fchk label{display:flex;align-items:center;gap:9px;padding:7px 0;font-size:14px;color:var(--off);cursor:pointer;transition:.2s}
 .fchk label:hover{color:var(--white)}
@@ -874,7 +880,7 @@ main,header,footer,.sec,.trust,.mq{position:relative;z-index:2}
 <!-- shop -->
 <section class="sec" id="shop"><div class="w">
   <div id="home-sections"></div>
-  <div class="sh sr"><div><h2 data-dec>SHOP ALL</h2><p class="shs">Every style, every fit — the full drop, in one place.</p></div></div>
+  <div class="sh sr"><div><h2 data-dec>SHOP ALL <span id="shopall-count" style="font-family:var(--bod);font-size:15px;color:var(--off);font-weight:400;text-transform:none;letter-spacing:0"></span></h2><p class="shs">Every style, every fit — the full drop, in one place.</p></div></div>
   <div class="shopbar sr">
     <button class="fb" onclick="openFilters()">☰ Filters</button>
     <button class="fb act" id="fb-all" onclick="setCat('All')">All</button>
@@ -1409,7 +1415,10 @@ function closeBanner(){banner.show=false;LS.set("ds_ban",banner);applyBanner();}
 
 // FILTERS
 function buildFilterUI(){
-  document.getElementById("flt-sizes").innerHTML=ALL_SIZES.map(s=>`<div class="fchip${fSizes.includes(s)?' sel':''}" onclick="togFS('${s}')">${s}</div>`).join("");
+  document.getElementById("flt-sizes").innerHTML=ALL_SIZES.map(s=>{
+    const cnt=products.filter(p=>!isSold(p)&&(fCat==="All"||p.category===fCat)&&(p.sizes||[]).includes(s)&&!(p.oosizes||[]).includes(s)).length;
+    return`<div class="fchip${fSizes.includes(s)?' sel':''}${cnt===0?' fchip-empty':''}" onclick="togFS('${s}')">${s}${cnt?` <span class="fchip-cnt">(${cnt})</span>`:''}</div>`;
+  }).join("");
   document.getElementById("flt-fits").innerHTML=fits.map(f=>`<label><input type="checkbox" ${fFits.includes(f)?'checked':''} onchange="togFF('${f}')"/> ${f}</label>`).join("");
 }
 function togFS(s){if(fSizes.includes(s))fSizes=fSizes.filter(x=>x!==s);else fSizes.push(s);buildFilterUI();renderGrid();showAF();}
@@ -1434,11 +1443,15 @@ function pcardHTML(p){
     const rbl=p.reelUrl?`<div class="rl-btn" onclick="event.stopPropagation();window.open('${p.reelUrl}','_blank')">▶ Reel</div>`:'';
     const plink=`https://365dropstore.com/#product-${p.id}`;
     const cardClick=isSold(p)?'':` onclick="openMo('${p.id}')"`;
+    const fitBand=p.fit?`<div class="pfitband">${p.fit.toUpperCase()} FIT</div>`:'';
+    const saved=isWishlisted(p.id);
     return`<div class="pcard${isSold(p)?' so':''}"${cardClick}>
       <div class="pimg">
         <div class="pbadges">${bgs}</div>
+        <div class="pwish${saved?' on':''}" onclick="event.stopPropagation();toggleWishlist('${p.id}')" title="Save">${saved?'♥':'♡'}</div>
         <img class="pfront" src="${img1}" alt="${p.name}" loading="lazy"/>
         <img class="pback" src="${img2}" alt="${p.name}" loading="lazy"/>
+        ${fitBand}
         ${rbl}
         ${!isSold(p)?`<div class="pactions">
           <div class="patc" data-label="Add to Bag" onclick="event.stopPropagation();openMo('${p.id}')">Add to Bag</div>
@@ -1447,6 +1460,15 @@ function pcardHTML(p){
       </div>
       <div class="pmeta"><div class="pname">${p.name}</div><div class="pfit">${p.fit||''} · ${p.category}</div><div class="pprices">${pr}</div><div class="psizes">${szs}</div>${lowStock}${restockNote}</div>
     </div>`;
+}
+let wishlist=LS.get("ds_wishlist",[])||[];
+function isWishlisted(id){return wishlist.includes(id);}
+function toggleWishlist(id){
+  if(wishlist.includes(id))wishlist=wishlist.filter(x=>x!==id);
+  else wishlist.push(id);
+  LS.set("ds_wishlist",wishlist);
+  renderGrid();
+  showCustomerToast(wishlist.includes(id)?'Saved ♥':'Removed from saved');
 }
 const isSold=p=>p.badges&&p.badges.includes("sold");
 function renderHomeSections(){
@@ -1483,6 +1505,7 @@ function renderGrid(){
   list=list.filter(p=>eff(p)<=fMaxPrice);
   if(srt==="low")list.sort((a,b)=>eff(a)-eff(b));else if(srt==="high")list.sort((a,b)=>eff(b)-eff(a));else if(srt==="new")list.sort((a,b)=>(b.addedAt||0)-(a.addedAt||0));else list.sort((a,b)=>(a.order||99)-(b.order||99));
   document.getElementById("pgrid").innerHTML=list.length?list.map(pcardHTML).join(""):`<div class="np">No products match your filters.</div>`;
+  const cnt=document.getElementById("shopall-count");if(cnt)cnt.textContent=list.length?`· ${list.length} item${list.length>1?'s':''}`:'';
   renderHomeSections();
 }
 
