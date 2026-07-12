@@ -1452,7 +1452,7 @@ function renderHomeSections(){
     all.sort((a,b)=>{const ab=(a.badges||[]).includes("best")?0:1,bb=(b.badges||[]).includes("best")?0:1;if(ab!==bb)return ab-bb;return(a.order||99)-(b.order||99);});
     const top4=all.slice(0,4);
     const fitSafe=s.fit.replace(/'/g,"\\'");
-    const headClass=s.fit.trim().toLowerCase()==="wide-leg"?" glow-heading":"";
+    const headClass=" glow-heading";
     return`<div class="sh" style="margin-top:56px">
       <div><h2 class="${headClass}">${s.fit.toUpperCase()}</h2><p class="shs">${all.length} style${all.length>1?'s':''} in this fit</p></div>
       ${all.length>4?`<button class="btn btn-g" onclick="jumpToFit('${fitSafe}')">Show More →</button>`:''}
