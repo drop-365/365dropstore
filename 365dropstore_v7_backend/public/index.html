@@ -738,6 +738,26 @@ main,header,footer,.sec,.trust,.mq{position:relative;z-index:2}
 @media(max-width:640px){#crtfx{opacity:.35}#netfx{opacity:.4}}
 /* ===== SCI-FI: DECODE HEADINGS ===== */
 [data-dec]{font-variant-ligatures:none}
+.fit-strip{position:relative;background:var(--white);border-radius:16px;padding:36px 32px;margin-top:56px;overflow:hidden}
+.fit-strip::before{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,transparent,var(--red),transparent);opacity:0;box-shadow:0 0 20px 2px var(--red) inset;animation:fsGlow 2.6s ease-in-out infinite}
+@keyframes fsGlow{0%,100%{opacity:.35}50%{opacity:.85}}
+.fs-head{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;margin-bottom:22px;flex-wrap:wrap;position:relative;z-index:1}
+.fs-head h2{font-family:var(--dsp);font-size:clamp(32px,4.5vw,54px);letter-spacing:.02em;color:var(--bg);text-transform:uppercase}
+.fs-head.flicker h2{animation:fsFlicker 4s steps(4) infinite}
+@keyframes fsFlicker{0%,88%,100%{filter:drop-shadow(0 0 0 transparent)}90%{filter:drop-shadow(-2px 0 #C0392B) drop-shadow(2px 0 #38e8ff)}92%{filter:drop-shadow(2px 0 #C0392B) drop-shadow(-2px 0 #38e8ff)}94%{filter:drop-shadow(0 0 0 transparent)}}
+.fs-shs{color:var(--mid);font-size:14px;max-width:360px}
+.fit-strip .pgrid{position:relative;z-index:1}
+.fit-strip .pcard{background:#1c1a18}
+.fit-strip .pname{color:var(--bg)}
+.fit-strip .pfit{color:var(--mid)}
+.fit-strip .pnow{color:var(--bg)}
+.fit-strip .pwas{color:var(--mid)}
+.fit-strip .sz{border-color:rgba(248,247,244,.15);color:var(--mid)}
+.btn-glow{background:var(--red);color:#fff;position:relative;box-shadow:0 0 0 0 rgba(192,57,43,.6)}
+.btn-glow.bounce{animation:fsBounce 1.8s ease-in-out infinite,fsPulse 1.8s ease-in-out infinite}
+@keyframes fsBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@keyframes fsPulse{0%,100%{box-shadow:0 0 0 0 rgba(192,57,43,.55)}50%{box-shadow:0 0 0 10px rgba(192,57,43,0)}}
+@media(prefers-reduced-motion:reduce){.fit-strip::before,.fs-head.flicker h2,.btn-glow.bounce{animation:none}}
 
 </style>
 </head>
@@ -865,6 +885,7 @@ main,header,footer,.sec,.trust,.mq{position:relative;z-index:2}
 
 <!-- shop -->
 <section class="sec" id="shop"><div class="w">
+  <div id="home-sections"></div>
   <div class="sh sr"><div><h2 data-dec>CURRENT DROP</h2><p class="shs">Every piece is limited. When your size is gone, it's gone.</p></div></div>
   <div class="shopbar sr">
     <button class="fb" onclick="openFilters()">☰ Filters</button>
@@ -1059,7 +1080,7 @@ https://raw.githubusercontent.com/drop-365/365dropstore/main/images/jean2.jpg" s
   </div></div>
 
   <!-- edit site tab -->
-  <div id="tab-site" class="apsec" style="display:none"><h3>EDIT SITE CONTENT</h3><div class="pfgrid">
+  <div id="tab-site" class="apsec" style="display:none"><h3>EDIT SITE CONTENT <button class="btn btn-g" style="font-size:11px;padding:4px 10px;margin-left:8px" onclick="refreshSectionFromSupabase('site')">↻ Refresh</button></h3><div class="pfgrid">
     <div class="pff full" style="padding-bottom:14px;border-bottom:1px solid var(--line)"><label>ANNOUNCEMENT BAR (small text below nav)</label><input type="text" id="site-ann" placeholder="Drop 001 · Delhi · WhatsApp-only checkout · Pan India shipping"/></div>
     <div class="pff full" style="border-top:0"><label>HERO HEADLINE (line 1 | line 2 | line 3 — pipe separated)</label><input type="text" id="site-hero-h1" placeholder="365|DROPS|DAILY"/><small>3 words, one per line. First and third go white, middle goes muted.</small></div>
     <div class="pff full"><label>HERO SUBTITLE</label><textarea id="site-hero-sub" rows="2"></textarea></div>
@@ -1141,7 +1162,7 @@ https://raw.githubusercontent.com/drop-365/365dropstore/main/images/jean2.jpg" s
   </div></div>
 
   <!-- live banner tab -->
-  <div id="tab-banner" class="apsec" style="display:none"><h3>LIVE BANNER</h3>
+  <div id="tab-banner" class="apsec" style="display:none"><h3>LIVE BANNER <button class="btn btn-g" style="font-size:11px;padding:4px 10px;margin-left:8px" onclick="refreshSectionFromSupabase('banner')">↻ Refresh</button></h3>
     <p style="color:var(--off);font-size:14px;margin-bottom:20px">This white banner appears at the very top of the site. Use it for flash sales, announcements, limited-time offers.</p>
     <div class="pfgrid">
       <div class="pff full"><label>Banner Text</label><input type="text" id="ban-text" placeholder="🔥 FLASH SALE — First 200 orders get ₹200 OFF. Use code DROP200 on WhatsApp."/></div>
@@ -1157,18 +1178,25 @@ https://raw.githubusercontent.com/drop-365/365dropstore/main/images/jean2.jpg" s
   </div>
 
   <!-- fits manager tab -->
-  <div id="tab-fits" class="apsec" style="display:none"><h3>FITS MANAGER</h3>
+  <div id="tab-fits" class="apsec" style="display:none"><h3>FITS MANAGER <button class="btn btn-g" style="font-size:11px;padding:4px 10px;margin-left:8px" onclick="refreshSectionFromSupabase('fits')">↻ Refresh</button></h3>
     <p style="color:var(--off);font-size:14px;margin-bottom:18px">Add or remove fit options. These appear as filter checkboxes and in the product Add/Edit form.</p>
     <div class="fits-list" id="fits-list"></div>
     <div class="fit-add"><input type="text" id="fit-new" placeholder="New fit (e.g. Wide-Leg, Relaxed…)" onkeydown="if(event.key==='Enter')addFit()"/><button class="btn btn-w" onclick="addFit()">Add</button></div>
     <p style="color:var(--off);font-size:12px;margin-top:12px">Changes apply immediately to filters and product forms.</p>
+    <div style="border-top:1px solid var(--line);margin-top:24px;padding-top:20px">
+      <label style="font-size:15px">HOMEPAGE SECTIONS</label>
+      <p style="color:var(--off);font-size:13px;margin:6px 0 14px">Show a dedicated row on the homepage for any fit — top 4 items, with a "Show More" that filters the full catalog. Unchecked fits stay filter-only, no homepage row.</p>
+      <div id="home-sections-admin"></div>
+      <button class="btn btn-w" style="margin-top:14px" onclick="saveHomeSections()">Save Homepage Sections</button>
+      <p id="hs-msg" style="display:none;font-size:12px;margin-top:8px"></p>
+    </div>
   </div>
 
   <!-- reviews tab -->
-  <div id="tab-reviews" class="apsec" style="display:none"><h3>REVIEWS</h3><div class="pfgrid"><div class="pff"><label>Customer Name</label><input type="text" id="rv0" placeholder="Aryan M."/></div><div class="pff"><label>City</label><input type="text" id="rv1" placeholder="Delhi"/></div><div class="pff"><label>Stars (1–5)</label><input type="number" id="rv2" min="1" max="5" value="5"/></div><div class="pff full"><label>Review Text</label><textarea id="rv3" rows="3" placeholder="What they said…"></textarea></div><div class="pff full"><button class="btn btn-w" onclick="saveRev()">Add Text Review</button></div><div class="pff full" style="border-top:1px solid var(--line);padding-top:16px;margin-top:6px"><label>OR ADD IMAGE REVIEWS — buyer screenshots (Insta story / WhatsApp chat)</label><input type="file" accept="image/*,.heic,.heif" multiple onchange="revImgUp(this)"/><small>Upload buyer screenshots. Each becomes a tap-to-zoom card in the reviews grid. Multiple allowed.</small></div></div><div style="margin-top:22px" id="rev-adm"></div></div>
+  <div id="tab-reviews" class="apsec" style="display:none"><h3>REVIEWS <button class="btn btn-g" style="font-size:11px;padding:4px 10px;margin-left:8px" onclick="refreshSectionFromSupabase('reviews')">↻ Refresh</button></h3><div class="pfgrid"><div class="pff"><label>Customer Name</label><input type="text" id="rv0" placeholder="Aryan M."/></div><div class="pff"><label>City</label><input type="text" id="rv1" placeholder="Delhi"/></div><div class="pff"><label>Stars (1–5)</label><input type="number" id="rv2" min="1" max="5" value="5"/></div><div class="pff full"><label>Review Text</label><textarea id="rv3" rows="3" placeholder="What they said…"></textarea></div><div class="pff full"><button class="btn btn-w" onclick="saveRev()">Add Text Review</button></div><div class="pff full" style="border-top:1px solid var(--line);padding-top:16px;margin-top:6px"><label>OR ADD IMAGE REVIEWS — buyer screenshots (Insta story / WhatsApp chat)</label><input type="file" accept="image/*,.heic,.heif" multiple onchange="revImgUp(this)"/><small>Upload buyer screenshots. Each becomes a tap-to-zoom card in the reviews grid. Multiple allowed.</small></div></div><div style="margin-top:22px" id="rev-adm"></div></div>
 
   <!-- story updates tab -->
-  <div id="tab-stories" class="apsec" style="display:none"><h3>STORY UPDATES</h3>
+  <div id="tab-stories" class="apsec" style="display:none"><h3>STORY UPDATES <button class="btn btn-g" style="font-size:11px;padding:4px 10px;margin-left:8px" onclick="refreshSectionFromSupabase('stories')">↻ Refresh</button></h3>
     <p style="color:var(--off);font-size:14px;margin-bottom:16px">Instagram-style daily updates. These show as tappable circles below the ticker, with a tap-through full-screen viewer that auto-advances.</p>
     <div class="pfgrid">
       <div class="pff"><label>Story Label (under the circle)</label><input type="text" id="sty-label" placeholder="New Drop"/></div>
@@ -1182,7 +1210,7 @@ https://raw.githubusercontent.com/drop-365/365dropstore/main/images/jean2.jpg" s
   </div>
 
   <!-- settings tab -->
-  <div id="tab-settings" class="apsec" style="display:none"><h3>SETTINGS</h3><div class="pfgrid">
+  <div id="tab-settings" class="apsec" style="display:none"><h3>SETTINGS <button class="btn btn-g" style="font-size:11px;padding:4px 10px;margin-left:8px" onclick="refreshSectionFromSupabase('settings')">↻ Refresh</button></h3><div class="pfgrid">
     <div class="pff full" style="border:1px solid var(--glow);border-radius:12px;padding:18px;margin-bottom:6px;background:rgba(192,57,43,.06)">
       <label style="font-size:15px">🚀 PUBLISH TO LIVE (legacy — optional)</label>
       <p style="color:var(--off)!important;font-size:12px;line-height:1.55;margin:8px 0 12px">Your saves now sync live automatically — you don't need this anymore for normal edits. <b>Preview</b> still works for checking unsaved drafts before saving. <b>Publish</b> is kept as a manual backup push, not required for day-to-day use.</p>
@@ -1281,6 +1309,7 @@ let fits=LS.get("ds_fits",DFits);
 let stories=LS.get("ds_stories",[]);
 let cart=LS.get("ds_cart",[])||[];let editId=null;
 let orders=LS.get("ds_orders",[])||[];let ckStep="bag";
+let homeSections=LS.get("ds_home_sections",[])||[];
 let attCnt=LS.get("adm_att",0);let locked=LS.get("adm_lk",false);
 let _adminPw="";
 const pwOv=LS.get("adm_pd",null);if(pwOv)AH=pwOv;
@@ -1405,15 +1434,7 @@ function showAF(){const tags=[];if(fCat!=="All")tags.push({l:fCat,c:()=>setCat("
 function cAF(i){if(window._afc&&window._afc[i])window._afc[i]();}
 
 // GRID
-function renderGrid(){
-  const srt=document.getElementById("srt").value;
-  let list=[...products].filter(p=>fCat==="All"||p.category===fCat);
-  if(fSizes.length)list=list.filter(p=>(p.sizes||[]).some(s=>fSizes.includes(s)));
-  if(fFits.length)list=list.filter(p=>fFits.includes(p.fit));
-  list=list.filter(p=>eff(p)<=fMaxPrice);
-  if(srt==="low")list.sort((a,b)=>eff(a)-eff(b));else if(srt==="high")list.sort((a,b)=>eff(b)-eff(a));else if(srt==="new")list.sort((a,b)=>(b.addedAt||0)-(a.addedAt||0));else list.sort((a,b)=>(a.order||99)-(b.order||99));
-  const isSold=p=>p.badges&&p.badges.includes("sold");
-  document.getElementById("pgrid").innerHTML=list.length?list.map(p=>{
+function pcardHTML(p){
     const imgs=p.images||[];const img1=imgs[0]||"";const img2=imgs[1]||img1;
     const bgs=(p.badges||[]).filter(b=>BM[b]).map(b=>`<span class="bdg ${BM[b].c}">${BM[b].t}</span>`).join("");
     const pr=p.offerPrice?`<span class="pnow">${inr(p.offerPrice)}</span><span class="pwas">${inr(p.price)}</span><span class="psave">-${Math.round((1-p.offerPrice/p.price)*100)}%</span>`:`<span class="pnow">${inr(p.price)}</span>`;
@@ -1437,7 +1458,63 @@ function renderGrid(){
       </div>
       <div class="pmeta"><div class="pname">${p.name}</div><div class="pfit">${p.fit||''} · ${p.category}</div><div class="pprices">${pr}</div><div class="psizes">${szs}</div>${lowStock}${restockNote}</div>
     </div>`;
-  }).join(""):`<div class="np">No products match your filters.</div>`;}
+}
+const isSold=p=>p.badges&&p.badges.includes("sold");
+function renderHomeSections(){
+  const el=document.getElementById("home-sections");
+  if(!el)return;
+  if(!homeSections.length){el.innerHTML="";return;}
+  const enabled=homeSections.filter(s=>s.enabled).sort((a,b)=>(a.order||0)-(b.order||0));
+  el.innerHTML=enabled.map((s,idx)=>{
+    const all=products.filter(p=>p.fit===s.fit&&!isSold(p)&&(p.images||[]).length);
+    if(!all.length)return"";
+    all.sort((a,b)=>{const ab=(a.badges||[]).includes("best")?0:1,bb=(b.badges||[]).includes("best")?0:1;if(ab!==bb)return ab-bb;return(a.order||99)-(b.order||99);});
+    const top4=all.slice(0,4);
+    const fitSafe=s.fit.replace(/'/g,"\\'");
+    return`<div class="fit-strip" id="fit-strip-${idx}">
+      <div class="fs-head flicker"><div><h2>${s.fit.toUpperCase()}</h2><p class="fs-shs">${all.length} style${all.length>1?'s':''} in this fit</p></div>
+      ${all.length>4?`<button class="btn btn-glow" id="fit-more-${idx}" onclick="jumpToFit('${fitSafe}')">Show More →</button>`:''}
+    </div>
+    <div class="pgrid">${top4.map(pcardHTML).join("")}</div>`;
+  }).join("");
+  bounceHomeSectionsOnView();
+}
+function bounceHomeSectionsOnView(){
+  if(!("IntersectionObserver" in window))return;
+  document.querySelectorAll('.fit-strip').forEach(strip=>{
+    const btn=strip.querySelector('.btn-glow');
+    if(!btn||btn.dataset.bounced)return;
+    const io=new IntersectionObserver(entries=>{
+      entries.forEach(en=>{
+        if(en.isIntersecting){
+          btn.classList.add('bounce');
+          btn.dataset.bounced='1';
+          setTimeout(()=>btn.classList.remove('bounce'),6000);
+          io.disconnect();
+        }
+      });
+    },{threshold:.4});
+    io.observe(strip);
+  });
+}
+function jumpToFit(fit){
+  fCat="All";fSizes=[];fFits=[fit];fMaxPrice=5000;
+  document.getElementById("price-slider").value=5000;
+  document.getElementById("price-val").textContent="Under ₹5,000";
+  setCat("All");buildFilterUI();renderGrid();showAF();
+  const grid=document.getElementById("pgrid");
+  if(grid)grid.scrollIntoView({behavior:"smooth",block:"start"});
+}
+function renderGrid(){
+  const srt=document.getElementById("srt").value;
+  let list=[...products].filter(p=>fCat==="All"||p.category===fCat);
+  if(fSizes.length)list=list.filter(p=>(p.sizes||[]).some(s=>fSizes.includes(s)));
+  if(fFits.length)list=list.filter(p=>fFits.includes(p.fit));
+  list=list.filter(p=>eff(p)<=fMaxPrice);
+  if(srt==="low")list.sort((a,b)=>eff(a)-eff(b));else if(srt==="high")list.sort((a,b)=>eff(b)-eff(a));else if(srt==="new")list.sort((a,b)=>(b.addedAt||0)-(a.addedAt||0));else list.sort((a,b)=>(a.order||99)-(b.order||99));
+  document.getElementById("pgrid").innerHTML=list.length?list.map(pcardHTML).join(""):`<div class="np">No products match your filters.</div>`;
+  renderHomeSections();
+}
 
 // SHARE PRODUCT
 function shareProduct(id,name,link){
@@ -1822,10 +1899,38 @@ function loadBannerAdmin(){document.getElementById("ban-text").value=banner.text
 function saveBanner(){banner={text:document.getElementById("ban-text").value,show:document.getElementById("ban-show").checked};LS.set("ds_ban",banner);applyBanner();const m=document.getElementById("ban-msg");m.textContent="Banner saved ✓";m.style.color="#4ade80";m.style.background="rgba(74,222,128,.08)";m.style.display="block";setTimeout(()=>m.style.display="none",2000);showToast("Banner saved ✓",true);syncSettingsToSupabase("banner",banner);}
 
 // FITS MANAGER
-function loadFitsAdmin(){renderFitsList();}
+function loadFitsAdmin(){renderFitsList();renderHomeSectionsAdmin();}
 function renderFitsList(){const el=document.getElementById("fits-list");if(!el)return;el.innerHTML=fits.map((f,i)=>`<div class="fit-tag">${f}<span class="fit-rm" onclick="remFit(${i})">×</span></div>`).join("");}
-function addFit(){const inp=document.getElementById("fit-new");const v=inp.value.trim();if(!v||fits.includes(v))return;fits.push(v);LS.set("ds_fits",fits);renderFitsList();populateFitSelect();buildFilterUI();inp.value="";syncSettingsToSupabase("fits",fits);}
-function remFit(i){if(fits.length<=1){alert("Need at least one fit.");return;}fits.splice(i,1);LS.set("ds_fits",fits);renderFitsList();populateFitSelect();buildFilterUI();syncSettingsToSupabase("fits",fits);}
+function renderHomeSectionsAdmin(){
+  const el=document.getElementById("home-sections-admin");if(!el)return;
+  el.innerHTML=fits.map((f,i)=>{
+    const existing=homeSections.find(s=>s.fit===f);
+    const enabled=existing?existing.enabled:false;
+    const order=existing?(existing.order??i):i;
+    const fitSafe=f.replace(/'/g,"\\'");
+    return`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)">
+      <input type="checkbox" id="hs-en-${i}" ${enabled?'checked':''} style="width:16px;height:16px"/>
+      <span style="flex:1">${f}</span>
+      <span style="color:var(--off);font-size:12px">Order</span>
+      <input type="number" id="hs-ord-${i}" value="${order}" style="width:60px;padding:6px" data-fit="${fitSafe}"/>
+    </div>`;
+  }).join("");
+}
+function saveHomeSections(){
+  homeSections=fits.map((f,i)=>{
+    const en=document.getElementById(`hs-en-${i}`);
+    const ord=document.getElementById(`hs-ord-${i}`);
+    return{fit:f,enabled:en?en.checked:false,order:ord?(parseInt(ord.value)||0):i};
+  });
+  LS.set("ds_home_sections",homeSections);
+  renderHomeSections();
+  const m=document.getElementById("hs-msg");
+  if(m){m.textContent="Saved ✓";m.style.color="#4ade80";m.style.background="rgba(74,222,128,.08)";m.style.display="block";setTimeout(()=>m.style.display="none",2000);}
+  showToast("Homepage sections saved ✓ — syncing live...",true);
+  syncSettingsToSupabase("home_sections",homeSections);
+}
+function addFit(){const inp=document.getElementById("fit-new");const v=inp.value.trim();if(!v||fits.includes(v))return;fits.push(v);LS.set("ds_fits",fits);renderFitsList();renderHomeSectionsAdmin();populateFitSelect();buildFilterUI();inp.value="";syncSettingsToSupabase("fits",fits);}
+function remFit(i){if(fits.length<=1){alert("Need at least one fit.");return;}fits.splice(i,1);LS.set("ds_fits",fits);renderFitsList();renderHomeSectionsAdmin();populateFitSelect();buildFilterUI();syncSettingsToSupabase("fits",fits);}
 
 // REVIEWS ADMIN
 function saveRev(){const n=document.getElementById("rv0").value.trim();const t=document.getElementById("rv3").value.trim();if(!n||!t)return;const newRev={id:"R"+uid(),stars:Number(document.getElementById("rv2").value)||5,text:t,who:n,where:document.getElementById("rv1").value.trim()||"India"};reviews.unshift(newRev);LS.set("ds_r",reviews);renderRevs();rnAdmRev();["rv0","rv1","rv3"].forEach(id=>document.getElementById(id).value="");syncReviewToSupabase("save",newRev);}
@@ -2519,6 +2624,48 @@ const SUPABASE_ANON_KEY = "sb_publishable_LPwVp36pEOfQIEchjefMfw_SmGNcxUt";
 let sbClient = null;
 try { if(typeof supabase!=="undefined") sbClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY); } catch(e) { /* supabase-js failed to load (offline, blocked, etc) */ }
 
+async function refreshSectionFromSupabase(section){
+  if(!sbClient){showToast("⚠️ Can't reach Supabase right now.",false);return;}
+  try{
+    if(section==="reviews"){
+      const {data,error}=await sbClient.from('reviews').select('*');
+      if(error)throw new Error(error.message);
+      reviews=(data||[]).map(r=>({id:r.id,type:r.type,stars:r.stars,text:r.text_content,who:r.who,where:r.where_loc,img:r.img}));
+      LS.set("ds_r",reviews);rnAdmRev();
+    }else if(section==="site"){
+      const {data,error}=await sbClient.from('site_content').select('content').eq('id',1).single();
+      if(error)throw new Error(error.message);
+      if(data&&data.content&&Object.keys(data.content).length){siteContent=Object.assign({},siteContent,data.content);LS.set("ds_site",siteContent);loadSiteEd();}
+    }else if(section==="banner"){
+      const {data,error}=await sbClient.from('banner').select('content').eq('id',1).single();
+      if(error)throw new Error(error.message);
+      if(data&&data.content&&Object.keys(data.content).length){banner=data.content;LS.set("ds_ban",banner);loadBannerAdmin();}
+    }else if(section==="fits"){
+      const [fitsRes,hsRes]=await Promise.all([
+        sbClient.from('fits').select('content').eq('id',1).single(),
+        sbClient.from('home_sections').select('content').eq('id',1).single()
+      ]);
+      if(fitsRes.error)throw new Error(fitsRes.error.message);
+      if(fitsRes.data&&Array.isArray(fitsRes.data.content)&&fitsRes.data.content.length){fits=fitsRes.data.content;LS.set("ds_fits",fits);populateFitSelect();buildFilterUI();}
+      if(!hsRes.error&&hsRes.data&&Array.isArray(hsRes.data.content)){homeSections=hsRes.data.content;LS.set("ds_home_sections",homeSections);}
+      loadFitsAdmin();
+    }else if(section==="stories"){
+      const {data,error}=await sbClient.from('stories').select('*').order('display_order',{ascending:true});
+      if(error)throw new Error(error.message);
+      stories=(data||[]).map(s=>({id:s.id,img:s.img,label:s.label,caption:s.caption,productId:s.product_id,date:s.story_date,order:s.display_order}));
+      LS.set("ds_stories",stories);renderStoryAdmin();renderStoriesRail();
+    }else if(section==="settings"){
+      const [palRes,gscRes]=await Promise.all([
+        sbClient.from('palette').select('content').eq('id',1).single(),
+        sbClient.from('global_size_chart').select('content').eq('id',1).single()
+      ]);
+      if(palRes.data&&palRes.data.content&&Object.keys(palRes.data.content).length){palette=palRes.data.content;LS.set("ds_pal",palette);applyPalette();}
+      if(gscRes.data&&gscRes.data.content){globalSc=gscRes.data.content;LS.set("ds_gsc",globalSc);}
+      loadPaletteAdmin();loadGlobalScAdmin();
+    }
+    showToast("✓ Refreshed from live.",true);
+  }catch(e){showToast("⚠️ Refresh failed: "+e.message,false);}
+}
 async function refreshProductsFromSupabase(){
   if(!sbClient){showToast("⚠️ Can't reach Supabase right now.",false);return;}
   try{
@@ -2543,7 +2690,7 @@ async function refreshProductsFromSupabase(){
 async function loadFromSupabaseIfAvailable(){
   if(!sbClient) return false;
   try{
-    const [prodRes, revRes, siteRes, banRes, fitsRes, palRes, gscRes, storiesRes] = await Promise.all([
+    const [prodRes, revRes, siteRes, banRes, fitsRes, palRes, gscRes, storiesRes, hsRes] = await Promise.all([
       sbClient.from('products').select('*'),
       sbClient.from('reviews').select('*'),
       sbClient.from('site_content').select('content').eq('id',1).single(),
@@ -2551,7 +2698,8 @@ async function loadFromSupabaseIfAvailable(){
       sbClient.from('fits').select('content').eq('id',1).single(),
       sbClient.from('palette').select('content').eq('id',1).single(),
       sbClient.from('global_size_chart').select('content').eq('id',1).single(),
-      sbClient.from('stories').select('*').order('display_order',{ascending:true})
+      sbClient.from('stories').select('*').order('display_order',{ascending:true}),
+      sbClient.from('home_sections').select('content').eq('id',1).single()
     ]);
     if(prodRes.error || !prodRes.data || !prodRes.data.length) return false;
     products = prodRes.data.map(p=>({
@@ -2591,6 +2739,9 @@ async function loadFromSupabaseIfAvailable(){
         id:s.id, img:s.img, label:s.label, caption:s.caption,
         productId:s.product_id, date:s.story_date, order:s.display_order
       }));
+    }
+    if(!hsRes.error && hsRes.data && Array.isArray(hsRes.data.content)){
+      homeSections = hsRes.data.content;
     }
     return true;
   }catch(e){
