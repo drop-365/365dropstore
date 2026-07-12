@@ -517,7 +517,7 @@ table.ptbl{width:100%;border-collapse:collapse;font-size:13px}
 /* RESPONSIVE */
 @media(max-width:1100px){.pgrid{grid-template-columns:repeat(3,1fr)}.fgrid{grid-template-columns:1fr 1fr;gap:24px}}
 @media(max-width:900px){.hleft{padding:48px 20px}.pgrid{grid-template-columns:repeat(2,1fr)}.stinner{grid-template-columns:1fr}.stimg{height:260px}.editorial{grid-template-columns:1fr}.edimg{height:240px}.revgrid{grid-template-columns:1fr 1fr}.tgrid{grid-template-columns:repeat(2,1fr)}.mo{grid-template-columns:1fr}.mocar-imgs{aspect-ratio:3/4}.apstats{grid-template-columns:repeat(2,1fr)}.pfgrid{grid-template-columns:1fr}.pff.full{grid-column:unset}}
-@media(max-width:640px){.nlinks{display:none}.burger{display:flex}.w{padding:0 18px}.pgrid{grid-template-columns:repeat(2,1fr);gap:10px}.revgrid{grid-template-columns:1fr}.fgrid{grid-template-columns:1fr}.tgrid{grid-template-columns:repeat(2,1fr)}#sres{grid-template-columns:repeat(2,1fr)}.fit-strip{padding:16px 6px;border-radius:12px}.fit-strip::before{display:none}.fs-head{margin-bottom:14px}.fs-head h2{font-size:28px}.fit-strip .pgrid{gap:8px}}
+@media(max-width:640px){.nlinks{display:none}.burger{display:flex}.w{padding:0 18px}.pgrid{grid-template-columns:repeat(2,1fr);gap:10px}.revgrid{grid-template-columns:1fr}.fgrid{grid-template-columns:1fr}.tgrid{grid-template-columns:repeat(2,1fr)}#sres{grid-template-columns:repeat(2,1fr)}}
 
 /* GRAIN */
 body::after{content:"";position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.03;mix-blend-mode:multiply;
@@ -738,26 +738,7 @@ main,header,footer,.sec,.trust,.mq{position:relative;z-index:2}
 @media(max-width:640px){#crtfx{opacity:.35}#netfx{opacity:.4}}
 /* ===== SCI-FI: DECODE HEADINGS ===== */
 [data-dec]{font-variant-ligatures:none}
-.fit-strip{position:relative;background:var(--white);border-radius:16px;padding:36px 32px;margin:56px 0 24px;overflow:hidden}
-.fit-strip::before{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,transparent,var(--red),transparent);opacity:0;box-shadow:0 0 8px 0 var(--red) inset;animation:fsGlow 2.6s ease-in-out infinite}
-@keyframes fsGlow{0%,100%{opacity:.35}50%{opacity:.85}}
-.fs-head{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;margin-bottom:22px;flex-wrap:wrap;position:relative;z-index:1}
-.fs-head h2{font-family:var(--dsp);font-size:clamp(32px,4.5vw,54px);letter-spacing:.02em;color:var(--bg);text-transform:uppercase}
-.fs-head.flicker h2{animation:fsFlicker 4s steps(4) infinite}
-@keyframes fsFlicker{0%,88%,100%{filter:drop-shadow(0 0 0 transparent)}90%{filter:drop-shadow(-2px 0 #C0392B) drop-shadow(2px 0 #38e8ff)}92%{filter:drop-shadow(2px 0 #C0392B) drop-shadow(-2px 0 #38e8ff)}94%{filter:drop-shadow(0 0 0 transparent)}}
-.fs-shs{color:var(--mid);font-size:14px;max-width:360px}
-.fit-strip .pgrid{position:relative;z-index:1}
-.fit-strip .pcard{background:#1c1a18}
-.fit-strip .pname{color:var(--bg)}
-.fit-strip .pfit{color:var(--mid)}
-.fit-strip .pnow{color:var(--bg)}
-.fit-strip .pwas{color:var(--mid)}
-.fit-strip .sz{border-color:rgba(248,247,244,.15);color:var(--mid)}
-.btn-glow{background:var(--red);color:#fff;position:relative;box-shadow:0 0 0 0 rgba(192,57,43,.6)}
-.btn-glow.bounce{animation:fsBounce 1.8s ease-in-out infinite,fsPulse 1.8s ease-in-out infinite}
-@keyframes fsBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
-@keyframes fsPulse{0%,100%{box-shadow:0 0 0 0 rgba(192,57,43,.55)}50%{box-shadow:0 0 0 10px rgba(192,57,43,0)}}
-@media(prefers-reduced-motion:reduce){.fit-strip::before,.fs-head.flicker h2,.btn-glow.bounce{animation:none}}
+.glow-heading{color:var(--red)!important;text-shadow:0 0 10px rgba(192,57,43,.65),0 0 22px rgba(192,57,43,.35)}
 
 </style>
 </head>
@@ -1471,31 +1452,13 @@ function renderHomeSections(){
     all.sort((a,b)=>{const ab=(a.badges||[]).includes("best")?0:1,bb=(b.badges||[]).includes("best")?0:1;if(ab!==bb)return ab-bb;return(a.order||99)-(b.order||99);});
     const top4=all.slice(0,4);
     const fitSafe=s.fit.replace(/'/g,"\\'");
-    return`<div class="fit-strip" id="fit-strip-${idx}">
-      <div class="fs-head flicker"><div><h2>${s.fit.toUpperCase()}</h2><p class="fs-shs">${all.length} style${all.length>1?'s':''} in this fit</p></div>
-      ${all.length>4?`<button class="btn btn-glow" id="fit-more-${idx}" onclick="jumpToFit('${fitSafe}')">Show More →</button>`:''}
+    const headClass=s.fit.trim().toLowerCase()==="wide-leg"?" glow-heading":"";
+    return`<div class="sh" style="margin-top:56px">
+      <div><h2 class="${headClass}">${s.fit.toUpperCase()}</h2><p class="shs">${all.length} style${all.length>1?'s':''} in this fit</p></div>
+      ${all.length>4?`<button class="btn btn-g" onclick="jumpToFit('${fitSafe}')">Show More →</button>`:''}
     </div>
     <div class="pgrid">${top4.map(pcardHTML).join("")}</div>`;
   }).join("");
-  bounceHomeSectionsOnView();
-}
-function bounceHomeSectionsOnView(){
-  if(!("IntersectionObserver" in window))return;
-  document.querySelectorAll('.fit-strip').forEach(strip=>{
-    const btn=strip.querySelector('.btn-glow');
-    if(!btn||btn.dataset.bounced)return;
-    const io=new IntersectionObserver(entries=>{
-      entries.forEach(en=>{
-        if(en.isIntersecting){
-          btn.classList.add('bounce');
-          btn.dataset.bounced='1';
-          setTimeout(()=>btn.classList.remove('bounce'),6000);
-          io.disconnect();
-        }
-      });
-    },{threshold:.4});
-    io.observe(strip);
-  });
 }
 function jumpToFit(fit){
   fCat="All";fSizes=[];fFits=[fit];fMaxPrice=5000;
