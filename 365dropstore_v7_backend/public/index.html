@@ -874,7 +874,7 @@ main,header,footer,.sec,.trust,.mq{position:relative;z-index:2}
 <!-- shop -->
 <section class="sec" id="shop"><div class="w">
   <div id="home-sections"></div>
-  <div class="sh sr"><div><h2 data-dec>CURRENT DROP</h2><p class="shs">Every piece is limited. When your size is gone, it's gone.</p></div></div>
+  <div class="sh sr"><div><h2 data-dec>SHOP ALL</h2><p class="shs">Every style, every fit — the full drop, in one place.</p></div></div>
   <div class="shopbar sr">
     <button class="fb" onclick="openFilters()">☰ Filters</button>
     <button class="fb act" id="fb-all" onclick="setCat('All')">All</button>
@@ -884,6 +884,7 @@ main,header,footer,.sec,.trust,.mq{position:relative;z-index:2}
   </div>
   <div class="afs" id="active-filters"></div>
   <div class="pgrid sr" id="pgrid"></div>
+  <div class="afs" id="active-filters-bottom" style="justify-content:center;margin-top:24px"></div>
 </div></section>
 
 <!-- editorial -->
@@ -1418,7 +1419,7 @@ function setCat(c){fCat=c;["all","jeans","t-shirts"].forEach(id=>{const b=docume
 function clearAllFilters(){fCat="All";fSizes=[];fFits=[];fMaxPrice=5000;document.getElementById("price-slider").value=5000;document.getElementById("price-val").textContent="Under ₹5,000";setCat("All");buildFilterUI();renderGrid();showAF();}
 function openFilters(){document.getElementById("fdrawer").classList.add("op");document.getElementById("fscrim").classList.add("op");}
 function closeFilters(){document.getElementById("fdrawer").classList.remove("op");document.getElementById("fscrim").classList.remove("op");}
-function showAF(){const tags=[];if(fCat!=="All")tags.push({l:fCat,c:()=>setCat("All")});fSizes.forEach(s=>tags.push({l:"Size: "+s,c:()=>togFS(s)}));fFits.forEach(f=>tags.push({l:f,c:()=>togFF(f)}));if(fMaxPrice<5000)tags.push({l:"Under "+inr(fMaxPrice),c:()=>{fMaxPrice=5000;document.getElementById("price-slider").value=5000;document.getElementById("price-val").textContent="Under ₹5,000";renderGrid();showAF();}});const chipsHTML=tags.map((t,i)=>`<div class="aft">${t.l} <span class="afx" onclick="cAF(${i})">×</span></div>`).join("");const viewAllHTML=tags.length?`<button class="btn btn-attract" style="font-size:12px;padding:8px 16px;margin-left:4px" onclick="clearAllFilters()">View all ${products.filter(p=>!isSold(p)).length} styles →</button>`:'';document.getElementById("active-filters").innerHTML=chipsHTML+viewAllHTML;window._afc=tags.map(t=>t.c);}
+function showAF(){const tags=[];if(fCat!=="All")tags.push({l:fCat,c:()=>setCat("All")});fSizes.forEach(s=>tags.push({l:"Size: "+s,c:()=>togFS(s)}));fFits.forEach(f=>tags.push({l:f,c:()=>togFF(f)}));if(fMaxPrice<5000)tags.push({l:"Under "+inr(fMaxPrice),c:()=>{fMaxPrice=5000;document.getElementById("price-slider").value=5000;document.getElementById("price-val").textContent="Under ₹5,000";renderGrid();showAF();}});const chipsHTML=tags.map((t,i)=>`<div class="aft">${t.l} <span class="afx" onclick="cAF(${i})">×</span></div>`).join("");const viewAllHTML=tags.length?`<button class="btn btn-attract" style="font-size:12px;padding:8px 16px;margin-left:4px" onclick="clearAllFilters()">View all ${products.filter(p=>!isSold(p)).length} styles →</button>`:'';document.getElementById("active-filters").innerHTML=chipsHTML+viewAllHTML;const bot=document.getElementById("active-filters-bottom");if(bot)bot.innerHTML=viewAllHTML;window._afc=tags.map(t=>t.c);}
 function cAF(i){if(window._afc&&window._afc[i])window._afc[i]();}
 
 // GRID
