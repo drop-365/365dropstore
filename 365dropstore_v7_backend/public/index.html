@@ -216,7 +216,7 @@ header{position:sticky;top:0;z-index:100;background:rgba(20,19,18,.95);backdrop-
 .pmeta{padding:12px 12px 14px}
 .pname{font-size:14px;font-weight:600;margin-bottom:3px;line-height:1.3;color:var(--white)}
 .pfit{font-size:11px;color:var(--off);margin-bottom:7px}
-.pprices{display:flex;align-items:baseline;gap:7px}
+.pprices{display:flex;align-items:baseline;gap:7px;flex-wrap:wrap}
 .pnow{font-weight:700;font-size:14.5px;color:var(--white)}
 .pwas{color:var(--off);text-decoration:line-through;font-size:12px}
 .psave{font-size:11px;color:var(--accsub);font-weight:600}
@@ -517,7 +517,7 @@ table.ptbl{width:100%;border-collapse:collapse;font-size:13px}
 /* RESPONSIVE */
 @media(max-width:1100px){.pgrid{grid-template-columns:repeat(3,1fr)}.fgrid{grid-template-columns:1fr 1fr;gap:24px}}
 @media(max-width:900px){.hleft{padding:48px 20px}.pgrid{grid-template-columns:repeat(2,1fr)}.stinner{grid-template-columns:1fr}.stimg{height:260px}.editorial{grid-template-columns:1fr}.edimg{height:240px}.revgrid{grid-template-columns:1fr 1fr}.tgrid{grid-template-columns:repeat(2,1fr)}.mo{grid-template-columns:1fr}.mocar-imgs{aspect-ratio:3/4}.apstats{grid-template-columns:repeat(2,1fr)}.pfgrid{grid-template-columns:1fr}.pff.full{grid-column:unset}}
-@media(max-width:640px){.nlinks{display:none}.burger{display:flex}.w{padding:0 18px}.pgrid{grid-template-columns:repeat(2,1fr);gap:10px}.revgrid{grid-template-columns:1fr}.fgrid{grid-template-columns:1fr}.tgrid{grid-template-columns:repeat(2,1fr)}#sres{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:640px){.nlinks{display:none}.burger{display:flex}.w{padding:0 18px}.pgrid{grid-template-columns:repeat(2,1fr);gap:10px}.revgrid{grid-template-columns:1fr}.fgrid{grid-template-columns:1fr}.tgrid{grid-template-columns:repeat(2,1fr)}#sres{grid-template-columns:repeat(2,1fr)}.fit-strip{padding:20px 14px;border-radius:12px}.fs-head{margin-bottom:14px}}
 
 /* GRAIN */
 body::after{content:"";position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.03;mix-blend-mode:multiply;
@@ -738,8 +738,8 @@ main,header,footer,.sec,.trust,.mq{position:relative;z-index:2}
 @media(max-width:640px){#crtfx{opacity:.35}#netfx{opacity:.4}}
 /* ===== SCI-FI: DECODE HEADINGS ===== */
 [data-dec]{font-variant-ligatures:none}
-.fit-strip{position:relative;background:var(--white);border-radius:16px;padding:36px 32px;margin-top:56px;overflow:hidden}
-.fit-strip::before{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,transparent,var(--red),transparent);opacity:0;box-shadow:0 0 20px 2px var(--red) inset;animation:fsGlow 2.6s ease-in-out infinite}
+.fit-strip{position:relative;background:var(--white);border-radius:16px;padding:36px 32px;margin:56px 0 24px;overflow:hidden}
+.fit-strip::before{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,transparent,var(--red),transparent);opacity:0;box-shadow:0 0 8px 0 var(--red) inset;animation:fsGlow 2.6s ease-in-out infinite}
 @keyframes fsGlow{0%,100%{opacity:.35}50%{opacity:.85}}
 .fs-head{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;margin-bottom:22px;flex-wrap:wrap;position:relative;z-index:1}
 .fs-head h2{font-family:var(--dsp);font-size:clamp(32px,4.5vw,54px);letter-spacing:.02em;color:var(--bg);text-transform:uppercase}
@@ -1430,7 +1430,7 @@ function setCat(c){fCat=c;["all","jeans","t-shirts"].forEach(id=>{const b=docume
 function clearAllFilters(){fCat="All";fSizes=[];fFits=[];fMaxPrice=5000;document.getElementById("price-slider").value=5000;document.getElementById("price-val").textContent="Under ₹5,000";setCat("All");buildFilterUI();renderGrid();showAF();}
 function openFilters(){document.getElementById("fdrawer").classList.add("op");document.getElementById("fscrim").classList.add("op");}
 function closeFilters(){document.getElementById("fdrawer").classList.remove("op");document.getElementById("fscrim").classList.remove("op");}
-function showAF(){const tags=[];if(fCat!=="All")tags.push({l:fCat,c:()=>setCat("All")});fSizes.forEach(s=>tags.push({l:"Size: "+s,c:()=>togFS(s)}));fFits.forEach(f=>tags.push({l:f,c:()=>togFF(f)}));if(fMaxPrice<5000)tags.push({l:"Under "+inr(fMaxPrice),c:()=>{fMaxPrice=5000;document.getElementById("price-slider").value=5000;document.getElementById("price-val").textContent="Under ₹5,000";renderGrid();showAF();}});document.getElementById("active-filters").innerHTML=tags.map((t,i)=>`<div class="aft">${t.l} <span class="afx" onclick="cAF(${i})">×</span></div>`).join("");window._afc=tags.map(t=>t.c);}
+function showAF(){const tags=[];if(fCat!=="All")tags.push({l:fCat,c:()=>setCat("All")});fSizes.forEach(s=>tags.push({l:"Size: "+s,c:()=>togFS(s)}));fFits.forEach(f=>tags.push({l:f,c:()=>togFF(f)}));if(fMaxPrice<5000)tags.push({l:"Under "+inr(fMaxPrice),c:()=>{fMaxPrice=5000;document.getElementById("price-slider").value=5000;document.getElementById("price-val").textContent="Under ₹5,000";renderGrid();showAF();}});const chipsHTML=tags.map((t,i)=>`<div class="aft">${t.l} <span class="afx" onclick="cAF(${i})">×</span></div>`).join("");const viewAllHTML=tags.length?`<button class="btn btn-g" style="font-size:12px;padding:8px 16px;margin-left:4px" onclick="clearAllFilters()">View all ${products.filter(p=>!isSold(p)).length} styles →</button>`:'';document.getElementById("active-filters").innerHTML=chipsHTML+viewAllHTML;window._afc=tags.map(t=>t.c);}
 function cAF(i){if(window._afc&&window._afc[i])window._afc[i]();}
 
 // GRID
