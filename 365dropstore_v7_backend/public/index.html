@@ -517,7 +517,7 @@ table.ptbl{width:100%;border-collapse:collapse;font-size:13px}
 /* RESPONSIVE */
 @media(max-width:1100px){.pgrid{grid-template-columns:repeat(3,1fr)}.fgrid{grid-template-columns:1fr 1fr;gap:24px}}
 @media(max-width:900px){.hleft{padding:48px 20px}.pgrid{grid-template-columns:repeat(2,1fr)}.stinner{grid-template-columns:1fr}.stimg{height:260px}.editorial{grid-template-columns:1fr}.edimg{height:240px}.revgrid{grid-template-columns:1fr 1fr}.tgrid{grid-template-columns:repeat(2,1fr)}.mo{grid-template-columns:1fr}.mocar-imgs{aspect-ratio:3/4}.apstats{grid-template-columns:repeat(2,1fr)}.pfgrid{grid-template-columns:1fr}.pff.full{grid-column:unset}}
-@media(max-width:640px){.nlinks{display:none}.burger{display:flex}.w{padding:0 18px}.pgrid{grid-template-columns:repeat(2,1fr);gap:10px}.revgrid{grid-template-columns:1fr}.fgrid{grid-template-columns:1fr}.tgrid{grid-template-columns:repeat(2,1fr)}#sres{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:640px){.nlinks{display:none}.burger{display:flex}.w{padding:0 18px}.pgrid{grid-template-columns:repeat(2,1fr);gap:10px}.revgrid{grid-template-columns:1fr}.fgrid{grid-template-columns:1fr}.tgrid{grid-template-columns:repeat(2,1fr)}#sres{grid-template-columns:repeat(2,1fr)}.fit-sh{padding:16px 18px}}
 
 /* GRAIN */
 body::after{content:"";position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.03;mix-blend-mode:multiply;
@@ -738,7 +738,14 @@ main,header,footer,.sec,.trust,.mq{position:relative;z-index:2}
 @media(max-width:640px){#crtfx{opacity:.35}#netfx{opacity:.4}}
 /* ===== SCI-FI: DECODE HEADINGS ===== */
 [data-dec]{font-variant-ligatures:none}
-.glow-heading{color:var(--red)!important;text-shadow:0 0 10px rgba(192,57,43,.65),0 0 22px rgba(192,57,43,.35)}
+.fit-sh{background:linear-gradient(135deg,#3a1410,#5a1f16);border-radius:12px;padding:22px 26px;box-shadow:0 0 24px rgba(192,57,43,.45),0 0 0 1px rgba(192,57,43,.5) inset}
+.fit-sh h2{color:#fff!important;text-shadow:0 0 14px rgba(255,120,100,.7)}
+.fit-sh .shs{color:rgba(248,247,244,.65)}
+.btn-attract{background:linear-gradient(135deg,var(--red2,#E74C3C),var(--red));color:#fff;border:none;position:relative;overflow:hidden;animation:fitBounce 1.6s ease-in-out infinite;box-shadow:0 4px 14px rgba(192,57,43,.4)}
+.btn-attract::after{content:"";position:absolute;top:0;left:-60%;width:40%;height:100%;background:linear-gradient(120deg,transparent,rgba(255,255,255,.55),transparent);transform:skewX(-20deg);animation:fitShine 2.4s ease-in-out infinite}
+@keyframes fitBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+@keyframes fitShine{0%{left:-60%}100%{left:140%}}
+@media(prefers-reduced-motion:reduce){.btn-attract{animation:none}.btn-attract::after{display:none}}
 
 </style>
 </head>
@@ -1411,7 +1418,7 @@ function setCat(c){fCat=c;["all","jeans","t-shirts"].forEach(id=>{const b=docume
 function clearAllFilters(){fCat="All";fSizes=[];fFits=[];fMaxPrice=5000;document.getElementById("price-slider").value=5000;document.getElementById("price-val").textContent="Under ₹5,000";setCat("All");buildFilterUI();renderGrid();showAF();}
 function openFilters(){document.getElementById("fdrawer").classList.add("op");document.getElementById("fscrim").classList.add("op");}
 function closeFilters(){document.getElementById("fdrawer").classList.remove("op");document.getElementById("fscrim").classList.remove("op");}
-function showAF(){const tags=[];if(fCat!=="All")tags.push({l:fCat,c:()=>setCat("All")});fSizes.forEach(s=>tags.push({l:"Size: "+s,c:()=>togFS(s)}));fFits.forEach(f=>tags.push({l:f,c:()=>togFF(f)}));if(fMaxPrice<5000)tags.push({l:"Under "+inr(fMaxPrice),c:()=>{fMaxPrice=5000;document.getElementById("price-slider").value=5000;document.getElementById("price-val").textContent="Under ₹5,000";renderGrid();showAF();}});const chipsHTML=tags.map((t,i)=>`<div class="aft">${t.l} <span class="afx" onclick="cAF(${i})">×</span></div>`).join("");const viewAllHTML=tags.length?`<button class="btn btn-g" style="font-size:12px;padding:8px 16px;margin-left:4px" onclick="clearAllFilters()">View all ${products.filter(p=>!isSold(p)).length} styles →</button>`:'';document.getElementById("active-filters").innerHTML=chipsHTML+viewAllHTML;window._afc=tags.map(t=>t.c);}
+function showAF(){const tags=[];if(fCat!=="All")tags.push({l:fCat,c:()=>setCat("All")});fSizes.forEach(s=>tags.push({l:"Size: "+s,c:()=>togFS(s)}));fFits.forEach(f=>tags.push({l:f,c:()=>togFF(f)}));if(fMaxPrice<5000)tags.push({l:"Under "+inr(fMaxPrice),c:()=>{fMaxPrice=5000;document.getElementById("price-slider").value=5000;document.getElementById("price-val").textContent="Under ₹5,000";renderGrid();showAF();}});const chipsHTML=tags.map((t,i)=>`<div class="aft">${t.l} <span class="afx" onclick="cAF(${i})">×</span></div>`).join("");const viewAllHTML=tags.length?`<button class="btn btn-attract" style="font-size:12px;padding:8px 16px;margin-left:4px" onclick="clearAllFilters()">View all ${products.filter(p=>!isSold(p)).length} styles →</button>`:'';document.getElementById("active-filters").innerHTML=chipsHTML+viewAllHTML;window._afc=tags.map(t=>t.c);}
 function cAF(i){if(window._afc&&window._afc[i])window._afc[i]();}
 
 // GRID
@@ -1452,10 +1459,9 @@ function renderHomeSections(){
     all.sort((a,b)=>{const ab=(a.badges||[]).includes("best")?0:1,bb=(b.badges||[]).includes("best")?0:1;if(ab!==bb)return ab-bb;return(a.order||99)-(b.order||99);});
     const top4=all.slice(0,4);
     const fitSafe=s.fit.replace(/'/g,"\\'");
-    const headClass=" glow-heading";
-    return`<div class="sh" style="margin-top:56px">
-      <div><h2 class="${headClass}">${s.fit.toUpperCase()}</h2><p class="shs">${all.length} style${all.length>1?'s':''} in this fit</p></div>
-      ${all.length>4?`<button class="btn btn-g" onclick="jumpToFit('${fitSafe}')">Show More →</button>`:''}
+    return`<div class="sh fit-sh" style="margin-top:56px">
+      <div><h2>${s.fit.toUpperCase()}</h2><p class="shs">${all.length} style${all.length>1?'s':''} in this fit</p></div>
+      ${all.length>4?`<button class="btn btn-attract" onclick="jumpToFit('${fitSafe}')">Show More →</button>`:''}
     </div>
     <div class="pgrid">${top4.map(pcardHTML).join("")}</div>`;
   }).join("");
