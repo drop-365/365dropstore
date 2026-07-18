@@ -119,6 +119,12 @@ header{position:sticky;top:0;z-index:100;background:rgba(20,19,18,.95);backdrop-
 .termstrip{margin-left:0!important}
 /* RIGHT showcase */
 .showcase{position:relative;width:88%;max-width:560px;aspect-ratio:3/4;z-index:3;animation:hfloaty 7s ease-in-out infinite}
+.hscape-tag{position:absolute;left:-6px;font-size:11px;font-weight:700;letter-spacing:.12em;color:var(--off);z-index:4;writing-mode:vertical-rl;text-orientation:mixed}
+.hscape-tag.top{top:-6px}
+.hscape-tag.bottom{bottom:-6px}
+.motion-toggle{display:block;margin-top:4px;font-size:10px;letter-spacing:.06em;color:var(--off);cursor:pointer;text-decoration:underline;text-underline-offset:2px;opacity:.7}
+.motion-toggle:hover{opacity:1}
+@media(max-width:640px){.hscape-tag{display:none}}
 @keyframes hfloaty{50%{transform:translateY(-12px)}}
 .showcase .scmain{width:100%;height:100%;object-fit:cover;border-radius:16px;box-shadow:0 50px 100px -30px rgba(20,19,18,.55);cursor:pointer;background:#cfcabf}
 .scframe{position:absolute;inset:-16px;border:1px solid var(--glow,#C0392B);border-radius:20px;opacity:.45;z-index:-1}
@@ -814,6 +820,7 @@ main,header,footer,.sec,.trust,.mq{position:relative;z-index:2}
     <div id="dropcount" class="dropcount rvh hd2" aria-hidden="true" style="display:none">
       <span class="dc-label">Next drop in</span>
       <span class="dc-clock"><span id="dc-d">00</span><i>d</i><span id="dc-h">00</span><i>h</i><span id="dc-m">00</span><i>m</i><span id="dc-s">00</span><i>s</i></span>
+      <span class="motion-toggle" id="motion-toggle" onclick="toggleDropCountdown()">PAUSE MOTION</span>
     </div>
     <h1 class="hh1 rvh hd3" id="hero-h1"><span class="hero-gradient">365 DROP</span><span>STORE</span></h1>
     <p class="hsub rvh hd4" id="hero-sub">Premium denim built from zero in Delhi — wide-leg, baggy, straight. Dropped limited, worn everywhere.</p>
@@ -836,6 +843,7 @@ main,header,footer,.sec,.trust,.mq{position:relative;z-index:2}
   </div>
   <div class="hright">
     <div class="showcase" id="hshowcase">
+      <div class="hscape-tag top">EST. 2025</div>
       <div class="scframe2"></div><div class="scframe"></div>
       <img class="scmain" id="sc-main" alt="Featured drop"/>
       <div class="scan"></div>
@@ -844,6 +852,7 @@ main,header,footer,.sec,.trust,.mq{position:relative;z-index:2}
       <div class="scbuy" id="sc-buy" style="display:none" onclick="if(window._scId)openMo(window._scId)">🛒 Buy Now</div>
       <div class="scmini" id="sc-mini"></div>
       <div class="spec" id="sc-spec"></div>
+      <div class="hscape-tag bottom">LIVE NOW</div>
     </div>
   </div>
 </section>
@@ -2393,6 +2402,12 @@ async function uploadImageToBlob(file){
 (function(){
   // Date comes from siteContent.dropDate (ISO string, admin-set). Falls back to next Friday 8pm IST only if unset.
   let dcInterval=null;
+  window._dcPaused=false;
+  window.toggleDropCountdown=function(){
+    window._dcPaused=!window._dcPaused;
+    const lbl=document.getElementById("motion-toggle");
+    if(lbl)lbl.textContent=window._dcPaused?"RESUME MOTION":"PAUSE MOTION";
+  };
   function build(){
     const el=document.getElementById("dropcount");if(!el)return;
     if(dcInterval){clearInterval(dcInterval);dcInterval=null;}
@@ -2412,6 +2427,7 @@ async function uploadImageToBlob(file){
     const lbl=el.querySelector(".dc-label");if(lbl)lbl.textContent=lbl.dataset.orig||lbl.textContent;
     if(lbl&&!lbl.dataset.orig)lbl.dataset.orig=lbl.textContent;
     function tick(){
+      if(window._dcPaused)return;
       let diff=target-Date.now();
       if(diff<=0){
         set("d","00");set("h","00");set("m","00");set("s","00");
