@@ -141,6 +141,25 @@ header{position:sticky;top:0;z-index:100;background:rgba(20,19,18,.95);backdrop-
 .spec{position:absolute;left:-44px;bottom:18%;font-family:var(--mono,monospace);font-size:10px;letter-spacing:.09em;color:var(--off);z-index:5;text-align:right}
 .spec div{margin-bottom:4px}.spec b{color:var(--ink,#141312)}
 .scan{position:absolute;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--glow,#C0392B),transparent);box-shadow:0 0 12px var(--glow,#C0392B);z-index:6;opacity:.7;animation:hscan 4s ease-in-out infinite;border-radius:16px}
+/* ===== INSTA-GRID hero variant (replaces single scmain image) ===== */
+.showcase.grid-mode{aspect-ratio:1/1}
+.igrid{position:relative;width:100%;height:100%;border-radius:16px;overflow:hidden;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);gap:3px;background:var(--white);box-shadow:0 50px 100px -30px rgba(20,19,18,.55)}
+.igrid .tile{position:relative;overflow:hidden;background:#1c1a18;cursor:pointer}
+.igrid .tile video,.igrid .tile img.fill{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .5s var(--ease2)}
+.igrid .tile:hover video,.igrid .tile:hover img.fill{transform:scale(1.05)}
+.igrid .tile .mutebtn{position:absolute;bottom:8px;left:8px;width:26px;height:26px;border-radius:50%;background:rgba(20,19,18,.55);backdrop-filter:blur(2px);display:flex;align-items:center;justify-content:center;z-index:3;transition:.2s}
+.igrid .tile .mutebtn svg{width:12px;height:12px;fill:#F8F7F4}
+.igrid .tile .igbtn{position:absolute;top:8px;right:8px;width:24px;height:24px;border-radius:7px;background:rgba(20,19,18,.55);backdrop-filter:blur(2px);display:flex;align-items:center;justify-content:center;z-index:3}
+.igrid .tile .igbtn svg{width:12px;height:12px;fill:#F8F7F4}
+.igrid .tile .caption{position:absolute;left:0;right:0;bottom:0;padding:20px 10px 8px;background:linear-gradient(0deg,rgba(0,0,0,.75),transparent);opacity:0;transition:.25s;z-index:2;pointer-events:none}
+.igrid .tile:hover .caption{opacity:1}
+.igrid .tile .cname{font-family:var(--dsp);color:#F8F7F4;font-size:14px;letter-spacing:.03em;line-height:1}
+.igrid .tile .cprice{font-family:var(--mono,monospace);color:#E74C3C;font-size:11px;margin-top:2px}
+.igrid .tile.empty{background:repeating-linear-gradient(135deg,#f1f0ec,#f1f0ec 8px,#e6e4de 8px,#e6e4de 16px);cursor:default}
+.igrid .tile.empty .plus{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px;color:var(--off)}
+.igrid .tile.empty .plus span{font-size:22px;font-family:var(--dsp)}
+.igrid .tile.empty .plus small{font-family:var(--mono,monospace);font-size:8px;letter-spacing:.08em;text-transform:uppercase;text-align:center;padding:0 6px}
+@media(max-width:640px){.showcase.grid-mode .scframe{inset:-8px;border-radius:14px}.showcase.grid-mode .scframe2{inset:-16px;border-radius:18px}}
 @keyframes hscan{0%,100%{top:4%}50%{top:94%}}
 @media(prefers-reduced-motion:reduce){.showcase{animation:none}.scan{display:none}.rvh{animation:none;opacity:1;transform:none}}
 @media(max-width:860px){
@@ -849,16 +868,35 @@ main,header,footer,.sec,.trust,.mq{position:relative;z-index:2}
     </div>
   </div>
   <div class="hright">
-    <div class="showcase" id="hshowcase">
+    <div class="showcase grid-mode" id="hshowcase">
       <div class="hscape-tag top">EST. 2025</div>
       <div class="scframe2"></div><div class="scframe"></div>
-      <img class="scmain" id="sc-main" alt="Featured drop"/>
+      <div class="igrid" id="hero-igrid">
+        <!-- SLOT 1 — READY: paste real video URL into data-src, product id into data-pid -->
+        <div class="tile ig-video" data-src="" data-pid="" data-name="Whisker Blue" data-price="₹1,299" data-reel="">
+          <video muted loop playsinline preload="none"></video>
+          <div class="mutebtn" onclick="igToggleMute(event,this)"><svg viewBox="0 0 24 24"><path d="M16.5 12c0-1.77-.94-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06a8.99 8.99 0 003.69-1.81L18.73 21 20 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg></div>
+          <div class="igbtn" onclick="igOpenReel(event,this)"><svg viewBox="0 0 24 24"><path d="M12 2c-2.7 0-3.06.01-4.12.06-1.06.05-1.79.22-2.43.47-.66.26-1.22.6-1.77 1.16-.56.55-.9 1.11-1.16 1.77-.25.64-.42 1.37-.47 2.43C2 8.94 2 9.3 2 12s.01 3.06.06 4.12c.05 1.06.22 1.79.47 2.43.26.66.6 1.22 1.16 1.77.55.56 1.11.9 1.77 1.16.64.25 1.37.42 2.43.47C8.94 22 9.3 22 12 22s3.06-.01 4.12-.06c1.06-.05 1.79-.22 2.43-.47.66-.26 1.22-.6 1.77-1.16.56-.55.9-1.11 1.16-1.77.25-.64.42-1.37.47-2.43.05-1.06.06-1.42.06-4.12s-.01-3.06-.06-4.12c-.05-1.06-.22-1.79-.47-2.43a4.9 4.9 0 00-1.16-1.77 4.9 4.9 0 00-1.77-1.16c-.64-.25-1.37-.42-2.43-.47C15.06 2.01 14.7 2 12 2zm0 1.8c2.65 0 2.97.01 4.02.06.97.04 1.5.2 1.85.34.46.18.79.39 1.14.74.35.35.56.68.74 1.14.14.35.3.88.34 1.85.05 1.05.06 1.37.06 4.02s-.01 2.97-.06 4.02c-.04.97-.2 1.5-.34 1.85-.18.46-.39.79-.74 1.14-.35.35-.68.56-1.14.74-.35.14-.88.3-1.85.34-1.05.05-1.36.06-4.02.06s-2.97-.01-4.02-.06c-.97-.04-1.5-.2-1.85-.34a3.1 3.1 0 01-1.14-.74 3.1 3.1 0 01-.74-1.14c-.14-.35-.3-.88-.34-1.85-.05-1.05-.06-1.36-.06-4.02s.01-2.97.06-4.02c.04-.97.2-1.5.34-1.85.18-.46.39-.79.74-1.14.35-.35.68-.56 1.14-.74.35-.14.88-.3 1.85-.34C9.03 3.81 9.35 3.8 12 3.8zm0 3.06a5.14 5.14 0 100 10.28A5.14 5.14 0 0012 6.86zm0 8.48a3.34 3.34 0 110-6.68 3.34 3.34 0 010 6.68zm6.54-8.68a1.2 1.2 0 11-2.4 0 1.2 1.2 0 012.4 0z"/></svg></div>
+          <div class="caption"><div class="cname">Whisker Blue</div><div class="cprice">₹1,299 · Shop →</div></div>
+        </div>
+        <div class="tile empty"><div class="plus"><span>+</span><small>Awaiting footage</small></div></div>
+        <div class="tile empty"><div class="plus"><span>+</span><small>Awaiting footage</small></div></div>
+
+        <div class="tile empty"><div class="plus"><span>+</span><small>Awaiting footage</small></div></div>
+        <!-- SLOT 2 — READY: paste real video URL into data-src, product id into data-pid -->
+        <div class="tile ig-video" data-src="" data-pid="" data-name="Tag Your Friends" data-price="₹1,099" data-reel="">
+          <video muted loop playsinline preload="none"></video>
+          <div class="mutebtn" onclick="igToggleMute(event,this)"><svg viewBox="0 0 24 24"><path d="M16.5 12c0-1.77-.94-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06a8.99 8.99 0 003.69-1.81L18.73 21 20 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg></div>
+          <div class="igbtn" onclick="igOpenReel(event,this)"><svg viewBox="0 0 24 24"><path d="M12 2c-2.7 0-3.06.01-4.12.06-1.06.05-1.79.22-2.43.47-.66.26-1.22.6-1.77 1.16-.56.55-.9 1.11-1.16 1.77-.25.64-.42 1.37-.47 2.43C2 8.94 2 9.3 2 12s.01 3.06.06 4.12c.05 1.06.22 1.79.47 2.43.26.66.6 1.22 1.16 1.77.55.56 1.11.9 1.77 1.16.64.25 1.37.42 2.43.47C8.94 22 9.3 22 12 22s3.06-.01 4.12-.06c1.06-.05 1.79-.22 2.43-.47.66-.26 1.22-.6 1.77-1.16.56-.55.9-1.11 1.16-1.77.25-.64.42-1.37.47-2.43.05-1.06.06-1.42.06-4.12s-.01-3.06-.06-4.12c-.05-1.06-.22-1.79-.47-2.43a4.9 4.9 0 00-1.16-1.77 4.9 4.9 0 00-1.77-1.16c-.64-.25-1.37-.42-2.43-.47C15.06 2.01 14.7 2 12 2zm0 1.8c2.65 0 2.97.01 4.02.06.97.04 1.5.2 1.85.34.46.18.79.39 1.14.74.35.35.56.68.74 1.14.14.35.3.88.34 1.85.05 1.05.06 1.37.06 4.02s-.01 2.97-.06 4.02c-.04.97-.2 1.5-.34 1.85-.18.46-.39.79-.74 1.14-.35.35-.68.56-1.14.74-.35.14-.88.3-1.85.34-1.05.05-1.36.06-4.02.06s-2.97-.01-4.02-.06c-.97-.04-1.5-.2-1.85-.34a3.1 3.1 0 01-1.14-.74 3.1 3.1 0 01-.74-1.14c-.14-.35-.3-.88-.34-1.85-.05-1.05-.06-1.36-.06-4.02s.01-2.97.06-4.02c.04-.97.2-1.5.34-1.85.18-.46.39-.79.74-1.14.35-.35.68-.56 1.14-.74.35-.14.88-.3 1.85-.34C9.03 3.81 9.35 3.8 12 3.8zm0 3.06a5.14 5.14 0 100 10.28A5.14 5.14 0 0012 6.86zm0 8.48a3.34 3.34 0 110-6.68 3.34 3.34 0 010 6.68zm6.54-8.68a1.2 1.2 0 11-2.4 0 1.2 1.2 0 012.4 0z"/></svg></div>
+          <div class="caption"><div class="cname">Tag Your Friends</div><div class="cprice">₹1,099 · Shop →</div></div>
+        </div>
+        <div class="tile empty"><div class="plus"><span>+</span><small>Awaiting footage</small></div></div>
+
+        <div class="tile empty"><div class="plus"><span>+</span><small>Awaiting footage</small></div></div>
+        <div class="tile empty"><div class="plus"><span>+</span><small>Awaiting footage</small></div></div>
+        <div class="tile empty"><div class="plus"><span>+</span><small>Awaiting footage</small></div></div>
+      </div>
       <div class="scan"></div>
-      <div class="sctag" id="sc-tag">DROP_001 · BESTSELLER</div>
-      <div class="scprice" id="sc-price">—</div>
-      <div class="scbuy" id="sc-buy" style="display:none" onclick="if(window._scId)openMo(window._scId)">🛒 Buy Now</div>
-      <div class="scmini" id="sc-mini"></div>
-      <div class="spec" id="sc-spec"></div>
       <div class="hscape-tag bottom">LIVE NOW</div>
     </div>
   </div>
@@ -2721,6 +2759,59 @@ async function uploadImageToBlob(file){
   };
   const grid=document.getElementById("pgrid");
   if(grid&&"MutationObserver" in window){new MutationObserver(()=>setTimeout(build,80)).observe(grid,{childList:true});}
+})();
+/* rebuildHeroShowcase() above targets sc-main/sc-tag/etc., which no longer exist now
+   that the hero uses the insta-grid below — its DOM lookups all null-guard safely,
+   left in place rather than ripped out so nothing else that calls it breaks. */
+
+/* ===== HERO INSTA-GRID: wire real <video> tiles once data-src is filled in ===== */
+(function(){
+  function initTile(tile){
+    const src=tile.getAttribute('data-src');
+    const vid=tile.querySelector('video');
+    if(!src){ // no real asset yet — demote to a placeholder tile instead of showing a broken black square
+      tile.classList.remove('ig-video');tile.classList.add('empty');
+      tile.innerHTML='<div class="plus"><span>+</span><small>Awaiting footage</small></div>';
+      return;
+    }
+    if(vid)vid.src=src;
+  }
+  function build(){
+    document.querySelectorAll('#hero-igrid .tile.ig-video').forEach(initTile);
+    // tap the tile body -> open the linked product; tap mute/insta icons -> handled separately via stopPropagation
+    document.querySelectorAll('#hero-igrid .tile.ig-video').forEach(tile=>{
+      tile.addEventListener('click',()=>{
+        const pid=tile.getAttribute('data-pid');
+        if(pid&&typeof openMo==="function")openMo(pid);else goTo('#shop');
+      });
+    });
+    // scroll-triggered autoplay — videos only play once their tile is actually visible,
+    // paused again once scrolled away. Deliberate call: instant-on-load autoplay of 9
+    // simultaneous videos is a real mobile-data cost with nobody watching yet.
+    if("IntersectionObserver" in window){
+      const io=new IntersectionObserver(entries=>{
+        entries.forEach(en=>{
+          const v=en.target.querySelector('video');
+          if(!v||!v.getAttribute('src'))return;
+          if(en.isIntersecting)v.play().catch(()=>{});else v.pause();
+        });
+      },{threshold:.5});
+      document.querySelectorAll('#hero-igrid .tile.ig-video').forEach(t=>io.observe(t));
+    }
+  }
+  setTimeout(build,400);
+  window.igToggleMute=function(e,btn){
+    e.stopPropagation();
+    const v=btn.closest('.tile').querySelector('video');
+    if(!v)return;
+    v.muted=!v.muted;
+    btn.style.background=v.muted?'rgba(20,19,18,.55)':'rgba(231,76,60,.85)';
+  };
+  window.igOpenReel=function(e,btn){
+    e.stopPropagation();
+    const url=btn.closest('.tile').getAttribute('data-reel');
+    if(url)window.open(url,'_blank','noopener');
+  };
 })();
 const SUPABASE_URL = "https://fhiivshoikcnanbvdtxm.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_LPwVp36pEOfQIEchjefMfw_SmGNcxUt";
