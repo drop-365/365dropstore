@@ -383,6 +383,13 @@ header{position:sticky;top:0;z-index:100;background:rgba(20,19,18,.95);backdrop-
 
 /* REVIEWS */
 .revgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.igrid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.igrid-tile{background:#fff;border:1px solid rgba(0,0,0,.06);border-radius:14px;overflow:hidden;display:flex;flex-direction:column}
+.igrid-tile .ig-embed-wrap{aspect-ratio:9/16;overflow:hidden;background:#f2f1ee}
+.igrid-tile .ig-embed-wrap iframe{width:100%!important}
+.igrid-shop{padding:10px;text-align:center;font-size:12px;font-weight:600;color:var(--white);cursor:pointer;border-top:1px solid var(--line)}
+.igrid-shop:hover{background:var(--bg3)}
+@media(max-width:900px){.igrid{grid-template-columns:repeat(2,1fr)}}
 .revcard{background:#FFFFFF;border:1px solid rgba(0,0,0,.06);border-radius:14px;padding:24px;transition:.3s;box-shadow:0 2px 10px rgba(0,0,0,.03)}
 .revcard:hover{border-color:rgba(0,0,0,.12);box-shadow:0 8px 24px rgba(0,0,0,.06)}
 .revstars{color:#141312;font-size:13px;letter-spacing:2px;margin-bottom:9px}
@@ -919,6 +926,12 @@ main,header,footer,.sec,.trust,.mq{position:relative;z-index:2}
   </div>
 </div></section>
 
+<!-- insta grid -->
+<section class="sec" id="instagrid-section" style="display:none"><div class="w">
+  <div class="sh sr"><div><h2 data-dec>AS SEEN ON INSTA</h2><p class="shs">Real drops, real fits. Tap any to shop.</p></div></div>
+  <div class="igrid" id="igrid"></div>
+</div></section>
+
 <!-- reviews -->
 <section class="sec" id="reviews"><div class="w">
   <div class="sh sr"><div><h2 data-dec>WORD ON THE STREET</h2><p class="shs">Tag <b style="color:var(--white)">@365dropstore</b> on Instagram to get featured.</p></div></div>
@@ -1011,6 +1024,7 @@ main,header,footer,.sec,.trust,.mq{position:relative;z-index:2}
   <button class="atab" onclick="apTab('fits')">Fits Manager</button>
   <button class="atab" onclick="apTab('reviews')">Reviews</button>
   <button class="atab" onclick="apTab('stories')">Story Updates</button>
+  <button class="atab" onclick="apTab('instagrid')">Insta Grid</button>
   <button class="atab" onclick="apTab('settings')">Settings</button>
 </div>
 <div class="apbody">
@@ -1214,6 +1228,13 @@ https://raw.githubusercontent.com/drop-365/365dropstore/main/images/jean2.jpg" s
   </div>
 
   <!-- settings tab -->
+  <div id="tab-instagrid" class="apsec" style="display:none"><h3>INSTA GRID <button class="btn btn-g" style="font-size:11px;padding:4px 10px;margin-left:8px" onclick="refreshSectionFromSupabase('instagrid')">↻ Refresh</button></h3>
+    <p style="color:var(--off);font-size:13px;margin:6px 0 14px">Paste a public Instagram Reel/post link, pick which product it should link to. Shows the real embed (with Instagram's own controls) plus a "Shop this look" button underneath.</p>
+    <div id="igrid-admin-list"></div>
+    <button class="btn btn-w" style="margin-top:14px" onclick="addInstaGridEntry()">+ Add Entry</button>
+    <button class="btn btn-g" style="margin-top:14px;margin-left:8px" onclick="saveInstaGrid()">Save Insta Grid</button>
+    <p id="ig-msg" style="display:none;font-size:12px;margin-top:8px"></p>
+  </div>
   <div id="tab-settings" class="apsec" style="display:none"><h3>SETTINGS <button class="btn btn-g" style="font-size:11px;padding:4px 10px;margin-left:8px" onclick="refreshSectionFromSupabase('settings')">↻ Refresh</button></h3><div class="pfgrid">
     <div class="pff full" style="border:1px solid var(--glow);border-radius:12px;padding:18px;margin-bottom:6px;background:rgba(192,57,43,.06)">
       <label style="font-size:15px">🚀 PUBLISH TO LIVE (legacy — optional)</label>
@@ -1314,6 +1335,7 @@ let stories=LS.get("ds_stories",[]);
 let cart=LS.get("ds_cart",[])||[];let editId=null;
 let orders=LS.get("ds_orders",[])||[];let ckStep="bag";
 let homeSections=LS.get("ds_home_sections",[])||[];
+let instaGrid=LS.get("ds_insta_grid",[])||[];
 let attCnt=LS.get("adm_att",0);let locked=LS.get("adm_lk",false);
 let _adminPw="";
 const pwOv=LS.get("adm_pd",null);if(pwOv)AH=pwOv;
@@ -1498,6 +1520,77 @@ function renderHomeSections(){
     <div class="pgrid">${top4.map(pcardHTML).join("")}</div>`;
   }).join("");
 }
+let _igScriptLoading=false;
+function renderInstaGridAdmin(){
+  const el=document.getElementById("igrid-admin-list");if(!el)return;
+  if(!instaGrid.length){el.innerHTML='<p style="color:var(--off);font-size:13px">No entries yet. Click "+ Add Entry" to add your first Instagram link.</p>';return;}
+  el.innerHTML=instaGrid.map((g,i)=>{
+    const opts=products.map(p=>`<option value="${p.id}" ${g.productId===p.id?'selected':''}>${(p.name||'').replace(/</g,'&lt;')}</option>`).join('');
+    return`<div style="border:1px solid var(--line);border-radius:10px;padding:12px;margin-bottom:10px">
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
+        <input type="checkbox" id="ig-en-${i}" ${g.enabled?'checked':''} style="width:16px;height:16px"/>
+        <input type="url" id="ig-url-${i}" value="${(g.url||'').replace(/"/g,'&quot;')}" placeholder="https://www.instagram.com/reel/..." style="flex:1;padding:8px"/>
+        <span onclick="removeInstaGridEntry(${i})" style="cursor:pointer;color:var(--red);font-weight:700;padding:0 6px">×</span>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <select id="ig-prod-${i}" style="flex:1;padding:8px"><option value="">— No product link —</option>${opts}</select>
+        <span style="color:var(--off);font-size:12px">Order</span>
+        <input type="number" id="ig-ord-${i}" value="${g.order??i}" style="width:60px;padding:8px"/>
+      </div>
+    </div>`;
+  }).join("");
+}
+function addInstaGridEntry(){instaGrid.push({url:"",productId:"",order:instaGrid.length,enabled:true});renderInstaGridAdmin();}
+function removeInstaGridEntry(i){instaGrid.splice(i,1);renderInstaGridAdmin();}
+function saveInstaGrid(){
+  instaGrid=instaGrid.map((g,i)=>{
+    const en=document.getElementById(`ig-en-${i}`);
+    const url=document.getElementById(`ig-url-${i}`);
+    const prod=document.getElementById(`ig-prod-${i}`);
+    const ord=document.getElementById(`ig-ord-${i}`);
+    return{
+      enabled:en?en.checked:false,
+      url:url?url.value.trim():"",
+      productId:prod?prod.value:"",
+      order:ord?(parseInt(ord.value)||0):i
+    };
+  }).filter(g=>g.url);
+  LS.set("ds_insta_grid",instaGrid);
+  renderInstaGridAdmin();
+  renderInstaGridSection();
+  const m=document.getElementById("ig-msg");
+  if(m){m.textContent="Saved ✓";m.style.color="#4ade80";m.style.background="rgba(74,222,128,.08)";m.style.display="block";setTimeout(()=>m.style.display="none",2000);}
+  showToast("Insta Grid saved ✓ — syncing live...",true);
+  syncSettingsToSupabase("insta_grid",instaGrid);
+}
+function renderInstaGridSection(){
+  const sec=document.getElementById("instagrid-section");
+  const el=document.getElementById("igrid");
+  if(!sec||!el)return;
+  const enabled=instaGrid.filter(g=>g.enabled&&g.url).sort((a,b)=>(a.order||0)-(b.order||0));
+  if(!enabled.length){sec.style.display="none";return;}
+  sec.style.display="block";
+  el.innerHTML=enabled.map(g=>{
+    const p=products.find(x=>x.id===g.productId);
+    const shopLabel=p?`Shop ${p.name} →`:"Shop this look →";
+    const pidSafe=(g.productId||"").replace(/'/g,"\\'");
+    return`<div class="igrid-tile">
+      <div class="ig-embed-wrap"><blockquote class="instagram-media" data-instgrm-permalink="${g.url}" data-instgrm-version="14" style="margin:0;width:100%"></blockquote></div>
+      ${p?`<div class="igrid-shop" onclick="openMo('${pidSafe}')">${shopLabel}</div>`:''}
+    </div>`;
+  }).join("");
+  loadInstagramEmbedScript();
+}
+function loadInstagramEmbedScript(){
+  if(window.instgrm&&window.instgrm.Embeds){window.instgrm.Embeds.process();return;}
+  if(_igScriptLoading)return;
+  _igScriptLoading=true;
+  const s=document.createElement("script");
+  s.src="https://www.instagram.com/embed.js";
+  s.async=true;
+  s.onload=()=>{if(window.instgrm&&window.instgrm.Embeds)window.instgrm.Embeds.process();};
+  document.body.appendChild(s);
+}
 function jumpToFit(fit){
   fCat="All";fSizes=[];fFits=[fit];fMaxPrice=5000;
   document.getElementById("price-slider").value=5000;
@@ -1516,6 +1609,7 @@ function renderGrid(){
   document.getElementById("pgrid").innerHTML=list.length?list.map(pcardHTML).join(""):`<div class="np">No products match your filters.</div>`;
   const cnt=document.getElementById("shopall-count");if(cnt)cnt.textContent=list.length?`· ${list.length} item${list.length>1?'s':''}`:'';
   renderHomeSections();
+  renderInstaGridSection();
 }
 
 // SHARE PRODUCT
@@ -1728,7 +1822,7 @@ async function admLogin(){if(locked){shAErr("Locked. Run: localStorage.removeIte
     ldProds();apSts();rnAdmRev();loadSiteEd();loadFitsAdmin();loadBannerAdmin();loadPaletteAdmin();loadGlobalScAdmin();}else{attCnt++;LS.set("adm_att",attCnt);const left=MA-attCnt;if(left<=0){locked=true;LS.set("adm_lk",true);shAErr("Locked.");}else shAErr(`Wrong — ${left} left.`);document.getElementById("agatt").textContent=`${attCnt}/${MA}`;}}
 function shAErr(t){const e=document.getElementById("agerr");e.textContent=t;e.style.display="block";}
 function admOut(){document.getElementById("ap").style.display="none";location.hash="";document.body.style.overflow="";}
-function apTab(t){const all=["products","orders","add","site","banner","fits","reviews","stories","settings"];all.forEach(id=>document.getElementById("tab-"+id).style.display=id===t?"block":"none");document.querySelectorAll(".atab").forEach((b,i)=>b.classList.toggle("act",all[i]===t));if(t==="products"){ldProds();apSts();}if(t==="orders"){rnAdmOrders();loadOrdersFromSupabase().then(ok=>{if(ok)rnAdmOrders();});}if(t==="reviews")rnAdmRev();if(t==="site")loadSiteEd();if(t==="fits")loadFitsAdmin();if(t==="settings"){loadPaletteAdmin();loadGlobalScAdmin();rnStorageView();}if(t==="banner")loadBannerAdmin();if(t==="stories")renderStoryAdmin();}
+function apTab(t){const all=["products","orders","add","site","banner","fits","reviews","stories","instagrid","settings"];all.forEach(id=>document.getElementById("tab-"+id).style.display=id===t?"block":"none");document.querySelectorAll(".atab").forEach((b,i)=>b.classList.toggle("act",all[i]===t));if(t==="products"){ldProds();apSts();}if(t==="orders"){rnAdmOrders();loadOrdersFromSupabase().then(ok=>{if(ok)rnAdmOrders();});}if(t==="reviews")rnAdmRev();if(t==="site")loadSiteEd();if(t==="fits")loadFitsAdmin();if(t==="settings"){loadPaletteAdmin();loadGlobalScAdmin();rnStorageView();}if(t==="banner")loadBannerAdmin();if(t==="stories")renderStoryAdmin();if(t==="instagrid")renderInstaGridAdmin();}
 function apSts(){const tot=products.length,sold=products.filter(p=>p.badges&&p.badges.includes("sold")).length,cats=[...new Set(products.map(p=>p.category))].length;document.getElementById("apstats").innerHTML=`<div class="apstat"><div class="v">${tot}</div><div class="k">Total</div></div><div class="apstat"><div class="v">${tot-sold}</div><div class="k">Active</div></div><div class="apstat"><div class="v">${sold}</div><div class="k">Sold Out</div></div><div class="apstat"><div class="v">${cats}</div><div class="k">Categories</div></div>`;}
 
 function ldProds(){
@@ -2671,6 +2765,11 @@ async function refreshSectionFromSupabase(section){
       if(palRes.data&&palRes.data.content&&Object.keys(palRes.data.content).length){palette=palRes.data.content;LS.set("ds_pal",palette);applyPalette();}
       if(gscRes.data&&gscRes.data.content){globalSc=gscRes.data.content;LS.set("ds_gsc",globalSc);}
       loadPaletteAdmin();loadGlobalScAdmin();
+    }else if(section==="instagrid"){
+      const {data,error}=await sbClient.from('insta_grid').select('content').eq('id',1).single();
+      if(error)throw new Error(error.message);
+      if(data&&Array.isArray(data.content)){instaGrid=data.content;LS.set("ds_insta_grid",instaGrid);}
+      renderInstaGridAdmin();
     }
     showToast("✓ Refreshed from live.",true);
   }catch(e){showToast("⚠️ Refresh failed: "+e.message,false);}
@@ -2699,7 +2798,7 @@ async function refreshProductsFromSupabase(){
 async function loadFromSupabaseIfAvailable(){
   if(!sbClient) return false;
   try{
-    const [prodRes, revRes, siteRes, banRes, fitsRes, palRes, gscRes, storiesRes, hsRes] = await Promise.all([
+    const [prodRes, revRes, siteRes, banRes, fitsRes, palRes, gscRes, storiesRes, hsRes, igRes] = await Promise.all([
       sbClient.from('products').select('*'),
       sbClient.from('reviews').select('*'),
       sbClient.from('site_content').select('content').eq('id',1).single(),
@@ -2708,7 +2807,8 @@ async function loadFromSupabaseIfAvailable(){
       sbClient.from('palette').select('content').eq('id',1).single(),
       sbClient.from('global_size_chart').select('content').eq('id',1).single(),
       sbClient.from('stories').select('*').order('display_order',{ascending:true}),
-      sbClient.from('home_sections').select('content').eq('id',1).single()
+      sbClient.from('home_sections').select('content').eq('id',1).single(),
+      sbClient.from('insta_grid').select('content').eq('id',1).single()
     ]);
     if(prodRes.error || !prodRes.data || !prodRes.data.length) return false;
     products = prodRes.data.map(p=>({
@@ -2751,6 +2851,9 @@ async function loadFromSupabaseIfAvailable(){
     }
     if(!hsRes.error && hsRes.data && Array.isArray(hsRes.data.content)){
       homeSections = hsRes.data.content;
+    }
+    if(!igRes.error && igRes.data && Array.isArray(igRes.data.content)){
+      instaGrid = igRes.data.content;
     }
     return true;
   }catch(e){
