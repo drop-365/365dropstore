@@ -144,7 +144,11 @@ header{position:sticky;top:0;z-index:100;background:rgba(20,19,18,.95);backdrop-
 
 /* ===== HERO GRID variant (replaces single scmain image) — size driven by admin rows/cols ===== */
 .showcase.grid-mode{width:94%;max-width:660px;aspect-ratio:auto}
-.hgrid{position:relative;width:100%;border-radius:16px;overflow:hidden;display:grid;grid-template-columns:repeat(var(--hg-cols,3),1fr);gap:10px;background:transparent;box-shadow:0 50px 100px -30px rgba(20,19,18,.35);align-items:start}
+.hgrid{position:relative;width:100%;border-radius:16px;overflow:hidden;display:grid;grid-template-columns:repeat(var(--hg-cols,3),1fr);gap:10px;background:transparent;box-shadow:0 50px 100px -30px rgba(20,19,18,.35);align-items:start;grid-auto-flow:dense}
+.hgrid .tile.feat{grid-column:span 2;grid-row:span 2}
+.hgrid .tile.feat .vplay{width:76px;height:76px}
+.hgrid .tile.feat .vplay svg{width:28px;height:28px}
+.hgrid .tile.feat .vbuy{font-size:12px;padding:9px 16px}
 .hgrid .tile{position:relative;background:#fff;border-radius:12px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 4px 20px rgba(20,19,18,.08)}
 .hgrid .tile.empty{aspect-ratio:9/16;background:repeating-linear-gradient(135deg,#f1f0ec,#f1f0ec 8px,#e6e4de 8px,#e6e4de 16px);cursor:default}
 .hgrid .tile.empty .plus{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px;color:var(--off)}
@@ -1267,7 +1271,7 @@ https://raw.githubusercontent.com/drop-365/365dropstore/main/images/jean2.jpg" s
 
   <!-- settings tab -->
   <div id="tab-instagrid" class="apsec" style="display:none"><h3>HERO GRID <button class="btn btn-g" style="font-size:11px;padding:4px 10px;margin-left:8px" onclick="refreshSectionFromSupabase('instagrid')">↻ Refresh</button></h3>
-    <p style="color:var(--off);font-size:13px;margin:6px 0 14px">Each tile has its own type, and Buy Now / optional Instagram icon work the same way on all three. <b>Video</b>: plays in-place, own play button, own sound toggle — never touches Instagram at all. <b>Static image</b>: tap goes straight to the product page. <b>Instagram embed</b>: now renders as a cropped cinema tile — real live reel content, but Instagram's white card chrome (profile header, comments, like-row) is cropped out of view, and tiles auto-scale to fit the grid instead of blowing out of their columns. What remains theirs: the play button and the tap that opens Instagram — that lives inside their iframe and can't be overridden.</p>
+    <p style="color:var(--off);font-size:13px;margin:6px 0 14px"><b>Featured film:</b> the first content tile (lowest Order number) automatically renders as a large 2×2 cinema tile — the hero moment. Use the Order field to pick which reel leads. Remaining tiles flow around it. <b>Video</b> type is the premium path: your own reel file (download from your Instagram, upload to Supabase Storage), plays in-place with your play button, sound toggle, and Buy Now — zero Instagram chrome. <b>Instagram embed</b> renders as a cropped cinema tile (their card chrome cropped out; their play button and tap-to-Instagram remain — that's inside their iframe). <b>Static image</b>: your chosen frame, tap opens the product.</p>
     <div style="display:flex;gap:20px;align-items:center;margin-bottom:16px;padding:12px;border:1px solid var(--line);border-radius:10px">
       <div><label style="display:block;font-size:11px;color:var(--off);margin-bottom:4px">ROWS</label><select id="hg-rows" onchange="resizeHeroGrid()" style="padding:8px"><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
       <div><label style="display:block;font-size:11px;color:var(--off);margin-bottom:4px">COLUMNS</label><select id="hg-cols" onchange="resizeHeroGrid()" style="padding:8px"><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
@@ -1718,6 +1722,13 @@ function renderHeroGrid(){
   el.style.setProperty("--hg-cols",heroGrid.cols);
   const HOV_HUD='<div class="hov-hud"><span class="htl"></span><span class="htr"></span><span class="hbl"></span><span class="hbr"></span></div>';
   const sorted=[...heroGrid.tiles].sort((a,b)=>(a.order||0)-(b.order||0));
+  // first tile (by order) that actually has content becomes the featured 2x2 cinema tile —
+  // the Order field in admin is therefore also the "pick your hero film" control
+  let featAssigned=false;
+  function featCls(hasContent){
+    if(hasContent&&!featAssigned){featAssigned=true;return" feat";}
+    return"";
+  }
   el.innerHTML=sorted.map(t=>{
     const type=t.type||"embed";
     const p=products.find(x=>x.id===t.pid);
@@ -1727,7 +1738,7 @@ function renderHeroGrid(){
       const reelUrl=(p&&p.reelUrl)||"";
       const igBtn=reelUrl?`<div class="vig" onclick="event.stopPropagation();window.open('${reelUrl.replace(/'/g,"\\'")}','_blank','noopener')" title="View on Instagram">${IG_ICON}</div>`:"";
       const buyBtn=p?`<div class="vbuy" onclick="event.stopPropagation();openMo('${pidSafe}')">Buy Now</div>`:"";
-      return`<div class="tile tile-video">
+      return`<div class="tile tile-video${featCls(true)}">
         <video muted loop playsinline preload="metadata" src="${t.videoUrl.replace(/"/g,'&quot;')}"></video>
         <div class="vplay" onclick="toggleTileVideo(event,this)">${PLAY_ICON}</div>
         <div class="vsound" onclick="toggleTileSound(event,this)">${SOUND_OFF_ICON}</div>
@@ -1742,7 +1753,7 @@ function renderHeroGrid(){
       const igBtn=reelUrl?`<div class="vig" onclick="event.stopPropagation();window.open('${reelUrl.replace(/'/g,"\\'")}','_blank','noopener')" title="View on Instagram">${IG_ICON}</div>`:"";
       const buyBtn=p?`<div class="vbuy" onclick="event.stopPropagation();openMo('${pidSafe}')">Buy Now</div>`:"";
       // primary tap goes to the product page, on-site — Instagram is the small optional icon only, never the default action
-      return`<div class="tile tile-image" ${pidSafe?`onclick="openMo('${pidSafe}')"`:""}>
+      return`<div class="tile tile-image${featCls(true)}" ${pidSafe?`onclick="openMo('${pidSafe}')"`:""}>
         <div class="img-wrap"><img class="fill" src="${t.imageUrl.replace(/"/g,'&quot;')}" alt="${(p?p.name:'').replace(/"/g,'&quot;')}"/>${HOV_HUD}</div>
         ${igBtn}
         ${buyBtn}
@@ -1754,7 +1765,7 @@ function renderHeroGrid(){
     if(!t.enabled||!url)return`<div class="tile empty"><div class="plus"><span>+</span><small>Awaiting footage</small></div></div>`;
     const safeUrl=url.replace(/"/g,'&quot;');
     const buyBtn=p?`<div class="vbuy" onclick="event.stopPropagation();openMo('${pidSafe}')">Buy Now</div>`:"";
-    return`<div class="tile ig-embed">
+    return`<div class="tile ig-embed${featCls(true)}">
       <div class="ig-embed-wrap"><blockquote class="instagram-media" data-instgrm-permalink="${safeUrl}" data-instgrm-version="14" style="margin:0;width:100%"></blockquote><div class="ig-scrim"></div>${HOV_HUD}</div>
       ${buyBtn}
     </div>`;
