@@ -1719,9 +1719,22 @@ function renderHeroGrid(){
   const sorted=[...heroGrid.tiles].sort((a,b)=>(a.order||0)-(b.order||0));
   // first tile (by order) that actually has content becomes the featured 2x2 cinema tile —
   // the Order field in admin is therefore also the "pick your hero film" control
+  // first tile (by order) that actually has content becomes the featured 2x2 cinema tile —
+  // BUT only if the grid has room: the feature consumes 3 extra cells, so it's skipped
+  // whenever contentCount+3 exceeds rows*cols (e.g. a full 2x2). Prevents clipped tiles.
+  function tileHasContent(t){
+    if(!t.enabled)return false;
+    const ty=t.type||"embed";
+    if(ty==="video")return!!t.videoUrl;
+    if(ty==="image")return!!t.imageUrl;
+    const pp=products.find(x=>x.id===t.pid);
+    return!!((t.url&&t.url.trim())||(pp&&pp.reelUrl));
+  }
+  const contentCount=sorted.filter(tileHasContent).length;
+  const allowFeat=contentCount>0&&(contentCount+3)<=(heroGrid.rows*heroGrid.cols);
   let featAssigned=false;
   function featCls(hasContent){
-    if(hasContent&&!featAssigned){featAssigned=true;return" feat";}
+    if(allowFeat&&hasContent&&!featAssigned){featAssigned=true;return" feat";}
     return"";
   }
   el.innerHTML=sorted.map(t=>{
