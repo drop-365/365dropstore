@@ -141,25 +141,34 @@ header{position:sticky;top:0;z-index:100;background:rgba(20,19,18,.95);backdrop-
 .spec{position:absolute;left:-44px;bottom:18%;font-family:var(--mono,monospace);font-size:10px;letter-spacing:.09em;color:var(--off);z-index:5;text-align:right}
 .spec div{margin-bottom:4px}.spec b{color:var(--ink,#141312)}
 .scan{position:absolute;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--glow,#C0392B),transparent);box-shadow:0 0 12px var(--glow,#C0392B);z-index:6;opacity:.7;animation:hscan 4s ease-in-out infinite;border-radius:16px}
-/* ===== INSTA-GRID hero variant (replaces single scmain image) ===== */
-.showcase.grid-mode{aspect-ratio:1/1}
-.igrid{position:relative;width:100%;height:100%;border-radius:16px;overflow:hidden;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);gap:3px;background:var(--white);box-shadow:0 50px 100px -30px rgba(20,19,18,.55)}
-.igrid .tile{position:relative;overflow:hidden;background:#1c1a18;cursor:pointer}
-.igrid .tile video,.igrid .tile img.fill{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .5s var(--ease2)}
-.igrid .tile:hover video,.igrid .tile:hover img.fill{transform:scale(1.05)}
-.igrid .tile .mutebtn{position:absolute;bottom:8px;left:8px;width:26px;height:26px;border-radius:50%;background:rgba(20,19,18,.55);backdrop-filter:blur(2px);display:flex;align-items:center;justify-content:center;z-index:3;transition:.2s}
-.igrid .tile .mutebtn svg{width:12px;height:12px;fill:#F8F7F4}
-.igrid .tile .igbtn{position:absolute;top:8px;right:8px;width:24px;height:24px;border-radius:7px;background:rgba(20,19,18,.55);backdrop-filter:blur(2px);display:flex;align-items:center;justify-content:center;z-index:3}
-.igrid .tile .igbtn svg{width:12px;height:12px;fill:#F8F7F4}
-.igrid .tile .caption{position:absolute;left:0;right:0;bottom:0;padding:20px 10px 8px;background:linear-gradient(0deg,rgba(0,0,0,.75),transparent);opacity:0;transition:.25s;z-index:2;pointer-events:none}
-.igrid .tile:hover .caption{opacity:1}
-.igrid .tile .cname{font-family:var(--dsp);color:#F8F7F4;font-size:14px;letter-spacing:.03em;line-height:1}
-.igrid .tile .cprice{font-family:var(--mono,monospace);color:#E74C3C;font-size:11px;margin-top:2px}
-.igrid .tile.empty{background:repeating-linear-gradient(135deg,#f1f0ec,#f1f0ec 8px,#e6e4de 8px,#e6e4de 16px);cursor:default}
-.igrid .tile.empty .plus{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px;color:var(--off)}
-.igrid .tile.empty .plus span{font-size:22px;font-family:var(--dsp)}
-.igrid .tile.empty .plus small{font-family:var(--mono,monospace);font-size:8px;letter-spacing:.08em;text-transform:uppercase;text-align:center;padding:0 6px}
-@media(max-width:640px){.showcase.grid-mode .scframe{inset:-8px;border-radius:14px}.showcase.grid-mode .scframe2{inset:-16px;border-radius:18px}}
+
+/* ===== HERO GRID variant (replaces single scmain image) — size driven by admin rows/cols ===== */
+.showcase.grid-mode{aspect-ratio:1/1;width:94%;max-width:660px}
+.hgrid{position:relative;width:100%;height:100%;border-radius:16px;overflow:hidden;display:grid;grid-template-columns:repeat(var(--hg-cols,3),1fr);grid-template-rows:repeat(var(--hg-rows,3),1fr);gap:3px;background:var(--white);box-shadow:0 50px 100px -30px rgba(20,19,18,.55)}
+.hgrid .tile{position:relative;overflow:hidden;background:#1c1a18;cursor:pointer}
+.hgrid .tile video,.hgrid .tile img.fill{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .5s var(--ease2)}
+.hgrid .tile:hover video,.hgrid .tile:hover img.fill{transform:scale(1.05)}
+.hgrid .tile .mutebtn{position:absolute;bottom:8px;left:8px;width:26px;height:26px;border-radius:50%;background:rgba(20,19,18,.55);backdrop-filter:blur(2px);display:flex;align-items:center;justify-content:center;z-index:3;transition:.2s}
+.hgrid .tile .mutebtn svg{width:12px;height:12px;fill:#F8F7F4}
+.hgrid .tile .igbtn{position:absolute;top:8px;right:8px;width:24px;height:24px;border-radius:7px;background:rgba(20,19,18,.55);backdrop-filter:blur(2px);display:flex;align-items:center;justify-content:center;z-index:3}
+.hgrid .tile .igbtn svg{width:12px;height:12px;fill:#F8F7F4}
+.hgrid .tile .caption{position:absolute;left:0;right:0;bottom:0;padding:20px 10px 8px;background:linear-gradient(0deg,rgba(0,0,0,.75),transparent);opacity:0;transition:.25s;z-index:2;pointer-events:none}
+.hgrid .tile:hover .caption{opacity:1}
+.hgrid .tile .cname{font-family:var(--dsp);color:#F8F7F4;font-size:14px;letter-spacing:.03em;line-height:1}
+.hgrid .tile .cprice{font-family:var(--mono,monospace);color:#E74C3C;font-size:11px;margin-top:2px}
+.hgrid .tile.empty{background:repeating-linear-gradient(135deg,#f1f0ec,#f1f0ec 8px,#e6e4de 8px,#e6e4de 16px);cursor:default}
+.hgrid .tile.empty .plus{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px;color:var(--off)}
+.hgrid .tile.empty .plus span{font-size:22px;font-family:var(--dsp)}
+.hgrid .tile.empty .plus small{font-family:var(--mono,monospace);font-size:8px;letter-spacing:.08em;text-transform:uppercase;text-align:center;padding:0 6px}
+@media(max-width:640px){.showcase.grid-mode .scframe{inset:-8px;border-radius:14px}.showcase.grid-mode .scframe2{inset:-16px;border-radius:18px}.showcase.grid-mode{width:96%}}
+
+/* ===== fill the dead space around the grid in .hright with sci-fi ambient dressing ===== */
+.hright::before{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(20,19,18,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(20,19,18,.05) 1px,transparent 1px);background-size:38px 38px;-webkit-mask-image:radial-gradient(circle at 50% 50%,#000 0%,transparent 72%);mask-image:radial-gradient(circle at 50% 50%,#000 0%,transparent 72%);pointer-events:none}
+.hright-hud{position:absolute;font-family:var(--mono,monospace);font-size:10px;letter-spacing:.14em;color:var(--off);opacity:.55;pointer-events:none;z-index:2}
+.hright-hud.tl{top:28px;left:28px}
+.hright-hud.br{bottom:28px;right:28px;text-align:right}
+.hright-hud b{color:var(--glow,#C0392B)}
+@media(max-width:860px){.hright-hud{display:none}}
 @keyframes hscan{0%,100%{top:4%}50%{top:94%}}
 @media(prefers-reduced-motion:reduce){.showcase{animation:none}.scan{display:none}.rvh{animation:none;opacity:1;transform:none}}
 @media(max-width:860px){
@@ -402,13 +411,6 @@ header{position:sticky;top:0;z-index:100;background:rgba(20,19,18,.95);backdrop-
 
 /* REVIEWS */
 .revgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
-.igrid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
-.igrid-tile{background:#fff;border:1px solid rgba(0,0,0,.06);border-radius:14px;overflow:hidden;display:flex;flex-direction:column}
-.igrid-tile .ig-embed-wrap{aspect-ratio:9/16;overflow:hidden;background:#f2f1ee}
-.igrid-tile .ig-embed-wrap iframe{width:100%!important}
-.igrid-shop{padding:10px;text-align:center;font-size:12px;font-weight:600;color:var(--white);cursor:pointer;border-top:1px solid var(--line)}
-.igrid-shop:hover{background:var(--bg3)}
-@media(max-width:900px){.igrid{grid-template-columns:repeat(2,1fr)}}
 .revcard{background:#FFFFFF;border:1px solid rgba(0,0,0,.06);border-radius:14px;padding:24px;transition:.3s;box-shadow:0 2px 10px rgba(0,0,0,.03)}
 .revcard:hover{border-color:rgba(0,0,0,.12);box-shadow:0 8px 24px rgba(0,0,0,.06)}
 .revstars{color:#141312;font-size:13px;letter-spacing:2px;margin-bottom:9px}
@@ -868,34 +870,12 @@ main,header,footer,.sec,.trust,.mq{position:relative;z-index:2}
     </div>
   </div>
   <div class="hright">
+    <div class="hright-hud tl">SYS // HERO_GRID<br><b>&#9679;</b> LIVE FEED</div>
+    <div class="hright-hud br">DROP_001<br>DELHI &middot; IN</div>
     <div class="showcase grid-mode" id="hshowcase">
       <div class="hscape-tag top">EST. 2025</div>
       <div class="scframe2"></div><div class="scframe"></div>
-      <div class="igrid" id="hero-igrid">
-        <!-- SLOT 1 — READY: paste real video URL into data-src, product id into data-pid -->
-        <div class="tile ig-video" data-src="" data-pid="" data-name="Whisker Blue" data-price="₹1,299" data-reel="">
-          <video muted loop playsinline preload="none"></video>
-          <div class="mutebtn" onclick="igToggleMute(event,this)"><svg viewBox="0 0 24 24"><path d="M16.5 12c0-1.77-.94-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06a8.99 8.99 0 003.69-1.81L18.73 21 20 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg></div>
-          <div class="igbtn" onclick="igOpenReel(event,this)"><svg viewBox="0 0 24 24"><path d="M12 2c-2.7 0-3.06.01-4.12.06-1.06.05-1.79.22-2.43.47-.66.26-1.22.6-1.77 1.16-.56.55-.9 1.11-1.16 1.77-.25.64-.42 1.37-.47 2.43C2 8.94 2 9.3 2 12s.01 3.06.06 4.12c.05 1.06.22 1.79.47 2.43.26.66.6 1.22 1.16 1.77.55.56 1.11.9 1.77 1.16.64.25 1.37.42 2.43.47C8.94 22 9.3 22 12 22s3.06-.01 4.12-.06c1.06-.05 1.79-.22 2.43-.47.66-.26 1.22-.6 1.77-1.16.56-.55.9-1.11 1.16-1.77.25-.64.42-1.37.47-2.43.05-1.06.06-1.42.06-4.12s-.01-3.06-.06-4.12c-.05-1.06-.22-1.79-.47-2.43a4.9 4.9 0 00-1.16-1.77 4.9 4.9 0 00-1.77-1.16c-.64-.25-1.37-.42-2.43-.47C15.06 2.01 14.7 2 12 2zm0 1.8c2.65 0 2.97.01 4.02.06.97.04 1.5.2 1.85.34.46.18.79.39 1.14.74.35.35.56.68.74 1.14.14.35.3.88.34 1.85.05 1.05.06 1.37.06 4.02s-.01 2.97-.06 4.02c-.04.97-.2 1.5-.34 1.85-.18.46-.39.79-.74 1.14-.35.35-.68.56-1.14.74-.35.14-.88.3-1.85.34-1.05.05-1.36.06-4.02.06s-2.97-.01-4.02-.06c-.97-.04-1.5-.2-1.85-.34a3.1 3.1 0 01-1.14-.74 3.1 3.1 0 01-.74-1.14c-.14-.35-.3-.88-.34-1.85-.05-1.05-.06-1.36-.06-4.02s.01-2.97.06-4.02c.04-.97.2-1.5.34-1.85.18-.46.39-.79.74-1.14.35-.35.68-.56 1.14-.74.35-.14.88-.3 1.85-.34C9.03 3.81 9.35 3.8 12 3.8zm0 3.06a5.14 5.14 0 100 10.28A5.14 5.14 0 0012 6.86zm0 8.48a3.34 3.34 0 110-6.68 3.34 3.34 0 010 6.68zm6.54-8.68a1.2 1.2 0 11-2.4 0 1.2 1.2 0 012.4 0z"/></svg></div>
-          <div class="caption"><div class="cname">Whisker Blue</div><div class="cprice">₹1,299 · Shop →</div></div>
-        </div>
-        <div class="tile empty"><div class="plus"><span>+</span><small>Awaiting footage</small></div></div>
-        <div class="tile empty"><div class="plus"><span>+</span><small>Awaiting footage</small></div></div>
-
-        <div class="tile empty"><div class="plus"><span>+</span><small>Awaiting footage</small></div></div>
-        <!-- SLOT 2 — READY: paste real video URL into data-src, product id into data-pid -->
-        <div class="tile ig-video" data-src="" data-pid="" data-name="Tag Your Friends" data-price="₹1,099" data-reel="">
-          <video muted loop playsinline preload="none"></video>
-          <div class="mutebtn" onclick="igToggleMute(event,this)"><svg viewBox="0 0 24 24"><path d="M16.5 12c0-1.77-.94-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06a8.99 8.99 0 003.69-1.81L18.73 21 20 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg></div>
-          <div class="igbtn" onclick="igOpenReel(event,this)"><svg viewBox="0 0 24 24"><path d="M12 2c-2.7 0-3.06.01-4.12.06-1.06.05-1.79.22-2.43.47-.66.26-1.22.6-1.77 1.16-.56.55-.9 1.11-1.16 1.77-.25.64-.42 1.37-.47 2.43C2 8.94 2 9.3 2 12s.01 3.06.06 4.12c.05 1.06.22 1.79.47 2.43.26.66.6 1.22 1.16 1.77.55.56 1.11.9 1.77 1.16.64.25 1.37.42 2.43.47C8.94 22 9.3 22 12 22s3.06-.01 4.12-.06c1.06-.05 1.79-.22 2.43-.47.66-.26 1.22-.6 1.77-1.16.56-.55.9-1.11 1.16-1.77.25-.64.42-1.37.47-2.43.05-1.06.06-1.42.06-4.12s-.01-3.06-.06-4.12c-.05-1.06-.22-1.79-.47-2.43a4.9 4.9 0 00-1.16-1.77 4.9 4.9 0 00-1.77-1.16c-.64-.25-1.37-.42-2.43-.47C15.06 2.01 14.7 2 12 2zm0 1.8c2.65 0 2.97.01 4.02.06.97.04 1.5.2 1.85.34.46.18.79.39 1.14.74.35.35.56.68.74 1.14.14.35.3.88.34 1.85.05 1.05.06 1.37.06 4.02s-.01 2.97-.06 4.02c-.04.97-.2 1.5-.34 1.85-.18.46-.39.79-.74 1.14-.35.35-.68.56-1.14.74-.35.14-.88.3-1.85.34-1.05.05-1.36.06-4.02.06s-2.97-.01-4.02-.06c-.97-.04-1.5-.2-1.85-.34a3.1 3.1 0 01-1.14-.74 3.1 3.1 0 01-.74-1.14c-.14-.35-.3-.88-.34-1.85-.05-1.05-.06-1.36-.06-4.02s.01-2.97.06-4.02c.04-.97.2-1.5.34-1.85.18-.46.39-.79.74-1.14.35-.35.68-.56 1.14-.74.35-.14.88-.3 1.85-.34C9.03 3.81 9.35 3.8 12 3.8zm0 3.06a5.14 5.14 0 100 10.28A5.14 5.14 0 0012 6.86zm0 8.48a3.34 3.34 0 110-6.68 3.34 3.34 0 010 6.68zm6.54-8.68a1.2 1.2 0 11-2.4 0 1.2 1.2 0 012.4 0z"/></svg></div>
-          <div class="caption"><div class="cname">Tag Your Friends</div><div class="cprice">₹1,099 · Shop →</div></div>
-        </div>
-        <div class="tile empty"><div class="plus"><span>+</span><small>Awaiting footage</small></div></div>
-
-        <div class="tile empty"><div class="plus"><span>+</span><small>Awaiting footage</small></div></div>
-        <div class="tile empty"><div class="plus"><span>+</span><small>Awaiting footage</small></div></div>
-        <div class="tile empty"><div class="plus"><span>+</span><small>Awaiting footage</small></div></div>
-      </div>
+      <div class="hgrid" id="hero-igrid"><!-- populated by renderHeroGrid() from admin config --></div>
       <div class="scan"></div>
       <div class="hscape-tag bottom">LIVE NOW</div>
     </div>
@@ -962,12 +942,6 @@ main,header,footer,.sec,.trust,.mq{position:relative;z-index:2}
     <p id="story-p2">Heavy washes. Honest cuts. Limited drops. You're not buying mass production — you're buying the drop.</p>
     <div class="stnums"><div><span class="snum">365</span><span class="slbl">Days dropping</span></div><div><span class="snum">∞</span><span class="slbl">Ways to wear</span></div><div><span class="snum">0</span><span class="slbl">Middlemen</span></div></div>
   </div>
-</div></section>
-
-<!-- insta grid -->
-<section class="sec" id="instagrid-section" style="display:none"><div class="w">
-  <div class="sh sr"><div><h2 data-dec>AS SEEN ON INSTA</h2><p class="shs">Real drops, real fits. Tap any to shop.</p></div></div>
-  <div class="igrid" id="igrid"></div>
 </div></section>
 
 <!-- reviews -->
@@ -1062,7 +1036,7 @@ main,header,footer,.sec,.trust,.mq{position:relative;z-index:2}
   <button class="atab" onclick="apTab('fits')">Fits Manager</button>
   <button class="atab" onclick="apTab('reviews')">Reviews</button>
   <button class="atab" onclick="apTab('stories')">Story Updates</button>
-  <button class="atab" onclick="apTab('instagrid')">Insta Grid</button>
+  <button class="atab" onclick="apTab('instagrid')">Hero Grid</button>
   <button class="atab" onclick="apTab('settings')">Settings</button>
 </div>
 <div class="apbody">
@@ -1266,11 +1240,15 @@ https://raw.githubusercontent.com/drop-365/365dropstore/main/images/jean2.jpg" s
   </div>
 
   <!-- settings tab -->
-  <div id="tab-instagrid" class="apsec" style="display:none"><h3>INSTA GRID <button class="btn btn-g" style="font-size:11px;padding:4px 10px;margin-left:8px" onclick="refreshSectionFromSupabase('instagrid')">↻ Refresh</button></h3>
-    <p style="color:var(--off);font-size:13px;margin:6px 0 14px">Paste a public Instagram Reel/post link, pick which product it should link to. Shows the real embed (with Instagram's own controls) plus a "Shop this look" button underneath.</p>
+  <div id="tab-instagrid" class="apsec" style="display:none"><h3>HERO GRID <button class="btn btn-g" style="font-size:11px;padding:4px 10px;margin-left:8px" onclick="refreshSectionFromSupabase('instagrid')">↻ Refresh</button></h3>
+    <p style="color:var(--off);font-size:13px;margin:6px 0 14px">Controls the video grid on the homepage hero. Each tile needs a real hosted video URL (upload to Supabase Storage and paste the link — a phone file path won't work). Link a product to make the tile tap-through to shop; the Instagram icon on that tile is pulled automatically from that product's Reel URL.</p>
+    <div style="display:flex;gap:20px;align-items:center;margin-bottom:16px;padding:12px;border:1px solid var(--line);border-radius:10px">
+      <div><label style="display:block;font-size:11px;color:var(--off);margin-bottom:4px">ROWS</label><select id="hg-rows" onchange="resizeHeroGrid()" style="padding:8px"><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
+      <div><label style="display:block;font-size:11px;color:var(--off);margin-bottom:4px">COLUMNS</label><select id="hg-cols" onchange="resizeHeroGrid()" style="padding:8px"><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
+      <small style="color:var(--off);align-self:flex-end;padding-bottom:9px">Changing this resizes the tile list below — fill in fewer, bigger tiles if you don't have 9 videos yet.</small>
+    </div>
     <div id="igrid-admin-list"></div>
-    <button class="btn btn-w" style="margin-top:14px" onclick="addInstaGridEntry()">+ Add Entry</button>
-    <button class="btn btn-g" style="margin-top:14px;margin-left:8px" onclick="saveInstaGrid()">Save Insta Grid</button>
+    <button class="btn btn-g" style="margin-top:14px" onclick="saveHeroGrid()">Save Hero Grid</button>
     <p id="ig-msg" style="display:none;font-size:12px;margin-top:8px"></p>
   </div>
   <div id="tab-settings" class="apsec" style="display:none"><h3>SETTINGS <button class="btn btn-g" style="font-size:11px;padding:4px 10px;margin-left:8px" onclick="refreshSectionFromSupabase('settings')">↻ Refresh</button></h3><div class="pfgrid">
@@ -1373,7 +1351,27 @@ let stories=LS.get("ds_stories",[]);
 let cart=LS.get("ds_cart",[])||[];let editId=null;
 let orders=LS.get("ds_orders",[])||[];let ckStep="bag";
 let homeSections=LS.get("ds_home_sections",[])||[];
-let instaGrid=LS.get("ds_insta_grid",[])||[];
+function normalizeHeroGrid(raw){
+  const DR=3,DC=3;
+  if(raw&&typeof raw==="object"&&!Array.isArray(raw)&&Array.isArray(raw.tiles)){
+    const rows=Math.max(2,Math.min(4,parseInt(raw.rows)||DR));
+    const cols=Math.max(2,Math.min(4,parseInt(raw.cols)||DC));
+    const need=rows*cols;
+    let tiles=raw.tiles.slice(0,need);
+    while(tiles.length<need)tiles.push({videoUrl:"",pid:"",enabled:true,order:tiles.length});
+    return{rows,cols,tiles};
+  }
+  if(Array.isArray(raw)&&raw.length){
+    // migrate legacy Instagram-rail entries — product links carry over, video URLs start empty
+    const need=DR*DC;
+    let tiles=raw.slice(0,need).map((g,i)=>({videoUrl:"",pid:g.productId||"",enabled:g.enabled!==false,order:g.order??i}));
+    while(tiles.length<need)tiles.push({videoUrl:"",pid:"",enabled:true,order:tiles.length});
+    return{rows:DR,cols:DC,tiles};
+  }
+  const need=DR*DC;
+  return{rows:DR,cols:DC,tiles:Array.from({length:need},(_,i)=>({videoUrl:"",pid:"",enabled:true,order:i}))};
+}
+let heroGrid=normalizeHeroGrid(LS.get("ds_hero_grid",null));
 let attCnt=LS.get("adm_att",0);let locked=LS.get("adm_lk",false);
 let _adminPw="";
 const pwOv=LS.get("adm_pd",null);if(pwOv)AH=pwOv;
@@ -1558,77 +1556,108 @@ function renderHomeSections(){
     <div class="pgrid">${top4.map(pcardHTML).join("")}</div>`;
   }).join("");
 }
-let _igScriptLoading=false;
-function renderInstaGridAdmin(){
+const IG_SVG='<svg viewBox="0 0 24 24"><path d="M12 2c-2.7 0-3.06.01-4.12.06-1.06.05-1.79.22-2.43.47-.66.26-1.22.6-1.77 1.16-.56.55-.9 1.11-1.16 1.77-.25.64-.42 1.37-.47 2.43C2 8.94 2 9.3 2 12s.01 3.06.06 4.12c.05 1.06.22 1.79.47 2.43.26.66.6 1.22 1.16 1.77.55.56 1.11.9 1.77 1.16.64.25 1.37.42 2.43.47C8.94 22 9.3 22 12 22s3.06-.01 4.12-.06c1.06-.05 1.79-.22 2.43-.47.66-.26 1.22-.6 1.77-1.16.56-.55.9-1.11 1.16-1.77.25-.64.42-1.37.47-2.43.05-1.06.06-1.42.06-4.12s-.01-3.06-.06-4.12c-.05-1.06-.22-1.79-.47-2.43a4.9 4.9 0 00-1.16-1.77 4.9 4.9 0 00-1.77-1.16c-.64-.25-1.37-.42-2.43-.47C15.06 2.01 14.7 2 12 2zm0 1.8c2.65 0 2.97.01 4.02.06.97.04 1.5.2 1.85.34.46.18.79.39 1.14.74.35.35.56.68.74 1.14.14.35.3.88.34 1.85.05 1.05.06 1.37.06 4.02s-.01 2.97-.06 4.02c-.04.97-.2 1.5-.34 1.85-.18.46-.39.79-.74 1.14-.35.35-.68.56-1.14.74-.35.14-.88.3-1.85.34-1.05.05-1.36.06-4.02.06s-2.97-.01-4.02-.06c-.97-.04-1.5-.2-1.85-.34a3.1 3.1 0 01-1.14-.74 3.1 3.1 0 01-.74-1.14c-.14-.35-.3-.88-.34-1.85-.05-1.05-.06-1.36-.06-4.02s.01-2.97.06-4.02c.04-.97.2-1.5.34-1.85.18-.46.39-.79.74-1.14.35-.35.68-.56 1.14-.74.35-.14.88-.3 1.85-.34C9.03 3.81 9.35 3.8 12 3.8zm0 3.06a5.14 5.14 0 100 10.28A5.14 5.14 0 0012 6.86zm0 8.48a3.34 3.34 0 110-6.68 3.34 3.34 0 010 6.68zm6.54-8.68a1.2 1.2 0 11-2.4 0 1.2 1.2 0 012.4 0z"/></svg>';
+const MUTE_SVG='<svg viewBox="0 0 24 24"><path d="M16.5 12c0-1.77-.94-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06a8.99 8.99 0 003.69-1.81L18.73 21 20 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg>';
+/* ===== HERO GRID admin + storefront engine =====
+   Table name kept as "insta_grid" on purpose — it was already whitelisted server-side in the
+   admin-settings Edge Function, so this feature ships with ZERO Edge Function redeploy.
+   Legacy array-shaped data (the old Instagram-rail entries) is auto-migrated on first load —
+   their product links carry over, only the video URLs need to be added fresh. */
+function renderHeroGridAdmin(){
+  const rEl=document.getElementById("hg-rows"),cEl=document.getElementById("hg-cols");
+  if(rEl)rEl.value=heroGrid.rows;if(cEl)cEl.value=heroGrid.cols;
   const el=document.getElementById("igrid-admin-list");if(!el)return;
-  if(!instaGrid.length){el.innerHTML='<p style="color:var(--off);font-size:13px">No entries yet. Click "+ Add Entry" to add your first Instagram link.</p>';return;}
-  el.innerHTML=instaGrid.map((g,i)=>{
-    const opts=products.map(p=>`<option value="${p.id}" ${g.productId===p.id?'selected':''}>${(p.name||'').replace(/</g,'&lt;')}</option>`).join('');
+  el.innerHTML=heroGrid.tiles.map((t,i)=>{
+    const opts=products.map(p=>`<option value="${p.id}" ${t.pid===p.id?'selected':''}>${(p.name||'').replace(/</g,'&lt;')}</option>`).join('');
     return`<div style="border:1px solid var(--line);border-radius:10px;padding:12px;margin-bottom:10px">
       <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
-        <input type="checkbox" id="ig-en-${i}" ${g.enabled?'checked':''} style="width:16px;height:16px"/>
-        <input type="url" id="ig-url-${i}" value="${(g.url||'').replace(/"/g,'&quot;')}" placeholder="https://www.instagram.com/reel/..." style="flex:1;padding:8px"/>
-        <span onclick="removeInstaGridEntry(${i})" style="cursor:pointer;color:var(--red);font-weight:700;padding:0 6px">×</span>
+        <input type="checkbox" id="hg-en-${i}" ${t.enabled!==false?'checked':''} style="width:16px;height:16px"/>
+        <span style="font-family:var(--mono,monospace);font-size:11px;color:var(--off);width:50px">Tile ${i+1}</span>
+        <input type="url" id="hg-src-${i}" value="${(t.videoUrl||'').replace(/"/g,'&quot;')}" placeholder="https://.../video.mp4" style="flex:1;padding:8px"/>
       </div>
       <div style="display:flex;gap:8px;align-items:center">
-        <select id="ig-prod-${i}" style="flex:1;padding:8px"><option value="">— No product link —</option>${opts}</select>
+        <select id="hg-prod-${i}" style="flex:1;padding:8px"><option value="">— No product link —</option>${opts}</select>
         <span style="color:var(--off);font-size:12px">Order</span>
-        <input type="number" id="ig-ord-${i}" value="${g.order??i}" style="width:60px;padding:8px"/>
+        <input type="number" id="hg-ord-${i}" value="${t.order??i}" style="width:60px;padding:8px"/>
       </div>
+      <small style="color:var(--off);display:block;margin-top:6px">Instagram link is pulled automatically from this product's Reel URL (set it in Add/Edit) — nothing to paste here.</small>
     </div>`;
   }).join("");
 }
-function addInstaGridEntry(){instaGrid.push({url:"",productId:"",order:instaGrid.length,enabled:true});renderInstaGridAdmin();}
-function removeInstaGridEntry(i){instaGrid.splice(i,1);renderInstaGridAdmin();}
-function saveInstaGrid(){
-  instaGrid=instaGrid.map((g,i)=>{
-    const en=document.getElementById(`ig-en-${i}`);
-    const url=document.getElementById(`ig-url-${i}`);
-    const prod=document.getElementById(`ig-prod-${i}`);
-    const ord=document.getElementById(`ig-ord-${i}`);
-    return{
-      enabled:en?en.checked:false,
-      url:url?url.value.trim():"",
-      productId:prod?prod.value:"",
-      order:ord?(parseInt(ord.value)||0):i
-    };
-  }).filter(g=>g.url);
-  LS.set("ds_insta_grid",instaGrid);
-  renderInstaGridAdmin();
-  renderInstaGridSection();
+function captureHeroGridInputs(){
+  heroGrid.tiles=heroGrid.tiles.map((t,i)=>{
+    const en=document.getElementById(`hg-en-${i}`);
+    const src=document.getElementById(`hg-src-${i}`);
+    const prod=document.getElementById(`hg-prod-${i}`);
+    const ord=document.getElementById(`hg-ord-${i}`);
+    if(!en)return t;
+    return{enabled:en.checked,videoUrl:src?src.value.trim():"",pid:prod?prod.value:"",order:ord?(parseInt(ord.value)||0):i};
+  });
+}
+function resizeHeroGrid(){
+  captureHeroGridInputs();
+  const rows=Math.max(2,Math.min(4,parseInt(document.getElementById("hg-rows").value)||3));
+  const cols=Math.max(2,Math.min(4,parseInt(document.getElementById("hg-cols").value)||3));
+  const need=rows*cols;
+  let tiles=heroGrid.tiles.slice(0,need);
+  while(tiles.length<need)tiles.push({videoUrl:"",pid:"",enabled:true,order:tiles.length});
+  heroGrid={rows,cols,tiles};
+  renderHeroGridAdmin();
+}
+function saveHeroGrid(){
+  captureHeroGridInputs();
+  LS.set("ds_hero_grid",heroGrid);
+  renderHeroGridAdmin();
+  renderHeroGrid();
   const m=document.getElementById("ig-msg");
   if(m){m.textContent="Saved ✓";m.style.color="#4ade80";m.style.background="rgba(74,222,128,.08)";m.style.display="block";setTimeout(()=>m.style.display="none",2000);}
-  showToast("Insta Grid saved ✓ — syncing live...",true);
-  syncSettingsToSupabase("insta_grid",instaGrid);
+  showToast("Hero Grid saved ✓ — syncing live...",true);
+  syncSettingsToSupabase("insta_grid",heroGrid);
 }
-function renderInstaGridSection(){
-  const sec=document.getElementById("instagrid-section");
-  const el=document.getElementById("igrid");
-  if(!sec||!el)return;
-  const enabled=instaGrid.filter(g=>g.enabled&&g.url).sort((a,b)=>(a.order||0)-(b.order||0));
-  if(!enabled.length){sec.style.display="none";return;}
-  sec.style.display="block";
-  el.innerHTML=enabled.map(g=>{
-    const p=products.find(x=>x.id===g.productId);
-    const shopLabel=p?`Shop ${p.name} →`:"Shop this look →";
-    const pidSafe=(g.productId||"").replace(/'/g,"\\'");
-    return`<div class="igrid-tile">
-      <div class="ig-embed-wrap"><blockquote class="instagram-media" data-instgrm-permalink="${g.url}" data-instgrm-version="14" style="margin:0;width:100%"></blockquote></div>
-      ${p?`<div class="igrid-shop" onclick="openMo('${pidSafe}')">${shopLabel}</div>`:''}
+function renderHeroGrid(){
+  const el=document.getElementById("hero-igrid");if(!el)return;
+  el.style.setProperty("--hg-cols",heroGrid.cols);
+  el.style.setProperty("--hg-rows",heroGrid.rows);
+  const sorted=[...heroGrid.tiles].sort((a,b)=>(a.order||0)-(b.order||0));
+  el.innerHTML=sorted.map(t=>{
+    if(!t.enabled||!t.videoUrl){
+      return`<div class="tile empty"><div class="plus"><span>+</span><small>Awaiting footage</small></div></div>`;
+    }
+    const p=products.find(x=>x.id===t.pid);
+    const reelUrl=p?(p.reelUrl||""):"";
+    const igBtn=reelUrl?`<div class="igbtn" data-reel="${reelUrl.replace(/"/g,'&quot;')}" onclick="igOpenReel(event,this)">${IG_SVG}</div>`:"";
+    const pidSafe=(t.pid||"").replace(/'/g,"\\'");
+    const capt=p?`<div class="caption"><div class="cname">${(p.name||'').replace(/</g,'&lt;')}</div><div class="cprice">${inr(eff(p))} · Shop →</div></div>`:"";
+    return`<div class="tile ig-video" ${pidSafe?`onclick="openMo('${pidSafe}')"`:""}>
+      <video muted loop playsinline preload="none" src="${t.videoUrl.replace(/"/g,'&quot;')}"></video>
+      <div class="mutebtn" onclick="igToggleMute(event,this)">${MUTE_SVG}</div>
+      ${igBtn}
+      ${capt}
     </div>`;
   }).join("");
-  loadInstagramEmbedScript();
+  if("IntersectionObserver" in window){
+    const io=new IntersectionObserver(entries=>{
+      entries.forEach(en=>{
+        const v=en.target.querySelector("video");
+        if(!v||!v.getAttribute("src"))return;
+        if(en.isIntersecting)v.play().catch(()=>{});else v.pause();
+      });
+    },{threshold:.5});
+    el.querySelectorAll(".tile.ig-video").forEach(t=>io.observe(t));
+  }
 }
-function loadInstagramEmbedScript(){
-  if(window.instgrm&&window.instgrm.Embeds){window.instgrm.Embeds.process();return;}
-  if(_igScriptLoading)return;
-  _igScriptLoading=true;
-  const s=document.createElement("script");
-  s.src="https://www.instagram.com/embed.js";
-  s.async=true;
-  s.onload=()=>{if(window.instgrm&&window.instgrm.Embeds)window.instgrm.Embeds.process();};
-  document.body.appendChild(s);
-}
+window.igToggleMute=function(e,btn){
+  e.stopPropagation();
+  const v=btn.closest(".tile").querySelector("video");
+  if(!v)return;
+  v.muted=!v.muted;
+  btn.style.background=v.muted?"rgba(20,19,18,.55)":"rgba(231,76,60,.85)";
+};
+window.igOpenReel=function(e,btn){
+  e.stopPropagation();
+  const url=btn.getAttribute("data-reel");
+  if(url)window.open(url,"_blank","noopener");
+};
 function jumpToFit(fit){
   fCat="All";fSizes=[];fFits=[fit];fMaxPrice=5000;
   document.getElementById("price-slider").value=5000;
@@ -1647,7 +1676,7 @@ function renderGrid(){
   document.getElementById("pgrid").innerHTML=list.length?list.map(pcardHTML).join(""):`<div class="np">No products match your filters.</div>`;
   const cnt=document.getElementById("shopall-count");if(cnt)cnt.textContent=list.length?`· ${list.length} item${list.length>1?'s':''}`:'';
   renderHomeSections();
-  renderInstaGridSection();
+  renderHeroGrid();
 }
 
 // SHARE PRODUCT
@@ -1860,7 +1889,7 @@ async function admLogin(){if(locked){shAErr("Locked. Run: localStorage.removeIte
     ldProds();apSts();rnAdmRev();loadSiteEd();loadFitsAdmin();loadBannerAdmin();loadPaletteAdmin();loadGlobalScAdmin();}else{attCnt++;LS.set("adm_att",attCnt);const left=MA-attCnt;if(left<=0){locked=true;LS.set("adm_lk",true);shAErr("Locked.");}else shAErr(`Wrong — ${left} left.`);document.getElementById("agatt").textContent=`${attCnt}/${MA}`;}}
 function shAErr(t){const e=document.getElementById("agerr");e.textContent=t;e.style.display="block";}
 function admOut(){document.getElementById("ap").style.display="none";location.hash="";document.body.style.overflow="";}
-function apTab(t){const all=["products","orders","add","site","banner","fits","reviews","stories","instagrid","settings"];all.forEach(id=>document.getElementById("tab-"+id).style.display=id===t?"block":"none");document.querySelectorAll(".atab").forEach((b,i)=>b.classList.toggle("act",all[i]===t));if(t==="products"){ldProds();apSts();}if(t==="orders"){rnAdmOrders();loadOrdersFromSupabase().then(ok=>{if(ok)rnAdmOrders();});}if(t==="reviews")rnAdmRev();if(t==="site")loadSiteEd();if(t==="fits")loadFitsAdmin();if(t==="settings"){loadPaletteAdmin();loadGlobalScAdmin();rnStorageView();}if(t==="banner")loadBannerAdmin();if(t==="stories")renderStoryAdmin();if(t==="instagrid")renderInstaGridAdmin();}
+function apTab(t){const all=["products","orders","add","site","banner","fits","reviews","stories","instagrid","settings"];all.forEach(id=>document.getElementById("tab-"+id).style.display=id===t?"block":"none");document.querySelectorAll(".atab").forEach((b,i)=>b.classList.toggle("act",all[i]===t));if(t==="products"){ldProds();apSts();}if(t==="orders"){rnAdmOrders();loadOrdersFromSupabase().then(ok=>{if(ok)rnAdmOrders();});}if(t==="reviews")rnAdmRev();if(t==="site")loadSiteEd();if(t==="fits")loadFitsAdmin();if(t==="settings"){loadPaletteAdmin();loadGlobalScAdmin();rnStorageView();}if(t==="banner")loadBannerAdmin();if(t==="stories")renderStoryAdmin();if(t==="instagrid")renderHeroGridAdmin();}
 function apSts(){const tot=products.length,sold=products.filter(p=>p.badges&&p.badges.includes("sold")).length,cats=[...new Set(products.map(p=>p.category))].length;document.getElementById("apstats").innerHTML=`<div class="apstat"><div class="v">${tot}</div><div class="k">Total</div></div><div class="apstat"><div class="v">${tot-sold}</div><div class="k">Active</div></div><div class="apstat"><div class="v">${sold}</div><div class="k">Sold Out</div></div><div class="apstat"><div class="v">${cats}</div><div class="k">Categories</div></div>`;}
 
 function ldProds(){
@@ -2761,58 +2790,8 @@ async function uploadImageToBlob(file){
   if(grid&&"MutationObserver" in window){new MutationObserver(()=>setTimeout(build,80)).observe(grid,{childList:true});}
 })();
 /* rebuildHeroShowcase() above targets sc-main/sc-tag/etc., which no longer exist now
-   that the hero uses the insta-grid below — its DOM lookups all null-guard safely,
-   left in place rather than ripped out so nothing else that calls it breaks. */
-
-/* ===== HERO INSTA-GRID: wire real <video> tiles once data-src is filled in ===== */
-(function(){
-  function initTile(tile){
-    const src=tile.getAttribute('data-src');
-    const vid=tile.querySelector('video');
-    if(!src){ // no real asset yet — demote to a placeholder tile instead of showing a broken black square
-      tile.classList.remove('ig-video');tile.classList.add('empty');
-      tile.innerHTML='<div class="plus"><span>+</span><small>Awaiting footage</small></div>';
-      return;
-    }
-    if(vid)vid.src=src;
-  }
-  function build(){
-    document.querySelectorAll('#hero-igrid .tile.ig-video').forEach(initTile);
-    // tap the tile body -> open the linked product; tap mute/insta icons -> handled separately via stopPropagation
-    document.querySelectorAll('#hero-igrid .tile.ig-video').forEach(tile=>{
-      tile.addEventListener('click',()=>{
-        const pid=tile.getAttribute('data-pid');
-        if(pid&&typeof openMo==="function")openMo(pid);else goTo('#shop');
-      });
-    });
-    // scroll-triggered autoplay — videos only play once their tile is actually visible,
-    // paused again once scrolled away. Deliberate call: instant-on-load autoplay of 9
-    // simultaneous videos is a real mobile-data cost with nobody watching yet.
-    if("IntersectionObserver" in window){
-      const io=new IntersectionObserver(entries=>{
-        entries.forEach(en=>{
-          const v=en.target.querySelector('video');
-          if(!v||!v.getAttribute('src'))return;
-          if(en.isIntersecting)v.play().catch(()=>{});else v.pause();
-        });
-      },{threshold:.5});
-      document.querySelectorAll('#hero-igrid .tile.ig-video').forEach(t=>io.observe(t));
-    }
-  }
-  setTimeout(build,400);
-  window.igToggleMute=function(e,btn){
-    e.stopPropagation();
-    const v=btn.closest('.tile').querySelector('video');
-    if(!v)return;
-    v.muted=!v.muted;
-    btn.style.background=v.muted?'rgba(20,19,18,.55)':'rgba(231,76,60,.85)';
-  };
-  window.igOpenReel=function(e,btn){
-    e.stopPropagation();
-    const url=btn.closest('.tile').getAttribute('data-reel');
-    if(url)window.open(url,'_blank','noopener');
-  };
-})();
+   that the hero uses the admin-driven Hero Grid (see renderHeroGrid()) — its DOM lookups
+   all null-guard safely, left in place rather than ripped out so nothing else breaks. */
 const SUPABASE_URL = "https://fhiivshoikcnanbvdtxm.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_LPwVp36pEOfQIEchjefMfw_SmGNcxUt";
 let sbClient = null;
@@ -2859,8 +2838,9 @@ async function refreshSectionFromSupabase(section){
     }else if(section==="instagrid"){
       const {data,error}=await sbClient.from('insta_grid').select('content').eq('id',1).single();
       if(error)throw new Error(error.message);
-      if(data&&Array.isArray(data.content)){instaGrid=data.content;LS.set("ds_insta_grid",instaGrid);}
-      renderInstaGridAdmin();
+      if(data&&data.content){heroGrid=normalizeHeroGrid(data.content);LS.set("ds_hero_grid",heroGrid);}
+      renderHeroGridAdmin();
+      renderHeroGrid();
     }
     showToast("✓ Refreshed from live.",true);
   }catch(e){showToast("⚠️ Refresh failed: "+e.message,false);}
@@ -2943,8 +2923,8 @@ async function loadFromSupabaseIfAvailable(){
     if(!hsRes.error && hsRes.data && Array.isArray(hsRes.data.content)){
       homeSections = hsRes.data.content;
     }
-    if(!igRes.error && igRes.data && Array.isArray(igRes.data.content)){
-      instaGrid = igRes.data.content;
+    if(!igRes.error && igRes.data && igRes.data.content){
+      heroGrid = normalizeHeroGrid(igRes.data.content);
     }
     return true;
   }catch(e){
