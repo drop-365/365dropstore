@@ -208,6 +208,14 @@ header{position:sticky;top:0;z-index:100;background:rgba(20,19,18,.95);backdrop-
   .hleft{order:1;padding:44px 26px}
   .scmini,.spec{display:none}
 }
+
+
+/* FAQ/policies */
+.faq-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+@media(max-width:640px){.faq-grid{grid-template-columns:1fr}}
+.faq-item{background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:24px}
+.faq-item h3{font-family:var(--dsp);font-size:18px;margin-bottom:8px;color:var(--white)}
+.faq-item p{font-size:14px;line-height:1.65;color:var(--off)}
 /* MARQUEE */
 .mq{border:none;padding:14px 0;overflow:hidden;background:#141312}
 .mtrack{display:flex;white-space:nowrap;animation:mqs 28s linear infinite}
@@ -819,6 +827,7 @@ main,header,footer,.sec,.trust,.mq{position:relative;z-index:2}
 @media(prefers-reduced-motion:reduce){.btn-attract{animation:none}.btn-attract::after{display:none}}
 
 </style>
+<script defer data-domain="365dropstore.com" src="https://plausible.io/js/script.js"></script>
 </head>
 <body>
 <div id="crtfx" aria-hidden="true"></div>
@@ -944,13 +953,10 @@ main,header,footer,.sec,.trust,.mq{position:relative;z-index:2}
 
 <!-- shop -->
 <section class="sec" id="shop"><div class="w">
-  <div id="home-sections"></div>
   <div class="sh sr"><div><h2 data-dec>SHOP ALL <span id="shopall-count" style="font-family:var(--bod);font-size:15px;color:var(--off);font-weight:400;text-transform:none;letter-spacing:0"></span></h2><p class="shs">Every style, every fit — the full drop, in one place.</p></div></div>
   <div class="shopbar sr">
     <button class="fb" onclick="openFilters()">☰ Filters</button>
-    <button class="fb act" id="fb-all" onclick="setCat('All')">All</button>
-    <button class="fb" id="fb-jeans" onclick="setCat('Jeans')">Jeans</button>
-    <button class="fb" id="fb-t-shirts" onclick="setCat('T-Shirts')">T-Shirts</button>
+    <span id="fit-btns"><!-- populated by renderFitBtns() --></span>
     <select class="ss" id="srt" onchange="renderGrid()"><option value="def">Sort: Featured</option><option value="low">Price: Low → High</option><option value="high">Price: High → Low</option><option value="new">Newest</option></select>
   </div>
   <div class="afs" id="active-filters"></div>
@@ -977,7 +983,7 @@ main,header,footer,.sec,.trust,.mq{position:relative;z-index:2}
 
 <!-- reviews -->
 <section class="sec" id="reviews"><div class="w">
-  <div class="sh sr"><div><h2 data-dec>WORD ON THE STREET</h2><p class="shs">Tag <b style="color:var(--white)">@365dropstore</b> on Instagram to get featured.</p></div></div>
+  <div class="sh sr"><div><h2 data-dec>WORD ON THE STREET</h2><p class="shs" id="review-summary"></p><p class="shs">Tag <b style="color:var(--white)">@365dropstore</b> on Instagram to get featured.</p></div></div>
   <div class="revgrid sr" id="revg"></div>
 </div></section>
 
@@ -985,16 +991,28 @@ main,header,footer,.sec,.trust,.mq{position:relative;z-index:2}
 <section class="sec nlsec" id="nl"><div class="w">
   <p style="font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:var(--off);text-align:center;margin-bottom:8px" class="sr">NEVER MISS A DROP</p>
   <h2 class="sr" data-dec>GET FIRST ACCESS</h2>
-  <p style="color:var(--off);max-width:400px;margin:0 auto 24px;font-size:15px;text-align:center" class="sr">Drops sell fast. Leave your number and we'll ping you on WhatsApp the second the next one drops.</p>
+  <p style="color:var(--off);max-width:400px;margin:0 auto 24px;font-size:15px;text-align:center" class="sr">Drops sell fast. Leave your number and we'll ping you on WhatsApp the second the next one drops. One message per drop, no spam — we hate it too.</p>
   <form class="nlform sr" onsubmit="nlSub(event)"><input type="text" id="nli" placeholder="Your WhatsApp number…" required/><button type="submit" class="btn btn-w">Notify me →</button></form>
+</div></section>
+
+
+<!-- faq/policies -->
+<section class="sec" id="faq" style="padding:60px 0"><div class="w" style="max-width:800px">
+  <h2 style="font-family:var(--dsp);font-size:clamp(28px,5vw,40px);margin-bottom:32px">BEFORE YOU ORDER</h2>
+  <div class="faq-grid">
+    <div class="faq-item"><h3>How do I pay?</h3><p>COD (Cash on Delivery) is available across India. UPI and bank transfer are also accepted — you'll confirm payment details directly with the founder on WhatsApp after placing your order.</p></div>
+    <div class="faq-item"><h3>When does it ship?</h3><p>Orders are dispatched within 24 hours. Delivery takes 3–5 days Pan India, tracked and shipped free on every order. Delhi NCR customers often receive same-day or next-day.</p></div>
+    <div class="faq-item"><h3>What if it doesn't fit?</h3><p>Easy exchange within 7 days of delivery — same style, different size. Unboxing video is required for all return and exchange claims (no exceptions). No questions asked on exchanges; refunds are processed case-by-case on WhatsApp.</p></div>
+    <div class="faq-item"><h3>How do I know my size?</h3><p>Every product page has a size guide with exact waist and length measurements. Still unsure? Message on WhatsApp with your height, weight, and usual size — the founder picks your fit personally.</p></div>
+  </div>
 </div></section>
 
 <!-- footer -->
 <footer><div class="w">
   <div class="fgrid">
     <div class="fbrand"><img src="" alt="365"/><p>Premium denim & streetwear from Delhi. Independent. No middlemen. Limited drops, shipped across India.</p><div class="fsoc"><div class="fsoca">📸</div><div class="fsoca">✆</div><div class="fsoca">f</div></div></div>
-    <div class="fcol"><h4>Shop</h4><a onclick="setCat('All');goTo('#shop')">All Drops</a><a onclick="setCat('Jeans');goTo('#shop')">Jeans</a><a onclick="setCat('T-Shirts');goTo('#shop')">T-Shirts</a></div>
-    <div class="fcol"><h4>Info</h4><a onclick="goTo('#story')">Our Story</a><a onclick="openGlobalSizeGuide()">Size Guide</a><a onclick="goTo('#shop')">Shop Drops</a><a onclick="openSrch()">Search</a></div>
+    <div class="fcol"><h4>Shop</h4><a onclick="clearFitTab();goTo('#shop')">All Drops</a><a onclick="pickFitTab('Wide-Leg')">Wide-Leg</a><a onclick="pickFitTab('Straight')">Straight</a></div>
+    <div class="fcol"><h4>Info</h4><a onclick="goTo('#story')">Our Story</a><a onclick="openGlobalSizeGuide()">Size Guide</a><a onclick="goTo('#faq')">Shipping & Returns</a><a onclick="openSrch()">Search</a></div>
     <div class="fcol"><h4>Contact</h4><a>+91 9990905969</a><a>365dropstore@gmail.com</a><a>E-42/2A Subhash Vihar, Delhi 110053</a></div>
   </div>
   <div class="fbot"><span>© <span id="yr"></span> 365 Drop Store · Clothing or Nothing</span><span>Independent · Delhi · ∞</span></div>
@@ -1551,7 +1569,7 @@ function pcardHTML(p){
     const restockNote=isSold(p)&&p.restockAt?`<div class="prestock" data-restock="${p.restockAt}" data-pid="${p.id}">Back in —</div>`:'';
     const rbl=p.reelUrl?`<div class="rl-btn" onclick="event.stopPropagation();window.open('${p.reelUrl}','_blank')">▶ Reel</div>`:'';
     const plink=`https://365dropstore.com/#product-${p.id}`;
-    const cardClick=isSold(p)?'':` onclick="openMo('${p.id}')"`;
+    const cardClick=` onclick="openMo('${p.id}')"`;
     const fitBand=p.fit?`<div class="pfitband">${p.fit.toUpperCase()} FIT</div>`:'';
     const saved=isWishlisted(p.id);
     return`<div class="pcard${isSold(p)?' so':''}"${cardClick}>
@@ -1581,23 +1599,28 @@ function toggleWishlist(id){
 }
 const isSold=p=>p.badges&&p.badges.includes("sold");
 function renderHomeSections(){
-  const el=document.getElementById("home-sections");
-  if(!el)return;
-  if(!homeSections.length){el.innerHTML="";return;}
-  const enabled=homeSections.filter(s=>s.enabled).sort((a,b)=>(a.order||0)-(b.order||0));
-  el.innerHTML=enabled.map((s,idx)=>{
-    const all=products.filter(p=>p.fit===s.fit&&!isSold(p)&&(p.images||[]).length);
-    if(!all.length)return"";
-    all.sort((a,b)=>{const ab=(a.badges||[]).includes("best")?0:1,bb=(b.badges||[]).includes("best")?0:1;if(ab!==bb)return ab-bb;return(a.order||99)-(b.order||99);});
-    const top4=all.slice(0,4);
-    const fitSafe=s.fit.replace(/'/g,"\\'");
-    return`<div class="sh fit-sh" style="margin-top:56px">
-      <div><h2>${s.fit.toUpperCase()}</h2><p class="shs">${all.length} style${all.length>1?'s':''} in this fit</p></div>
-      ${all.length>4?`<button class="btn btn-attract" onclick="jumpToFit('${fitSafe}')">Show More →</button>`:''}
-    </div>
-    <div class="pgrid">${top4.map(pcardHTML).join("")}</div>`;
-  }).join("");
+  // replaced by fit-tabs — this is now a no-op for backwards compat
+  // (admin still saves homeSections; they just don't render as strips anymore)
 }
+function renderFitBtns(){
+  const el=document.getElementById("fit-btns");
+  if(!el)return;
+  const fitsInUse=[...new Set(products.filter(p=>(p.images||[]).length).map(p=>p.fit).filter(Boolean))];
+  const activeFit=fFits.length===1?fFits[0]:"";
+  el.innerHTML=`<button class="fb${activeFit?'':' act'}" onclick="clearFitTab()">All</button>`
+    +fitsInUse.map(f=>`<button class="fb${f===activeFit?' act':''}" onclick="pickFitTab('${f.replace(/'/g,"\\'")}')">${f}</button>`).join("");
+}
+window.pickFitTab=function(fit){
+  fFits=[fit];fSizes=[];fMaxPrice=5000;fCat="All";
+  document.getElementById("price-slider").value=5000;
+  document.getElementById("price-val").textContent="Under \u20B95,000";
+  setCat("All");buildFilterUI();renderGrid();
+  const shop=document.getElementById("shop");
+  if(shop)shop.scrollIntoView({behavior:"smooth",block:"start"});
+};
+window.clearFitTab=function(){
+  fFits=[];renderGrid();
+};
 /* ===== HERO GRID admin + storefront engine =====
    Renders real Instagram oEmbed widgets (like the old rail did), not raw <video> files —
    no footage shoot required, works with links you already have. Trade-off: Instagram's own
@@ -1861,7 +1884,7 @@ function renderGrid(){
   if(srt==="low")list.sort((a,b)=>eff(a)-eff(b));else if(srt==="high")list.sort((a,b)=>eff(b)-eff(a));else if(srt==="new")list.sort((a,b)=>(b.addedAt||0)-(a.addedAt||0));else list.sort((a,b)=>(a.order||99)-(b.order||99));
   document.getElementById("pgrid").innerHTML=list.length?list.map(pcardHTML).join(""):`<div class="np">No products match your filters.</div>`;
   const cnt=document.getElementById("shopall-count");if(cnt)cnt.textContent=list.length?`· ${list.length} item${list.length>1?'s':''}`:'';
-  renderHomeSections();
+  renderFitBtns();
   renderHeroGrid();
 }
 
@@ -1872,7 +1895,15 @@ function shareProduct(id,name,link){
 }
 
 // REVIEWS
-function renderRevs(){document.getElementById("revg").innerHTML=reviews.map(r=>r.type==="img"?`<div class="revcard imgrev" onclick="openImgReview('${r.id}')"><div class="rev-zoom">&#9906;</div><img src="${r.img}" alt="Customer review"/></div>`:`<div class="revcard"><div class="revstars">${"★".repeat(r.stars||5)}</div><p class="revtext">"${r.text}"</p><div class="revwho">${r.who||""}</div><div class="revloc">${r.where||""}</div></div>`).join("");}
+function renderRevs(){
+  document.getElementById("revg").innerHTML=reviews.map(r=>r.type==="img"?`<div class="revcard imgrev" onclick="openImgReview('${r.id}')"><div class="rev-zoom">&#9906;</div><img src="${r.img}" alt="Customer review"/></div>`:`<div class="revcard"><div class="revstars">${"★".repeat(r.stars||5)}</div><p class="revtext">"${r.text}"</p><div class="revwho">${r.who||""}</div><div class="revloc">${r.where||""}</div></div>`).join("");
+  const textRevs=reviews.filter(r=>r.type!=="img"&&r.stars);
+  const sum=document.getElementById("review-summary");
+  if(sum&&textRevs.length){
+    const avg=(textRevs.reduce((a,r)=>a+(r.stars||5),0)/textRevs.length).toFixed(1);
+    sum.textContent=avg+" ★ · "+textRevs.length+" review"+(textRevs.length>1?"s":"");
+  }
+}
 function openImgReview(id){const imgs=reviews.filter(r=>r.type==="img").map(r=>r.img);const idx=reviews.filter(r=>r.type==="img").findIndex(r=>r.id===id);openLB(imgs,Math.max(0,idx));}
 
 // MODAL — with full description, shipping info, share, size chart image
