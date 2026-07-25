@@ -1330,6 +1330,23 @@ https://raw.githubusercontent.com/drop-365/365dropstore/main/images/jean2.jpg" s
       </div>
       <p id="cleanup-msg" style="display:none;font-size:12px;margin-top:8px"></p>
     </div>
+    <div class="pff full" style="border:1px solid #C0392B;border-radius:12px;padding:18px;margin-bottom:6px;background:rgba(192,57,43,.06)">
+      <label style="font-size:15px">🚀 MIGRATE IMAGES TO STORAGE</label>
+      <p style="color:var(--off)!important;font-size:12px;line-height:1.55;margin:8px 0 12px">Your product images are currently embedded as base64 text inside the database — this is why the site loads slowly even on fast wifi. This tool uploads each image to Supabase Storage as a real file, replaces the embedded data with a fast CDN URL, and dramatically cuts page load time. <b>One-time operation, fully reversible</b> (original images stay in Storage if you ever need them).</p>
+      <div id="migrate-scan" style="margin-bottom:12px"></div>
+      <div id="migrate-progress" style="display:none;margin-bottom:12px">
+        <div style="background:rgba(20,19,18,.1);border-radius:8px;overflow:hidden;height:24px;position:relative">
+          <div id="migrate-bar" style="height:100%;background:linear-gradient(90deg,#C0392B,#E74C3C);width:0%;transition:width .3s;border-radius:8px"></div>
+          <span id="migrate-pct" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#141312"></span>
+        </div>
+        <p id="migrate-status" style="font-size:12px;color:var(--off);margin-top:6px"></p>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn btn-g" onclick="scanForBase64Images()">🔍 Scan Products</button>
+        <button class="btn btn-w" id="migrate-go-btn" style="display:none" onclick="runImageMigration()">⚡ Migrate Now</button>
+      </div>
+      <p id="migrate-msg" style="display:none;font-size:12px;margin-top:8px"></p>
+    </div>
     <div class="pff full"><label>New Password</label><input type="password" id="st0" placeholder="Min 8 characters"/></div>
     <div class="pff full"><input type="password" id="st1" placeholder="Confirm new password"/></div>
     <div class="pff full"><button class="btn btn-w" onclick="chgPwd()">Update Password</button></div>
@@ -2358,6 +2375,81 @@ function remFit(i){if(fits.length<=1){alert("Need at least one fit.");return;}fi
 // REVIEWS ADMIN
 function saveRev(){const n=document.getElementById("rv0").value.trim();const t=document.getElementById("rv3").value.trim();if(!n||!t)return;const newRev={id:"R"+uid(),stars:Number(document.getElementById("rv2").value)||5,text:t,who:n,where:document.getElementById("rv1").value.trim()||"India"};reviews.unshift(newRev);LS.set("ds_r",reviews);renderRevs();rnAdmRev();["rv0","rv1","rv3"].forEach(id=>document.getElementById(id).value="");syncReviewToSupabase("save",newRev);}
 function delRev(id){reviews=reviews.filter(r=>r.id!==id);LS.set("ds_r",reviews);renderRevs();rnAdmRev();syncReviewToSupabase("delete",{id});}
+/* ===== IMAGE MIGRATION: base64 → Supabase Storage ===== */
+function isBase64Img(url){return typeof url==="string"&&url.startsWith("data:image/");}
+function scanForBase64Images(){
+  let totalB64=0,totalBytes=0,affectedProducts=[];
+  products.forEach(p=>{
+    const imgs=(p.images||[]).filter(isBase64Img);
+    if(imgs.length){
+      affectedProducts.push(p.id);
+      totalB64+=imgs.length;
+      imgs.forEach(i=>{totalBytes+=i.length;});
+    }
+    if(isBase64Img(p.sizeChartImg))totalB64++;
+  });
+  const el=document.getElementById("migrate-scan");
+  const goBtn=document.getElementById("migrate-go-btn");
+  if(!totalB64){
+    el.innerHTML='<span style="color:#4ade80;font-weight:600">✓ All images are already on Storage — nothing to migrate.</span>';
+    if(goBtn)goBtn.style.display="none";
+    return;
+  }
+  const mb=(totalBytes/1024/1024).toFixed(1);
+  el.innerHTML=`<span style="color:#E74C3C;font-weight:600">Found ${totalB64} embedded images across ${affectedProducts.length} products (~${mb}MB of base64 text slowing your page load).</span>`;
+  if(goBtn)goBtn.style.display="inline-flex";
+  window._migrateQueue=affectedProducts;
+}
+async function runImageMigration(){
+  const queue=window._migrateQueue||[];
+  if(!queue.length){scanForBase64Images();return;}
+  const bar=document.getElementById("migrate-bar");
+  const pct=document.getElementById("migrate-pct");
+  const status=document.getElementById("migrate-status");
+  const prog=document.getElementById("migrate-progress");
+  const goBtn=document.getElementById("migrate-go-btn");
+  const msg=document.getElementById("migrate-msg");
+  if(prog)prog.style.display="block";
+  if(goBtn)goBtn.style.display="none";
+  let done=0,failed=0;
+  for(const pid of queue){
+    const p=products.find(x=>x.id===pid);
+    if(!p)continue;
+    if(status)status.textContent=`Migrating: ${p.name||pid}...`;
+    try{
+      // Re-save via the existing Edge Function — it detects base64 images,
+      // uploads them to Storage, and stores the public URL in the DB row
+      await syncProductToSupabase("save",p);
+      done++;
+    }catch(e){
+      console.error("Migration failed for",pid,e);
+      failed++;
+    }
+    const pctVal=Math.round(((done+failed)/queue.length)*100);
+    if(bar)bar.style.width=pctVal+"%";
+    if(pct)pct.textContent=pctVal+"%";
+    // small delay between products to avoid hammering the Edge Function
+    await new Promise(r=>setTimeout(r,300));
+  }
+  if(status)status.textContent=`Upload complete: ${done} migrated, ${failed} failed. Refreshing data...`;
+  // Pull fresh from Supabase to get the real Storage URLs into localStorage
+  try{
+    const ok=await loadFromSupabaseIfAvailable();
+    if(ok){
+      LS.set("ds_p",products);
+      renderGrid();
+      rnStorageView();
+    }
+  }catch(e){console.error("Refresh after migration failed",e);}
+  if(status)status.textContent=`Done! ${done} products migrated to Storage.${failed?` ${failed} failed — retry those individually from Add/Edit.`:''}`;
+  if(msg){
+    msg.style.display="block";
+    msg.style.color=failed?"#E74C3C":"#4ade80";
+    msg.textContent=failed?`${failed} products failed — their images are still base64. Open each in Add/Edit and re-save.`:"All images now load from Supabase Storage CDN. Page load time should drop dramatically.";
+  }
+  // Re-scan to confirm
+  setTimeout(scanForBase64Images,1000);
+}
 function rnStorageView(){
   const el=document.getElementById("storage-view");if(!el)return;
   let totalBytes=0;const rows=[];
