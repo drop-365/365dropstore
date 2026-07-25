@@ -220,10 +220,11 @@ header{position:sticky;top:0;z-index:100;background:rgba(20,19,18,.95);backdrop-
 .faq-item h3{font-family:var(--dsp);font-size:18px;margin-bottom:8px;color:var(--white)}
 .faq-item p{font-size:14px;line-height:1.65;color:var(--off)}
 /* fit strip — dark horizontal bar with fit pills */
-.fit-strip{display:flex;gap:10px;padding:16px 24px;background:linear-gradient(135deg,#2a1612,#1a1210);border-radius:14px;margin-bottom:20px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;align-items:center;position:sticky;top:64px;z-index:20}
-@media(max-width:860px){.fit-strip{border-radius:0;margin:0 -26px 16px;padding:14px 20px;top:56px}}
+.fit-strip{display:flex;gap:6px;padding:14px 16px;background:linear-gradient(135deg,#2a1612,#1a1210);border-radius:14px;margin-bottom:20px;align-items:center;justify-content:center;flex-wrap:wrap}
+@media(max-width:860px){.fit-strip{border-radius:0;margin:0 -26px 16px;padding:12px 10px;gap:5px}}
 .fit-strip::-webkit-scrollbar{display:none}
-.fit-strip .fit-pill{white-space:nowrap;padding:10px 24px;border-radius:30px;font-family:var(--dsp);font-size:16px;letter-spacing:.04em;border:1px solid rgba(255,255,255,.15);background:transparent;color:rgba(255,255,255,.7);cursor:pointer;transition:.25s var(--ease2)}
+.fit-strip .fit-pill{white-space:nowrap;padding:8px 16px;border-radius:30px;font-family:var(--dsp);font-size:14px;letter-spacing:.03em;border:1px solid rgba(255,255,255,.15);background:transparent;color:rgba(255,255,255,.7);cursor:pointer;transition:.25s var(--ease2);flex:1;text-align:center;min-width:0}
+@media(max-width:420px){.fit-strip .fit-pill{padding:8px 10px;font-size:12px}}
 .fit-strip .fit-pill.act{background:var(--glow,#C0392B);color:#fff;border-color:var(--glow,#C0392B);box-shadow:0 4px 16px rgba(192,57,43,.4)}
 .fit-strip .fit-pill:hover:not(.act){background:rgba(255,255,255,.08);color:#fff}
 /* MARQUEE */
@@ -319,9 +320,10 @@ header{position:sticky;top:0;z-index:100;background:rgba(20,19,18,.95);backdrop-
 #stickybuy.show{transform:translateY(0)}
 #stickybuy.show::before{animation:sbGlow 2.6s ease-in-out infinite}
 #stickybuy.show.glitch{animation:sbFlicker .38s steps(4) 1}
-#sb-fits{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;align-items:center}
+#sb-fits{display:flex;gap:6px;align-items:center;width:100%}
 #sb-fits::-webkit-scrollbar{display:none}
-.sb-fit{white-space:nowrap;padding:8px 20px;border-radius:24px;font-family:var(--dsp);font-size:14px;letter-spacing:.04em;border:1px solid rgba(255,255,255,.2);background:transparent;color:rgba(255,255,255,.7);cursor:pointer;transition:.2s;position:relative;z-index:1}
+.sb-fit{white-space:nowrap;padding:8px 14px;border-radius:24px;font-family:var(--dsp);font-size:13px;letter-spacing:.03em;border:1px solid rgba(255,255,255,.2);background:transparent;color:rgba(255,255,255,.7);cursor:pointer;transition:.2s;position:relative;z-index:1;flex:1;text-align:center;min-width:0}
+@media(max-width:420px){.sb-fit{padding:7px 8px;font-size:11px}}
 .sb-fit.act{background:var(--glow,#C0392B);color:#fff;border-color:var(--glow,#C0392B);box-shadow:0 4px 16px rgba(192,57,43,.5)}
 .sb-fit:hover:not(.act){background:rgba(255,255,255,.1);color:#fff}
 .sb-fit.sb-all{font-weight:700}
