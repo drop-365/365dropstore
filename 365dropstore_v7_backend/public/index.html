@@ -216,6 +216,12 @@ header{position:sticky;top:0;z-index:100;background:rgba(20,19,18,.95);backdrop-
 .faq-item{background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:24px}
 .faq-item h3{font-family:var(--dsp);font-size:18px;margin-bottom:8px;color:var(--white)}
 .faq-item p{font-size:14px;line-height:1.65;color:var(--off)}
+/* fit strip — dark horizontal bar with fit pills */
+.fit-strip{display:flex;gap:10px;padding:16px 24px;background:linear-gradient(135deg,#2a1612,#1a1210);border-radius:14px;margin-bottom:20px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;align-items:center}
+.fit-strip::-webkit-scrollbar{display:none}
+.fit-strip .fit-pill{white-space:nowrap;padding:10px 24px;border-radius:30px;font-family:var(--dsp);font-size:16px;letter-spacing:.04em;border:1px solid rgba(255,255,255,.15);background:transparent;color:rgba(255,255,255,.7);cursor:pointer;transition:.25s var(--ease2)}
+.fit-strip .fit-pill.act{background:var(--glow,#C0392B);color:#fff;border-color:var(--glow,#C0392B);box-shadow:0 4px 16px rgba(192,57,43,.4)}
+.fit-strip .fit-pill:hover:not(.act){background:rgba(255,255,255,.08);color:#fff}
 /* MARQUEE */
 .mq{border:none;padding:14px 0;overflow:hidden;background:#141312}
 .mtrack{display:flex;white-space:nowrap;animation:mqs 28s linear infinite}
@@ -952,11 +958,11 @@ main,header,footer,.sec,.trust,.mq{position:relative;z-index:2}
 </aside>
 
 <!-- shop -->
-<section class="sec" id="shop"><div class="w">
+<section class="sec" id="shop" style="padding-top:32px"><div class="w">
   <div class="sh sr"><div><h2 data-dec>SHOP ALL <span id="shopall-count" style="font-family:var(--bod);font-size:15px;color:var(--off);font-weight:400;text-transform:none;letter-spacing:0"></span></h2><p class="shs">Every style, every fit — the full drop, in one place.</p></div></div>
+  <div class="fit-strip" id="fit-btns"><!-- populated by renderFitBtns() --></div>
   <div class="shopbar sr">
     <button class="fb" onclick="openFilters()">☰ Filters</button>
-    <span id="fit-btns"><!-- populated by renderFitBtns() --></span>
     <select class="ss" id="srt" onchange="renderGrid()"><option value="def">Sort: Featured</option><option value="low">Price: Low → High</option><option value="high">Price: High → Low</option><option value="new">Newest</option></select>
   </div>
   <div class="afs" id="active-filters"></div>
@@ -999,12 +1005,7 @@ main,header,footer,.sec,.trust,.mq{position:relative;z-index:2}
 <!-- faq/policies -->
 <section class="sec" id="faq" style="padding:60px 0"><div class="w" style="max-width:800px">
   <h2 style="font-family:var(--dsp);font-size:clamp(28px,5vw,40px);margin-bottom:32px">BEFORE YOU ORDER</h2>
-  <div class="faq-grid">
-    <div class="faq-item"><h3>How do I pay?</h3><p>COD (Cash on Delivery) is available across India. UPI and bank transfer are also accepted — you'll confirm payment details directly with the founder on WhatsApp after placing your order.</p></div>
-    <div class="faq-item"><h3>When does it ship?</h3><p>Orders are dispatched within 24 hours. Delivery takes 3–5 days Pan India, tracked and shipped free on every order. Delhi NCR customers often receive same-day or next-day.</p></div>
-    <div class="faq-item"><h3>What if it doesn't fit?</h3><p>Easy exchange within 7 days of delivery — same style, different size. Unboxing video is required for all return and exchange claims (no exceptions). No questions asked on exchanges; refunds are processed case-by-case on WhatsApp.</p></div>
-    <div class="faq-item"><h3>How do I know my size?</h3><p>Every product page has a size guide with exact waist and length measurements. Still unsure? Message on WhatsApp with your height, weight, and usual size — the founder picks your fit personally.</p></div>
-  </div>
+  <div class="faq-grid" id="faq-grid"></div>
 </div></section>
 
 <!-- footer -->
@@ -1086,6 +1087,7 @@ main,header,footer,.sec,.trust,.mq{position:relative;z-index:2}
   <button class="atab" onclick="apTab('reviews')">Reviews</button>
   <button class="atab" onclick="apTab('stories')">Story Updates</button>
   <button class="atab" onclick="apTab('instagrid')">Hero Grid</button>
+  <button class="atab" onclick="apTab('faq')">FAQ</button>
   <button class="atab" onclick="apTab('settings')">Settings</button>
 </div>
 <div class="apbody">
@@ -1300,6 +1302,13 @@ https://raw.githubusercontent.com/drop-365/365dropstore/main/images/jean2.jpg" s
     <button class="btn btn-g" style="margin-top:14px" onclick="saveHeroGrid()">Save Hero Grid</button>
     <p id="ig-msg" style="display:none;font-size:12px;margin-top:8px"></p>
   </div>
+  <div id="tab-faq" class="apsec" style="display:none"><h3>BEFORE YOU ORDER</h3>
+    <p style="color:var(--off);font-size:13px;margin:6px 0 14px">Edit the FAQ cards shown near the footer. Each card has a question and answer. Changes save to localStorage and render immediately.</p>
+    <div id="faq-admin-list"></div>
+    <button class="btn btn-w" style="margin-top:14px" onclick="addFaqItem()">+ Add Question</button>
+    <button class="btn btn-g" style="margin-top:14px;margin-left:8px" onclick="saveFaqItems()">Save FAQ</button>
+    <p id="faq-msg" style="display:none;font-size:12px;margin-top:8px"></p>
+  </div>
   <div id="tab-settings" class="apsec" style="display:none"><h3>SETTINGS <button class="btn btn-g" style="font-size:11px;padding:4px 10px;margin-left:8px" onclick="refreshSectionFromSupabase('settings')">↻ Refresh</button></h3><div class="pfgrid">
     <div class="pff full" style="border:1px solid var(--glow);border-radius:12px;padding:18px;margin-bottom:6px;background:rgba(192,57,43,.06)">
       <label style="font-size:15px">🚀 PUBLISH TO LIVE (legacy — optional)</label>
@@ -1432,6 +1441,40 @@ function normalizeHeroGrid(raw){
   return{rows:DR,cols:DC,tiles:pad([],DR,DC)};
 }
 let heroGrid=normalizeHeroGrid(LS.get("ds_hero_grid",null));
+const DEFAULT_FAQ=[
+  {q:"How do I pay?",a:"UPI and bank transfer — you'll confirm payment details directly with the founder on WhatsApp after placing your order. Prepaid only, no COD."},
+  {q:"When does it ship?",a:"Orders are dispatched within 24 hours. Delivery takes 3–5 days Pan India, tracked and shipped free on every order. Delhi NCR customers often receive same-day or next-day."},
+  {q:"What if it doesn't fit?",a:"Easy exchange within 7 days of delivery — same style, different size. Unboxing video is required for all return and exchange claims (no exceptions). No questions asked on exchanges; refunds are processed case-by-case on WhatsApp."},
+  {q:"How do I know my size?",a:"Every product page has a size guide with exact waist and length measurements. Still unsure? Message on WhatsApp with your height, weight, and usual size — the founder picks your fit personally."}
+];
+let faqItems=LS.get("ds_faq",DEFAULT_FAQ);
+function renderFaqSection(){
+  const el=document.getElementById("faq-grid");if(!el)return;
+  el.innerHTML=faqItems.map(f=>`<div class="faq-item"><h3>${f.q}</h3><p>${f.a}</p></div>`).join("");
+}
+function renderFaqAdmin(){
+  const el=document.getElementById("faq-admin-list");if(!el)return;
+  const DARK=';background:#141312;color:#F8F7F4;border:1px solid rgba(255,255,255,.18);border-radius:8px';
+  el.innerHTML=faqItems.map((f,i)=>`<div style="border:1px solid var(--line);border-radius:10px;padding:12px;margin-bottom:10px">
+    <input id="faq-q-${i}" value="${f.q.replace(/"/g,'&quot;')}" placeholder="Question" style="width:100%;padding:8px;margin-bottom:8px;font-weight:700${DARK}"/>
+    <textarea id="faq-a-${i}" rows="3" placeholder="Answer" style="width:100%;padding:8px;resize:vertical${DARK}">${f.a.replace(/</g,'&lt;')}</textarea>
+    <button class="tb tb-del" style="margin-top:6px" onclick="removeFaqItem(${i})">Remove</button>
+  </div>`).join("");
+}
+function addFaqItem(){faqItems.push({q:"",a:""});renderFaqAdmin();}
+function removeFaqItem(i){faqItems.splice(i,1);renderFaqAdmin();}
+function saveFaqItems(){
+  faqItems=faqItems.map((_,i)=>{
+    const q=document.getElementById("faq-q-"+i);
+    const a=document.getElementById("faq-a-"+i);
+    return{q:q?q.value.trim():"",a:a?a.value.trim():""};
+  }).filter(f=>f.q&&f.a);
+  LS.set("ds_faq",faqItems);
+  renderFaqAdmin();renderFaqSection();
+  const m=document.getElementById("faq-msg");
+  if(m){m.textContent="Saved ✓";m.style.color="#4ade80";m.style.display="block";setTimeout(()=>m.style.display="none",2000);}
+  showToast("FAQ saved ✓",true);
+}
 let attCnt=LS.get("adm_att",0);let locked=LS.get("adm_lk",false);
 let _adminPw="";
 const pwOv=LS.get("adm_pd",null);if(pwOv)AH=pwOv;
@@ -1607,8 +1650,8 @@ function renderFitBtns(){
   if(!el)return;
   const fitsInUse=[...new Set(products.filter(p=>(p.images||[]).length).map(p=>p.fit).filter(Boolean))];
   const activeFit=fFits.length===1?fFits[0]:"";
-  el.innerHTML=`<button class="fb${activeFit?'':' act'}" onclick="clearFitTab()">All</button>`
-    +fitsInUse.map(f=>`<button class="fb${f===activeFit?' act':''}" onclick="pickFitTab('${f.replace(/'/g,"\\'")}')">${f}</button>`).join("");
+  el.innerHTML=`<button class="fit-pill${activeFit?'':' act'}" onclick="clearFitTab()">All</button>`
+    +fitsInUse.map(f=>`<button class="fit-pill${f===activeFit?' act':''}" onclick="pickFitTab('${f.replace(/'/g,"\\'")}')">${f}</button>`).join("");
 }
 window.pickFitTab=function(fit){
   fFits=[fit];fSizes=[];fMaxPrice=5000;fCat="All";
@@ -2106,7 +2149,7 @@ async function admLogin(){if(locked){shAErr("Locked. Run: localStorage.removeIte
     ldProds();apSts();rnAdmRev();loadSiteEd();loadFitsAdmin();loadBannerAdmin();loadPaletteAdmin();loadGlobalScAdmin();}else{attCnt++;LS.set("adm_att",attCnt);const left=MA-attCnt;if(left<=0){locked=true;LS.set("adm_lk",true);shAErr("Locked.");}else shAErr(`Wrong — ${left} left.`);document.getElementById("agatt").textContent=`${attCnt}/${MA}`;}}
 function shAErr(t){const e=document.getElementById("agerr");e.textContent=t;e.style.display="block";}
 function admOut(){document.getElementById("ap").style.display="none";location.hash="";document.body.style.overflow="";}
-function apTab(t){const all=["products","orders","add","site","banner","fits","reviews","stories","instagrid","settings"];all.forEach(id=>document.getElementById("tab-"+id).style.display=id===t?"block":"none");document.querySelectorAll(".atab").forEach((b,i)=>b.classList.toggle("act",all[i]===t));if(t==="products"){ldProds();apSts();}if(t==="orders"){rnAdmOrders();loadOrdersFromSupabase().then(ok=>{if(ok)rnAdmOrders();});}if(t==="reviews")rnAdmRev();if(t==="site")loadSiteEd();if(t==="fits")loadFitsAdmin();if(t==="settings"){loadPaletteAdmin();loadGlobalScAdmin();rnStorageView();}if(t==="banner")loadBannerAdmin();if(t==="stories")renderStoryAdmin();if(t==="instagrid")renderHeroGridAdmin();}
+function apTab(t){const all=["products","orders","add","site","banner","fits","reviews","stories","instagrid","faq","settings"];all.forEach(id=>document.getElementById("tab-"+id).style.display=id===t?"block":"none");document.querySelectorAll(".atab").forEach((b,i)=>b.classList.toggle("act",all[i]===t));if(t==="products"){ldProds();apSts();}if(t==="orders"){rnAdmOrders();loadOrdersFromSupabase().then(ok=>{if(ok)rnAdmOrders();});}if(t==="reviews")rnAdmRev();if(t==="site")loadSiteEd();if(t==="fits")loadFitsAdmin();if(t==="settings"){loadPaletteAdmin();loadGlobalScAdmin();rnStorageView();}if(t==="banner")loadBannerAdmin();if(t==="stories")renderStoryAdmin();if(t==="instagrid")renderHeroGridAdmin();if(t==="faq")renderFaqAdmin();}
 function apSts(){const tot=products.length,sold=products.filter(p=>p.badges&&p.badges.includes("sold")).length,cats=[...new Set(products.map(p=>p.category))].length;document.getElementById("apstats").innerHTML=`<div class="apstat"><div class="v">${tot}</div><div class="k">Total</div></div><div class="apstat"><div class="v">${tot-sold}</div><div class="k">Active</div></div><div class="apstat"><div class="v">${sold}</div><div class="k">Sold Out</div></div><div class="apstat"><div class="v">${cats}</div><div class="k">Categories</div></div>`;}
 
 function ldProds(){
@@ -2699,7 +2742,7 @@ function applyState(d){if(!d)return;
   LS.set("ds_ban",banner);LS.set("ds_fits",fits);LS.set("ds_pal",palette);
   LS.set("ds_gsc",globalSc);LS.set("ds_stories",stories);
   applySiteContent();applyBanner();renderStoriesRail();
-  buildFilterUI();populateFitSelect();setCat("All");renderGrid();renderRevs();applyPalette();
+  buildFilterUI();populateFitSelect();setCat("All");renderGrid();renderRevs();renderFaqSection();applyPalette();
   if(typeof window.rebuildHeroShowcase==="function")window.rebuildHeroShowcase();
 }
 // On storefront load, pull published state from backend (if live). Falls back silently to localStorage.
@@ -3158,7 +3201,7 @@ const _isPreview = sessionStorage.getItem("ds_preview")==="1";
   if(!_isAdminRoute && !_isPreview){
     usedSupabase = await loadFromSupabaseIfAvailable();
   }
-  buildFilterUI();populateFitSelect();setCat("All");renderGrid();renderCart();renderRevs();applyPalette();applyBanner();renderStoriesRail();applySiteContent();
+  buildFilterUI();populateFitSelect();setCat("All");renderGrid();renderCart();renderRevs();renderFaqSection();applyPalette();applyBanner();renderStoriesRail();applySiteContent();
   if(!usedSupabase){
     loadPublished();
   }
