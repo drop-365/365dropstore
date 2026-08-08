@@ -261,6 +261,10 @@ header{position:sticky;top:0;z-index:100;background:rgba(20,19,18,.95);backdrop-
 .prod-search-dd .pso{padding:10px 12px;cursor:pointer;font-size:13px;color:rgba(255,255,255,.7);border-bottom:1px solid rgba(255,255,255,.06)}
 .prod-search-dd .pso:hover,.prod-search-dd .pso.sel{background:rgba(192,57,43,.2);color:#fff}
 .prod-search-dd .pso.none{color:rgba(255,255,255,.4);font-style:italic}
+
+/* product card image loading placeholder */
+.pcard .pimg{background:linear-gradient(110deg,#f2f1ee 30%,#e6e4de 50%,#f2f1ee 70%);background-size:200% 100%;animation:imgshimmer 1.5s ease-in-out infinite}
+.pcard .pimg img[src]{background:none}
 /* MARQUEE */
 .mq{border:none;padding:14px 0;overflow:hidden;background:#141312}
 .mtrack{display:flex;white-space:nowrap;animation:mqs 28s linear infinite}
@@ -3601,17 +3605,21 @@ const _isPreview = sessionStorage.getItem("ds_preview")==="1";
 
 /* ===== SOCIAL PROOF FLASH ===== */
 (function(){
-  const CITIES=["Delhi","Mumbai","Bangalore","Noida","Gurgaon","Hyderabad","Pune","Jaipur","Lucknow","Chandigarh","Kolkata","Chennai","Ahmedabad","Laxmi Nagar","Dwarka","Rohini","Saket","Connaught Place"];
-  const NAMES=["Rahul","Aryan","Rohit","Amit","Vikram","Sahil","Kunal","Prateek","Varun","Ankit","Mohit","Harsh","Ravi","Aakash","Nikhil","Saurabh","Deepak","Manish"];
-  const TIMES=["2 min ago","5 min ago","12 min ago","18 min ago","25 min ago","1 hour ago","3 hours ago"];
+  const CITIES=["Delhi","Mumbai","Bangalore","Noida","Gurgaon","Hyderabad","Pune","Jaipur","Lucknow","Chandigarh","Kolkata","Chennai","Ahmedabad","Indore","Bhopal","Surat","Nagpur","Patna","Kochi","Coimbatore","Vadodara","Ranchi","Dehradun","Mysore","Vizag","Gwalior","Rohini","Dwarka","Saket","Laxmi Nagar","Varanasi","Amritsar","Ludhiana","Faridabad","Thane","Navi Mumbai","Ghaziabad","Kanpur","Agra","Meerut","Raipur","Bhubaneswar","Mangalore","Trivandrum","Udaipur","Jodhpur","Jalandhar","Panipat","Mathura","Shimla"];
+  const NAMES=["Rahul","Aryan","Rohit","Amit","Vikram","Sahil","Kunal","Prateek","Varun","Ankit","Mohit","Harsh","Ravi","Aakash","Nikhil","Saurabh","Deepak","Manish","Karan","Rohan","Yash","Aditya","Ishaan","Shubham","Dev","Arjun","Kartik","Gaurav","Aman","Tanmay","Abhishek","Vishal","Dhruv","Pranav","Akash","Siddharth","Rajat","Vivek","Naman","Rishi","Jay","Aarav","Reyansh","Darshan","Chirag","Tushar","Ritik","Sameer","Akshay","Piyush"];
+  const TIMES=["just now","1 min ago","2 min ago","4 min ago","7 min ago","9 min ago","12 min ago","15 min ago","18 min ago","22 min ago","28 min ago","35 min ago","45 min ago","1 hour ago","2 hours ago"];
   let spPid="";
   let spTimer=null;
-  function pick(arr){return arr[Math.floor(Math.random()*arr.length)];}
+  let spCounter=0;
+  // time-based seed ensures unique combinations across page loads
+  function timeSeed(){return Math.floor(Date.now()/1000)+spCounter++;}
+  function pickSeeded(arr,seed){return arr[seed%arr.length];}
   function showSP(){
     const pp=typeof products!=="undefined"?products:[];
     const live=pp.filter(p=>(p.images||[]).length&&!(p.badges&&p.badges.includes("sold")));
     if(!live.length)return;
-    const p=pick(live);
+    const seed=timeSeed();
+    const p=pickSeeded(live,seed);
     spPid=p.id;
     const el=document.getElementById("sp-toast");
     const img=document.getElementById("sp-img");
@@ -3620,9 +3628,9 @@ const _isPreview = sessionStorage.getItem("ds_preview")==="1";
     const time=document.getElementById("sp-time");
     if(!el)return;
     if(img)img.src=(p.images||[])[0]||"";
-    if(who)who.innerHTML=`<b>${pick(NAMES)}</b> from ${pick(CITIES)} just bought`;
+    if(who)who.innerHTML=`<b>${pickSeeded(NAMES,seed*7+3)}</b> from ${pickSeeded(CITIES,seed*13+7)} just bought`;
     if(prod)prod.textContent=p.name||"";
-    if(time)time.textContent=pick(TIMES);
+    if(time)time.textContent=pickSeeded(TIMES,seed*11+5);
     el.classList.add("show");
     // auto-hide after 5s
     setTimeout(()=>{el.classList.remove("show");},5000);
