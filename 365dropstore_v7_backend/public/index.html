@@ -28,7 +28,7 @@
   --line:rgba(20,19,18,.08);--line2:rgba(20,19,18,.04);
   --glass:rgba(20,19,18,.03);--glass2:rgba(20,19,18,.06);
   --max:1320px;
-  --dsp:'Bebas Neue',sans-serif;
+  --dsp:'Bebas Neue','Helvetica Neue',Helvetica,Arial,sans-serif;
   --bod:'Space Grotesk',system-ui,sans-serif;
   --ease:cubic-bezier(.4,0,.2,1);--ease2:cubic-bezier(.16,1,.3,1);
 }
@@ -289,6 +289,12 @@ header{position:sticky;top:0;z-index:100;background:rgba(20,19,18,.95);backdrop-
 .rf-thanks{text-align:center;padding:40px 20px}
 .rf-thanks h3{font-family:var(--dsp);font-size:28px;margin-bottom:8px}
 .rf-thanks p{color:var(--off);font-size:14px}
+
+/* infinity glyph — Bebas Neue lacks this character, so force a safe system font
+   to prevent iOS falling back to a watermarked font */
+.inf-glyph{font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;font-style:normal;font-weight:400;font-size:.85em;vertical-align:baseline;letter-spacing:0;padding:0 .04em}
+/* any element that may contain the infinity glyph gets a safe fallback stack */
+.hstat .num,.stnums .snum,.mi,.bn,.agl,.fbot{font-family:'Bebas Neue','Helvetica Neue',Helvetica,Arial,sans-serif}
 /* MARQUEE */
 .mq{border:none;padding:14px 0;overflow:hidden;background:#141312}
 .mtrack{display:flex;white-space:nowrap;animation:mqs 28s linear infinite}
@@ -932,7 +938,7 @@ main,header,footer,.sec,.trust,.mq{position:relative;z-index:2}
 <!-- brand intro -->
 <div id="bi">
   <svg viewBox="0 0 110 55"><path d="M23 27.5c0-11 14-11 17 0s17 11 17 0-3.5-11-8.5-11-8.5 0-8.5 11 14 11 17 0"/></svg>
-  <div class="bn">365∞DROP STORE</div>
+  <div class="bn">365<i class="inf-glyph">∞</i>DROP STORE</div>
   <div class="tl">Clothing or Nothing</div>
 </div>
 
@@ -954,7 +960,7 @@ main,header,footer,.sec,.trust,.mq{position:relative;z-index:2}
 
 <!-- nav -->
 <header id="nav"><div class="w nav">
-  <div class="nbrand"><img src="" alt="365"/><span>365∞DROP</span></div>
+  <div class="nbrand"><img src="" alt="365"/><span>365<i class="inf-glyph">∞</i>DROP</span></div>
   <div class="nlinks"><a onclick="goTo('#shop')">Shop</a><a onclick="goTo('#story')">Our Story</a><a onclick="goTo('#reviews')">Reviews</a><a onclick="goTo('#nl')">Early Access</a></div>
   <div class="nright"><div class="nicon" onclick="openSrch()" title="Search">🔍</div><button class="nbag" onclick="openCart()">🛍 Bag <span class="nbadge" id="ccount">0</span></button><div class="burger" onclick="openMob()"><span></span><span></span><span></span></div></div>
 </div></header>
@@ -1765,7 +1771,9 @@ function showAF(){const tags=[];if(fCat!=="All")tags.push({l:fCat,c:()=>setCat("
 function cAF(i){if(window._afc&&window._afc[i])window._afc[i]();}
 
 // GRID
+let _pcardIdx=0;
 function pcardHTML(p){
+  const _myIdx=_pcardIdx++;
     const imgs=p.images||[];const img1=imgs[0]||"";const img2=imgs[1]||img1;
     const bgs=(p.badges||[]).filter(b=>BM[b]).map(b=>`<span class="bdg ${BM[b].c}">${BM[b].t}</span>`).join("");
     const pr=p.offerPrice?`<span class="pnow">${inr(p.offerPrice)}</span><span class="pwas">${inr(p.price)}</span><span class="psave">-${Math.round((1-p.offerPrice/p.price)*100)}%</span>`:`<span class="pnow">${inr(p.price)}</span>`;
@@ -1782,7 +1790,7 @@ function pcardHTML(p){
       <div class="pimg">
         <div class="pbadges">${bgs}</div>
         <div class="pwish${saved?' on':''}" onclick="event.stopPropagation();toggleWishlist('${p.id}')" title="Save">${saved?'♥':'♡'}</div>
-        <img class="pfront" src="${img1}" alt="${p.name}" loading="lazy"/>
+        <img class="pfront" src="${img1}" alt="${p.name}" loading="${_myIdx<4?'eager':'lazy'}" decoding="async" fetchpriority="${_myIdx<2?'high':'auto'}"/>
         <img class="pback" src="${img2}" alt="${p.name}" loading="lazy"/>
         ${fitBand}
         ${rbl}
@@ -2112,7 +2120,7 @@ function jumpToFit(fit){
 }
 let gridPage=0;const GRID_PAGE_SIZE=12;
 function renderGrid(){
-  gridPage=0;
+  gridPage=0;_pcardIdx=0;
   const srt=document.getElementById("srt").value;
   let list=[...products].filter(p=>fCat==="All"||p.category===fCat);
   if(fSizes.length)list=list.filter(p=>(p.sizes||[]).some(s=>fSizes.includes(s)));
@@ -2255,8 +2263,8 @@ function openMo(id){
   const reelHtml=p.reelUrl?`<a href="${p.reelUrl}" target="_blank" rel="noopener" class="mo-reel">▶ Watch Reel on Instagram</a>`:'';
   const plink=`https://365dropstore.com/#product-${p.id}`;
   const shareHtml=`<div class="mo-share">
-    <button class="share-btn" onclick="shareProduct('${p.id}','${(p.name||"").replace(/'/g,"\\'")}','${plink}')">🔗 Share Product</button>
-    <button class="share-btn" onclick="window.open('https://api.whatsapp.com/send?text='+encodeURIComponent('${(p.name||'').replace(/'/g,'\\\'')} — 365 Drop Store\n${plink}'),'_blank')">📲 Share on WhatsApp</button>
+    <button class="share-btn" style="width:100%" onclick="shareProduct('${p.id}','${(p.name||"").replace(/'/g,"\\'")}','${plink}')">🔗 Share Product</button>
+
   </div>`;
   const _scImg=p.sizeChartImg||globalSc||'';const scHtml=_scImg?`<div onclick="openSizeChart('${p.id}')" style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--accsub);cursor:pointer;margin-bottom:14px;padding:10px;background:var(--glass);border:1px solid var(--line);border-radius:8px;">📏 <span>View Size Chart</span> <span style="margin-left:auto;color:var(--off)">↗</span></div>`:'';
   const descFull=p.desc2?`<div class="mo-expander"><div class="mo-exp-row" onclick="toggleExp(this)"><span>Description</span><span class="arr">+</span></div><div class="mo-exp-body"><p>${p.desc2}</p></div></div>`:'';
@@ -2431,7 +2439,22 @@ function closeMob(){document.getElementById("mbnav").classList.remove("op");docu
 
 // ADMIN
 function chkRoute(){const h=location.hash.replace("#","");if(h===AP){document.getElementById("ag").style.display="block";document.body.style.overflow="hidden";return;}if(h.indexOf("review-")===0){const rid=h.slice(7);if(products&&products.length)openReviewForm(rid);}
-if(h.indexOf("product-")===0){const id=h.slice(8);if(products&&products.find(x=>String(x.id)===id)){const b=document.getElementById("boot");if(b)b.remove();document.documentElement.style.overflow="";openMo(id);}}}
+if(h.indexOf("product-")===0){
+  const id=h.slice(8);
+  // always clear the boot screen for product links, regardless of whether the product exists
+  const b=document.getElementById("boot");if(b)b.remove();
+  document.documentElement.style.overflow="";
+  if(products&&products.length){
+    const found=products.find(x=>String(x.id)===id);
+    if(found){openMo(id);}
+    else{
+      // product not found (deleted/renamed) — clear hash and show the shop instead of a blank page
+      history.replaceState(null,"",location.pathname);
+      showToast("That product is no longer available. Browse the current drop below.",false);
+      setTimeout(()=>{const s=document.getElementById("shop");if(s)s.scrollIntoView({behavior:"smooth"});},400);
+    }
+  }
+}}
 async function admLogin(){if(locked){shAErr("Locked. Run: localStorage.removeItem('adm_lk') in console.");return;}const e=document.getElementById("age").value.trim();const pw=document.getElementById("agp").value;const h=await sha256(pw);if(e===AE&&h===AH){_adminPw=pw;document.getElementById("ag").style.display="none";document.getElementById("ap").style.display="block";attCnt=0;LS.set("adm_att",0);LS.set("adm_lk",false);
     await loadFromSupabaseIfAvailable();
     ldProds();apSts();rnAdmRev();loadSiteEd();loadFitsAdmin();loadBannerAdmin();loadPaletteAdmin();loadGlobalScAdmin();}else{attCnt++;LS.set("adm_att",attCnt);const left=MA-attCnt;if(left<=0){locked=true;LS.set("adm_lk",true);shAErr("Locked.");}else shAErr(`Wrong — ${left} left.`);document.getElementById("agatt").textContent=`${attCnt}/${MA}`;}}
