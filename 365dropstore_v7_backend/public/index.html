@@ -214,6 +214,14 @@ header{position:sticky;top:0;z-index:100;background:rgba(20,19,18,.95);backdrop-
 .btn-loadmore{padding:14px 36px;border-radius:30px;font-family:var(--dsp);font-size:18px;letter-spacing:.04em;background:var(--white);color:#fff;border:none;cursor:pointer;transition:.2s}
 .btn-loadmore:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(20,19,18,.2)}
 /* FAQ cards */
+/* size recommendation in modal */
+.mo-size-rec{margin-top:8px}
+.size-rec-card{padding:12px 16px;border-radius:10px;background:rgba(74,222,128,.06);border:1px solid rgba(74,222,128,.2)}
+.size-rec-card.oos-rec{background:rgba(192,57,43,.05);border-color:rgba(192,57,43,.2)}
+.rec-label{font-family:var(--dsp);font-size:16px;color:var(--white)}
+.rec-best{font-size:13px;color:var(--off);margin-top:2px}
+.rec-avail{font-size:12px;color:#4ade80;margin-top:6px;font-weight:600}
+.rec-oos{font-size:12px;color:#C0392B;margin-top:6px;font-weight:600}
 .faq-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
 @media(max-width:640px){.faq-grid{grid-template-columns:1fr}}
 .faq-item{background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:24px}
@@ -409,7 +417,8 @@ header{position:sticky;top:0;z-index:100;background:rgba(20,19,18,.95);backdrop-
 .chips{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:16px}
 .chip{border:1.5px solid rgba(0,0,0,.1);padding:9px 14px;font-size:13px;font-weight:500;transition:.18s;cursor:pointer;border-radius:99px;background:#FFFFFF;color:var(--w2)}
 .chip.sel,.chip:hover{border-color:#141312;background:#141312;color:#F8F7F4}
-.chip.oos-chip{opacity:.35;cursor:not-allowed!important;border-color:#DDD!important;background:#F5F5F2!important;color:#BBB!important}
+.chip.oos-chip{opacity:.55;cursor:pointer!important;border-color:#DDD!important;background:#F5F5F2!important;color:#999!important;position:relative}
+.chip.oos-chip.sel{border-color:#C0392B!important;opacity:.7}
 .qrow{display:flex;align-items:center;gap:14px;margin-bottom:20px}
 .stepper{display:flex;align-items:center;border:1px solid var(--line);border-radius:8px;background:var(--glass)}
 .stepper button{padding:9px 14px;font-size:17px;transition:.15s;color:var(--w2)}
@@ -1100,6 +1109,7 @@ main,header,footer,.sec,.trust,.mq{position:relative;z-index:2}
   <button class="atab" onclick="apTab('stories')">Story Updates</button>
   <button class="atab" onclick="apTab('instagrid')">Hero Grid</button>
   <button class="atab" onclick="apTab('faq')">FAQ</button>
+  <button class="atab" onclick="apTab('sizeguide')">Size Guide</button>
   <button class="atab" onclick="apTab('settings')">Settings</button>
 </div>
 <div class="apbody">
@@ -1321,6 +1331,12 @@ https://raw.githubusercontent.com/drop-365/365dropstore/main/images/jean2.jpg" s
     <button class="btn btn-g" style="margin-top:14px;margin-left:8px" onclick="saveFaqItems()">Save FAQ</button>
     <p id="faq-msg" style="display:none;font-size:12px;margin-top:8px"></p>
   </div>
+  <div id="tab-sizeguide" class="apsec" style="display:none"><h3>SIZE GUIDE BY FIT</h3>
+    <p style="color:var(--off);font-size:13px;margin:6px 0 14px">Edit waist measurements and "best for" recommendations per fit type. These show in the product modal when a customer selects a size.</p>
+    <div id="sg-admin"></div>
+    <button class="btn btn-g" style="margin-top:14px" onclick="saveSizeGuide()">Save Size Guide</button>
+    <p id="sg-msg" style="display:none;font-size:12px;margin-top:8px"></p>
+  </div>
   <div id="tab-settings" class="apsec" style="display:none"><h3>SETTINGS <button class="btn btn-g" style="font-size:11px;padding:4px 10px;margin-left:8px" onclick="refreshSectionFromSupabase('settings')">↻ Refresh</button></h3><div class="pfgrid">
     <div class="pff full" style="border:1px solid var(--glow);border-radius:12px;padding:18px;margin-bottom:6px;background:rgba(192,57,43,.06)">
       <label style="font-size:15px">🚀 PUBLISH TO LIVE (legacy — optional)</label>
@@ -1477,6 +1493,39 @@ const DEFAULT_FAQ=[
   {q:"How do I know my size?",a:"Every product page has a size guide with exact waist and length measurements. Still unsure? Message on WhatsApp with your height, weight, and usual size — the founder picks your fit personally."}
 ];
 let faqItems=LS.get("ds_faq",DEFAULT_FAQ);
+
+const DEFAULT_SIZE_GUIDE={
+  "Wide-Leg":[
+    {size:"28",waist:"28",bestFor:"Best for waists 27–30"},
+    {size:"30",waist:"30",bestFor:"Best for waists 30–32.5"},
+    {size:"32",waist:"32",bestFor:"Best for waists 32–34.5"},
+    {size:"34",waist:"34",bestFor:"Best for waists 34–35.5"},
+    {size:"36",waist:"36",bestFor:"Best for waists 35.5–37"}
+  ],
+  "Straight":[
+    {size:"28",waist:"28",bestFor:"Best for waists 28–29"},
+    {size:"30",waist:"30",bestFor:"Best for waists 30–31"},
+    {size:"32",waist:"32",bestFor:"Best for waists 32–33"},
+    {size:"34",waist:"34",bestFor:"Best for waists 34–35"},
+    {size:"36",waist:"36",bestFor:"Best for waists 36–37"}
+  ],
+  "Comfort":[
+    {size:"28",waist:"28",bestFor:"Best for waists 28–29.5"},
+    {size:"30",waist:"30",bestFor:"Best for waists 30–31.5"},
+    {size:"32",waist:"32",bestFor:"Best for waists 32–33.5"},
+    {size:"34",waist:"34",bestFor:"Best for waists 34–35.5"},
+    {size:"36",waist:"36",bestFor:"Best for waists 36–37.5"}
+  ],
+  "Baggy":[
+    {size:"28",waist:"28",bestFor:"Best for waists 27–29"},
+    {size:"30",waist:"30",bestFor:"Best for waists 29–31"},
+    {size:"32",waist:"32",bestFor:"Best for waists 31–33"},
+    {size:"34",waist:"34",bestFor:"Best for waists 33–35"},
+    {size:"36",waist:"36",bestFor:"Best for waists 35–37"}
+  ]
+};
+let sizeGuide=LS.get("ds_size_guide",DEFAULT_SIZE_GUIDE);
+
 function renderFaqSection(){
   const el=document.getElementById("faq-grid");if(!el)return;
   el.innerHTML=faqItems.map(f=>`<div class="faq-item"><h3>${f.q}</h3><p>${f.a}</p></div>`).join("");
@@ -1503,6 +1552,36 @@ function saveFaqItems(){
   const m=document.getElementById("faq-msg");
   if(m){m.textContent="Saved ✓";m.style.color="#4ade80";m.style.display="block";setTimeout(()=>m.style.display="none",2000);}
   showToast("FAQ saved ✓",true);
+}
+function renderSizeGuideAdmin(){
+  const el=document.getElementById("sg-admin");if(!el)return;
+  const DARK=';background:#141312;color:#F8F7F4;border:1px solid rgba(255,255,255,.18);border-radius:8px';
+  const fits=Object.keys(sizeGuide);
+  el.innerHTML=fits.map(fit=>{
+    const rows=sizeGuide[fit]||[];
+    return`<div style="border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:16px">
+      <h4 style="font-family:var(--dsp);font-size:18px;margin-bottom:12px">${fit}</h4>
+      ${rows.map((r,i)=>`<div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
+        <input value="${r.size}" style="width:60px;padding:6px;text-align:center${DARK}" onchange="sizeGuide['${fit}'][${i}].size=this.value"/>
+        <input value="${r.waist}" style="width:60px;padding:6px;text-align:center${DARK}" placeholder="Waist" onchange="sizeGuide['${fit}'][${i}].waist=this.value"/>
+        <input value="${r.bestFor}" style="flex:1;padding:6px${DARK}" placeholder="Best for waists..." onchange="sizeGuide['${fit}'][${i}].bestFor=this.value"/>
+        <button class="tb tb-del" onclick="sizeGuide['${fit}'].splice(${i},1);renderSizeGuideAdmin();">×</button>
+      </div>`).join("")}
+      <button class="btn btn-w" style="font-size:11px;padding:4px 10px" onclick="sizeGuide['${fit}'].push({size:'',waist:'',bestFor:''});renderSizeGuideAdmin();">+ Add Size</button>
+    </div>`;
+  }).join("")+`<button class="btn btn-w" style="margin-top:8px" onclick="addFitToSizeGuide()">+ Add Fit Type</button>`;
+}
+function addFitToSizeGuide(){
+  const name=prompt("Fit name (e.g. Relaxed):");
+  if(!name)return;
+  sizeGuide[name]=[{size:"28",waist:"28",bestFor:"Best for waists 28-30"}];
+  renderSizeGuideAdmin();
+}
+function saveSizeGuide(){
+  LS.set("ds_size_guide",sizeGuide);
+  const m=document.getElementById("sg-msg");
+  if(m){m.textContent="Saved ✓";m.style.color="#4ade80";m.style.display="block";setTimeout(()=>m.style.display="none",2000);}
+  showToast("Size Guide saved ✓",true);
 }
 let attCnt=LS.get("adm_att",0);let locked=LS.get("adm_lk",false);
 let _adminPw="";
@@ -2003,14 +2082,48 @@ function openImgReview(id){const imgs=reviews.filter(r=>r.type==="img").map(r=>r
 function renderMoSizes(p){
   if(!(p.sizes||[]).length)return'';
   const chips=p.sizes.map((s,i)=>{const oos=(p.oosizes||[]).includes(s);const fa=(p.sizes).findIndex(z=>!(p.oosizes||[]).includes(z));const sel=!oos&&i===fa;
-    if(oos)return`<button class="chip oos-chip" disabled title="Out of stock"><s>${s}</s></button>`;
+    if(oos)return`<button class="chip oos-chip" onclick="selectOosSize(this,'${s}')" title="Out of stock — tap to see measurements"><s>${s}</s></button>`;
     return`<button class="chip${sel?' sel':''}" onclick="pick('size','${s}',this)">${s}</button>`;
   }).join('');
-  return`<span class="mol">Size</span><div class="chips">${chips}</div>`;
+  return`<span class="mol">Size</span><div class="chips">${chips}</div><div id="mo-size-rec" class="mo-size-rec"></div>`;
 }
+function getSizeRec(fit,size){
+  const guide=sizeGuide[fit];
+  if(!guide)return null;
+  return guide.find(g=>g.size===size)||null;
+}
+function showSizeRec(fit,size,isOos){
+  const el=document.getElementById("mo-size-rec");if(!el)return;
+  const rec=getSizeRec(fit,size);
+  if(!rec){el.innerHTML='';return;}
+  el.innerHTML=`<div class="size-rec-card${isOos?' oos-rec':''}">
+    <div class="rec-label">Waist ${rec.waist}"</div>
+    <div class="rec-best">${rec.bestFor}</div>
+    ${isOos?'<div class="rec-oos">This size is currently out of stock</div>':'<div class="rec-avail">✓ Available — select to add to bag</div>'}
+  </div>`;
+  // disable/enable Add to Bag based on OOS
+  const bagBtn=document.querySelector('#mo .moact');
+  if(bagBtn){
+    if(isOos){bagBtn.style.opacity='.4';bagBtn.style.pointerEvents='none';bagBtn.textContent='Out of Stock';}
+    else{bagBtn.style.opacity='1';bagBtn.style.pointerEvents='auto';bagBtn.textContent=`Add to Bag · ${inr(eff(ms.p))}`;}
+  }
+}
+window.selectOosSize=function(btn,size){
+  document.querySelectorAll('#mo .chip').forEach(c=>c.classList.remove('sel'));
+  btn.classList.add('sel');
+  ms.size=size;
+  showSizeRec(ms.p.fit||'',size,true);
+};
+// hook into the existing pick() function to show rec on normal size select too
+const _origPick=window.pick;
+window.pick=function(key,val,el){
+  if(_origPick)_origPick(key,val,el);
+  if(key==='size'&&ms.p){showSizeRec(ms.p.fit||'',val,false);}
+};
 
 let ms={p:null,size:"",color:"",qty:1,idx:0};
 function openMo(id){
+  history.replaceState(null,"","#product-"+id);
   const p=products.find(x=>x.id===id);if(!p)return;
   ms={p,size:((p.sizes||[]).find(s=>!(p.oosizes||[]).includes(s)))||"",color:(p.colors||[])[0]||"",qty:1,idx:0};
   const sold=p.badges&&p.badges.includes("sold");
@@ -2061,6 +2174,8 @@ function openMo(id){
   };
   moEl.addEventListener("animationend",cleanupModopen);
   setTimeout(cleanupModopen,650);
+  // show size rec for the initially selected size
+  if(ms.size)setTimeout(()=>showSizeRec(p.fit||'',ms.size,!!(p.oosizes||[]).includes(ms.size)),100);
 }
 function openSizeChart(id){const p=products.find(x=>x.id===id);if(!p)return;const scSrc=p.sizeChartImg||globalSc;if(!scSrc)return;const d=document.createElement('div');d.style.cssText='position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.9);display:flex;align-items:center;justify-content:center;padding:20px;cursor:pointer;z-index:9999';d.onclick=()=>d.remove();d.innerHTML=`<div style="background:var(--bg2);border-radius:12px;padding:16px;max-width:700px;width:100%;max-height:90vh;overflow-y:auto"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><h3 style="font-family:var(--dsp);font-size:20px;color:var(--white)">SIZE CHART</h3><button onclick="this.closest('[style]').remove()" style="background:var(--glass);border:1px solid var(--line);color:var(--white);width:34px;height:34px;border-radius:8px;font-size:20px;cursor:pointer">×</button></div><img src="${scSrc}" style="width:100%;border-radius:8px" alt="Size chart preview"/></div>`;document.body.appendChild(d);}
 function toggleExp(row){row.classList.toggle("open");row.nextElementSibling.classList.toggle("open");}
@@ -2201,7 +2316,7 @@ async function admLogin(){if(locked){shAErr("Locked. Run: localStorage.removeIte
     ldProds();apSts();rnAdmRev();loadSiteEd();loadFitsAdmin();loadBannerAdmin();loadPaletteAdmin();loadGlobalScAdmin();}else{attCnt++;LS.set("adm_att",attCnt);const left=MA-attCnt;if(left<=0){locked=true;LS.set("adm_lk",true);shAErr("Locked.");}else shAErr(`Wrong — ${left} left.`);document.getElementById("agatt").textContent=`${attCnt}/${MA}`;}}
 function shAErr(t){const e=document.getElementById("agerr");e.textContent=t;e.style.display="block";}
 function admOut(){document.getElementById("ap").style.display="none";location.hash="";document.body.style.overflow="";}
-function apTab(t){const all=["products","orders","add","site","banner","fits","reviews","stories","instagrid","faq","settings"];all.forEach(id=>document.getElementById("tab-"+id).style.display=id===t?"block":"none");document.querySelectorAll(".atab").forEach((b,i)=>b.classList.toggle("act",all[i]===t));if(t==="products"){ldProds();apSts();}if(t==="orders"){rnAdmOrders();loadOrdersFromSupabase().then(ok=>{if(ok)rnAdmOrders();});}if(t==="reviews")rnAdmRev();if(t==="site")loadSiteEd();if(t==="fits")loadFitsAdmin();if(t==="settings"){loadPaletteAdmin();loadGlobalScAdmin();rnStorageView();}if(t==="banner")loadBannerAdmin();if(t==="stories")renderStoryAdmin();if(t==="instagrid")renderHeroGridAdmin();if(t==="faq")renderFaqAdmin();}
+function apTab(t){const all=["products","orders","add","site","banner","fits","reviews","stories","instagrid","faq","sizeguide","settings"];all.forEach(id=>document.getElementById("tab-"+id).style.display=id===t?"block":"none");document.querySelectorAll(".atab").forEach((b,i)=>b.classList.toggle("act",all[i]===t));if(t==="products"){ldProds();apSts();}if(t==="orders"){rnAdmOrders();loadOrdersFromSupabase().then(ok=>{if(ok)rnAdmOrders();});}if(t==="reviews")rnAdmRev();if(t==="site")loadSiteEd();if(t==="fits")loadFitsAdmin();if(t==="settings"){loadPaletteAdmin();loadGlobalScAdmin();rnStorageView();}if(t==="banner")loadBannerAdmin();if(t==="stories")renderStoryAdmin();if(t==="instagrid")renderHeroGridAdmin();if(t==="faq")renderFaqAdmin();if(t==="sizeguide")renderSizeGuideAdmin();}
 function apSts(){const tot=products.length,sold=products.filter(p=>p.badges&&p.badges.includes("sold")).length,cats=[...new Set(products.map(p=>p.category))].length;document.getElementById("apstats").innerHTML=`<div class="apstat"><div class="v">${tot}</div><div class="k">Total</div></div><div class="apstat"><div class="v">${tot-sold}</div><div class="k">Active</div></div><div class="apstat"><div class="v">${sold}</div><div class="k">Sold Out</div></div><div class="apstat"><div class="v">${cats}</div><div class="k">Categories</div></div>`;}
 
 function ldProds(){
@@ -3333,7 +3448,7 @@ const _isPreview = sessionStorage.getItem("ds_preview")==="1";
   if(!_isAdminRoute && !_isPreview){
     usedSupabase = await loadFromSupabaseIfAvailable();
   }
-  buildFilterUI();populateFitSelect();setCat("All");renderGrid();renderCart();renderRevs();renderFaqSection();applyPalette();applyBanner();renderStoriesRail();applySiteContent();
+  buildFilterUI();populateFitSelect();setCat("All");renderGrid();renderCart();renderRevs();renderFaqSection();applyPalette();applyBanner();renderStoriesRail();applySiteContent();chkRoute();
   if(!usedSupabase){
     loadPublished();
   }
