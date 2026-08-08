@@ -292,9 +292,7 @@ header{position:sticky;top:0;z-index:100;background:rgba(20,19,18,.95);backdrop-
 
 /* infinity glyph — Bebas Neue lacks this character, so force a safe system font
    to prevent iOS falling back to a watermarked font */
-.inf-glyph{font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;font-style:normal;font-weight:400;font-size:.85em;vertical-align:baseline;letter-spacing:0;padding:0 .04em}
-/* any element that may contain the infinity glyph gets a safe fallback stack */
-.hstat .num,.stnums .snum,.mi,.bn,.agl,.fbot{font-family:'Bebas Neue','Helvetica Neue',Helvetica,Arial,sans-serif}
+
 /* MARQUEE */
 .mq{border:none;padding:14px 0;overflow:hidden;background:#141312}
 .mtrack{display:flex;white-space:nowrap;animation:mqs 28s linear infinite}
@@ -938,7 +936,7 @@ main,header,footer,.sec,.trust,.mq{position:relative;z-index:2}
 <!-- brand intro -->
 <div id="bi">
   <svg viewBox="0 0 110 55"><path d="M23 27.5c0-11 14-11 17 0s17 11 17 0-3.5-11-8.5-11-8.5 0-8.5 11 14 11 17 0"/></svg>
-  <div class="bn">365<i class="inf-glyph">∞</i>DROP STORE</div>
+  <div class="bn">365 DROP STORE</div>
   <div class="tl">Clothing or Nothing</div>
 </div>
 
@@ -960,7 +958,7 @@ main,header,footer,.sec,.trust,.mq{position:relative;z-index:2}
 
 <!-- nav -->
 <header id="nav"><div class="w nav">
-  <div class="nbrand"><img src="" alt="365"/><span>365<i class="inf-glyph">∞</i>DROP</span></div>
+  <div class="nbrand"><img src="" alt="365"/><span>365 DROP</span></div>
   <div class="nlinks"><a onclick="goTo('#shop')">Shop</a><a onclick="goTo('#story')">Our Story</a><a onclick="goTo('#reviews')">Reviews</a><a onclick="goTo('#nl')">Early Access</a></div>
   <div class="nright"><div class="nicon" onclick="openSrch()" title="Search">🔍</div><button class="nbag" onclick="openCart()">🛍 Bag <span class="nbadge" id="ccount">0</span></button><div class="burger" onclick="openMob()"><span></span><span></span><span></span></div></div>
 </div></header>
@@ -991,7 +989,7 @@ main,header,footer,.sec,.trust,.mq{position:relative;z-index:2}
     </div>
     <div class="hstats rvh hd6">
       <div class="hstat"><span class="num">365</span><span class="lbl">Days dropping</span></div>
-      <div class="hstat"><span class="num">∞</span><span class="lbl">Ways to wear</span></div>
+      <div class="hstat"><span class="num">MANY</span><span class="lbl">Ways to wear</span></div>
       <div class="hstat"><span class="num">0</span><span class="lbl">Middlemen</span></div>
     </div>
   </div>
@@ -1064,7 +1062,7 @@ main,header,footer,.sec,.trust,.mq{position:relative;z-index:2}
     <h2 id="story-h2" data-dec>Started in a bedroom. Worn everywhere.</h2>
     <p id="story-p1">365 Drop Store started the way real things do — one person, no safety net, and zero tolerance for the same five fits everyone else was selling.</p>
     <p id="story-p2">Heavy washes. Honest cuts. Limited drops. You're not buying mass production — you're buying the drop.</p>
-    <div class="stnums"><div><span class="snum">365</span><span class="slbl">Days dropping</span></div><div><span class="snum">∞</span><span class="slbl">Ways to wear</span></div><div><span class="snum">0</span><span class="slbl">Middlemen</span></div></div>
+    <div class="stnums"><div><span class="snum">365</span><span class="slbl">Days dropping</span></div><div><span class="snum">MANY</span><span class="slbl">Ways to wear</span></div><div><span class="snum">0</span><span class="slbl">Middlemen</span></div></div>
   </div>
 </div></section>
 
@@ -1097,7 +1095,7 @@ main,header,footer,.sec,.trust,.mq{position:relative;z-index:2}
     <div class="fcol"><h4>Info</h4><a onclick="goTo('#story')">Our Story</a><a onclick="openGlobalSizeGuide()">Size Guide</a><a onclick="goTo('#faq')">Shipping & Returns</a><a onclick="openSrch()">Search</a></div>
     <div class="fcol"><h4>Contact</h4><a>+91 9990905969</a><a>365dropstore@gmail.com</a><a>E-42/2A Subhash Vihar, Delhi 110053</a></div>
   </div>
-  <div class="fbot"><span>© <span id="yr"></span> 365 Drop Store · Clothing or Nothing</span><span>Independent · Delhi · ∞</span></div>
+  <div class="fbot"><span>© <span id="yr"></span> 365 Drop Store · Clothing or Nothing</span><span>Independent · Delhi</span></div>
 </div></footer>
 
 <!-- product modal -->
@@ -1153,7 +1151,7 @@ main,header,footer,.sec,.trust,.mq{position:relative;z-index:2}
 </aside>
 
 <!-- admin gate -->
-<div id="ag"><div class="agc"><div class="agl">365∞DROP</div><div class="ags">Admin · Owner access only</div><div class="agcard"><h2>SIGN IN</h2><p>Locked after 5 wrong attempts.</p><div class="agf"><label>Email</label><input type="email" id="age" placeholder="365dropstore@gmail.com" autocomplete="off"/></div><div class="agf"><label>Password</label><input type="password" id="agp" placeholder="••••••••" onkeydown="if(event.key==='Enter')admLogin()"/></div><div class="agerr" id="agerr"></div><button class="btn btn-w" style="width:100%;justify-content:center;margin-top:16px;background:#E8E4DF;color:#090909" onclick="admLogin()">Sign in →</button><p style="color:var(--off);font-size:12px;text-align:center;margin-top:10px" id="agatt"></p></div></div></div>
+<div id="ag"><div class="agc"><div class="agl">365 DROP</div><div class="ags">Admin · Owner access only</div><div class="agcard"><h2>SIGN IN</h2><p>Locked after 5 wrong attempts.</p><div class="agf"><label>Email</label><input type="email" id="age" placeholder="365dropstore@gmail.com" autocomplete="off"/></div><div class="agf"><label>Password</label><input type="password" id="agp" placeholder="••••••••" onkeydown="if(event.key==='Enter')admLogin()"/></div><div class="agerr" id="agerr"></div><button class="btn btn-w" style="width:100%;justify-content:center;margin-top:16px;background:#E8E4DF;color:#090909" onclick="admLogin()">Sign in →</button><p style="color:var(--off);font-size:12px;text-align:center;margin-top:10px" id="agatt"></p></div></div></div>
 
 <!-- admin panel -->
 <div id="ap">
@@ -1306,12 +1304,12 @@ https://raw.githubusercontent.com/drop-365/365dropstore/main/images/jean2.jpg" s
     </div>
     <div class="pff full" style="border-top:1px solid var(--line);padding-top:14px;margin-top:8px">
       <label>MARQUEE / SCROLLING TICKER (pipe-separated items)</label>
-      <input type="text" id="site-marquee" placeholder="365∞DROP|CLOTHING OR NOTHING|PREMIUM DENIM|DELHI DROPS|LIMITED RUNS"/>
+      <input type="text" id="site-marquee" placeholder="365 DROP|CLOTHING OR NOTHING|PREMIUM DENIM|DELHI DROPS|LIMITED RUNS"/>
       <small>Pipe-separated. These scroll horizontally below the hero.</small>
     </div>
     <div class="pff full" style="border-top:1px solid var(--line);padding-top:14px;margin-top:8px">
       <label>HERO STATS (3 items: number|label, pipe-separated per item, comma between items)</label>
-      <input type="text" id="site-stats" placeholder="365|Days dropping,∞|Ways to wear,0|Middlemen"/>
+      <input type="text" id="site-stats" placeholder="365|Days dropping,MANY|Ways to wear,0|Middlemen"/>
       <small>Format: number|label,number|label,number|label</small>
     </div>
     <div class="pff full" style="border-top:1px solid var(--line);padding-top:14px;margin-top:8px"><label>FOOTER — CONTACT INFO</label></div>
@@ -1502,7 +1500,7 @@ const ALL_SIZES=["28","30","32","34","36","S","M","L","XL","XXL"];
 // DEFAULT DATA
 const DP=[];
 const DR=[{id:"R1",stars:5,text:"The wide-leg fit is exactly what I wanted. Quality way above the price. Heavyweight denim that actually lasts.",who:"Aryan M.",where:"Delhi"},{id:"R2",stars:5,text:"Denim feels premium and heavy. Got compliments the same day I wore it. Delivered in 4 days.",who:"Simran K.",where:"Gurgaon"},{id:"R3",stars:5,text:"Small brand, real founder. Replied on WhatsApp instantly. Will order every drop.",who:"Rohit V.",where:"Noida"}];
-const DSite={ann:"Drop 001 · Delhi · WhatsApp-only checkout · Pan India shipping",heroH1:"365 DROP|STORE|",heroSub:"Premium denim built from zero in Delhi — wide-leg, baggy, straight. Dropped limited, worn everywhere.",heroP1:"DR-001",heroP2:"DR-003",trust:"📦|Pan India|3-5 day delivery\n🔄|7-Day Exchange|₹200 exchange fee\n✆|WhatsApp Orders|Direct with founder\n📹|Unboxing Required|For returns & claims",edH2:"We don't restock. We don't compromise.",edP:"Every drop is small on purpose. When the run is gone, that's it. You're not wearing what everyone else is wearing.",storyH2:"Started in a bedroom. Worn everywhere.",storyP1:"365 Drop Store started the way real things do — one person, no safety net, and zero tolerance for the same five fits everyone else was selling.",storyP2:"Heavy washes. Honest cuts. Limited drops. You're not buying mass production — you're buying the drop.",shipping:"Delivery in 3-5 working days|Free shipping all over India|Only damaged or defective items can be returned|Unboxing video required for all return claims|Size exchange available for ₹200 fee|Item must be returned in original condition|Check size before ordering",marquee:"365∞DROP|CLOTHING OR NOTHING|PREMIUM DENIM|DELHI DROPS|LIMITED RUNS",stats:"365|Days dropping,∞|Ways to wear,0|Middlemen",phone:"+91 9990905969",email:"365dropstore@gmail.com",address:"E-42/2A Subhash Vihar, Delhi 110053",insta:"https://instagram.com/365dropstore",fb:"https://facebook.com/fazalsaifi2"};
+const DSite={ann:"Drop 001 · Delhi · WhatsApp-only checkout · Pan India shipping",heroH1:"365 DROP|STORE|",heroSub:"Premium denim built from zero in Delhi — wide-leg, baggy, straight. Dropped limited, worn everywhere.",heroP1:"DR-001",heroP2:"DR-003",trust:"📦|Pan India|3-5 day delivery\n🔄|7-Day Exchange|₹200 exchange fee\n✆|WhatsApp Orders|Direct with founder\n📹|Unboxing Required|For returns & claims",edH2:"We don't restock. We don't compromise.",edP:"Every drop is small on purpose. When the run is gone, that's it. You're not wearing what everyone else is wearing.",storyH2:"Started in a bedroom. Worn everywhere.",storyP1:"365 Drop Store started the way real things do — one person, no safety net, and zero tolerance for the same five fits everyone else was selling.",storyP2:"Heavy washes. Honest cuts. Limited drops. You're not buying mass production — you're buying the drop.",shipping:"Delivery in 3-5 working days|Free shipping all over India|Only damaged or defective items can be returned|Unboxing video required for all return claims|Size exchange available for ₹200 fee|Item must be returned in original condition|Check size before ordering",marquee:"365 DROP|CLOTHING OR NOTHING|PREMIUM DENIM|DELHI DROPS|LIMITED RUNS",stats:"365|Days dropping,MANY|Ways to wear,0|Middlemen",phone:"+91 9990905969",email:"365dropstore@gmail.com",address:"E-42/2A Subhash Vihar, Delhi 110053",insta:"https://instagram.com/365dropstore",fb:"https://facebook.com/fazalsaifi2"};
 const DBanner={text:"🔥 FLASH SALE — First 200 orders get ₹200 OFF. Use code DROP200 on WhatsApp.",show:false};
 const DFits=["Baggy","Straight","Slim","Oversized","Cargo","Wide-Leg","Relaxed"];
 
@@ -1677,7 +1675,7 @@ let fCat="All",fSizes=[],fFits=[],fMaxPrice=5000;
 
 // INIT
 setTimeout(()=>{const bi=document.getElementById("bi");if(bi){bi.classList.add("out");setTimeout(()=>bi.remove(),800);}},2200);
-(()=>{const t=document.getElementById("mqt");const b='<span class="mi">365∞DROP</span><span class="md">·</span><span class="mi">CLOTHING OR NOTHING</span><span class="md">·</span><span class="mi">PREMIUM DENIM</span><span class="md">·</span><span class="mi">DELHI DROPS</span><span class="md">·</span><span class="mi">LIMITED RUNS</span><span class="md">·</span>';t.innerHTML=b.repeat(6);})();
+(()=>{const t=document.getElementById("mqt");const b='<span class="mi">365 DROP</span><span class="md">·</span><span class="mi">CLOTHING OR NOTHING</span><span class="md">·</span><span class="mi">PREMIUM DENIM</span><span class="md">·</span><span class="mi">DELHI DROPS</span><span class="md">·</span><span class="mi">LIMITED RUNS</span><span class="md">·</span>';t.innerHTML=b.repeat(6);})();
 document.getElementById("yr").textContent=new Date().getFullYear();
 const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target);}}),{threshold:.07});
 document.querySelectorAll(".sr").forEach(el=>io.observe(el));
@@ -2305,7 +2303,7 @@ function openMo(id){
   // show size rec for the initially selected size
   if(ms.size)setTimeout(()=>showSizeRec(p.fit||'',ms.size,!!(p.oosizes||[]).includes(ms.size)),100);
 }
-function openSizeChart(id){const p=products.find(x=>x.id===id);if(!p)return;const scSrc=p.sizeChartImg||globalSc;if(!scSrc)return;const d=document.createElement('div');d.style.cssText='position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.9);display:flex;align-items:center;justify-content:center;padding:20px;cursor:pointer;z-index:9999';d.onclick=()=>d.remove();d.innerHTML=`<div style="background:var(--bg2);border-radius:12px;padding:16px;max-width:700px;width:100%;max-height:90vh;overflow-y:auto"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><h3 style="font-family:var(--dsp);font-size:20px;color:var(--white)">SIZE CHART</h3><button onclick="this.closest('[style]').remove()" style="background:var(--glass);border:1px solid var(--line);color:var(--white);width:34px;height:34px;border-radius:8px;font-size:20px;cursor:pointer">×</button></div><img src="${scSrc}" style="width:100%;border-radius:8px" alt="Size chart preview"/></div>`;document.body.appendChild(d);}
+function openSizeChart(id){const p=products.find(x=>x.id===id);if(!p)return;const scSrc=p.sizeChartImg||globalSc;if(!scSrc)return;const d=document.createElement('div');d.style.cssText='position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.9);display:flex;align-items:center;justify-content:center;padding:20px;cursor:pointer;z-index:9999';d.onclick=()=>d.remove();d.innerHTML=`<div style="background:var(--bg2);border-radius:12px;padding:16px;max-width:700px;width:100%;max-height:90vh;overflow-y:auto"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><h3 style="font-family:var(--dsp);font-size:20px;color:var(--white)">SIZE CHART</h3><button onclick="this.closest('[style]').remove()" style="background:var(--glass);border:1px solid var(--line);color:var(--white);width:34px;height:34px;border-radius:8px;font-size:20px;cursor:pointer">×</button></div><img src="${scSrc}" style="width:100%;border-radius:8px;image-rendering:crisp-edges" alt="Size chart" onclick="event.stopPropagation();window.open(this.src,'_blank')" title="Tap to open full size"/><p style="text-align:center;font-size:12px;color:var(--off);margin-top:8px">Tap the chart to open it full size</p></div>`;document.body.appendChild(d);}
 function toggleExp(row){row.classList.toggle("open");row.nextElementSibling.classList.toggle("open");}
 function goSlide(i){ms.idx=i;const imgs=document.querySelectorAll("#mocarimgs img");const dots=document.querySelectorAll(".car-dots .cdot");const thumbs=document.querySelectorAll(".mocar-thumbs .mthumb");
   [i-1,i,i+1].forEach(j=>{if(j<0||j>=imgs.length)return;const im=imgs[j];if(!im.src&&im.dataset.src)im.src=im.dataset.src;});
@@ -2447,8 +2445,9 @@ if(h.indexOf("product-")===0){
   if(products&&products.length){
     const found=products.find(x=>String(x.id)===id);
     if(found){openMo(id);}
-    else{
-      // product not found (deleted/renamed) — clear hash and show the shop instead of a blank page
+    else if(products.length>3){
+      // only declare "not found" if the catalog genuinely loaded (guards against
+      // firing during a partial/slow load on iOS)
       history.replaceState(null,"",location.pathname);
       showToast("That product is no longer available. Browse the current drop below.",false);
       setTimeout(()=>{const s=document.getElementById("shop");if(s)s.scrollIntoView({behavior:"smooth"});},400);
@@ -2509,7 +2508,7 @@ function renderThumbs(){document.getElementById("ithumbs").innerHTML=pendingImgs
   return `<div class="ithm${i===0?' main-tag':''}"><img src="${s}" alt="Preview"/><button class="irm" onclick="rmPI(${i})">×</button></div>`;
 }).join("");}
 function rmPI(i){pendingImgs.splice(i,1);renderThumbs();}
-async function scImgUpload(inp){if(!inp.files||!inp.files[0])return;const f=inp.files[0];try{const bf=await toBrowserFile(f);const d=await compressImg(bf,700,0.75);document.getElementById("pf-scimg").value=d;document.getElementById("sc-prv").innerHTML=`<img src="${d}" style="width:120px;border-radius:7px;margin-top:8px" alt="Uploaded preview"/>`;}catch(e){shPMsg("Couldn't read that size chart image — try JPEG/PNG.","#c0392b");}}
+async function scImgUpload(inp){if(!inp.files||!inp.files[0])return;const f=inp.files[0];try{const bf=await toBrowserFile(f);const d=await compressImg(bf,1600,0.92);document.getElementById("pf-scimg").value=d;document.getElementById("sc-prv").innerHTML=`<img src="${d}" style="width:120px;border-radius:7px;margin-top:8px" alt="Uploaded preview"/>`;}catch(e){shPMsg("Couldn't read that size chart image — try JPEG/PNG.","#c0392b");}}
 const SB_FN_BASE="https://fhiivshoikcnanbvdtxm.supabase.co/functions/v1/";
 const SB_APIKEY="sb_publishable_LPwVp36pEOfQIEchjefMfw_SmGNcxUt";
 async function _callAdminFn(fnName,payload){
@@ -3344,7 +3343,7 @@ async function uploadImageToBlob(file){
   sessionStorage.setItem("ds_booted","1");
   const out=document.getElementById("bootterm-txt");
   const lines=[
-    "365∞DROP // SYSTEM BOOT",
+    "365 DROP // SYSTEM BOOT",
     "> initialising drop protocol ........ <ok>OK</ok>",
     "> loading DROP 001 · DELHI ......... <ok>OK</ok>",
     "> securing WhatsApp checkout ....... <ok>OK</ok>",
@@ -3598,7 +3597,18 @@ const _isPreview = sessionStorage.getItem("ds_preview")==="1";
   buildFilterUI();populateFitSelect();setCat("All");renderGrid();renderCart();renderRevs();renderFaqSection();applyPalette();applyBanner();renderStoriesRail();applySiteContent();chkRoute();
   if(!usedSupabase){
     loadPublished();
+    // re-check the route after fallback data loads — on slower connections (iOS Safari
+    // especially) the first chkRoute fires before products exist, so deep links silently fail
+    setTimeout(chkRoute,300);
+    setTimeout(chkRoute,1200);
   }
+  // final safety net: retry the route check once more after everything settles
+  setTimeout(function(){
+    const h=location.hash||"";
+    if((h.indexOf("#product-")===0||h.indexOf("#review-")===0)&&!document.getElementById("mo").innerHTML.trim()){
+      chkRoute();
+    }
+  },2000);
 })();
 </script>
 <div id="stickybuy">
