@@ -247,6 +247,20 @@ header{position:sticky;top:0;z-index:100;background:rgba(20,19,18,.95);backdrop-
 .sp-prod{font-size:13px;font-weight:700;color:var(--white);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .sp-time{font-size:10px;color:var(--mid);margin-top:2px}
 @media(max-width:640px){#sp-toast{left:12px;right:12px;max-width:none;bottom:70px}}
+
+/* admin select option colors */
+#ap select option{background:#141312;color:#F8F7F4}
+#ap select option:checked{background:#C0392B;color:#fff}
+#ap select{color-scheme:dark}
+/* searchable product picker */
+.prod-search-wrap{position:relative;flex:1}
+.prod-search-input{width:100%;padding:8px 12px;background:#141312;color:#F8F7F4;border:1px solid rgba(255,255,255,.18);border-radius:8px;font-size:13px}
+.prod-search-input::placeholder{color:rgba(255,255,255,.4)}
+.prod-search-dd{position:absolute;top:100%;left:0;right:0;max-height:220px;overflow-y:auto;background:#1a1918;border:1px solid rgba(255,255,255,.15);border-radius:8px;margin-top:4px;z-index:10;display:none;box-shadow:0 12px 32px rgba(0,0,0,.5)}
+.prod-search-dd.open{display:block}
+.prod-search-dd .pso{padding:10px 12px;cursor:pointer;font-size:13px;color:rgba(255,255,255,.7);border-bottom:1px solid rgba(255,255,255,.06)}
+.prod-search-dd .pso:hover,.prod-search-dd .pso.sel{background:rgba(192,57,43,.2);color:#fff}
+.prod-search-dd .pso.none{color:rgba(255,255,255,.4);font-style:italic}
 /* MARQUEE */
 .mq{border:none;padding:14px 0;overflow:hidden;background:#141312}
 .mtrack{display:flex;white-space:nowrap;animation:mqs 28s linear infinite}
@@ -1168,6 +1182,7 @@ main,header,footer,.sec,.trust,.mq{position:relative;z-index:2}
     <div class="pff"><label>Colours</label><input type="text" id="pf6" placeholder="Faded Indigo|Stone Blue"/></div>
     <div class="pff"><label>Display Order</label><input type="number" id="pf8" value="1"/></div>
     <div class="pff"><label>Instagram Reel Link</label><input type="url" id="pf-reel" placeholder="https://instagram.com/reel/..."/></div>
+    <div class="pff"><label>Sold Count (manual override)</label><input type="number" id="pf-soldcount" min="0" placeholder="Leave empty to auto-calculate from orders"/></div>
     <div class="pff full">
       <label>Product Images * (up to 5 — first = main card image)</label>
       <input type="file" id="pf9" accept="image/*,.heic,.heif" multiple onchange="handleImgs(this)"/>
@@ -1791,12 +1806,37 @@ window.clearFitTab=function(){
    separate strip below each embed instead of on the embed itself, since the iframe owns its
    own clicks. Table name kept as "insta_grid" on purpose — already whitelisted server-side in
    admin-settings, so this ships with ZERO Edge Function redeploy. */
+window.filterHgProd=function(i){
+  const input=document.getElementById(`hg-prod-search-${i}`);
+  const dd=document.getElementById(`hg-prod-dd-${i}`);
+  if(!input||!dd)return;
+  const q=(input.value||"").toLowerCase();
+  dd.classList.add("open");
+  const matches=q?products.filter(p=>(p.name||"").toLowerCase().includes(q)):products;
+  dd.innerHTML=`<div class="pso none" onclick="selectHgProd(${i},'','')">— No product link —</div>`
+    +matches.slice(0,15).map(p=>`<div class="pso" onclick="selectHgProd(${i},'${p.id}','${(p.name||'').replace(/'/g,"\\'")}')">${(p.name||'').replace(/</g,'&lt;')}</div>`).join("");
+};
+window.selectHgProd=function(i,pid,name){
+  const input=document.getElementById(`hg-prod-search-${i}`);
+  const hidden=document.getElementById(`hg-prod-${i}`);
+  const dd=document.getElementById(`hg-prod-dd-${i}`);
+  if(input)input.value=name;
+  if(hidden)hidden.value=pid;
+  if(dd)dd.classList.remove("open");
+};
+// close dropdowns when clicking outside
+document.addEventListener("click",function(e){
+  if(!e.target.closest(".prod-search-wrap")){
+    document.querySelectorAll(".prod-search-dd.open").forEach(d=>d.classList.remove("open"));
+  }
+});
 function renderHeroGridAdmin(){
   const rEl=document.getElementById("hg-rows"),cEl=document.getElementById("hg-cols");
   if(rEl)rEl.value=heroGrid.rows;if(cEl)cEl.value=heroGrid.cols;
   const el=document.getElementById("igrid-admin-list");if(!el)return;
   el.innerHTML=heroGrid.tiles.map((t,i)=>{
     const type=t.type||"embed";
+    const selProd=products.find(x=>x.id===t.pid);const pname=selProd?(selProd.name||'').replace(/"/g,'&quot;'):'';
     const opts=products.map(p=>`<option value="${p.id}" ${t.pid===p.id?'selected':''}>${(p.name||'').replace(/</g,'&lt;')}</option>`).join('');
     let fieldHTML="";
     if(type==="embed"){
@@ -1821,7 +1861,11 @@ function renderHeroGridAdmin(){
       </div>
       <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">${fieldHTML}</div>
       <div style="display:flex;gap:8px;align-items:center">
-        <select id="hg-prod-${i}" style="flex:1;padding:8px;background:#141312;color:#F8F7F4;border:1px solid rgba(255,255,255,.18);border-radius:8px"><option value="">— No product link —</option>${opts}</select>
+        <div class="prod-search-wrap">
+          <input class="prod-search-input" id="hg-prod-search-${i}" placeholder="Search product..." value="${pname}" oninput="filterHgProd(${i})" onfocus="filterHgProd(${i})" autocomplete="off"/>
+          <input type="hidden" id="hg-prod-${i}" value="${t.pid||''}"/>
+          <div class="prod-search-dd" id="hg-prod-dd-${i}"></div>
+        </div>
         <span style="color:var(--off);font-size:12px">Order</span>
         <input type="number" id="hg-ord-${i}" value="${t.order??i}" style="width:60px;padding:8px;background:#141312;color:#F8F7F4;border:1px solid rgba(255,255,255,.18);border-radius:8px"/>
       </div>
@@ -2093,8 +2137,38 @@ function openImgReview(id){const imgs=reviews.filter(r=>r.type==="img").map(r=>r
 // MODAL — with full description, shipping info, share, size chart image
 
 function getSoldCount(pid){
+  const p=products.find(x=>x.id===pid);
+  if(p&&p.soldCount>0)return p.soldCount;// manual override from admin
+  // fallback: deterministic from product ID
   let h=0;for(let i=0;i<pid.length;i++){h=((h<<5)-h)+pid.charCodeAt(i);h|=0;}
-  return 12+Math.abs(h%38);// range 12-49, feels real for a small brand
+  return 12+Math.abs(h%38);
+}
+async function syncSoldFromOrders(){
+  const msg=document.getElementById("sync-sold-msg");
+  if(msg)msg.textContent="Loading orders from Supabase...";
+  // load fresh orders
+  const ok=await loadOrdersFromSupabase();
+  if(!ok&&!orders.length){if(msg)msg.textContent="No orders found.";return;}
+  // count items per product name (orders store name, not ID — match by name)
+  const counts={};
+  orders.forEach(o=>{
+    if(o.status==="cancelled")return;// skip cancelled
+    (o.items||[]).forEach(item=>{
+      const name=(item.name||"").trim();
+      if(!name)return;
+      counts[name]=(counts[name]||0)+(item.qty||1);
+    });
+  });
+  // match to products and update soldCount
+  let updated=0;
+  products.forEach(p=>{
+    const c=counts[p.name]||0;
+    if(c>0){p.soldCount=c;updated++;}
+  });
+  LS.set("ds_p",products);
+  ldProds();renderGrid();
+  if(msg)msg.textContent=`✓ Updated ${updated} products from ${orders.length} orders. Highest: ${Math.max(...Object.values(counts))} units. Save each product to sync to Supabase.`;
+  showToast(`Sold counts synced from ${orders.length} orders`,true);
 }
 function renderMoSizes(p){
   if(!(p.sizes||[]).length)return'';
