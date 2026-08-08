@@ -265,6 +265,30 @@ header{position:sticky;top:0;z-index:100;background:rgba(20,19,18,.95);backdrop-
 /* product card image loading placeholder */
 .pcard .pimg{background:linear-gradient(110deg,#f2f1ee 30%,#e6e4de 50%,#f2f1ee 70%);background-size:200% 100%;animation:imgshimmer 1.5s ease-in-out infinite}
 .pcard .pimg img[src]{background:none}
+
+/* customer review form */
+#review-form-overlay{position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.85);display:none;align-items:center;justify-content:center;padding:16px;overflow-y:auto}
+#review-form-overlay.open{display:flex}
+.review-form{background:#fff;border-radius:16px;max-width:480px;width:100%;padding:28px;position:relative}
+.rf-prod{display:flex;gap:14px;align-items:center;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--line)}
+.rf-prod img{width:64px;height:80px;object-fit:cover;border-radius:8px}
+.rf-prod-info{flex:1}
+.rf-prod-name{font-family:var(--dsp);font-size:18px;color:var(--white)}
+.rf-prod-fit{font-size:12px;color:var(--off)}
+.rf-stars{display:flex;gap:6px;margin-bottom:16px}
+.rf-star{width:40px;height:40px;font-size:28px;background:none;border:none;cursor:pointer;color:#DDD;transition:.15s}
+.rf-star.lit{color:#F5A623}
+.rf-star:hover{transform:scale(1.2)}
+.rf-label{font-size:12px;font-weight:700;color:var(--off);letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px;display:block}
+.rf-text{width:100%;padding:12px;border:1px solid var(--line);border-radius:10px;font-family:var(--bod);font-size:14px;resize:vertical;min-height:80px}
+.rf-name{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;font-family:var(--bod);font-size:14px;margin-bottom:12px}
+.rf-city{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;font-family:var(--bod);font-size:14px;margin-bottom:16px}
+.rf-submit{width:100%;padding:14px;background:#141312;color:#fff;font-family:var(--dsp);font-size:18px;letter-spacing:.04em;border:none;border-radius:10px;cursor:pointer}
+.rf-submit:hover{background:#C0392B}
+.rf-close{position:absolute;top:12px;right:12px;width:32px;height:32px;border-radius:8px;border:1px solid var(--line);background:#fff;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.rf-thanks{text-align:center;padding:40px 20px}
+.rf-thanks h3{font-family:var(--dsp);font-size:28px;margin-bottom:8px}
+.rf-thanks p{color:var(--off);font-size:14px}
 /* MARQUEE */
 .mq{border:none;padding:14px 0;overflow:hidden;background:#141312}
 .mtrack{display:flex;white-space:nowrap;animation:mqs 28s linear infinite}
@@ -898,7 +922,7 @@ main,header,footer,.sec,.trust,.mq{position:relative;z-index:2}
   <div class="boot-readout" id="boot-readout"></div>
   <div class="boot-skip">tap anywhere to skip</div>
 </div>
-<script>(function(){try{var h=location.hash||"";var adm=h.indexOf("admin-")!==-1;var isProd=h.indexOf("product-")!==-1;var last=parseInt(localStorage.getItem("ds_boot_ts")||"0",10);var fresh=(Date.now()-last)>43200000;var b=document.getElementById("boot");if(adm||isProd||!fresh){if(b)b.remove();}else{document.documentElement.style.overflow="hidden";}setTimeout(function(){var x=document.getElementById("boot");if(x){x.remove();}document.documentElement.style.overflow="";},4200);}catch(e){var x=document.getElementById("boot");if(x)x.remove();}})();</script>
+<script>(function(){try{var h=location.hash||"";var adm=h.indexOf("admin-")!==-1;var isProd=h.indexOf("product-")!==-1;var isReview=h.indexOf("review-")!==-1;var last=parseInt(localStorage.getItem("ds_boot_ts")||"0",10);var fresh=(Date.now()-last)>43200000;var b=document.getElementById("boot");if(adm||isProd||isReview||!fresh){if(b)b.remove();}else{document.documentElement.style.overflow="hidden";}setTimeout(function(){var x=document.getElementById("boot");if(x){x.remove();}document.documentElement.style.overflow="";},4200);}catch(e){var x=document.getElementById("boot");if(x)x.remove();}})();</script>
 
 
 <!-- particles -->
@@ -2406,7 +2430,8 @@ function openMob(){document.getElementById("mbnav").classList.add("op");document
 function closeMob(){document.getElementById("mbnav").classList.remove("op");document.getElementById("mob-scm").classList.remove("op");}
 
 // ADMIN
-function chkRoute(){const h=location.hash.replace("#","");if(h===AP){document.getElementById("ag").style.display="block";document.body.style.overflow="hidden";return;}if(h.indexOf("product-")===0){const id=h.slice(8);if(products&&products.find(x=>String(x.id)===id)){const b=document.getElementById("boot");if(b)b.remove();document.documentElement.style.overflow="";openMo(id);}}}
+function chkRoute(){const h=location.hash.replace("#","");if(h===AP){document.getElementById("ag").style.display="block";document.body.style.overflow="hidden";return;}if(h.indexOf("review-")===0){const rid=h.slice(7);if(products&&products.length)openReviewForm(rid);}
+if(h.indexOf("product-")===0){const id=h.slice(8);if(products&&products.find(x=>String(x.id)===id)){const b=document.getElementById("boot");if(b)b.remove();document.documentElement.style.overflow="";openMo(id);}}}
 async function admLogin(){if(locked){shAErr("Locked. Run: localStorage.removeItem('adm_lk') in console.");return;}const e=document.getElementById("age").value.trim();const pw=document.getElementById("agp").value;const h=await sha256(pw);if(e===AE&&h===AH){_adminPw=pw;document.getElementById("ag").style.display="none";document.getElementById("ap").style.display="block";attCnt=0;LS.set("adm_att",0);LS.set("adm_lk",false);
     await loadFromSupabaseIfAvailable();
     ldProds();apSts();rnAdmRev();loadSiteEd();loadFitsAdmin();loadBannerAdmin();loadPaletteAdmin();loadGlobalScAdmin();}else{attCnt++;LS.set("adm_att",attCnt);const left=MA-attCnt;if(left<=0){locked=true;LS.set("adm_lk",true);shAErr("Locked.");}else shAErr(`Wrong — ${left} left.`);document.getElementById("agatt").textContent=`${attCnt}/${MA}`;}}
@@ -2578,7 +2603,10 @@ function populateFitSelect(){const sel=document.getElementById("pf-fit");if(!sel
 function loadSiteEd(){const s=siteContent;const sv=(id,v)=>{const el=document.getElementById(id);if(el)el.value=v||"";};sv("site-ann",s.ann);sv("site-hero-h1",s.heroH1);sv("site-hero-sub",s.heroSub);sv("site-ed-h2",s.edH2);sv("site-ed-p",s.edP);sv("site-story-h2",s.storyH2);sv("site-story-p1",s.storyP1);sv("site-story-p2",s.storyP2);sv("site-trust",s.trust);sv("site-shipping",s.shipping);sv("site-marquee",s.marquee);sv("site-stats",s.stats);sv("site-phone",s.phone);sv("site-email",s.email);sv("site-address",s.address);sv("site-insta",s.insta);sv("site-fb",s.fb);sv("site-hero-img",s.heroImg);sv("site-hero-thumb1",s.heroThumb1);sv("site-hero-thumb2",s.heroThumb2);populateHeroProductSelect();const hpSel=document.getElementById("site-hero-product");if(hpSel)hpSel.value=s.heroP1||"";const ddEl=document.getElementById("site-drop-date");if(ddEl){if(s.dropDate){try{const d=new Date(s.dropDate);if(!isNaN(d))ddEl.value=new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,16);}catch(e){}}else{ddEl.value="";}}if(s.edImg&&!(s.edImgs&&s.edImgs.length))s.edImgs=[s.edImg];if(s.stImg&&!(s.stImgs&&s.stImgs.length))s.stImgs=[s.stImg];renderGmgr("ed");renderGmgr("st");}
 function populateHeroProductSelect(){const sel=document.getElementById("site-hero-product");if(!sel)return;const cur=sel.value;sel.innerHTML='<option value="">— Auto (bestseller / first live product) —</option>'+products.map(p=>`<option value="${p.id}">${(p.name||'').replace(/</g,'&lt;')}</option>`).join('');sel.value=cur;}
 async function siteImgUp(k,inp){if(!inp.files||!inp.files[0])return;try{const bf=await toBrowserFile(inp.files[0]);const d=await compressImg(bf,800,0.75);document.getElementById('site-'+k+'-imgdata').value=d;document.getElementById('site-'+k+'-prv').innerHTML=`<img src="${d}" style="width:110px;border-radius:7px" alt="Uploaded preview"/>`;}catch(e){alert("Couldn't read that image — try a JPEG/PNG.");}}
-function saveSite(){const _edI=siteContent.edImgs||[];const _stI=siteContent.stImgs||[];const _edS=siteContent.edImg||"";const _stS=siteContent.stImg||"";const g=id=>{const el=document.getElementById(id);return el?el.value:"";};const ddRaw=g("site-drop-date");let ddIso="";if(ddRaw){const d=new Date(ddRaw);if(!isNaN(d))ddIso=d.toISOString();}siteContent={ann:g("site-ann"),heroH1:g("site-hero-h1"),heroSub:g("site-hero-sub"),heroP1:g("site-hero-product"),dropDate:ddIso,trust:g("site-trust"),edH2:g("site-ed-h2"),edP:g("site-ed-p"),edImgs:_edI,stImgs:_stI,edImg:_edS,stImg:_stS,storyH2:g("site-story-h2"),storyP1:g("site-story-p1"),storyP2:g("site-story-p2"),shipping:g("site-shipping"),marquee:g("site-marquee"),stats:g("site-stats"),phone:g("site-phone"),email:g("site-email"),address:g("site-address"),insta:g("site-insta"),fb:g("site-fb"),heroImg:g("site-hero-img"),heroThumb1:g("site-hero-thumb1"),heroThumb2:g("site-hero-thumb2")};lsSafeSet("ds_site",siteContent);applySiteContent();if(typeof window.rebuildHeroShowcase==="function")window.rebuildHeroShowcase();if(typeof window.rebuildDropCountdown==="function")window.rebuildDropCountdown();const m=document.getElementById("site-msg");if(m){m.textContent="Saved ✓";m.style.color="#4ade80";m.style.background="rgba(74,222,128,.08)";m.style.display="block";setTimeout(()=>m.style.display="none",2000);}showToast("Site content saved ✓ — syncing live...",true);syncSiteToSupabase();}
+function saveSite(){const _edI=siteContent.edImgs||[];const _stI=siteContent.stImgs||[];const _edS=siteContent.edImg||"";const _stS=siteContent.stImg||"";
+  const prevSite=LS.get("ds_site",{});
+  if((!_edI.length&&!_edS)&&((prevSite.edImgs||[]).length||(prevSite.edImg||""))){if(!confirm("Founder's Note image is empty. Save anyway? Re-upload in gallery if unintended."))return;}
+  if((!_stI.length&&!_stS)&&((prevSite.stImgs||[]).length||(prevSite.stImg||""))){if(!confirm("Story image is empty. Save anyway? Re-upload in gallery if unintended."))return;}const g=id=>{const el=document.getElementById(id);return el?el.value:"";};const ddRaw=g("site-drop-date");let ddIso="";if(ddRaw){const d=new Date(ddRaw);if(!isNaN(d))ddIso=d.toISOString();}siteContent={ann:g("site-ann"),heroH1:g("site-hero-h1"),heroSub:g("site-hero-sub"),heroP1:g("site-hero-product"),dropDate:ddIso,trust:g("site-trust"),edH2:g("site-ed-h2"),edP:g("site-ed-p"),edImgs:_edI,stImgs:_stI,edImg:_edS,stImg:_stS,storyH2:g("site-story-h2"),storyP1:g("site-story-p1"),storyP2:g("site-story-p2"),shipping:g("site-shipping"),marquee:g("site-marquee"),stats:g("site-stats"),phone:g("site-phone"),email:g("site-email"),address:g("site-address"),insta:g("site-insta"),fb:g("site-fb"),heroImg:g("site-hero-img"),heroThumb1:g("site-hero-thumb1"),heroThumb2:g("site-hero-thumb2")};lsSafeSet("ds_site",siteContent);applySiteContent();if(typeof window.rebuildHeroShowcase==="function")window.rebuildHeroShowcase();if(typeof window.rebuildDropCountdown==="function")window.rebuildDropCountdown();const m=document.getElementById("site-msg");if(m){m.textContent="Saved ✓";m.style.color="#4ade80";m.style.background="rgba(74,222,128,.08)";m.style.display="block";setTimeout(()=>m.style.display="none",2000);}showToast("Site content saved ✓ — syncing live...",true);syncSiteToSupabase();}
 
 // BANNER ADMIN
 function loadBannerAdmin(){document.getElementById("ban-text").value=banner.text||"";document.getElementById("ban-show").checked=banner.show||false;}
@@ -3603,6 +3631,72 @@ const _isPreview = sessionStorage.getItem("ds_preview")==="1";
   window.rebuildStickyBuy=fill;
 })();
 
+
+/* ===== CUSTOMER REVIEW FORM ===== */
+let rfStars=5;let rfProdId="";
+function openReviewForm(pid){
+  const p=(typeof products!=="undefined"?products:[]).find(x=>x.id===pid);
+  const el=document.getElementById("rf-content");
+  const overlay=document.getElementById("review-form-overlay");
+  if(!el||!overlay)return;
+  rfProdId=pid;rfStars=5;
+  if(!p){
+    el.innerHTML=`<div class="rf-thanks"><h3>Product not found</h3><p>This review link may be invalid. Please contact us on WhatsApp.</p></div>`;
+    overlay.classList.add("open");document.body.style.overflow="hidden";return;
+  }
+  el.innerHTML=`
+    <h3 style="font-family:var(--dsp);font-size:22px;margin-bottom:4px">RATE YOUR PURCHASE</h3>
+    <p style="color:var(--off);font-size:13px;margin-bottom:16px">Your feedback helps other customers and means a lot to us.</p>
+    <div class="rf-prod">
+      <img src="${(p.images||[])[0]||''}" alt="${p.name||''}"/>
+      <div class="rf-prod-info">
+        <div class="rf-prod-name">${p.name||''}</div>
+        <div class="rf-prod-fit">${p.fit||''} · ${p.category||''}</div>
+      </div>
+    </div>
+    <label class="rf-label">How would you rate it?</label>
+    <div class="rf-stars" id="rf-stars">${[1,2,3,4,5].map(i=>`<button class="rf-star lit" onclick="setRfStar(${i})">★</button>`).join("")}</div>
+    <label class="rf-label">Your review</label>
+    <textarea class="rf-text" id="rf-text" placeholder="How's the fit? The fabric? Would you recommend it?"></textarea>
+    <div style="margin-top:12px">
+      <label class="rf-label">Your name</label>
+      <input class="rf-name" id="rf-name" placeholder="First name or nickname"/>
+      <label class="rf-label">Your city</label>
+      <input class="rf-city" id="rf-city" placeholder="e.g. Delhi, Mumbai, Bangalore"/>
+    </div>
+    <button class="rf-submit" onclick="submitReview()">Submit Review →</button>
+  `;
+  overlay.classList.add("open");document.body.style.overflow="hidden";
+}
+window.setRfStar=function(n){
+  rfStars=n;
+  document.querySelectorAll("#rf-stars .rf-star").forEach((s,i)=>{
+    s.classList.toggle("lit",i<n);
+  });
+};
+window.submitReview=function(){
+  const text=(document.getElementById("rf-text")||{}).value||"";
+  const name=(document.getElementById("rf-name")||{}).value||"";
+  const city=(document.getElementById("rf-city")||{}).value||"";
+  const p=(typeof products!=="undefined"?products:[]).find(x=>x.id===rfProdId);
+  const pname=p?p.name:"Unknown product";
+  if(!text.trim()){showCustomerToast("Please write a few words about your experience.");return;}
+  if(!name.trim()){showCustomerToast("Please add your name.");return;}
+  // Send review to founder via WhatsApp for approval
+  const msg=`⭐ NEW CUSTOMER REVIEW\n\nProduct: ${pname}\nRating: ${"★".repeat(rfStars)}${"☆".repeat(5-rfStars)} (${rfStars}/5)\nReview: "${text}"\nCustomer: ${name}${city?", "+city:""}\n\n(Add this review via Admin → Reviews)`;
+  const waUrl="https://wa.me/919990905969?text="+encodeURIComponent(msg);
+  window.open(waUrl,"_blank");
+  // Show thank you
+  const el=document.getElementById("rf-content");
+  if(el)el.innerHTML=`<div class="rf-thanks"><h3>Thank you! 🙏</h3><p>${name}, your review for <b>${pname}</b> has been sent. We'll feature it on our page soon.</p><button class="rf-submit" style="margin-top:20px" onclick="closeReviewForm()">Close</button></div>`;
+};
+function closeReviewForm(){
+  const overlay=document.getElementById("review-form-overlay");
+  if(overlay)overlay.classList.remove("open");
+  document.body.style.overflow="";
+  if(location.hash.indexOf("#review-")===0)history.replaceState(null,"",location.pathname);
+}
+
 /* ===== SOCIAL PROOF FLASH ===== */
 (function(){
   const CITIES=["Delhi","Mumbai","Bangalore","Noida","Gurgaon","Hyderabad","Pune","Jaipur","Lucknow","Chandigarh","Kolkata","Chennai","Ahmedabad","Indore","Bhopal","Surat","Nagpur","Patna","Kochi","Coimbatore","Vadodara","Ranchi","Dehradun","Mysore","Vizag","Gwalior","Rohini","Dwarka","Saket","Laxmi Nagar","Varanasi","Amritsar","Ludhiana","Faridabad","Thane","Navi Mumbai","Ghaziabad","Kanpur","Agra","Meerut","Raipur","Bhubaneswar","Mangalore","Trivandrum","Udaipur","Jodhpur","Jalandhar","Panipat","Mathura","Shimla"];
@@ -3647,5 +3741,12 @@ const _isPreview = sessionStorage.getItem("ds_preview")==="1";
 })();
 
 </script>
+
+<div id="review-form-overlay">
+  <div class="review-form" id="review-form-inner">
+    <button class="rf-close" onclick="closeReviewForm()">×</button>
+    <div id="rf-content"></div>
+  </div>
+</div>
 <div id="sp-toast" onclick="spClick()"><img id="sp-img" alt=""/><div class="sp-info"><div class="sp-who" id="sp-who"></div><div class="sp-prod" id="sp-prod"></div><div class="sp-time" id="sp-time"></div></div></div>
 </body></html>
