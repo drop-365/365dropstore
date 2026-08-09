@@ -928,12 +928,10 @@ main,header,footer,.sec,.trust,.mq{position:relative;z-index:2}
   <div class="boot-readout" id="boot-readout"></div>
   <div class="boot-skip">tap anywhere to skip</div>
 </div>
-<script>(function(){try{var h=location.hash||"";var adm=h.indexOf("admin-")!==-1;var isProd=h.indexOf("product-")!==-1;var isReview=h.indexOf("review-")!==-1;var last=parseInt(localStorage.getItem("ds_boot_ts")||"0",10);var fresh=(Date.now()-last)>43200000;var b=document.getElementById("boot");if(adm||isProd||isReview||!fresh){if(b)b.remove();}else{document.documentElement.style.overflow="hidden";}setTimeout(function(){var x=document.getElementById("boot");if(x){x.remove();}document.documentElement.style.overflow="";},4200);}catch(e){var x=document.getElementById("boot");if(x)x.remove();}
-// #bootterm is a second full-viewport black overlay (higher z-index than #boot).
-// Its own hide logic previously sat ~3000 lines later in the main script, meaning
-// it stayed stuck solid black on any page that didn't finish executing everything
-// before it — killing it here, immediately, guarantees it can never depend on that.
+<script>window._pendingProductId=null;window._pendingReviewId=null;(function(){try{var h=location.hash||"";var adm=h.indexOf("admin-")!==-1;var isProd=h.indexOf("product-")!==-1;var isReview=h.indexOf("review-")!==-1;var last=parseInt(localStorage.getItem("ds_boot_ts")||"0",10);var fresh=(Date.now()-last)>43200000;var b=document.getElementById("boot");if(adm||isProd||isReview||!fresh){if(b)b.remove();}else{document.documentElement.style.overflow="hidden";}setTimeout(function(){var x=document.getElementById("boot");if(x){x.remove();}document.documentElement.style.overflow="";},4200);}catch(e){var x=document.getElementById("boot");if(x)x.remove();}
 try{var bt=document.getElementById("bootterm");if(bt){bt.remove();}}catch(e2){}
+if(isProd){window._pendingProductId=decodeURIComponent(h.replace("#product-","").trim());history.replaceState(null,"",location.pathname);}
+if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").trim();history.replaceState(null,"",location.pathname);}
 })();</script>
 
 
@@ -2469,17 +2467,21 @@ function openMob(){document.getElementById("mbnav").classList.add("op");document
 function closeMob(){document.getElementById("mbnav").classList.remove("op");document.getElementById("mob-scm").classList.remove("op");}
 
 // ADMIN
-function chkRoute(){const h=location.hash.replace("#","");if(h===AP){document.getElementById("ag").style.display="block";document.body.style.overflow="hidden";return;}if(h.indexOf("review-")===0){const rid=h.slice(7);history.replaceState(null,"",location.pathname);if(products&&products.length)openReviewForm(rid);}
-if(h.indexOf("product-")===0){
-  const id=decodeURIComponent(h.slice(8)).trim();
-  // clear the hash FIRST so a refresh always gives a clean page
-  history.replaceState(null,"",location.pathname);
-  if(products&&products.length){
-    let found=products.find(x=>String(x.id)===id)
-      ||products.find(x=>String(x.id).toLowerCase()===id.toLowerCase());
-    if(found){openMo(found.id);}
+function chkRoute(){
+  const h=location.hash.replace("#","");
+  if(h===AP){document.getElementById("ag").style.display="block";document.body.style.overflow="hidden";return;}
+  // product/review IDs are saved into window._pending* by the early boot script
+  // and the hash is already cleared — so this function just opens the modal
+  // using the saved ID, guaranteed to run AFTER data loads (called from the
+  // data-load completion callback, not from a timer).
+  const pid=window._pendingProductId;
+  if(pid&&products&&products.length){
+    const found=products.find(x=>String(x.id)===pid)||products.find(x=>String(x.id).toLowerCase()===pid.toLowerCase());
+    if(found){openMo(found.id);window._pendingProductId=null;}
   }
-}}
+  const rid=window._pendingReviewId;
+  if(rid&&products&&products.length){openReviewForm(rid);window._pendingReviewId=null;}
+}
 async function admLogin(){if(locked){shAErr("Locked. Run: localStorage.removeItem('adm_lk') in console.");return;}const e=document.getElementById("age").value.trim();const pw=document.getElementById("agp").value;const h=await sha256(pw);if(e===AE&&h===AH){_adminPw=pw;document.getElementById("ag").style.display="none";document.getElementById("ap").style.display="block";attCnt=0;LS.set("adm_att",0);LS.set("adm_lk",false);
     await loadFromSupabaseIfAvailable();
     ldProds();apSts();rnAdmRev();loadSiteEd();loadFitsAdmin();loadBannerAdmin();loadPaletteAdmin();loadGlobalScAdmin();}else{attCnt++;LS.set("adm_att",attCnt);const left=MA-attCnt;if(left<=0){locked=true;LS.set("adm_lk",true);shAErr("Locked.");}else shAErr(`Wrong — ${left} left.`);document.getElementById("agatt").textContent=`${attCnt}/${MA}`;}}
