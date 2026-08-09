@@ -2464,21 +2464,27 @@ function openMob(){document.getElementById("mbnav").classList.add("op");document
 function closeMob(){document.getElementById("mbnav").classList.remove("op");document.getElementById("mob-scm").classList.remove("op");}
 
 // ADMIN
+let _routeAttempts=0;
 function chkRoute(){const h=location.hash.replace("#","");if(h===AP){document.getElementById("ag").style.display="block";document.body.style.overflow="hidden";return;}if(h.indexOf("review-")===0){const rid=h.slice(7);if(products&&products.length)openReviewForm(rid);}
 if(h.indexOf("product-")===0){
   const id=decodeURIComponent(h.slice(8)).trim();
   // always clear the boot screen for product links, regardless of whether the product exists
   const b=document.getElementById("boot");if(b)b.remove();
   document.documentElement.style.overflow="";
+  _routeAttempts++;
   if(products&&products.length){
     // tolerant matching: exact id, case-insensitive, then name-slug fallback
     // (older shared links may carry a different id format)
     let found=products.find(x=>String(x.id)===id)
       ||products.find(x=>String(x.id).toLowerCase()===id.toLowerCase())
       ||products.find(x=>(x.name||"").toLowerCase().replace(/[^a-z0-9]/g,"")===id.toLowerCase().replace(/[^a-z0-9]/g,""));
-    if(found){openMo(found.id);}
-    else if(products.length>3&&!window._deadLinkHandled){
-      window._deadLinkHandled=true;// fire once only, retries must not re-trigger
+    if(found){openMo(found.id);window._deadLinkHandled=true;}
+    // "not found" can only be declared after at least 3 real attempts across the retry
+    // schedule below — a single miss is never trusted, since it's usually just data
+    // still loading, not an actually-deleted product. This is the fix for the false
+    // "no longer available" toast that was firing on genuine, still-live products.
+    else if(_routeAttempts>=3&&!window._deadLinkHandled){
+      window._deadLinkHandled=true;
       history.replaceState(null,"",location.pathname);
       showToast("That product is no longer available. Browse the current drop below.",false);
       setTimeout(()=>{const s=document.getElementById("shop");if(s)s.scrollIntoView({behavior:"smooth"});},400);
@@ -2673,7 +2679,23 @@ function saveProd(){
       LS.set("ds_p",products);renderGrid();
     }
   });
+  // supplementary write — the main admin-products function's field list predates
+  // sold count / size guide mode, so it's been silently dropping these on save.
+  // This calls a dedicated function that writes only these three fields directly.
+  syncProductMeta(prod);
   setTimeout(()=>{resetF();apTab("products");},1800);
+}
+async function syncProductMeta(prod){
+  if(!_adminPw)return;
+  try{
+    const res=await fetch(SB_FN_BASE+"admin-product-meta",{
+      method:"POST",
+      headers:{"Content-Type":"application/json","apikey":SB_APIKEY},
+      body:JSON.stringify({password:_adminPw,id:prod.id,soldCount:prod.soldCount,sizeGuideMode:prod.sizeGuideMode,customSizeGuide:prod.customSizeGuide})
+    });
+    const data=await res.json();
+    if(data.error){showToast("⚠️ Sold Count / Size Guide setting didn't save: "+data.error,false);}
+  }catch(e){showToast("⚠️ Sold Count / Size Guide setting didn't sync (network).",false);}
 }
 function shPMsg(t,c){const m=document.getElementById("pf-msg");m.textContent=t;m.style.color=c;m.style.background=c.includes("4a")?"rgba(74,222,128,.08)":"rgba(192,57,43,.08)";m.style.display="block";}
 
@@ -3685,18 +3707,17 @@ const _isPreview = sessionStorage.getItem("ds_preview")==="1";
   buildFilterUI();populateFitSelect();setCat("All");renderGrid();renderCart();renderRevs();renderFaqSection();applyPalette();applyBanner();renderStoriesRail();applySiteContent();chkRoute();
   if(!usedSupabase){
     loadPublished();
-    // re-check the route after fallback data loads — on slower connections (iOS Safari
-    // especially) the first chkRoute fires before products exist, so deep links silently fail
-    setTimeout(chkRoute,300);
-    setTimeout(chkRoute,1200);
   }
-  // final safety net: retry the route check once more after everything settles
+  // always retry the route check, regardless of load path — a single check was the bug:
+  // it let one still-loading moment permanently declare a real product "not found"
+  setTimeout(chkRoute,400);
+  setTimeout(chkRoute,1200);
   setTimeout(function(){
     const h=location.hash||"";
     if((h.indexOf("#product-")===0||h.indexOf("#review-")===0)&&!document.getElementById("mo").innerHTML.trim()){
       chkRoute();
     }
-  },2000);
+  },2200);
 })();
 </script>
 <div id="stickybuy">
