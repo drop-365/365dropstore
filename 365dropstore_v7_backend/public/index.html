@@ -3598,7 +3598,8 @@ async function refreshProductsFromSupabase(){
       shippingInfo:p.shipping_info||'',features:p.features||[],
       reelUrl:p.reel_url||'',order:p.display_order||0,
       addedAt:p.added_at?new Date(p.added_at).getTime():Date.now(),
-      restockAt:p.restock_at||''
+      restockAt:p.restock_at||'',
+      soldCount:p.sold_count||0,sizeGuideMode:p.size_guide_mode||'default',customSizeGuide:p.custom_size_guide||undefined
     }));
     LS.set("ds_p",products);
     ldProds();apSts();renderGrid();
@@ -3628,6 +3629,7 @@ async function loadFromSupabaseIfAvailable(){
       badges:p.badges||[], sizes:p.sizes||[], oosizes:p.oosizes||[], colors:p.colors||[],
       desc:p.description||'', desc2:p.description_long||'',
       shippingInfo:p.shipping_info||'', features:p.features||[],
+      soldCount:p.sold_count||0, sizeGuideMode:p.size_guide_mode||'default', customSizeGuide:p.custom_size_guide||undefined,
       reelUrl:p.reel_url||'', order:p.display_order||0,
       addedAt:p.added_at?new Date(p.added_at).getTime():undefined,
       restockAt:p.restock_at||''
