@@ -928,7 +928,13 @@ main,header,footer,.sec,.trust,.mq{position:relative;z-index:2}
   <div class="boot-readout" id="boot-readout"></div>
   <div class="boot-skip">tap anywhere to skip</div>
 </div>
-<script>(function(){try{var h=location.hash||"";var adm=h.indexOf("admin-")!==-1;var isProd=h.indexOf("product-")!==-1;var isReview=h.indexOf("review-")!==-1;var last=parseInt(localStorage.getItem("ds_boot_ts")||"0",10);var fresh=(Date.now()-last)>43200000;var b=document.getElementById("boot");if(adm||isProd||isReview||!fresh){if(b)b.remove();}else{document.documentElement.style.overflow="hidden";}setTimeout(function(){var x=document.getElementById("boot");if(x){x.remove();}document.documentElement.style.overflow="";},4200);}catch(e){var x=document.getElementById("boot");if(x)x.remove();}})();</script>
+<script>(function(){try{var h=location.hash||"";var adm=h.indexOf("admin-")!==-1;var isProd=h.indexOf("product-")!==-1;var isReview=h.indexOf("review-")!==-1;var last=parseInt(localStorage.getItem("ds_boot_ts")||"0",10);var fresh=(Date.now()-last)>43200000;var b=document.getElementById("boot");if(adm||isProd||isReview||!fresh){if(b)b.remove();}else{document.documentElement.style.overflow="hidden";}setTimeout(function(){var x=document.getElementById("boot");if(x){x.remove();}document.documentElement.style.overflow="";},4200);}catch(e){var x=document.getElementById("boot");if(x)x.remove();}
+// #bootterm is a second full-viewport black overlay (higher z-index than #boot).
+// Its own hide logic previously sat ~3000 lines later in the main script, meaning
+// it stayed stuck solid black on any page that didn't finish executing everything
+// before it — killing it here, immediately, guarantees it can never depend on that.
+try{var bt=document.getElementById("bootterm");if(bt){bt.remove();}}catch(e2){}
+})();</script>
 
 
 <!-- particles -->
@@ -3440,10 +3446,8 @@ async function uploadImageToBlob(file){
   if(grid){new MutationObserver(()=>setTimeout(wire,50)).observe(grid,{childList:true});}
   setTimeout(wire,800);
 })();
-/* ===== SCI-FI FX: boot terminal (DISABLED - original #boot overlay already handles intro) ===== */
-(function(){
-  const td=document.getElementById("bootterm");if(td){td.classList.add("done");td.style.display="none";}
-})();
+/* ===== SCI-FI FX: boot terminal — element itself is now removed at the very top of
+   the page (see the early inline script), so nothing here needs to hide it anymore ===== */
 (function(){ if(false){
   const t=document.getElementById("bootterm");if(!t)return;
   if(window.matchMedia&&window.matchMedia("(prefers-reduced-motion:reduce)").matches){t.classList.add("done");return;}
