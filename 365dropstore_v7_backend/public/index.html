@@ -293,6 +293,8 @@ header{position:sticky;top:0;z-index:100;background:rgba(20,19,18,.95);backdrop-
 /* infinity glyph — Bebas Neue lacks this character, so force a safe system font
    to prevent iOS falling back to a watermarked font */
 
+
+.inf-ico{display:inline-block;width:.85em;height:.42em;vertical-align:.1em}
 /* MARQUEE */
 .mq{border:none;padding:14px 0;overflow:hidden;background:#141312}
 .mtrack{display:flex;white-space:nowrap;animation:mqs 28s linear infinite}
@@ -958,7 +960,7 @@ main,header,footer,.sec,.trust,.mq{position:relative;z-index:2}
 
 <!-- nav -->
 <header id="nav"><div class="w nav">
-  <div class="nbrand"><img src="" alt="365"/><span>365 DROP</span></div>
+  <div class="nbrand"><img src="" alt="365"/><span>365<svg class="inf-ico" viewBox="0 0 24 12" aria-hidden="true" focusable="false"><path fill="currentColor" d="M6 1.5C3.5 1.5 1.5 3.5 1.5 6S3.5 10.5 6 10.5c1.7 0 3.2-.9 4.1-2.3l.4-.6.4.6c.9 1.4 2.4 2.3 4.1 2.3 2.5 0 4.5-2 4.5-4.5S20.5 1.5 18 1.5c-1.7 0-3.2.9-4.1 2.3l-.4.6-.4-.6C12.2 2.4 10.7 1.5 9 1.5H6zm0 1.5c1.1 0 2.1.6 2.7 1.5L10.1 6 8.7 8c-.6.9-1.6 1.5-2.7 1.5C4.3 9.5 3 8.2 3 6.5S4.3 3 6 3zm12 0c1.7 0 3 1.3 3 3s-1.3 3-3 3c-1.1 0-2.1-.6-2.7-1.5L13.9 6l1.4-2c.6-.9 1.6-1.5 2.7-1.5z"/></svg>DROP</span></div>
   <div class="nlinks"><a onclick="goTo('#shop')">Shop</a><a onclick="goTo('#story')">Our Story</a><a onclick="goTo('#reviews')">Reviews</a><a onclick="goTo('#nl')">Early Access</a></div>
   <div class="nright"><div class="nicon" onclick="openSrch()" title="Search">🔍</div><button class="nbag" onclick="openCart()">🛍 Bag <span class="nbadge" id="ccount">0</span></button><div class="burger" onclick="openMob()"><span></span><span></span><span></span></div></div>
 </div></header>
@@ -989,7 +991,7 @@ main,header,footer,.sec,.trust,.mq{position:relative;z-index:2}
     </div>
     <div class="hstats rvh hd6">
       <div class="hstat"><span class="num">365</span><span class="lbl">Days dropping</span></div>
-      <div class="hstat"><span class="num">MANY</span><span class="lbl">Ways to wear</span></div>
+      <div class="hstat"><span class="num"><svg class="inf-ico" viewBox="0 0 24 12" aria-hidden="true" focusable="false"><path fill="currentColor" d="M6 1.5C3.5 1.5 1.5 3.5 1.5 6S3.5 10.5 6 10.5c1.7 0 3.2-.9 4.1-2.3l.4-.6.4.6c.9 1.4 2.4 2.3 4.1 2.3 2.5 0 4.5-2 4.5-4.5S20.5 1.5 18 1.5c-1.7 0-3.2.9-4.1 2.3l-.4.6-.4-.6C12.2 2.4 10.7 1.5 9 1.5H6zm0 1.5c1.1 0 2.1.6 2.7 1.5L10.1 6 8.7 8c-.6.9-1.6 1.5-2.7 1.5C4.3 9.5 3 8.2 3 6.5S4.3 3 6 3zm12 0c1.7 0 3 1.3 3 3s-1.3 3-3 3c-1.1 0-2.1-.6-2.7-1.5L13.9 6l1.4-2c.6-.9 1.6-1.5 2.7-1.5z"/></svg></span><span class="lbl">Ways to wear</span></div>
       <div class="hstat"><span class="num">0</span><span class="lbl">Middlemen</span></div>
     </div>
   </div>
@@ -1062,7 +1064,7 @@ main,header,footer,.sec,.trust,.mq{position:relative;z-index:2}
     <h2 id="story-h2" data-dec>Started in a bedroom. Worn everywhere.</h2>
     <p id="story-p1">365 Drop Store started the way real things do — one person, no safety net, and zero tolerance for the same five fits everyone else was selling.</p>
     <p id="story-p2">Heavy washes. Honest cuts. Limited drops. You're not buying mass production — you're buying the drop.</p>
-    <div class="stnums"><div><span class="snum">365</span><span class="slbl">Days dropping</span></div><div><span class="snum">MANY</span><span class="slbl">Ways to wear</span></div><div><span class="snum">0</span><span class="slbl">Middlemen</span></div></div>
+    <div class="stnums"><div><span class="snum">365</span><span class="slbl">Days dropping</span></div><div><span class="snum"><svg class="inf-ico" viewBox="0 0 24 12" aria-hidden="true" focusable="false"><path fill="currentColor" d="M6 1.5C3.5 1.5 1.5 3.5 1.5 6S3.5 10.5 6 10.5c1.7 0 3.2-.9 4.1-2.3l.4-.6.4.6c.9 1.4 2.4 2.3 4.1 2.3 2.5 0 4.5-2 4.5-4.5S20.5 1.5 18 1.5c-1.7 0-3.2.9-4.1 2.3l-.4.6-.4-.6C12.2 2.4 10.7 1.5 9 1.5H6zm0 1.5c1.1 0 2.1.6 2.7 1.5L10.1 6 8.7 8c-.6.9-1.6 1.5-2.7 1.5C4.3 9.5 3 8.2 3 6.5S4.3 3 6 3zm12 0c1.7 0 3 1.3 3 3s-1.3 3-3 3c-1.1 0-2.1-.6-2.7-1.5L13.9 6l1.4-2c.6-.9 1.6-1.5 2.7-1.5z"/></svg></span><span class="slbl">Ways to wear</span></div><div><span class="snum">0</span><span class="slbl">Middlemen</span></div></div>
   </div>
 </div></section>
 
@@ -1500,7 +1502,7 @@ const ALL_SIZES=["28","30","32","34","36","S","M","L","XL","XXL"];
 // DEFAULT DATA
 const DP=[];
 const DR=[{id:"R1",stars:5,text:"The wide-leg fit is exactly what I wanted. Quality way above the price. Heavyweight denim that actually lasts.",who:"Aryan M.",where:"Delhi"},{id:"R2",stars:5,text:"Denim feels premium and heavy. Got compliments the same day I wore it. Delivered in 4 days.",who:"Simran K.",where:"Gurgaon"},{id:"R3",stars:5,text:"Small brand, real founder. Replied on WhatsApp instantly. Will order every drop.",who:"Rohit V.",where:"Noida"}];
-const DSite={ann:"Drop 001 · Delhi · WhatsApp-only checkout · Pan India shipping",heroH1:"365 DROP|STORE|",heroSub:"Premium denim built from zero in Delhi — wide-leg, baggy, straight. Dropped limited, worn everywhere.",heroP1:"DR-001",heroP2:"DR-003",trust:"📦|Pan India|3-5 day delivery\n🔄|7-Day Exchange|₹200 exchange fee\n✆|WhatsApp Orders|Direct with founder\n📹|Unboxing Required|For returns & claims",edH2:"We don't restock. We don't compromise.",edP:"Every drop is small on purpose. When the run is gone, that's it. You're not wearing what everyone else is wearing.",storyH2:"Started in a bedroom. Worn everywhere.",storyP1:"365 Drop Store started the way real things do — one person, no safety net, and zero tolerance for the same five fits everyone else was selling.",storyP2:"Heavy washes. Honest cuts. Limited drops. You're not buying mass production — you're buying the drop.",shipping:"Delivery in 3-5 working days|Free shipping all over India|Only damaged or defective items can be returned|Unboxing video required for all return claims|Size exchange available for ₹200 fee|Item must be returned in original condition|Check size before ordering",marquee:"365 DROP|CLOTHING OR NOTHING|PREMIUM DENIM|DELHI DROPS|LIMITED RUNS",stats:"365|Days dropping,MANY|Ways to wear,0|Middlemen",phone:"+91 9990905969",email:"365dropstore@gmail.com",address:"E-42/2A Subhash Vihar, Delhi 110053",insta:"https://instagram.com/365dropstore",fb:"https://facebook.com/fazalsaifi2"};
+const DSite={ann:"Drop 001 · Delhi · WhatsApp-only checkout · Pan India shipping",heroH1:"365 DROP|STORE|",heroSub:"Premium denim built from zero in Delhi — wide-leg, baggy, straight. Dropped limited, worn everywhere.",heroP1:"DR-001",heroP2:"DR-003",trust:"📦|Pan India|3-5 day delivery\n🔄|7-Day Exchange|₹200 exchange fee\n✆|WhatsApp Orders|Direct with founder\n📹|Unboxing Required|For returns & claims",edH2:"We don't restock. We don't compromise.",edP:"Every drop is small on purpose. When the run is gone, that's it. You're not wearing what everyone else is wearing.",storyH2:"Started in a bedroom. Worn everywhere.",storyP1:"365 Drop Store started the way real things do — one person, no safety net, and zero tolerance for the same five fits everyone else was selling.",storyP2:"Heavy washes. Honest cuts. Limited drops. You're not buying mass production — you're buying the drop.",shipping:"Delivery in 3-5 working days|Free shipping all over India|Only damaged or defective items can be returned|Unboxing video required for all return claims|Size exchange available for ₹200 fee|Item must be returned in original condition|Check size before ordering",marquee:"365 DROP|CLOTHING OR NOTHING|PREMIUM DENIM|DELHI DROPS|LIMITED RUNS",stats:"365|Days dropping,\u221E|Ways to wear,0|Middlemen",phone:"+91 9990905969",email:"365dropstore@gmail.com",address:"E-42/2A Subhash Vihar, Delhi 110053",insta:"https://instagram.com/365dropstore",fb:"https://facebook.com/fazalsaifi2"};
 const DBanner={text:"🔥 FLASH SALE — First 200 orders get ₹200 OFF. Use code DROP200 on WhatsApp.",show:false};
 const DFits=["Baggy","Straight","Slim","Oversized","Cargo","Wide-Leg","Relaxed"];
 
@@ -1675,7 +1677,7 @@ let fCat="All",fSizes=[],fFits=[],fMaxPrice=5000;
 
 // INIT
 setTimeout(()=>{const bi=document.getElementById("bi");if(bi){bi.classList.add("out");setTimeout(()=>bi.remove(),800);}},2200);
-(()=>{const t=document.getElementById("mqt");const b='<span class="mi">365 DROP</span><span class="md">·</span><span class="mi">CLOTHING OR NOTHING</span><span class="md">·</span><span class="mi">PREMIUM DENIM</span><span class="md">·</span><span class="mi">DELHI DROPS</span><span class="md">·</span><span class="mi">LIMITED RUNS</span><span class="md">·</span>';t.innerHTML=b.repeat(6);})();
+(()=>{const t=document.getElementById("mqt");const b='<span class="mi">365<svg class="inf-ico" viewBox="0 0 24 12" aria-hidden="true" focusable="false"><path fill="currentColor" d="M6 1.5C3.5 1.5 1.5 3.5 1.5 6S3.5 10.5 6 10.5c1.7 0 3.2-.9 4.1-2.3l.4-.6.4.6c.9 1.4 2.4 2.3 4.1 2.3 2.5 0 4.5-2 4.5-4.5S20.5 1.5 18 1.5c-1.7 0-3.2.9-4.1 2.3l-.4.6-.4-.6C12.2 2.4 10.7 1.5 9 1.5H6zm0 1.5c1.1 0 2.1.6 2.7 1.5L10.1 6 8.7 8c-.6.9-1.6 1.5-2.7 1.5C4.3 9.5 3 8.2 3 6.5S4.3 3 6 3zm12 0c1.7 0 3 1.3 3 3s-1.3 3-3 3c-1.1 0-2.1-.6-2.7-1.5L13.9 6l1.4-2c.6-.9 1.6-1.5 2.7-1.5z"/></svg>DROP</span><span class="md">·</span><span class="mi">CLOTHING OR NOTHING</span><span class="md">·</span><span class="mi">PREMIUM DENIM</span><span class="md">·</span><span class="mi">DELHI DROPS</span><span class="md">·</span><span class="mi">LIMITED RUNS</span><span class="md">·</span>';t.innerHTML=b.repeat(6);})();
 document.getElementById("yr").textContent=new Date().getFullYear();
 const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target);}}),{threshold:.07});
 document.querySelectorAll(".sr").forEach(el=>io.observe(el));
@@ -1707,13 +1709,13 @@ function applySiteContent(){
   // strip any legacy infinity glyph from stored content (Bebas Neue lacks it,
   // causing iOS to substitute a watermarked fallback font)
   document.querySelectorAll(".stnums .snum,.hstat .num").forEach(el=>{
-    if(el.textContent.indexOf("\u221E")!==-1)el.textContent="MANY";
+    if(el.textContent.indexOf("\u221E")!==-1)el.innerHTML=el.textContent.replace(/\u221E/g,'<svg class="inf-ico" viewBox="0 0 24 12" aria-hidden="true" focusable="false"><path fill="currentColor" d="M6 1.5C3.5 1.5 1.5 3.5 1.5 6S3.5 10.5 6 10.5c1.7 0 3.2-.9 4.1-2.3l.4-.6.4.6c.9 1.4 2.4 2.3 4.1 2.3 2.5 0 4.5-2 4.5-4.5S20.5 1.5 18 1.5c-1.7 0-3.2.9-4.1 2.3l-.4.6-.4-.6C12.2 2.4 10.7 1.5 9 1.5H6zm0 1.5c1.1 0 2.1.6 2.7 1.5L10.1 6 8.7 8c-.6.9-1.6 1.5-2.7 1.5C4.3 9.5 3 8.2 3 6.5S4.3 3 6 3zm12 0c1.7 0 3 1.3 3 3s-1.3 3-3 3c-1.1 0-2.1-.6-2.7-1.5L13.9 6l1.4-2c.6-.9 1.6-1.5 2.7-1.5z"/></svg>');
   });
   if(typeof window.rebuildHeroShowcase==="function")window.rebuildHeroShowcase();else renderHeroShowcase();
   // Marquee
-  if(s.marquee){const mt=document.getElementById("mqt");if(mt){const items=String(s.marquee).replace(/\u221E/g," ").split("|").map(x=>x.trim()).filter(Boolean);const b=items.map(i=>'<span class="mi">'+i+'</span><span class="md">·</span>').join("");mt.innerHTML=b.repeat(6);}}
+  if(s.marquee){const mt=document.getElementById("mqt");if(mt){const items=String(s.marquee).replace(/\u221E/g,'<svg class="inf-ico" viewBox="0 0 24 12" aria-hidden="true" focusable="false"><path fill="currentColor" d="M6 1.5C3.5 1.5 1.5 3.5 1.5 6S3.5 10.5 6 10.5c1.7 0 3.2-.9 4.1-2.3l.4-.6.4.6c.9 1.4 2.4 2.3 4.1 2.3 2.5 0 4.5-2 4.5-4.5S20.5 1.5 18 1.5c-1.7 0-3.2.9-4.1 2.3l-.4.6-.4-.6C12.2 2.4 10.7 1.5 9 1.5H6zm0 1.5c1.1 0 2.1.6 2.7 1.5L10.1 6 8.7 8c-.6.9-1.6 1.5-2.7 1.5C4.3 9.5 3 8.2 3 6.5S4.3 3 6 3zm12 0c1.7 0 3 1.3 3 3s-1.3 3-3 3c-1.1 0-2.1-.6-2.7-1.5L13.9 6l1.4-2c.6-.9 1.6-1.5 2.7-1.5z"/></svg>').split("|").map(x=>x.trim()).filter(Boolean);const b=items.map(i=>'<span class="mi">'+i+'</span><span class="md">·</span>').join("");mt.innerHTML=b.repeat(6);}}
   // Hero stats
-  if(s.stats){const hstats=document.querySelector(".hstats");if(hstats){const items=String(s.stats).replace(/\u221E/g,"MANY").split(",").map(x=>x.trim()).filter(Boolean);hstats.innerHTML=items.map(item=>{const[num,lbl]=(item+"| ").split("|");return'<div class="hstat"><span class="num">'+num.trim()+'</span><span class="lbl">'+lbl.trim()+'</span></div>';}).join("");}}
+  if(s.stats){const hstats=document.querySelector(".hstats");if(hstats){const items=String(s.stats).split(",").map(x=>x.trim()).filter(Boolean);hstats.innerHTML=items.map(item=>{const[num,lbl]=(item+"| ").split("|");const numSafe=num.trim().replace(/\u221E/g,'<svg class="inf-ico" viewBox="0 0 24 12" aria-hidden="true" focusable="false"><path fill="currentColor" d="M6 1.5C3.5 1.5 1.5 3.5 1.5 6S3.5 10.5 6 10.5c1.7 0 3.2-.9 4.1-2.3l.4-.6.4.6c.9 1.4 2.4 2.3 4.1 2.3 2.5 0 4.5-2 4.5-4.5S20.5 1.5 18 1.5c-1.7 0-3.2.9-4.1 2.3l-.4.6-.4-.6C12.2 2.4 10.7 1.5 9 1.5H6zm0 1.5c1.1 0 2.1.6 2.7 1.5L10.1 6 8.7 8c-.6.9-1.6 1.5-2.7 1.5C4.3 9.5 3 8.2 3 6.5S4.3 3 6 3zm12 0c1.7 0 3 1.3 3 3s-1.3 3-3 3c-1.1 0-2.1-.6-2.7-1.5L13.9 6l1.4-2c.6-.9 1.6-1.5 2.7-1.5z"/></svg>');return'<div class="hstat"><span class="num">'+numSafe+'</span><span class="lbl">'+lbl.trim()+'</span></div>';}).join("");}}
   // Footer contact
   const footEl=document.querySelector("footer");
   if(footEl){
@@ -3351,7 +3353,7 @@ async function uploadImageToBlob(file){
   sessionStorage.setItem("ds_booted","1");
   const out=document.getElementById("bootterm-txt");
   const lines=[
-    "365 DROP // SYSTEM BOOT",
+    "365 // SYSTEM BOOT",
     "> initialising drop protocol ........ <ok>OK</ok>",
     "> loading DROP 001 · DELHI ......... <ok>OK</ok>",
     "> securing WhatsApp checkout ....... <ok>OK</ok>",
