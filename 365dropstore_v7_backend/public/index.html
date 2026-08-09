@@ -2282,7 +2282,6 @@ window.pick=function(key,val,el){
 
 let ms={p:null,size:"",color:"",qty:1,idx:0};
 function openMo(id){
-  history.replaceState(null,"","#product-"+id);
   const p=products.find(x=>x.id===id);if(!p)return;
   ms={p,size:((p.sizes||[]).find(s=>!(p.oosizes||[]).includes(s)))||"",color:(p.colors||[])[0]||"",qty:1,idx:0};
   const sold=p.badges&&p.badges.includes("sold");
@@ -2470,31 +2469,15 @@ function openMob(){document.getElementById("mbnav").classList.add("op");document
 function closeMob(){document.getElementById("mbnav").classList.remove("op");document.getElementById("mob-scm").classList.remove("op");}
 
 // ADMIN
-let _routeAttempts=0;
-function chkRoute(){const h=location.hash.replace("#","");if(h===AP){document.getElementById("ag").style.display="block";document.body.style.overflow="hidden";return;}if(h.indexOf("review-")===0){const rid=h.slice(7);if(products&&products.length)openReviewForm(rid);}
+function chkRoute(){const h=location.hash.replace("#","");if(h===AP){document.getElementById("ag").style.display="block";document.body.style.overflow="hidden";return;}if(h.indexOf("review-")===0){const rid=h.slice(7);history.replaceState(null,"",location.pathname);if(products&&products.length)openReviewForm(rid);}
 if(h.indexOf("product-")===0){
   const id=decodeURIComponent(h.slice(8)).trim();
-  // always clear the boot screen for product links, regardless of whether the product exists
-  const b=document.getElementById("boot");if(b)b.remove();
-  document.documentElement.style.overflow="";
-  _routeAttempts++;
+  // clear the hash FIRST so a refresh always gives a clean page
+  history.replaceState(null,"",location.pathname);
   if(products&&products.length){
-    // tolerant matching: exact id, case-insensitive, then name-slug fallback
-    // (older shared links may carry a different id format)
     let found=products.find(x=>String(x.id)===id)
-      ||products.find(x=>String(x.id).toLowerCase()===id.toLowerCase())
-      ||products.find(x=>(x.name||"").toLowerCase().replace(/[^a-z0-9]/g,"")===id.toLowerCase().replace(/[^a-z0-9]/g,""));
-    if(found){openMo(found.id);window._deadLinkHandled=true;}
-    // "not found" can only be declared after at least 3 real attempts across the retry
-    // schedule below — a single miss is never trusted, since it's usually just data
-    // still loading, not an actually-deleted product. This is the fix for the false
-    // "no longer available" toast that was firing on genuine, still-live products.
-    else if(_routeAttempts>=3&&!window._deadLinkHandled){
-      window._deadLinkHandled=true;
-      history.replaceState(null,"",location.pathname);
-      showToast("That product is no longer available. Browse the current drop below.",false);
-      setTimeout(()=>{const s=document.getElementById("shop");if(s)s.scrollIntoView({behavior:"smooth"});},400);
-    }
+      ||products.find(x=>String(x.id).toLowerCase()===id.toLowerCase());
+    if(found){openMo(found.id);}
   }
 }}
 async function admLogin(){if(locked){shAErr("Locked. Run: localStorage.removeItem('adm_lk') in console.");return;}const e=document.getElementById("age").value.trim();const pw=document.getElementById("agp").value;const h=await sha256(pw);if(e===AE&&h===AH){_adminPw=pw;document.getElementById("ag").style.display="none";document.getElementById("ap").style.display="block";attCnt=0;LS.set("adm_att",0);LS.set("adm_lk",false);
@@ -3712,16 +3695,8 @@ const _isPreview = sessionStorage.getItem("ds_preview")==="1";
   if(!usedSupabase){
     loadPublished();
   }
-  // always retry the route check, regardless of load path — a single check was the bug:
-  // it let one still-loading moment permanently declare a real product "not found"
-  setTimeout(chkRoute,400);
-  setTimeout(chkRoute,1200);
-  setTimeout(function(){
-    const h=location.hash||"";
-    if((h.indexOf("#product-")===0||h.indexOf("#review-")===0)&&!document.getElementById("mo").innerHTML.trim()){
-      chkRoute();
-    }
-  },2200);
+  // deep links are handled by chkRoute() above — hash is cleared on first
+  // successful match, so no retry timers needed.
 })();
 </script>
 <div id="stickybuy">
