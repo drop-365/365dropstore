@@ -1217,6 +1217,16 @@ main,header,footer,.sec,.trust,.mq{position:relative;z-index:2}
     <div class="pff"><label>Display Order</label><input type="number" id="pf8" value="1"/></div>
     <div class="pff"><label>Instagram Reel Link</label><input type="url" id="pf-reel" placeholder="https://instagram.com/reel/..."/></div>
     <div class="pff"><label>Sold Count (manual override)</label><input type="number" id="pf-soldcount" min="0" placeholder="Leave empty to auto-calculate from orders"/></div>
+    <div class="pff full" style="border:1px solid var(--line);border-radius:12px;padding:16px">
+      <label style="font-size:14px">Size Guide For This Product</label>
+      <select id="pf-sg-mode" style="padding:8px;background:#141312;color:#F8F7F4;border:1px solid rgba(255,255,255,.18);border-radius:8px;margin-top:8px" onchange="onSgModeChange()">
+        <option value="default">Use Fit default (from admin Size Guide)</option>
+        <option value="custom">Custom for this product</option>
+        <option value="off">Don't show size guide on this product</option>
+      </select>
+      <small style="color:var(--off);display:block;margin-top:8px">Default pulls from the fit-based table in Admin → Size Guide. Pick Custom to set different waist/fit numbers just for this one product — useful for a cut that runs differently from the rest of its fit.</small>
+      <div id="pf-sg-custom" style="display:none;margin-top:14px"></div>
+    </div>
     <div class="pff full">
       <label>Product Images * (up to 5 — first = main card image)</label>
       <input type="file" id="pf9" accept="image/*,.heic,.heif" multiple onchange="handleImgs(this)"/>
@@ -2219,22 +2229,33 @@ function renderMoSizes(p){
   }).join('');
   return`<span class="mol">Size</span><div class="chips">${chips}</div><div id="mo-size-rec" class="mo-size-rec"></div>`;
 }
-function getSizeRec(fit,size){
-  const guide=sizeGuide[fit];
+function getSizeRec(p,size){
+  if(!p||p.sizeGuideMode==="off")return null;
+  const guide=(p.sizeGuideMode==="custom"&&Array.isArray(p.customSizeGuide)&&p.customSizeGuide.length)
+    ?p.customSizeGuide
+    :sizeGuide[p.fit];
   if(!guide)return null;
   return guide.find(g=>g.size===size)||null;
 }
-function showSizeRec(fit,size,isOos){
+function showSizeRec(p,size,isOos){
   const el=document.getElementById("mo-size-rec");if(!el)return;
-  const rec=getSizeRec(fit,size);
+  const bagBtn=document.querySelector('#mo .moact');
+  if(!p||p.sizeGuideMode==="off"){
+    el.innerHTML='';
+    // size guide off doesn't affect OOS gating — still block Add to Bag for OOS sizes
+    if(bagBtn){
+      if(isOos){bagBtn.style.opacity='.4';bagBtn.style.pointerEvents='none';bagBtn.textContent='Out of Stock';}
+      else{bagBtn.style.opacity='1';bagBtn.style.pointerEvents='auto';bagBtn.textContent=`Add to Bag · ${inr(eff(ms.p))}`;}
+    }
+    return;
+  }
+  const rec=getSizeRec(p,size);
   if(!rec){el.innerHTML='';return;}
   el.innerHTML=`<div class="size-rec-card${isOos?' oos-rec':''}">
     <div class="rec-label">Waist ${rec.waist}"</div>
     <div class="rec-best">${rec.bestFor}</div>
     ${isOos?'<div class="rec-oos">This size is currently out of stock</div>':'<div class="rec-avail">✓ Available — select to add to bag</div>'}
   </div>`;
-  // disable/enable Add to Bag based on OOS
-  const bagBtn=document.querySelector('#mo .moact');
   if(bagBtn){
     if(isOos){bagBtn.style.opacity='.4';bagBtn.style.pointerEvents='none';bagBtn.textContent='Out of Stock';}
     else{bagBtn.style.opacity='1';bagBtn.style.pointerEvents='auto';bagBtn.textContent=`Add to Bag · ${inr(eff(ms.p))}`;}
@@ -2244,13 +2265,13 @@ window.selectOosSize=function(btn,size){
   document.querySelectorAll('#mo .chip').forEach(c=>c.classList.remove('sel'));
   btn.classList.add('sel');
   ms.size=size;
-  showSizeRec(ms.p.fit||'',size,true);
+  showSizeRec(ms.p,size,true);
 };
 // hook into the existing pick() function to show rec on normal size select too
 const _origPick=window.pick;
 window.pick=function(key,val,el){
   if(_origPick)_origPick(key,val,el);
-  if(key==='size'&&ms.p){showSizeRec(ms.p.fit||'',val,false);}
+  if(key==='size'&&ms.p){showSizeRec(ms.p,val,false);}
 };
 
 let ms={p:null,size:"",color:"",qty:1,idx:0};
@@ -2308,7 +2329,7 @@ function openMo(id){
   moEl.addEventListener("animationend",cleanupModopen);
   setTimeout(cleanupModopen,650);
   // show size rec for the initially selected size
-  if(ms.size)setTimeout(()=>showSizeRec(p.fit||'',ms.size,!!(p.oosizes||[]).includes(ms.size)),100);
+  if(ms.size)setTimeout(()=>showSizeRec(p,ms.size,!!(p.oosizes||[]).includes(ms.size)),100);
 }
 function openSizeChart(id){const p=products.find(x=>x.id===id);if(!p)return;const scSrc=p.sizeChartImg||globalSc;if(!scSrc)return;const d=document.createElement('div');d.style.cssText='position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.9);display:flex;align-items:center;justify-content:center;padding:20px;cursor:pointer;z-index:9999';d.onclick=()=>d.remove();d.innerHTML=`<div style="background:var(--bg2);border-radius:12px;padding:16px;max-width:700px;width:100%;max-height:90vh;overflow-y:auto"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><h3 style="font-family:var(--dsp);font-size:20px;color:var(--white)">SIZE CHART</h3><button onclick="this.closest('[style]').remove()" style="background:var(--glass);border:1px solid var(--line);color:var(--white);width:34px;height:34px;border-radius:8px;font-size:20px;cursor:pointer">×</button></div><img src="${scSrc}" style="width:100%;border-radius:8px;image-rendering:crisp-edges" alt="Size chart" onclick="event.stopPropagation();window.open(this.src,'_blank')" title="Tap to open full size"/><p style="text-align:center;font-size:12px;color:var(--off);margin-top:8px">Tap the chart to open it full size</p></div>`;document.body.appendChild(d);}
 function toggleExp(row){row.classList.toggle("open");row.nextElementSibling.classList.toggle("open");}
@@ -2478,8 +2499,8 @@ function ldProds(){
 }
 function togSold(id){const p=products.find(x=>x.id===id);if(!p)return;if(!p.badges)p.badges=[];if(p.badges.includes("sold")){p.badges=p.badges.filter(b=>b!=="sold");p.restockAt='';}else p.badges.push("sold");LS.set("ds_p",products);renderGrid();ldProds();apSts();syncProductToSupabase("save",p);}
 function delP(id){if(!confirm("Delete? Cannot be undone."))return;products=products.filter(p=>p.id!==id);LS.set("ds_p",products);renderGrid();ldProds();apSts();syncProductToSupabase("delete",{id});}
-function editP(id){const p=products.find(x=>x.id===id);if(!p)return;editId=id;document.getElementById("pf0").value=p.name;document.getElementById("pf1").value=p.category;populateFitSelect();document.getElementById("pf-fit").value=p.fit||"Baggy";document.getElementById("pf2").value=p.price;document.getElementById("pf3").value=p.offerPrice||"";document.getElementById("pf4").value=p.desc;document.getElementById("pf-desc2").value=p.desc2||"";document.getElementById("pf5").value=(p.sizes||[]).join("|");document.getElementById("pf6").value=(p.colors||[]).join("|");document.getElementById("pf7").value=(p.badges||[]).filter(b=>b!=="sold")[0]||"";document.getElementById("pf8").value=p.order||1;document.getElementById("pf-reel").value=p.reelUrl||"";pendingImgs=[...(p.images||[])];renderThumbs();if(p.sizeChartImg){document.getElementById("pf-scimg").value=p.sizeChartImg;document.getElementById("sc-prv").innerHTML=`<img src="${p.sizeChartImg}" style="width:120px;border-radius:7px" alt="Size chart"/>`;}document.getElementById("add-title").textContent="EDIT PRODUCT";apTab("add");}
-function resetF(){editId=null;["pf0","pf2","pf3","pf4","pf-desc2","pf5","pf6","pf-reel","pf-scimg","pf-imgurls"].forEach(id=>{const e=document.getElementById(id);if(e)e.value=""});document.getElementById("pf7").value="new";document.getElementById("pf8").value=1;pendingImgs=[];renderThumbs();document.getElementById("sc-prv").innerHTML="";document.getElementById("add-title").textContent="ADD NEW PRODUCT";const m=document.getElementById("pf-msg");if(m)m.style.display="none";}
+function editP(id){const p=products.find(x=>x.id===id);if(!p)return;editId=id;document.getElementById("pf0").value=p.name;document.getElementById("pf1").value=p.category;populateFitSelect();document.getElementById("pf-fit").value=p.fit||"Baggy";document.getElementById("pf2").value=p.price;document.getElementById("pf3").value=p.offerPrice||"";document.getElementById("pf4").value=p.desc;document.getElementById("pf-desc2").value=p.desc2||"";document.getElementById("pf5").value=(p.sizes||[]).join("|");document.getElementById("pf6").value=(p.colors||[]).join("|");document.getElementById("pf7").value=(p.badges||[]).filter(b=>b!=="sold")[0]||"";document.getElementById("pf8").value=p.order||1;document.getElementById("pf-reel").value=p.reelUrl||"";document.getElementById("pf-soldcount").value=p.soldCount||"";document.getElementById("pf-sg-mode").value=p.sizeGuideMode||"default";onSgModeChange();if(p.sizeGuideMode==="custom"&&Array.isArray(p.customSizeGuide)&&p.customSizeGuide.length){renderPfSgCustom(p.customSizeGuide.map(r=>({...r})));}pendingImgs=[...(p.images||[])];renderThumbs();if(p.sizeChartImg){document.getElementById("pf-scimg").value=p.sizeChartImg;document.getElementById("sc-prv").innerHTML=`<img src="${p.sizeChartImg}" style="width:120px;border-radius:7px" alt="Size chart"/>`;}document.getElementById("add-title").textContent="EDIT PRODUCT";apTab("add");}
+function resetF(){editId=null;["pf0","pf2","pf3","pf4","pf-desc2","pf5","pf6","pf-reel","pf-scimg","pf-imgurls","pf-soldcount"].forEach(id=>{const e=document.getElementById(id);if(e)e.value=""});document.getElementById("pf7").value="new";document.getElementById("pf8").value=1;const sgSel=document.getElementById("pf-sg-mode");if(sgSel)sgSel.value="default";const sgWrap=document.getElementById("pf-sg-custom");if(sgWrap){sgWrap.style.display="none";sgWrap.dataset.rows="";}pendingImgs=[];renderThumbs();document.getElementById("sc-prv").innerHTML="";document.getElementById("add-title").textContent="ADD NEW PRODUCT";const m=document.getElementById("pf-msg");if(m)m.style.display="none";}
 let pendingImgs=[];
 function handleImgs(inp){const files=[...inp.files].slice(0,5-pendingImgs.length);files.forEach(f=>{if(pendingImgs.length>=5)return;
   const slot=pendingImgs.length;pendingImgs.push("__uploading__");renderThumbs();
@@ -2519,7 +2540,7 @@ function renderThumbs(){document.getElementById("ithumbs").innerHTML=pendingImgs
   return `<div class="ithm${i===0?' main-tag':''}"><img src="${s}" alt="Preview"/><button class="irm" onclick="rmPI(${i})">×</button></div>`;
 }).join("");}
 function rmPI(i){pendingImgs.splice(i,1);renderThumbs();}
-async function scImgUpload(inp){if(!inp.files||!inp.files[0])return;const f=inp.files[0];try{const bf=await toBrowserFile(f);let d=await compressImg(bf,1600,0.92);document.getElementById("sc-prv").innerHTML=`<img src="${d}" style="width:120px;border-radius:7px;margin-top:8px" alt="Uploading..."/>`;d=await uploadToR2(d,"sizecharts");document.getElementById("pf-scimg").value=d;document.getElementById("sc-prv").innerHTML=`<img src="${d}" style="width:120px;border-radius:7px;margin-top:8px" alt="Uploaded preview"/>`;}catch(e){shPMsg("Couldn't read that size chart image — try JPEG/PNG.","#c0392b");}}
+async function scImgUpload(inp){if(!inp.files||!inp.files[0])return;const f=inp.files[0];try{const bf=await toBrowserFile(f);let d=await compressImg(bf,1800,undefined,'png');document.getElementById("sc-prv").innerHTML=`<img src="${d}" style="width:120px;border-radius:7px;margin-top:8px" alt="Uploading..."/>`;d=await uploadToR2(d,"sizecharts");document.getElementById("pf-scimg").value=d;document.getElementById("sc-prv").innerHTML=`<img src="${d}" style="width:120px;border-radius:7px;margin-top:8px" alt="Uploaded preview"/>`;}catch(e){shPMsg("Couldn't read that size chart image — try JPEG/PNG.","#c0392b");}}
 const SB_FN_BASE="https://fhiivshoikcnanbvdtxm.supabase.co/functions/v1/";
 const SB_APIKEY="sb_publishable_LPwVp36pEOfQIEchjefMfw_SmGNcxUt";
 /* Uploads a base64 image to R2 via the admin-r2-upload Edge Function and returns
@@ -2596,6 +2617,37 @@ async function cleanupProductStorage(){
   m.textContent=`Done — cleaned up ${done} product(s). Storage usage updated above ✓`;
   m.style.color='#4ade80';m.style.background='rgba(74,222,128,.08)';
 }
+function onSgModeChange(){
+  const mode=document.getElementById("pf-sg-mode").value;
+  const wrap=document.getElementById("pf-sg-custom");
+  if(!wrap)return;
+  if(mode!=="custom"){wrap.style.display="none";return;}
+  wrap.style.display="block";
+  if(!wrap.dataset.rows){
+    // seed from the current fit's admin default so there's a sane starting point to edit
+    const fit=document.getElementById("pf-fit").value;
+    const seed=(sizeGuide[fit]||[{size:"28",waist:"28",bestFor:"Best for waists 27-30"}]).map(r=>({...r}));
+    wrap.dataset.rows="1";
+    renderPfSgCustom(seed);
+  }
+}
+function renderPfSgCustom(rows){
+  const wrap=document.getElementById("pf-sg-custom");if(!wrap)return;
+  const DARK='background:#141312;color:#F8F7F4;border:1px solid rgba(255,255,255,.18);border-radius:8px';
+  window._pfSgRows=rows;
+  wrap.innerHTML=`<small style="color:var(--off);display:block;margin-bottom:8px">Custom size table for this product only:</small>`
+    +rows.map((r,i)=>`<div style="display:flex;gap:8px;align-items:center;margin-bottom:6px">
+      <input value="${r.size}" placeholder="Size" style="width:60px;padding:6px;text-align:center;${DARK}" onchange="window._pfSgRows[${i}].size=this.value"/>
+      <input value="${r.waist}" placeholder="Waist" style="width:70px;padding:6px;text-align:center;${DARK}" onchange="window._pfSgRows[${i}].waist=this.value"/>
+      <input value="${r.bestFor}" placeholder="Best for waists..." style="flex:1;padding:6px;${DARK}" onchange="window._pfSgRows[${i}].bestFor=this.value"/>
+      <button class="tb tb-del" onclick="window._pfSgRows.splice(${i},1);renderPfSgCustom(window._pfSgRows);">×</button>
+    </div>`).join("")
+    +`<button class="btn btn-w" style="font-size:11px;padding:4px 10px;margin-top:4px" onclick="window._pfSgRows.push({size:'',waist:'',bestFor:''});renderPfSgCustom(window._pfSgRows);">+ Add Size</button>`;
+}
+function readPfSgCustomRows(){
+  return (window._pfSgRows||[]).filter(r=>r.size&&r.waist);
+}
+
 function saveProd(){
   const name=document.getElementById("pf0").value.trim();const price=Number(document.getElementById("pf2").value);
   if(!name||!price){shPMsg("Fill in Name & Price.","#c0392b");return;}
@@ -2604,7 +2656,10 @@ function saveProd(){
   if(!cleanImgs.length){shPMsg("Upload at least one image.","#c0392b");return;}
   const offer=document.getElementById("pf3").value?Number(document.getElementById("pf3").value):null;
   const badge=document.getElementById("pf7").value;
-  const prod={id:editId||("P-"+uid()),name,category:document.getElementById("pf1").value,fit:document.getElementById("pf-fit").value,price,offerPrice:offer,images:[...cleanImgs],sizeChartImg:document.getElementById("pf-scimg").value||"",badges:badge?[badge]:[],sizes:document.getElementById("pf5").value.split("|").map(s=>s.trim()).filter(Boolean),colors:document.getElementById("pf6").value.split("|").map(c=>c.trim()).filter(Boolean)||["As shown"],desc:document.getElementById("pf4").value.trim(),desc2:document.getElementById("pf-desc2").value.trim(),shippingInfo:"Delivery in 3-5 working days · Free shipping all over India · Only damaged or defective items can be returned · Unboxing video required for all return claims · Size exchange available for ₹200 fee · Item must be returned in original condition · Check size before ordering",reelUrl:document.getElementById("pf-reel").value.trim(),features:[],order:Number(document.getElementById("pf8").value)||99,addedAt:editId?(products.find(p=>p.id===editId)||{}).addedAt||Date.now():Date.now()};
+  const soldCountVal=parseInt(document.getElementById("pf-soldcount").value)||0;
+  const sgMode=document.getElementById("pf-sg-mode").value;
+  const customSizeGuide=sgMode==="custom"?readPfSgCustomRows():undefined;
+  const prod={id:editId||("P-"+uid()),name,category:document.getElementById("pf1").value,fit:document.getElementById("pf-fit").value,price,offerPrice:offer,images:[...cleanImgs],sizeChartImg:document.getElementById("pf-scimg").value||"",badges:badge?[badge]:[],sizes:document.getElementById("pf5").value.split("|").map(s=>s.trim()).filter(Boolean),colors:document.getElementById("pf6").value.split("|").map(c=>c.trim()).filter(Boolean)||["As shown"],desc:document.getElementById("pf4").value.trim(),desc2:document.getElementById("pf-desc2").value.trim(),shippingInfo:"Delivery in 3-5 working days · Free shipping all over India · Only damaged or defective items can be returned · Unboxing video required for all return claims · Size exchange available for ₹200 fee · Item must be returned in original condition · Check size before ordering",reelUrl:document.getElementById("pf-reel").value.trim(),features:[],order:Number(document.getElementById("pf8").value)||99,soldCount:soldCountVal,sizeGuideMode:sgMode,customSizeGuide:customSizeGuide,addedAt:editId?(products.find(p=>p.id===editId)||{}).addedAt||Date.now():Date.now()};
   const wasEdit=!!editId;
   if(editId)products=products.map(p=>p.id===editId?prod:p);else products.unshift(prod);
   LS.set("ds_p",products);renderGrid();renderHeroShowcase();
@@ -2981,7 +3036,7 @@ function resetPalette(){palette={...DPAL};LS.set('ds_pal',palette);applyPalette(
 
 // GLOBAL SIZE CHART
 let globalSc=LS.get('ds_gsc','');
-async function globalScUpload(inp){if(!inp.files||!inp.files[0])return;try{const bf=await toBrowserFile(inp.files[0]);let d=await compressImg(bf,1600,0.92);document.getElementById('gsc-prv').innerHTML='<img src="'+d+'" alt="Uploading..." style="width:160px;border-radius:8px;border:1px solid rgba(255,255,255,.1)"/>';d=await uploadToR2(d,"sizecharts");document.getElementById('gsc-data').value=d;document.getElementById('gsc-prv').innerHTML='<img src="'+d+'" alt="Uploaded size chart" style="width:160px;border-radius:8px;border:1px solid rgba(255,255,255,.1)"/>';}catch(e){alert("Couldn't read that image — try a JPEG/PNG.");}}
+async function globalScUpload(inp){if(!inp.files||!inp.files[0])return;try{const bf=await toBrowserFile(inp.files[0]);let d=await compressImg(bf,1800,undefined,'png');document.getElementById('gsc-prv').innerHTML='<img src="'+d+'" alt="Uploading..." style="width:160px;border-radius:8px;border:1px solid rgba(255,255,255,.1)"/>';d=await uploadToR2(d,"sizecharts");document.getElementById('gsc-data').value=d;document.getElementById('gsc-prv').innerHTML='<img src="'+d+'" alt="Uploaded size chart" style="width:160px;border-radius:8px;border:1px solid rgba(255,255,255,.1)"/>';}catch(e){alert("Couldn't read that image — try a JPEG/PNG.");}}
 function saveGlobalSc(){const v=document.getElementById('gsc-data').value;if(v)globalSc=v;LS.set('ds_gsc',globalSc);const m=document.getElementById('gsc-msg');m.textContent='Size chart saved ✓';m.style.color='#4ade80';m.style.background='rgba(74,222,128,.08)';m.style.display='block';setTimeout(()=>m.style.display='none',2500);syncSettingsToSupabase("global_size_chart",globalSc).then(res=>{if(res&&res.content&&res.content!==globalSc){globalSc=res.content;LS.set('ds_gsc',globalSc);loadGlobalScAdmin();}});}
 function loadGlobalScAdmin(){if(globalSc){document.getElementById('gsc-data').value=globalSc;document.getElementById('gsc-prv').innerHTML='<img src="'+globalSc+'" alt="Global size chart" style="width:160px;border-radius:8px;border:1px solid rgba(255,255,255,.1)"/>';}}
 
@@ -2992,7 +3047,7 @@ function openGlobalSizeGuide(){if(!globalSc){alert('Size guide is available on e
 // BOOT
 
 // ===== IMAGE COMPRESSION =====
-function compressImg(file,maxDim,q){maxDim=maxDim||1600;q=q||0.82;return new Promise((res,rej)=>{const rd=new FileReader();rd.onload=e=>{const img=new Image();img.onload=()=>{let{width:w,height:h}=img;if(w>maxDim||h>maxDim){if(w>h){h=Math.round(h*maxDim/w);w=maxDim;}else{w=Math.round(w*maxDim/h);h=maxDim;}}const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);try{res(c.toDataURL('image/jpeg',q));}catch(err){res(e.target.result);}};img.onerror=()=>res(e.target.result);img.src=e.target.result;};rd.onerror=rej;rd.readAsDataURL(file);});}
+function compressImg(file,maxDim,q,format){maxDim=maxDim||1600;q=q||0.82;format=format||'jpeg';return new Promise((res,rej)=>{const rd=new FileReader();rd.onload=e=>{const img=new Image();img.onload=()=>{let{width:w,height:h}=img;if(w>maxDim||h>maxDim){if(w>h){h=Math.round(h*maxDim/w);w=maxDim;}else{w=Math.round(w*maxDim/h);h=maxDim;}}const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);try{res(c.toDataURL('image/'+format,format==='png'?undefined:q));}catch(err){res(e.target.result);}};img.onerror=()=>res(e.target.result);img.src=e.target.result;};rd.onerror=rej;rd.readAsDataURL(file);});}
 // ===== HEIC/HEIF support: most browsers (Chrome, Firefox, Android) cannot decode HEIC files from an iPhone.
 // We lazy-load a small conversion library only when a HEIC/HEIF file is actually picked, convert it to a
 // normal JPEG blob, then hand it to compressImg() like any other photo. PNG/JPEG/WEBP files skip this entirely.
