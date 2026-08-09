@@ -1420,8 +1420,8 @@ https://raw.githubusercontent.com/drop-365/365dropstore/main/images/jean2.jpg" s
       <p id="cleanup-msg" style="display:none;font-size:12px;margin-top:8px"></p>
     </div>
     <div class="pff full" style="border:1px solid #C0392B;border-radius:12px;padding:18px;margin-bottom:6px;background:rgba(192,57,43,.06)">
-      <label style="font-size:15px">🚀 OPTIMIZE IMAGES</label>
-      <p style="color:var(--off)!important;font-size:12px;line-height:1.55;margin:8px 0 12px">Your existing product images are 1600px — 4× larger than needed for phone screens (375px). This tool resizes every image to 800px at 75% quality and re-uploads it. Cuts each image from ~300KB to ~50KB. <b>One-time operation</b>, takes 2-3 minutes for 34 products.</p>
+      <label style="font-size:15px">🚀 MIGRATE IMAGES TO R2</label>
+      <p style="color:var(--off)!important;font-size:12px;line-height:1.55;margin:8px 0 12px">Moves every product image and size chart that's still on Supabase Storage over to Cloudflare R2 (zero egress fees, ever). Existing product images already there stay untouched. <b>One-time operation</b> per image — safe to re-run, it only touches what's still on Supabase.</p>
       <div id="opt-scan" style="margin-bottom:12px"></div>
       <div id="opt-progress" style="display:none;margin-bottom:12px">
         <div style="background:rgba(20,19,18,.1);border-radius:8px;overflow:hidden;height:24px;position:relative">
@@ -1431,8 +1431,8 @@ https://raw.githubusercontent.com/drop-365/365dropstore/main/images/jean2.jpg" s
         <p id="opt-status" style="font-size:12px;color:var(--off);margin-top:6px"></p>
       </div>
       <div style="display:flex;gap:10px;flex-wrap:wrap">
-        <button class="btn btn-g" onclick="scanImageSizes()">🔍 Scan Image Sizes</button>
-        <button class="btn btn-w" id="opt-go-btn" style="display:none" onclick="runImageOptimize()">⚡ Optimize Now</button>
+        <button class="btn btn-g" onclick="scanImageSizes()">🔍 Scan for Supabase Images</button>
+        <button class="btn btn-w" id="opt-go-btn" style="display:none" onclick="runImageOptimize()">⚡ Migrate to R2</button>
       </div>
       <p id="opt-msg" style="display:none;font-size:12px;margin-top:8px"></p>
     </div>
@@ -2486,7 +2486,8 @@ function handleImgs(inp){const files=[...inp.files].slice(0,5-pendingImgs.length
   (async()=>{
     try{
       const bf=await toBrowserFile(f);
-      const d=await compressImg(bf,800,0.75);
+      const compressed=await compressImg(bf,800,0.75);
+      const d=await uploadToR2(compressed,"products");
       pendingImgs[slot]=d;
     }catch(e){
       pendingImgs[slot]="__error__";
@@ -2518,9 +2519,30 @@ function renderThumbs(){document.getElementById("ithumbs").innerHTML=pendingImgs
   return `<div class="ithm${i===0?' main-tag':''}"><img src="${s}" alt="Preview"/><button class="irm" onclick="rmPI(${i})">×</button></div>`;
 }).join("");}
 function rmPI(i){pendingImgs.splice(i,1);renderThumbs();}
-async function scImgUpload(inp){if(!inp.files||!inp.files[0])return;const f=inp.files[0];try{const bf=await toBrowserFile(f);const d=await compressImg(bf,1600,0.92);document.getElementById("pf-scimg").value=d;document.getElementById("sc-prv").innerHTML=`<img src="${d}" style="width:120px;border-radius:7px;margin-top:8px" alt="Uploaded preview"/>`;}catch(e){shPMsg("Couldn't read that size chart image — try JPEG/PNG.","#c0392b");}}
+async function scImgUpload(inp){if(!inp.files||!inp.files[0])return;const f=inp.files[0];try{const bf=await toBrowserFile(f);let d=await compressImg(bf,1600,0.92);document.getElementById("sc-prv").innerHTML=`<img src="${d}" style="width:120px;border-radius:7px;margin-top:8px" alt="Uploading..."/>`;d=await uploadToR2(d,"sizecharts");document.getElementById("pf-scimg").value=d;document.getElementById("sc-prv").innerHTML=`<img src="${d}" style="width:120px;border-radius:7px;margin-top:8px" alt="Uploaded preview"/>`;}catch(e){shPMsg("Couldn't read that size chart image — try JPEG/PNG.","#c0392b");}}
 const SB_FN_BASE="https://fhiivshoikcnanbvdtxm.supabase.co/functions/v1/";
 const SB_APIKEY="sb_publishable_LPwVp36pEOfQIEchjefMfw_SmGNcxUt";
+/* Uploads a base64 image to R2 via the admin-r2-upload Edge Function and returns
+   the public R2 URL. R2 credentials never touch this file — they live server-side
+   as Edge Function secrets. Falls back to keeping the base64 locally (with a
+   warning toast) if the upload fails, so admin work is never silently lost. */
+async function uploadToR2(dataUri,folder){
+  if(!dataUri||!dataUri.startsWith("data:"))return dataUri;// already a URL, nothing to do
+  if(!_adminPw){showToast("⚠️ Not logged in — image kept locally only.",false);return dataUri;}
+  try{
+    const res=await fetch(SB_FN_BASE+"admin-r2-upload",{
+      method:"POST",
+      headers:{"Content-Type":"application/json","apikey":SB_APIKEY},
+      body:JSON.stringify({password:_adminPw,dataUri,folder:folder||"uploads"})
+    });
+    const data=await res.json();
+    if(data.error){showToast("⚠️ R2 upload failed, kept locally: "+data.error,false);return dataUri;}
+    return data.url;
+  }catch(e){
+    showToast("⚠️ R2 upload failed (network), kept locally.",false);
+    return dataUri;
+  }
+}
 async function _callAdminFn(fnName,payload){
   if(!_adminPw){showToast("⚠️ Saved locally, but couldn't sync live — please log in again to enable live sync.",false);return null;}
   try{
@@ -2634,7 +2656,7 @@ function togOOS(pid,size){const p=products.find(x=>x.id===pid);if(!p)return;if(!
 function populateFitSelect(){const sel=document.getElementById("pf-fit");if(!sel)return;sel.innerHTML=fits.map(f=>`<option value="${f}">${f}</option>`).join("");}
 function loadSiteEd(){const s=siteContent;const sv=(id,v)=>{const el=document.getElementById(id);if(el)el.value=v||"";};sv("site-ann",s.ann);sv("site-hero-h1",s.heroH1);sv("site-hero-sub",s.heroSub);sv("site-ed-h2",s.edH2);sv("site-ed-p",s.edP);sv("site-story-h2",s.storyH2);sv("site-story-p1",s.storyP1);sv("site-story-p2",s.storyP2);sv("site-trust",s.trust);sv("site-shipping",s.shipping);sv("site-marquee",s.marquee);sv("site-stats",s.stats);sv("site-phone",s.phone);sv("site-email",s.email);sv("site-address",s.address);sv("site-insta",s.insta);sv("site-fb",s.fb);sv("site-hero-img",s.heroImg);sv("site-hero-thumb1",s.heroThumb1);sv("site-hero-thumb2",s.heroThumb2);populateHeroProductSelect();const hpSel=document.getElementById("site-hero-product");if(hpSel)hpSel.value=s.heroP1||"";const ddEl=document.getElementById("site-drop-date");if(ddEl){if(s.dropDate){try{const d=new Date(s.dropDate);if(!isNaN(d))ddEl.value=new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,16);}catch(e){}}else{ddEl.value="";}}if(s.edImg&&!(s.edImgs&&s.edImgs.length))s.edImgs=[s.edImg];if(s.stImg&&!(s.stImgs&&s.stImgs.length))s.stImgs=[s.stImg];renderGmgr("ed");renderGmgr("st");}
 function populateHeroProductSelect(){const sel=document.getElementById("site-hero-product");if(!sel)return;const cur=sel.value;sel.innerHTML='<option value="">— Auto (bestseller / first live product) —</option>'+products.map(p=>`<option value="${p.id}">${(p.name||'').replace(/</g,'&lt;')}</option>`).join('');sel.value=cur;}
-async function siteImgUp(k,inp){if(!inp.files||!inp.files[0])return;try{const bf=await toBrowserFile(inp.files[0]);const d=await compressImg(bf,800,0.75);document.getElementById('site-'+k+'-imgdata').value=d;document.getElementById('site-'+k+'-prv').innerHTML=`<img src="${d}" style="width:110px;border-radius:7px" alt="Uploaded preview"/>`;}catch(e){alert("Couldn't read that image — try a JPEG/PNG.");}}
+async function siteImgUp(k,inp){if(!inp.files||!inp.files[0])return;try{const bf=await toBrowserFile(inp.files[0]);let d=await compressImg(bf,800,0.75);document.getElementById('site-'+k+'-prv').innerHTML=`<img src="${d}" style="width:110px;border-radius:7px" alt="Uploading..."/>`;d=await uploadToR2(d,"site");document.getElementById('site-'+k+'-imgdata').value=d;document.getElementById('site-'+k+'-prv').innerHTML=`<img src="${d}" style="width:110px;border-radius:7px" alt="Uploaded preview"/>`;}catch(e){alert("Couldn't read that image — try a JPEG/PNG.");}}
 function saveSite(){const _edI=siteContent.edImgs||[];const _stI=siteContent.stImgs||[];const _edS=siteContent.edImg||"";const _stS=siteContent.stImg||"";
   const prevSite=LS.get("ds_site",{});
   if((!_edI.length&&!_edS)&&((prevSite.edImgs||[]).length||(prevSite.edImg||""))){if(!confirm("Founder's Note image is empty. Save anyway? Re-upload in gallery if unintended."))return;}
@@ -2681,43 +2703,34 @@ function remFit(i){if(fits.length<=1){alert("Need at least one fit.");return;}fi
 // REVIEWS ADMIN
 function saveRev(){const n=document.getElementById("rv0").value.trim();const t=document.getElementById("rv3").value.trim();if(!n||!t)return;const newRev={id:"R"+uid(),stars:Number(document.getElementById("rv2").value)||5,text:t,who:n,where:document.getElementById("rv1").value.trim()||"India"};reviews.unshift(newRev);LS.set("ds_r",reviews);renderRevs();rnAdmRev();["rv0","rv1","rv3"].forEach(id=>document.getElementById(id).value="");syncReviewToSupabase("save",newRev);}
 function delRev(id){reviews=reviews.filter(r=>r.id!==id);LS.set("ds_r",reviews);renderRevs();rnAdmRev();syncReviewToSupabase("delete",{id});}
-/* ===== IMAGE OPTIMIZATION: resize existing 1600px images to 800px ===== */
-function resizeImageUrl(url,maxDim,quality){
-  return new Promise((resolve,reject)=>{
-    const img=new Image();
-    img.crossOrigin="anonymous";
-    img.onload=()=>{
-      let w=img.naturalWidth,h=img.naturalHeight;
-      if(w<=maxDim&&h<=maxDim){resolve(null);return;}// already small enough
-      const scale=Math.min(maxDim/w,maxDim/h);
-      w=Math.round(w*scale);h=Math.round(h*scale);
-      const c=document.createElement("canvas");c.width=w;c.height=h;
-      const ctx=c.getContext("2d");ctx.drawImage(img,0,0,w,h);
-      resolve(c.toDataURL("image/jpeg",quality));
-    };
-    img.onerror=()=>reject(new Error("Failed to load: "+url));
-    img.src=url;
-  });
-}
+/* ===== R2 MIGRATION: move existing Supabase-hosted images to Cloudflare R2 ===== */
 function scanImageSizes(){
   const el=document.getElementById("opt-scan");
   const goBtn=document.getElementById("opt-go-btn");
-  if(LS.get("ds_img_optimized",false)){
-    el.innerHTML='<span style="color:#4ade80;font-weight:600">✓ Images already optimized to 800px. To re-run, clear the flag below first.</span><br><button class="btn btn-w" style="margin-top:8px;font-size:11px" onclick="LS.set(\'ds_img_optimized\',false);scanImageSizes();">Clear flag & re-scan</button>';
-    if(goBtn)goBtn.style.display="none";
-    return;
-  }
+  const R2_HOST="r2.dev";
   let count=0;
   products.forEach(p=>{
-    (p.images||[]).forEach(u=>{if(u&&!u.startsWith("data:"))count++;});
+    (p.images||[]).forEach(u=>{if(u&&!u.startsWith("data:")&&u.indexOf(R2_HOST)===-1)count++;});
+    if(p.sizeChartImg&&!p.sizeChartImg.startsWith("data:")&&p.sizeChartImg.indexOf(R2_HOST)===-1)count++;
   });
   if(!count){
-    el.innerHTML='<span style="color:#4ade80;font-weight:600">✓ No product images found to optimize.</span>';
+    el.innerHTML='<span style="color:#4ade80;font-weight:600">✓ All images are already on R2 — nothing left on Supabase Storage to migrate.</span>';
     if(goBtn)goBtn.style.display="none";
     return;
   }
-  el.innerHTML=`<span style="color:#E74C3C;font-weight:600">Found ${count} product images across ${products.length} products. Will resize from 1600px to 800px and re-upload — ~70% smaller files, dramatically faster page loads.</span>`;
+  el.innerHTML=`<span style="color:#E74C3C;font-weight:600">Found ${count} images still on Supabase Storage across ${products.length} products. This will download each, upload it to R2, and update the product record — your Supabase egress bill stops growing once this finishes.</span>`;
   if(goBtn)goBtn.style.display="inline-flex";
+}
+async function fetchAsDataUri(url){
+  const res=await fetch(url);
+  if(!res.ok)throw new Error("fetch failed: "+res.status);
+  const blob=await res.blob();
+  return new Promise((resolve,reject)=>{
+    const reader=new FileReader();
+    reader.onload=()=>resolve(reader.result);
+    reader.onerror=reject;
+    reader.readAsDataURL(blob);
+  });
 }
 async function runImageOptimize(){
   const bar=document.getElementById("opt-bar");
@@ -2727,39 +2740,47 @@ async function runImageOptimize(){
   const goBtn=document.getElementById("opt-go-btn");
   if(prog)prog.style.display="block";
   if(goBtn)goBtn.style.display="none";
-  let done=0,skipped=0,failed=0,total=products.length;
+  const R2_HOST="r2.dev";
+  let done=0,failed=0,total=products.length;
   for(const p of products){
-    if(status)status.textContent=`Optimizing: ${p.name||p.id}...`;
+    if(status)status.textContent=`Migrating: ${p.name||p.id}...`;
     let changed=false;
     const newImgs=[...(p.images||[])];
     for(let i=0;i<newImgs.length;i++){
       const u=newImgs[i];
-      if(!u||u.startsWith("data:"))continue;
+      if(!u||u.startsWith("data:")||u.indexOf(R2_HOST)!==-1)continue;
       try{
-        const resized=await resizeImageUrl(u,800,0.75);
-        if(resized){newImgs[i]=resized;changed=true;}
-        else skipped++;
-      }catch(e){console.warn("Resize failed for",u,e);failed++;}
+        const dataUri=await fetchAsDataUri(u);
+        const r2Url=await uploadToR2(dataUri,"products");
+        if(r2Url&&r2Url.indexOf(R2_HOST)!==-1){newImgs[i]=r2Url;changed=true;}
+      }catch(e){console.warn("Migration failed for",u,e);failed++;}
+    }
+    if(p.sizeChartImg&&!p.sizeChartImg.startsWith("data:")&&p.sizeChartImg.indexOf(R2_HOST)===-1){
+      try{
+        const dataUri=await fetchAsDataUri(p.sizeChartImg);
+        const r2Url=await uploadToR2(dataUri,"sizecharts");
+        if(r2Url&&r2Url.indexOf(R2_HOST)!==-1){p.sizeChartImg=r2Url;changed=true;}
+      }catch(e){console.warn("Size chart migration failed for",p.id,e);failed++;}
     }
     if(changed){
       p.images=newImgs;
-      try{await syncProductToSupabase("save",p);done++;}
+      try{await syncProductToSupabase("save",p);}
       catch(e){console.error("Save failed for",p.id,e);failed++;}
-    }else{skipped++;done++;}
-    const pctVal=Math.round(((done+failed)/total)*100);
+    }
+    done++;
+    const pctVal=Math.round((done/total)*100);
     if(bar)bar.style.width=pctVal+"%";
     if(pct)pct.textContent=pctVal+"%";
-    await new Promise(r=>setTimeout(r,200));
   }
   if(status)status.textContent=`Done! Refreshing data from server...`;
   try{
     const ok=await loadFromSupabaseIfAvailable();
     if(ok){LS.set("ds_p",products);renderGrid();}
   }catch(e){}
-  if(status)status.textContent=`Complete: ${done} products processed, ${failed} failed.`;
+  if(status)status.textContent=`Complete: ${done} products checked, ${failed} image${failed===1?'':'s'} failed.`;
   const msg=document.getElementById("opt-msg");
-  LS.set("ds_img_optimized",true);
-  if(msg){msg.style.display="block";msg.style.color="#4ade80";msg.textContent="Images optimized — page should load significantly faster now.";}
+  if(msg){msg.style.display="block";msg.style.color=failed?"#E74C3C":"#4ade80";msg.textContent=failed?`${failed} image(s) failed to migrate — re-run this tool, it only touches what\'s still on Supabase.`:"All product images now live on R2. Supabase Storage egress stops accumulating from here.";}
+  scanImageSizes();
 }
 function rnStorageView(){
   const el=document.getElementById("storage-view");if(!el)return;
@@ -2960,7 +2981,7 @@ function resetPalette(){palette={...DPAL};LS.set('ds_pal',palette);applyPalette(
 
 // GLOBAL SIZE CHART
 let globalSc=LS.get('ds_gsc','');
-async function globalScUpload(inp){if(!inp.files||!inp.files[0])return;try{const bf=await toBrowserFile(inp.files[0]);const d=await compressImg(bf,700,0.75);document.getElementById('gsc-data').value=d;document.getElementById('gsc-prv').innerHTML='<img src="'+d+'" alt="Uploaded size chart" style="width:160px;border-radius:8px;border:1px solid rgba(255,255,255,.1)"/>';}catch(e){alert("Couldn't read that image — try a JPEG/PNG.");}}
+async function globalScUpload(inp){if(!inp.files||!inp.files[0])return;try{const bf=await toBrowserFile(inp.files[0]);let d=await compressImg(bf,1600,0.92);document.getElementById('gsc-prv').innerHTML='<img src="'+d+'" alt="Uploading..." style="width:160px;border-radius:8px;border:1px solid rgba(255,255,255,.1)"/>';d=await uploadToR2(d,"sizecharts");document.getElementById('gsc-data').value=d;document.getElementById('gsc-prv').innerHTML='<img src="'+d+'" alt="Uploaded size chart" style="width:160px;border-radius:8px;border:1px solid rgba(255,255,255,.1)"/>';}catch(e){alert("Couldn't read that image — try a JPEG/PNG.");}}
 function saveGlobalSc(){const v=document.getElementById('gsc-data').value;if(v)globalSc=v;LS.set('ds_gsc',globalSc);const m=document.getElementById('gsc-msg');m.textContent='Size chart saved ✓';m.style.color='#4ade80';m.style.background='rgba(74,222,128,.08)';m.style.display='block';setTimeout(()=>m.style.display='none',2500);syncSettingsToSupabase("global_size_chart",globalSc).then(res=>{if(res&&res.content&&res.content!==globalSc){globalSc=res.content;LS.set('ds_gsc',globalSc);loadGlobalScAdmin();}});}
 function loadGlobalScAdmin(){if(globalSc){document.getElementById('gsc-data').value=globalSc;document.getElementById('gsc-prv').innerHTML='<img src="'+globalSc+'" alt="Global size chart" style="width:160px;border-radius:8px;border:1px solid rgba(255,255,255,.1)"/>';}}
 
@@ -3048,7 +3069,7 @@ function addGalleryLink(k){
   showToast("Photo added ✓ — syncing live...",true);
   syncSiteToSupabase();
 }
-async function galleryUp(k,inp){if(!inp.files||!inp.files.length)return;const key=k==='ed'?'edImgs':'stImgs';if(!Array.isArray(siteContent[key]))siteContent[key]=[];for(const f of inp.files){try{const bf=await toBrowserFile(f);const d=await compressImg(bf,800,0.75);siteContent[key].push(d);}catch(e){showToast("Skipped \""+(f.name||"an image")+"\" — couldn't read it.",false);}}lsSafeSet('ds_site',siteContent);renderGmgr(k);applySiteContent();inp.value='';syncSiteToSupabase();}
+async function galleryUp(k,inp){if(!inp.files||!inp.files.length)return;const key=k==='ed'?'edImgs':'stImgs';if(!Array.isArray(siteContent[key]))siteContent[key]=[];for(const f of inp.files){try{const bf=await toBrowserFile(f);const compressed=await compressImg(bf,800,0.75);const d=await uploadToR2(compressed,"site");siteContent[key].push(d);}catch(e){showToast("Skipped \""+(f.name||"an image")+"\" — couldn't read it.",false);}}lsSafeSet('ds_site',siteContent);renderGmgr(k);applySiteContent();inp.value='';syncSiteToSupabase();}
 function renderGmgr(k){const key=k==='ed'?'edImgs':'stImgs';const el=document.getElementById(k+'-gmgr');if(!el)return;const arr=siteContent[key]||[];el.innerHTML=arr.map((s,i)=>`<div class="gmgr-item"><img src="${s}" alt="Preview"/><button class="gmgr-rm" onclick="rmGalleryImg('${k}',${i})">×</button></div>`).join('')||'<span style="color:var(--off);font-size:12px">No photos yet — uploads appear here. If empty, the default image is used.</span>';}
 function rmGalleryImg(k,i){const key=k==='ed'?'edImgs':'stImgs';siteContent[key].splice(i,1);lsSafeSet('ds_site',siteContent);renderGmgr(k);applySiteContent();syncSiteToSupabase();}
 
@@ -3064,14 +3085,14 @@ function svRender(){const s=stories[_sv.i];if(!s){svClose();return;}document.get
 function svBuyNow(e){if(e)e.stopPropagation();const s=stories[_sv.i];if(!s||!s.productId)return;const pid=s.productId;svClose();openMo(pid);}
 function svNav(d){clearTimeout(_sv.timer);const n=stories.length;const ni=_sv.i+d;if(ni<0){_sv.i=0;svRender();return;}if(ni>=n){svClose();return;}_sv.i=ni;svRender();}
 function svClose(){clearTimeout(_sv.timer);document.getElementById('sviewer').classList.remove('op');document.body.style.overflow='';}
-async function styUp(inp){if(!inp.files||!inp.files[0])return;try{const bf=await toBrowserFile(inp.files[0]);const d=await compressImg(bf,700,0.75);document.getElementById('sty-imgdata').value=d;document.getElementById('sty-prv').innerHTML=`<img src="${d}" style="width:90px;border-radius:8px" alt="Uploaded preview"/>`;}catch(e){alert("Couldn't read that image — try a JPEG/PNG.");}}
+async function styUp(inp){if(!inp.files||!inp.files[0])return;try{const bf=await toBrowserFile(inp.files[0]);let d=await compressImg(bf,700,0.75);document.getElementById('sty-prv').innerHTML=`<img src="${d}" style="width:90px;border-radius:8px" alt="Uploading..."/>`;d=await uploadToR2(d,"stories");document.getElementById('sty-imgdata').value=d;document.getElementById('sty-prv').innerHTML=`<img src="${d}" style="width:90px;border-radius:8px" alt="Uploaded preview"/>`;}catch(e){alert("Couldn't read that image — try a JPEG/PNG.");}}
 function saveStory(){const img=document.getElementById('sty-imgdata').value;if(!img){alert('Upload a story image first.');return;}const label=document.getElementById('sty-label').value.trim()||'Update';const cap=document.getElementById('sty-cap').value.trim();const prodSel=document.getElementById('sty-product');const productId=prodSel?prodSel.value:'';const date=new Date().toLocaleDateString('en-IN',{day:'numeric',month:'short'});const newStory={id:'S'+uid(),img,label,caption:cap,productId,date};stories.unshift(newStory);if(!lsSafeSet('ds_stories',stories)){stories.shift();return;}document.getElementById('sty-imgdata').value='';document.getElementById('sty-prv').innerHTML='';document.getElementById('sty-label').value='';document.getElementById('sty-cap').value='';if(prodSel)prodSel.value='';renderStoryAdmin();renderStoriesRail();const m=document.getElementById('sty-msg');m.textContent='Story added ✓';m.style.color='#4ade80';m.style.background='rgba(74,222,128,.08)';m.style.display='block';setTimeout(()=>m.style.display='none',2000);showToast(productId?'Story added ✓ — linked to a product Buy Now button.':'Story added ✓',true);syncStoryToSupabase("save",newStory).then(res=>{if(res&&res.imgUrl){newStory.img=res.imgUrl;lsSafeSet('ds_stories',stories);renderStoryAdmin();renderStoriesRail();}});}
 function delStory(id){stories=stories.filter(s=>s.id!==id);lsSafeSet('ds_stories',stories);renderStoryAdmin();renderStoriesRail();syncStoryToSupabase("delete",{id});}
 function populateStoryProductSelect(){const sel=document.getElementById('sty-product');if(!sel)return;const cur=sel.value;sel.innerHTML='<option value="">— None —</option>'+products.map(p=>`<option value="${p.id}">${(p.name||'').replace(/</g,'&lt;')}</option>`).join('');sel.value=cur;}
 function renderStoryAdmin(){populateStoryProductSelect();const el=document.getElementById('sty-adm');if(!el)return;el.innerHTML=stories.length?stories.map(s=>`<div style="display:flex;gap:12px;padding:11px 0;border-bottom:1px solid var(--line);align-items:center"><img src="${s.img}" style="width:46px;height:62px;object-fit:cover;border-radius:6px" alt="Story photo"/><div style="flex:1"><div style="color:var(--w2);font-weight:600;font-size:14px">${(s.label||'').replace(/</g,'&lt;')}</div><div style="color:var(--off);font-size:12px">${(s.caption||'').replace(/</g,'&lt;')} · ${s.date||''}${s.productId?' · 🛒 linked':''}</div></div><button class="btn btn-g" style="padding:6px 12px" onclick="delStory('${s.id}')">Delete</button></div>`).join(''):'<p style="color:var(--off);font-size:13px">No stories yet.</p>';}
 
 // ===== IMAGE REVIEWS =====
-async function revImgUp(inp){if(!inp.files||!inp.files.length)return;let added=0;const newRevs=[];for(const f of inp.files){try{const bf=await toBrowserFile(f);const d=await compressImg(bf,700,0.75);const newRev={id:'R'+uid(),type:'img',img:d};reviews.unshift(newRev);newRevs.push(newRev);added++;}catch(e){}}if(!added){showToast("Couldn't read those images — try JPEG/PNG.",false);return;}if(!lsSafeSet('ds_r',reviews))return;renderRevs();rnAdmRev();inp.value='';showToast('✓ '+added+' image review(s) added.',true);for(const r of newRevs){syncReviewToSupabase("save",r).then(res=>{if(res&&res.imgUrl){r.img=res.imgUrl;lsSafeSet('ds_r',reviews);renderRevs();rnAdmRev();}});}}
+async function revImgUp(inp){if(!inp.files||!inp.files.length)return;let added=0;const newRevs=[];for(const f of inp.files){try{const bf=await toBrowserFile(f);const compressed=await compressImg(bf,700,0.75);const d=await uploadToR2(compressed,"reviews");const newRev={id:'R'+uid(),type:'img',img:d};reviews.unshift(newRev);newRevs.push(newRev);added++;}catch(e){}}if(!added){showToast("Couldn't read those images — try JPEG/PNG.",false);return;}if(!lsSafeSet('ds_r',reviews))return;renderRevs();rnAdmRev();inp.value='';showToast('✓ '+added+' image review(s) added.',true);for(const r of newRevs){syncReviewToSupabase("save",r).then(res=>{if(res&&res.imgUrl){r.img=res.imgUrl;lsSafeSet('ds_r',reviews);renderRevs();rnAdmRev();}});}}
 
 
 // SCI-FI hero RGB glitch (subtle, periodic)
