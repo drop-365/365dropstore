@@ -1148,6 +1148,7 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
     <label class="ckfield">Pincode<input type="text" id="ck-pin" placeholder="6-digit pincode" maxlength="6"/></label>
     <p class="ckform-err" id="ck-err" style="display:none;color:#C0392B;font-size:12.5px"></p>
     <button class="wabtn" id="ck-pay-btn" onclick="submitCheckoutDetails()">💳  Pay Now &amp; Place Order</button>
+    <button class="btn btn-g" style="width:100%;justify-content:center;margin-top:10px" onclick="askBeforeBuying()">💬  Have a question? Message us first</button>
   </div>
   <div id="ckview-placed" class="ckview ckview-placed">
     <div style="font-size:38px">✓</div>
@@ -2499,6 +2500,12 @@ function founderCta(){
     showCustomerToast("Pick a fit, then checkout on WhatsApp →");
   }
 }
+function askBeforeBuying(){
+  if(!cart.length){window.open("https://wa.me/"+WA,"_blank");return;}
+  const lines=cart.map(i=>`• ${i.name} (${i.size}, ${i.color}) x${i.qty}`);
+  const msg=`Hi! I have a question before ordering:\n\n${lines.join("\n")}\n\nTotal: ${inr(cart.reduce((s,i)=>s+i.price*i.qty,0))}\n\nMy question: `;
+  window.open("https://wa.me/"+WA+"?text="+encodeURIComponent(msg),"_blank");
+}
 function sendOrderToWA(msg){
   const waUrl=`https://wa.me/${WA}?text=${encodeURIComponent(msg)}`;
   const win=window.open(waUrl,"_blank");
@@ -2936,12 +2943,13 @@ async function runRemainingMigration(){
   });
   let done=0,failed=0,total=steps.length;
   let siteChanged=false,reviewsTouched=[],storiesTouched=[],heroChanged=false;
+  let firstError="";
   for(const s of steps){
     if(status)status.textContent=`Migrating: ${s.type}...`;
     try{
       const dataUri=await fetchAsDataUri(s.url);
       const r2Url=await uploadToR2(dataUri,s.type.indexOf("hero")===0?"hero":s.type);
-      if(!r2Url||r2Url.indexOf(R2_HOST)===-1)throw new Error("upload didn't return an R2 url");
+      if(!r2Url||r2Url.indexOf(R2_HOST)===-1)throw new Error("upload didn't return an R2 url — got: "+(r2Url||"nothing"));
       if(s.type==="edImgs"){siteContent.edImgs[s.idx]=r2Url;siteChanged=true;}
       else if(s.type==="stImgs"){siteContent.stImgs[s.idx]=r2Url;siteChanged=true;}
       else if(s.type==="edImg"){siteContent.edImg=r2Url;siteChanged=true;}
@@ -2952,7 +2960,12 @@ async function runRemainingMigration(){
       else if(s.type==="heroVideo"){s.ref.videoUrl=r2Url;heroChanged=true;}
       else if(s.type==="heroImage"){s.ref.imageUrl=r2Url;heroChanged=true;}
       done++;
-    }catch(e){console.warn("Migration failed for",s.type,s.url,e);failed++;}
+    }catch(e){
+      const reason=(e&&e.message)?e.message:String(e);
+      console.warn("Migration failed for",s.type,s.url,e);
+      if(!firstError)firstError=`${s.type}: ${reason}`;
+      failed++;
+    }
     const pctVal=Math.round(((done+failed)/total)*100);
     if(bar)bar.style.width=pctVal+"%";
     if(pct)pct.textContent=pctVal+"%";
@@ -2967,7 +2980,7 @@ async function runRemainingMigration(){
   if(heroChanged){LS.set("ds_hero_grid",heroGrid);renderHeroGrid();renderHeroGridAdmin();await syncSettingsToSupabase("insta_grid",heroGrid);}
   if(status)status.textContent=`Complete: ${done} migrated, ${failed} failed.`;
   const msg=document.getElementById("opt2-msg");
-  if(msg){msg.style.display="block";msg.style.color=failed?"#E74C3C":"#4ade80";msg.textContent=failed?`${failed} file(s) failed — re-run this tool, it only touches what's still on Supabase.`:"Everything now lives on R2. This closes the egress leak for good — re-check your Supabase Usage tab in a day or two to confirm the daily number drops.";}
+  if(msg){msg.style.display="block";msg.style.color=failed?"#E74C3C":"#4ade80";msg.textContent=failed?`${failed} file(s) failed. First error: ${firstError||"unknown"} — screenshot this exact message.`:"Everything now lives on R2. This closes the egress leak for good — re-check your Supabase Usage tab in a day or two to confirm the daily number drops.";}
   scanRemainingAssets();
 }
 
