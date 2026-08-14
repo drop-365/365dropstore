@@ -961,12 +961,12 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
 
 <!-- mob nav -->
 <div class="cscrim" id="mob-scm" onclick="closeMob()"></div>
-<nav class="mbnav" id="mbnav"><button class="mbclose" onclick="closeMob()">×</button><a onclick="closeMob();goTo('#shop')">Shop</a><a onclick="closeMob();goTo('#story')">Our Story</a><a onclick="closeMob();goTo('#reviews')">Reviews</a><a onclick="closeMob();goTo('#nl')">Early Access</a></nav>
+<nav class="mbnav" id="mbnav"><button class="mbclose" onclick="closeMob()">×</button><a onclick="closeMob();goTo('#shop')">Shop</a><a onclick="closeMob();goTo('#story')">Our Story</a><a onclick="closeMob();goTo('#reviews')">Reviews</a><a onclick="closeMob();openOrderTracker()">Track Order</a><a onclick="closeMob();goTo('#nl')">Early Access</a></nav>
 
 <!-- nav -->
 <header id="nav"><div class="w nav">
   <div class="nbrand"><img src="" alt="365"/><span>365<svg class="inf-ico" viewBox="0 0 24 12" aria-hidden="true" focusable="false"><path fill="currentColor" d="M6 1.5C3.5 1.5 1.5 3.5 1.5 6S3.5 10.5 6 10.5c1.7 0 3.2-.9 4.1-2.3l.4-.6.4.6c.9 1.4 2.4 2.3 4.1 2.3 2.5 0 4.5-2 4.5-4.5S20.5 1.5 18 1.5c-1.7 0-3.2.9-4.1 2.3l-.4.6-.4-.6C12.2 2.4 10.7 1.5 9 1.5H6zm0 1.5c1.1 0 2.1.6 2.7 1.5L10.1 6 8.7 8c-.6.9-1.6 1.5-2.7 1.5C4.3 9.5 3 8.2 3 6.5S4.3 3 6 3zm12 0c1.7 0 3 1.3 3 3s-1.3 3-3 3c-1.1 0-2.1-.6-2.7-1.5L13.9 6l1.4-2c.6-.9 1.6-1.5 2.7-1.5z"/></svg>DROP</span></div>
-  <div class="nlinks"><a onclick="goTo('#shop')">Shop</a><a onclick="goTo('#story')">Our Story</a><a onclick="goTo('#reviews')">Reviews</a><a onclick="goTo('#nl')">Early Access</a></div>
+  <div class="nlinks"><a onclick="goTo('#shop')">Shop</a><a onclick="goTo('#story')">Our Story</a><a onclick="goTo('#reviews')">Reviews</a><a onclick="openOrderTracker()">Track Order</a><a onclick="goTo('#nl')">Early Access</a></div>
   <div class="nright"><div class="nicon" onclick="openSrch()" title="Search">🔍</div><button class="nbag" onclick="openCart()">🛍 Bag <span class="nbadge" id="ccount">0</span></button><div class="burger" onclick="openMob()"><span></span><span></span><span></span></div></div>
 </div></header>
 
@@ -2445,7 +2445,7 @@ async function startRazorpayPayment(order){
         });
         const vdata=await vres.json();
         if(!vdata.ok)throw new Error(vdata.error||"verification failed");
-        finalizeOrder(order,response.razorpay_payment_id);
+        finalizeOrder(order,response.razorpay_payment_id,response);
       }catch(e){
         errEl.textContent="Payment received but we couldn't verify it automatically. Please screenshot this screen and message us on WhatsApp with Payment ID: "+response.razorpay_payment_id;
         errEl.style.display="block";
@@ -2460,7 +2460,7 @@ async function startRazorpayPayment(order){
   });
   rzp.open();
 }
-function finalizeOrder(order,paymentId){
+function finalizeOrder(order,paymentId,rzpResponse){
   order.status="paid";order.paymentId=paymentId;
   let saved=true;
   try{orders.unshift(order);localStorage.setItem("ds_orders",JSON.stringify(orders));}
@@ -2470,8 +2470,19 @@ function finalizeOrder(order,paymentId){
       method:"POST",
       headers:{"Content-Type":"application/json","apikey":SB_APIKEY},
       body:JSON.stringify({order})
+    }).then(()=>{
+      // the order-creating function has its own status defaults from before
+      // payment existed — this corrects it, independently re-verifying the
+      // signature so it can't be spoofed into marking an unpaid order as paid
+      if(rzpResponse){
+        fetch(SB_FN_BASE+"order-mark-paid",{
+          method:"POST",headers:{"Content-Type":"application/json","apikey":SB_APIKEY},
+          body:JSON.stringify({orderId:order.orderId,razorpay_order_id:rzpResponse.razorpay_order_id,razorpay_payment_id:rzpResponse.razorpay_payment_id,razorpay_signature:rzpResponse.razorpay_signature})
+        }).catch(()=>{});
+      }
     }).catch(()=>{});
   }catch(e){}
+  window._lastOrderPhone=order.phone;// lets the tracker pre-fill without asking again right after checkout
   const lines=cart.map(i=>`• ${i.name} (${i.size}, ${i.color}) x${i.qty} — ${inr(i.price*i.qty)}\n  Product link: ${i.link||'https://365dropstore.com'}`);
   const msg=`Hi 365 Drop Store!\n\n✅ PAID via Razorpay — Payment ID: ${paymentId}\n\nOrder ID: ${order.orderId}\n\nCustomer: ${order.name}\nPhone: ${order.phone}\nAddress: ${order.addr} — ${order.pin}\n\nOrder:\n\n${lines.join("\n\n")}\n\nTotal: ${inr(order.total)}\n\nPlease confirm delivery. Thanks!`;
   sendOrderToWA(msg);
@@ -3922,6 +3933,7 @@ window.openOrderTracker=function(prefillId){
   const overlay=document.getElementById("order-tracker-overlay");
   if(!overlay)return;
   if(prefillId)document.getElementById("ot-orderid").value=prefillId;
+  if(window._lastOrderPhone)document.getElementById("ot-phone").value=window._lastOrderPhone;
   document.getElementById("ot-result").innerHTML="";
   overlay.style.display="flex";document.body.style.overflow="hidden";
 };
