@@ -1099,7 +1099,7 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
   <div class="fgrid">
     <div class="fbrand"><img src="" alt="365"/><p>Premium denim & streetwear from Delhi. Independent. No middlemen. Limited drops, shipped across India.</p><div class="fsoc"><div class="fsoca">📸</div><div class="fsoca">✆</div><div class="fsoca">f</div></div></div>
     <div class="fcol"><h4>Shop</h4><a onclick="clearFitTab();goTo('#shop')">All Drops</a><a onclick="pickFitTab('Wide-Leg')">Wide-Leg</a><a onclick="pickFitTab('Straight')">Straight</a></div>
-    <div class="fcol"><h4>Info</h4><a onclick="goTo('#story')">Our Story</a><a onclick="openGlobalSizeGuide()">Size Guide</a><a onclick="goTo('#faq')">Shipping & Returns</a><a onclick="openSrch()">Search</a></div>
+    <div class="fcol"><h4>Info</h4><a onclick="goTo('#story')">Our Story</a><a onclick="openGlobalSizeGuide()">Size Guide</a><a onclick="goTo('#faq')">Shipping & Returns</a><a onclick="openOrderTracker()">Track Order</a><a onclick="openSrch()">Search</a></div>
     <div class="fcol"><h4>Contact</h4><a>+91 9990905969</a><a>365dropstore@gmail.com</a><a>E-42/2A Subhash Vihar, Delhi 110053</a></div>
   </div>
   <div class="fbot"><span>© <span id="yr"></span> 365 Drop Store · Clothing or Nothing</span><span>Independent · Delhi</span></div>
@@ -1151,9 +1151,10 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
   </div>
   <div id="ckview-placed" class="ckview ckview-placed">
     <div style="font-size:38px">✓</div>
-    <h4 style="font-family:var(--dsp);font-size:22px">Order Placed</h4>
-    <p style="color:var(--off);font-size:13.5px;line-height:1.6">Order ID <strong id="ck-orderid" style="color:#141312"></strong><br/>We'll confirm availability &amp; payment with you on WhatsApp — your order isn't final until then.</p>
+    <h4 style="font-family:var(--dsp);font-size:22px">Payment Confirmed</h4>
+    <p style="color:var(--off);font-size:13.5px;line-height:1.6">Order ID <strong id="ck-orderid" style="color:#141312"></strong><br/>Your payment went through and your order is placed. We'll pack and dispatch within 24 hours — you can check your order status anytime using your Order ID and phone number.</p>
     <button class="btn btn-g" onclick="closeCart()" style="margin-top:8px">Done</button>
+    <button class="btn btn-w" onclick="closeCart();openOrderTracker(document.getElementById('ck-orderid').textContent);" style="margin-top:8px">Track This Order</button>
   </div>
 </aside>
 
@@ -3916,6 +3917,53 @@ const _isPreview = sessionStorage.getItem("ds_preview")==="1";
 
 /* ===== CUSTOMER REVIEW FORM ===== */
 let rfStars=5;let rfProdId="";
+/* ===== ORDER TRACKER ===== */
+window.openOrderTracker=function(prefillId){
+  const overlay=document.getElementById("order-tracker-overlay");
+  if(!overlay)return;
+  if(prefillId)document.getElementById("ot-orderid").value=prefillId;
+  document.getElementById("ot-result").innerHTML="";
+  overlay.style.display="flex";document.body.style.overflow="hidden";
+};
+window.closeOrderTracker=function(){
+  const overlay=document.getElementById("order-tracker-overlay");
+  if(overlay)overlay.style.display="none";
+  document.body.style.overflow="";
+};
+const STATUS_COPY={
+  pending:{label:"Payment Processing",color:"#F5A623",note:"We're confirming your payment. This usually takes a few minutes."},
+  confirmed:{label:"Confirmed — Packing Soon",color:"#4ade80",note:"Your order is confirmed and will be packed within 24 hours."},
+  fulfilled:{label:"Shipped",color:"#3498db",note:"Your order is on its way. Delivery in 3–5 days from dispatch."},
+  cancelled:{label:"Cancelled",color:"#E74C3C",note:"This order was cancelled. Message us on WhatsApp if this looks wrong."}
+};
+window.lookupOrderStatus=async function(){
+  const orderId=(document.getElementById("ot-orderid").value||"").trim();
+  const phone=(document.getElementById("ot-phone").value||"").trim();
+  const resultEl=document.getElementById("ot-result");
+  if(!orderId||!phone){resultEl.innerHTML='<p style="color:#E74C3C;font-size:13px">Please enter both your Order ID and phone number.</p>';return;}
+  resultEl.innerHTML='<p style="color:var(--off);font-size:13px">Checking...</p>';
+  try{
+    const res=await fetch(SB_FN_BASE+"order-status",{
+      method:"POST",headers:{"Content-Type":"application/json","apikey":SB_APIKEY},
+      body:JSON.stringify({orderId,phone})
+    });
+    const data=await res.json();
+    if(data.error){resultEl.innerHTML=`<p style="color:#E74C3C;font-size:13px">${data.error}</p>`;return;}
+    const sc=STATUS_COPY[data.status]||{label:data.status,color:"#141312",note:""};
+    const dateStr=data.placedAt?new Date(data.placedAt).toLocaleDateString("en-IN",{day:"numeric",month:"short",year:"numeric"}):"";
+    resultEl.innerHTML=`
+      <div style="border:1px solid var(--line);border-radius:12px;padding:16px">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+          <span style="width:10px;height:10px;border-radius:50%;background:${sc.color}"></span>
+          <b style="font-family:var(--dsp);font-size:18px">${sc.label}</b>
+        </div>
+        <p style="font-size:13px;color:var(--off);margin-bottom:8px">${sc.note}</p>
+        <p style="font-size:12px;color:var(--off)">Placed ${dateStr} · ${inr(data.total)}</p>
+      </div>`;
+  }catch(e){
+    resultEl.innerHTML='<p style="color:#E74C3C;font-size:13px">Could not check right now — try again in a moment.</p>';
+  }
+};
 function openReviewForm(pid){
   const p=(typeof products!=="undefined"?products:[]).find(x=>x.id===pid);
   const el=document.getElementById("rf-content");
@@ -4024,6 +4072,20 @@ function closeReviewForm(){
 
 </script>
 
+
+<div id="order-tracker-overlay" style="position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.85);display:none;align-items:center;justify-content:center;padding:16px;overflow-y:auto">
+  <div style="background:#fff;border-radius:16px;max-width:420px;width:100%;padding:28px;position:relative">
+    <button onclick="closeOrderTracker()" style="position:absolute;top:12px;right:12px;width:32px;height:32px;border-radius:8px;border:1px solid var(--line);background:#fff;font-size:18px;cursor:pointer">×</button>
+    <h3 style="font-family:var(--dsp);font-size:22px;margin-bottom:4px">TRACK YOUR ORDER</h3>
+    <p style="color:var(--off);font-size:13px;margin-bottom:18px">Enter your Order ID and the phone number you used to place it.</p>
+    <label style="font-size:12px;font-weight:700;color:var(--off);letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px;display:block">Order ID</label>
+    <input id="ot-orderid" placeholder="DS-XXXXXXXX" style="width:100%;padding:12px;border:1px solid var(--line);border-radius:10px;font-size:14px;margin-bottom:14px;text-transform:uppercase"/>
+    <label style="font-size:12px;font-weight:700;color:var(--off);letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px;display:block">Phone Number</label>
+    <input id="ot-phone" placeholder="10-digit mobile number" style="width:100%;padding:12px;border:1px solid var(--line);border-radius:10px;font-size:14px;margin-bottom:18px"/>
+    <button class="btn btn-w" style="width:100%;justify-content:center" onclick="lookupOrderStatus()">Check Status →</button>
+    <div id="ot-result" style="margin-top:18px"></div>
+  </div>
+</div>
 <div id="review-form-overlay">
   <div class="review-form" id="review-form-inner">
     <button class="rf-close" onclick="closeReviewForm()">×</button>
