@@ -914,6 +914,7 @@ main,header,footer,.sec,.trust,.mq{position:relative;z-index:2}
 
 </style>
 <script defer data-domain="365dropstore.com" src="https://plausible.io/js/script.js"></script>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 </head>
 <body>
 <div id="crtfx" aria-hidden="true"></div>
@@ -1146,7 +1147,7 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
     <label class="ckfield">Delivery Address<textarea id="ck-addr" placeholder="House/flat, street, locality, city, state" rows="3"></textarea></label>
     <label class="ckfield">Pincode<input type="text" id="ck-pin" placeholder="6-digit pincode" maxlength="6"/></label>
     <p class="ckform-err" id="ck-err" style="display:none;color:#C0392B;font-size:12.5px"></p>
-    <button class="wabtn" onclick="submitCheckoutDetails()">✆  Confirm &amp; Checkout on WhatsApp</button>
+    <button class="wabtn" id="ck-pay-btn" onclick="submitCheckoutDetails()">💳  Pay Now &amp; Place Order</button>
   </div>
   <div id="ckview-placed" class="ckview ckview-placed">
     <div style="font-size:38px">✓</div>
@@ -2384,12 +2385,68 @@ function submitCheckoutDetails(){
   const orderId="DS-"+uid().toUpperCase();
   const sub=cart.reduce((s,i)=>s+i.price*i.qty,0);
   const order={orderId,name,phone,addr,pin,items:cart.map(i=>({name:i.name,size:i.size,color:i.color,qty:i.qty,price:i.price})),total:sub,status:"pending",placedAt:Date.now()};
+  startRazorpayPayment(order);
+}
+async function startRazorpayPayment(order){
+  const payBtn=document.getElementById("ck-pay-btn");
+  const errEl=document.getElementById("ck-err");
+  if(payBtn){payBtn.disabled=true;payBtn.textContent="Preparing payment...";}
+  if(typeof Razorpay==="undefined"){
+    if(payBtn){payBtn.disabled=false;payBtn.textContent="💳  Pay Now & Place Order";}
+    errEl.textContent="Payment couldn't load — check your connection and try again.";errEl.style.display="block";
+    return;
+  }
+  let rpOrder;
+  try{
+    const res=await fetch(SB_FN_BASE+"razorpay-order",{
+      method:"POST",headers:{"Content-Type":"application/json","apikey":SB_APIKEY},
+      body:JSON.stringify({amount:order.total,receipt:order.orderId})
+    });
+    rpOrder=await res.json();
+    if(rpOrder.error)throw new Error(rpOrder.error);
+  }catch(e){
+    if(payBtn){payBtn.disabled=false;payBtn.textContent="💳  Pay Now & Place Order";}
+    errEl.textContent="Couldn't start payment: "+e.message+" — please try again.";errEl.style.display="block";
+    return;
+  }
+  const rzp=new Razorpay({
+    key:rpOrder.keyId,
+    amount:rpOrder.amount,
+    currency:rpOrder.currency,
+    order_id:rpOrder.orderId,
+    name:"365 Drop Store",
+    description:"Order "+order.orderId,
+    prefill:{name:order.name,contact:order.phone},
+    theme:{color:"#C0392B"},
+    handler:async function(response){
+      if(payBtn)payBtn.textContent="Verifying payment...";
+      try{
+        const vres=await fetch(SB_FN_BASE+"razorpay-verify",{
+          method:"POST",headers:{"Content-Type":"application/json","apikey":SB_APIKEY},
+          body:JSON.stringify({razorpay_order_id:response.razorpay_order_id,razorpay_payment_id:response.razorpay_payment_id,razorpay_signature:response.razorpay_signature})
+        });
+        const vdata=await vres.json();
+        if(!vdata.ok)throw new Error(vdata.error||"verification failed");
+        finalizeOrder(order,response.razorpay_payment_id);
+      }catch(e){
+        errEl.textContent="Payment received but we couldn't verify it automatically. Please screenshot this screen and message us on WhatsApp with Payment ID: "+response.razorpay_payment_id;
+        errEl.style.display="block";
+        if(payBtn){payBtn.disabled=false;payBtn.textContent="💳  Pay Now & Place Order";}
+      }
+    },
+    modal:{ondismiss:function(){if(payBtn){payBtn.disabled=false;payBtn.textContent="💳  Pay Now & Place Order";}}}
+  });
+  rzp.on("payment.failed",function(resp){
+    if(payBtn){payBtn.disabled=false;payBtn.textContent="💳  Pay Now & Place Order";}
+    errEl.textContent="Payment failed: "+((resp.error&&resp.error.description)||"please try again")+".";errEl.style.display="block";
+  });
+  rzp.open();
+}
+function finalizeOrder(order,paymentId){
+  order.status="paid";order.paymentId=paymentId;
   let saved=true;
   try{orders.unshift(order);localStorage.setItem("ds_orders",JSON.stringify(orders));}
   catch(e){orders.shift();saved=false;}
-  // Record the order in the backend - customers don't need a password for this path.
-  // Fire-and-forget: WhatsApp message goes out regardless, so a network failure
-  // here never blocks the sale; the order just won't appear in admin until re-sent.
   try{
     fetch(SB_FN_BASE+"public-orders",{
       method:"POST",
@@ -2397,11 +2454,10 @@ function submitCheckoutDetails(){
       body:JSON.stringify({order})
     }).catch(()=>{});
   }catch(e){}
-  if(!saved){showErr("Couldn't save your order locally, but don't worry — we'll still get it on WhatsApp. Just send the message.");}
   const lines=cart.map(i=>`• ${i.name} (${i.size}, ${i.color}) x${i.qty} — ${inr(i.price*i.qty)}\n  Product link: ${i.link||'https://365dropstore.com'}`);
-  const msg=`Hi 365 Drop Store!\n\nOrder ID: ${orderId}\n\nCustomer: ${name}\nPhone: ${phone}\nAddress: ${addr} — ${pin}\n\nI'd like to order:\n\n${lines.join("\n\n")}\n\nTotal: ${inr(sub)}\n\nPlease confirm availability, payment & delivery. Thanks!`;
+  const msg=`Hi 365 Drop Store!\n\n✅ PAID via Razorpay — Payment ID: ${paymentId}\n\nOrder ID: ${order.orderId}\n\nCustomer: ${order.name}\nPhone: ${order.phone}\nAddress: ${order.addr} — ${order.pin}\n\nOrder:\n\n${lines.join("\n\n")}\n\nTotal: ${inr(order.total)}\n\nPlease confirm delivery. Thanks!`;
   sendOrderToWA(msg);
-  document.getElementById("ck-orderid").textContent=orderId;
+  document.getElementById("ck-orderid").textContent=order.orderId;
   showCkStep("placed");
   cart=[];LS.set("ds_cart",cart);renderCart();
   document.getElementById("ck-name").value="";document.getElementById("ck-phone").value="";document.getElementById("ck-addr").value="";document.getElementById("ck-pin").value="";
