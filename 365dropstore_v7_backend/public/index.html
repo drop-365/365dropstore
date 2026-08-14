@@ -1451,6 +1451,23 @@ https://raw.githubusercontent.com/drop-365/365dropstore/main/images/jean2.jpg" s
       </div>
       <p id="opt-msg" style="display:none;font-size:12px;margin-top:8px"></p>
     </div>
+    <div class="pff full" style="border:1px solid #C0392B;border-radius:12px;padding:18px;margin-bottom:6px;background:rgba(192,57,43,.06)">
+      <label style="font-size:15px">🚀 MIGRATE EVERYTHING ELSE TO R2</label>
+      <p style="color:var(--off)!important;font-size:12px;line-height:1.55;margin:8px 0 12px">The first tool above only ever covered product images and size charts. This covers what it didn't: Founder's Note / Story gallery photos, review images, story rail images, global size chart, and Hero Grid video/image tiles. This is very likely your actual ongoing egress source — check this first if usage keeps climbing after the product migration.</p>
+      <div id="opt2-scan" style="margin-bottom:12px"></div>
+      <div id="opt2-progress" style="display:none;margin-bottom:12px">
+        <div style="background:rgba(20,19,18,.1);border-radius:8px;overflow:hidden;height:24px;position:relative">
+          <div id="opt2-bar" style="height:100%;background:linear-gradient(90deg,#C0392B,#E74C3C);width:0%;transition:width .3s;border-radius:8px"></div>
+          <span id="opt2-pct" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#141312"></span>
+        </div>
+        <p id="opt2-status" style="font-size:12px;color:var(--off);margin-top:6px"></p>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn btn-g" onclick="scanRemainingAssets()">🔍 Scan Everything Else</button>
+        <button class="btn btn-w" id="opt2-go-btn" style="display:none" onclick="runRemainingMigration()">⚡ Migrate the Rest to R2</button>
+      </div>
+      <p id="opt2-msg" style="display:none;font-size:12px;margin-top:8px"></p>
+    </div>
     <div class="pff full"><label>New Password</label><input type="password" id="st0" placeholder="Min 8 characters"/></div>
     <div class="pff full"><input type="password" id="st1" placeholder="Confirm new password"/></div>
     <div class="pff full"><button class="btn btn-w" onclick="chgPwd()">Update Password</button></div>
@@ -2856,6 +2873,92 @@ async function fetchAsDataUri(url){
     reader.readAsDataURL(blob);
   });
 }
+/* ===== R2 MIGRATION PART 2: everything the first tool didn't cover =====
+   Product images/size charts were the first migration. This covers the rest:
+   site gallery (Founder's Note / Story photos), reviews, story rail, global
+   size chart, and Hero Grid video/image tiles — the actual remaining source
+   of ongoing Supabase egress after the first migration. */
+function scanRemainingAssets(){
+  const el=document.getElementById("opt2-scan");
+  const goBtn=document.getElementById("opt2-go-btn");
+  const R2_HOST="r2.dev";
+  const isSb=u=>u&&!u.startsWith("data:")&&u.indexOf(R2_HOST)===-1&&/^https?:\/\//.test(u);
+  let count=0;
+  (siteContent.edImgs||[]).forEach(u=>{if(isSb(u))count++;});
+  (siteContent.stImgs||[]).forEach(u=>{if(isSb(u))count++;});
+  if(isSb(siteContent.edImg))count++;
+  if(isSb(siteContent.stImg))count++;
+  reviews.forEach(r=>{if(r.type==="img"&&isSb(r.img))count++;});
+  stories.forEach(s=>{if(isSb(s.img))count++;});
+  if(isSb(globalSc))count++;
+  heroGrid.tiles.forEach(t=>{if(isSb(t.videoUrl))count++;if(isSb(t.imageUrl))count++;});
+  if(!count){
+    el.innerHTML='<span style="color:#4ade80;font-weight:600">✓ Nothing left on Supabase — galleries, reviews, stories, size chart, and hero grid are all on R2.</span>';
+    if(goBtn)goBtn.style.display="none";
+    return;
+  }
+  el.innerHTML=`<span style="color:#E74C3C;font-weight:600">Found ${count} file(s) still on Supabase across site gallery, reviews, stories, size chart, and hero grid. This is very likely what's driving your continued egress after the product migration.</span>`;
+  if(goBtn)goBtn.style.display="inline-flex";
+}
+async function runRemainingMigration(){
+  const bar=document.getElementById("opt2-bar");
+  const pct=document.getElementById("opt2-pct");
+  const status=document.getElementById("opt2-status");
+  const prog=document.getElementById("opt2-progress");
+  const goBtn=document.getElementById("opt2-go-btn");
+  if(prog)prog.style.display="block";
+  if(goBtn)goBtn.style.display="none";
+  const R2_HOST="r2.dev";
+  const isSb=u=>u&&!u.startsWith("data:")&&u.indexOf(R2_HOST)===-1&&/^https?:\/\//.test(u);
+  let steps=[];
+  (siteContent.edImgs||[]).forEach((u,i)=>{if(isSb(u))steps.push({type:"edImgs",idx:i,url:u});});
+  (siteContent.stImgs||[]).forEach((u,i)=>{if(isSb(u))steps.push({type:"stImgs",idx:i,url:u});});
+  if(isSb(siteContent.edImg))steps.push({type:"edImg",url:siteContent.edImg});
+  if(isSb(siteContent.stImg))steps.push({type:"stImg",url:siteContent.stImg});
+  reviews.forEach((r,i)=>{if(r.type==="img"&&isSb(r.img))steps.push({type:"review",idx:i,url:r.img,ref:r});});
+  stories.forEach((s,i)=>{if(isSb(s.img))steps.push({type:"story",idx:i,url:s.img,ref:s});});
+  if(isSb(globalSc))steps.push({type:"globalSc",url:globalSc});
+  heroGrid.tiles.forEach((t,i)=>{
+    if(isSb(t.videoUrl))steps.push({type:"heroVideo",idx:i,url:t.videoUrl,ref:t});
+    if(isSb(t.imageUrl))steps.push({type:"heroImage",idx:i,url:t.imageUrl,ref:t});
+  });
+  let done=0,failed=0,total=steps.length;
+  let siteChanged=false,reviewsTouched=[],storiesTouched=[],heroChanged=false;
+  for(const s of steps){
+    if(status)status.textContent=`Migrating: ${s.type}...`;
+    try{
+      const dataUri=await fetchAsDataUri(s.url);
+      const r2Url=await uploadToR2(dataUri,s.type.indexOf("hero")===0?"hero":s.type);
+      if(!r2Url||r2Url.indexOf(R2_HOST)===-1)throw new Error("upload didn't return an R2 url");
+      if(s.type==="edImgs"){siteContent.edImgs[s.idx]=r2Url;siteChanged=true;}
+      else if(s.type==="stImgs"){siteContent.stImgs[s.idx]=r2Url;siteChanged=true;}
+      else if(s.type==="edImg"){siteContent.edImg=r2Url;siteChanged=true;}
+      else if(s.type==="stImg"){siteContent.stImg=r2Url;siteChanged=true;}
+      else if(s.type==="review"){s.ref.img=r2Url;reviewsTouched.push(s.ref);}
+      else if(s.type==="story"){s.ref.img=r2Url;storiesTouched.push(s.ref);}
+      else if(s.type==="globalSc"){globalSc=r2Url;}
+      else if(s.type==="heroVideo"){s.ref.videoUrl=r2Url;heroChanged=true;}
+      else if(s.type==="heroImage"){s.ref.imageUrl=r2Url;heroChanged=true;}
+      done++;
+    }catch(e){console.warn("Migration failed for",s.type,s.url,e);failed++;}
+    const pctVal=Math.round(((done+failed)/total)*100);
+    if(bar)bar.style.width=pctVal+"%";
+    if(pct)pct.textContent=pctVal+"%";
+  }
+  if(status)status.textContent="Saving to Supabase...";
+  if(siteChanged){LS.set("ds_site",siteContent);applySiteContent();await syncSiteToSupabase();}
+  for(const r of reviewsTouched){await syncReviewToSupabase("save",r);}
+  if(reviewsTouched.length){LS.set("ds_r",reviews);renderRevs();}
+  for(const s of storiesTouched){await syncStoryToSupabase("save",s);}
+  if(storiesTouched.length){LS.set("ds_stories",stories);renderStoriesRail();}
+  if(steps.some(s=>s.type==="globalSc")){LS.set("ds_gsc",globalSc);loadGlobalScAdmin();await syncSettingsToSupabase("global_size_chart",globalSc);}
+  if(heroChanged){LS.set("ds_hero_grid",heroGrid);renderHeroGrid();renderHeroGridAdmin();await syncSettingsToSupabase("insta_grid",heroGrid);}
+  if(status)status.textContent=`Complete: ${done} migrated, ${failed} failed.`;
+  const msg=document.getElementById("opt2-msg");
+  if(msg){msg.style.display="block";msg.style.color=failed?"#E74C3C":"#4ade80";msg.textContent=failed?`${failed} file(s) failed — re-run this tool, it only touches what's still on Supabase.`:"Everything now lives on R2. This closes the egress leak for good — re-check your Supabase Usage tab in a day or two to confirm the daily number drops.";}
+  scanRemainingAssets();
+}
+
 async function runImageOptimize(){
   const bar=document.getElementById("opt-bar");
   const pct=document.getElementById("opt-pct");
