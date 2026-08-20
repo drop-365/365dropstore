@@ -2498,7 +2498,7 @@ async function startRazorpayPayment(order){
         });
         const vdata=await vres.json();
         if(!vdata.ok)throw new Error(vdata.error||"verification failed");
-        finalizeOrder(order,response.razorpay_payment_id,response);
+        await finalizeOrder(order,response.razorpay_payment_id,response);
       }catch(e){
         errEl.textContent="Payment received but we couldn't verify it automatically. Please screenshot this screen and message us on WhatsApp with Payment ID: "+response.razorpay_payment_id;
         errEl.style.display="block";
@@ -2513,37 +2513,41 @@ async function startRazorpayPayment(order){
   });
   rzp.open();
 }
-function finalizeOrder(order,paymentId,rzpResponse){
+async function finalizeOrder(order,paymentId,rzpResponse){
   if(typeof fbq==="function")fbq("track","Purchase",{value:order.total,currency:"INR",content_ids:order.items.map(i=>i.name),num_items:order.items.length});
   order.status="paid";order.paymentId=paymentId;
   let saved=true;
   try{orders.unshift(order);localStorage.setItem("ds_orders",JSON.stringify(orders));}
   catch(e){orders.shift();saved=false;}
-  try{
-    fetch(SB_FN_BASE+"public-orders",{
-      method:"POST",
-      headers:{"Content-Type":"application/json","apikey":SB_APIKEY},
-      body:JSON.stringify({order})
-    }).then(()=>{
-      // the order-creating function has its own status defaults from before
-      // payment existed — this corrects it, independently re-verifying the
-      // signature so it can't be spoofed into marking an unpaid order as paid
-      if(rzpResponse){
-        fetch(SB_FN_BASE+"order-mark-paid",{
-          method:"POST",headers:{"Content-Type":"application/json","apikey":SB_APIKEY},
-          body:JSON.stringify({orderId:order.orderId,razorpay_order_id:rzpResponse.razorpay_order_id,razorpay_payment_id:rzpResponse.razorpay_payment_id,razorpay_signature:rzpResponse.razorpay_signature})
-        }).catch(()=>{});
-      }
-    }).catch(()=>{});
-  }catch(e){}
-  window._lastOrderPhone=order.phone;// lets the tracker pre-fill without asking again right after checkout
-  const lines=cart.map(i=>`• ${i.name} (${i.size}, ${i.color}) x${i.qty} — ${inr(i.price*i.qty)}\n  Product link: ${i.link||'https://365dropstore.com'}`);
-  const msg=`Hi 365 Drop Store!\n\n✅ PAID via Razorpay — Payment ID: ${paymentId}\n\nOrder ID: ${order.orderId}\n\nCustomer: ${order.name}\nPhone: ${order.phone}\nAddress: ${order.addr} — ${order.pin}\n\nOrder:\n\n${lines.join("\n\n")}\n\nTotal: ${inr(order.total)}\n\nPlease confirm delivery. Thanks!`;
-  sendOrderToWA(msg);
+  // Show confirmation immediately — don't make the customer wait for network
+  window._lastOrderPhone=order.phone;
   document.getElementById("ck-orderid").textContent=order.orderId;
   showCkStep("placed");
   cart=[];LS.set("ds_cart",cart);renderCart();
   document.getElementById("ck-name").value="";document.getElementById("ck-phone").value="";document.getElementById("ck-addr").value="";document.getElementById("ck-pin").value="";
+  // CRITICAL: await both network calls BEFORE opening WhatsApp.
+  // On mobile, wa.me navigates the user out of the browser and the tab gets
+  // suspended/killed — any pending fetch promises die with it. The old code
+  // fired sendOrderToWA() synchronously before the .then() chain ever ran,
+  // so order-mark-paid never executed on phones.
+  try{
+    await fetch(SB_FN_BASE+"public-orders",{
+      method:"POST",
+      headers:{"Content-Type":"application/json","apikey":SB_APIKEY},
+      body:JSON.stringify({order})
+    });
+    if(rzpResponse){
+      try{
+        await fetch(SB_FN_BASE+"order-mark-paid",{
+          method:"POST",headers:{"Content-Type":"application/json","apikey":SB_APIKEY},
+          body:JSON.stringify({orderId:order.orderId,razorpay_order_id:rzpResponse.razorpay_order_id,razorpay_payment_id:rzpResponse.razorpay_payment_id,razorpay_signature:rzpResponse.razorpay_signature})
+        });
+      }catch(e){console.error("order-mark-paid failed:",e);}
+    }
+  }catch(e){console.error("public-orders failed:",e);}
+  const lines=cart.map(i=>`• ${i.name} (${i.size}, ${i.color}) x${i.qty} — ${inr(i.price*i.qty)}\n  Product link: ${i.link||'https://365dropstore.com'}`);
+  const msg=`Hi 365 Drop Store!\n\n✅ PAID via Razorpay — Payment ID: ${paymentId}\n\nOrder ID: ${order.orderId}\n\nCustomer: ${order.name}\nPhone: ${order.phone}\nAddress: ${order.addr} — ${order.pin}\n\nOrder:\n\n${lines.join("\n\n")}\n\nTotal: ${inr(order.total)}\n\nPlease confirm delivery. Thanks!`;
+  sendOrderToWA(msg);
 }
 function founderCta(){
   if(cart.length){openCart();}
