@@ -950,7 +950,7 @@ fbq('track','PageView');
   <div class="boot-readout" id="boot-readout"></div>
   <div class="boot-skip">tap anywhere to skip</div>
 </div>
-<script>window._pendingProductId=null;window._pendingReviewId=null;(function(){try{var h=location.hash||"";var adm=h.indexOf("admin-")!==-1;var isProd=h.indexOf("product-")!==-1;var isReview=h.indexOf("review-")!==-1;var last=parseInt(localStorage.getItem("ds_boot_ts")||"0",10);var fresh=(Date.now()-last)>43200000;var b=document.getElementById("boot");if(adm||isProd||isReview||!fresh){if(b)b.remove();}else{document.documentElement.style.overflow="hidden";}setTimeout(function(){var x=document.getElementById("boot");if(x){x.remove();}document.documentElement.style.overflow="";},4200);}catch(e){var x=document.getElementById("boot");if(x)x.remove();}
+<script>window._pendingProductId=null;window._pendingReviewId=null;(function(){try{var h=location.hash||"";var pn=location.pathname||"";var adm=h.indexOf("admin-")!==-1;var isProd=h.indexOf("product-")!==-1;var isReview=h.indexOf("review-")!==-1;var isCleanUrl=pn.indexOf("/p/")===0&&pn.length>3;if(isCleanUrl){window._pendingProductId=decodeURIComponent(pn.replace("/p/","").trim());}var last=parseInt(localStorage.getItem("ds_boot_ts")||"0",10);var fresh=(Date.now()-last)>43200000;var b=document.getElementById("boot");if(adm||isProd||isReview||isCleanUrl||!fresh){if(b)b.remove();}else{document.documentElement.style.overflow="hidden";}setTimeout(function(){var x=document.getElementById("boot");if(x){x.remove();}document.documentElement.style.overflow="";},4200);}catch(e){var x=document.getElementById("boot");if(x)x.remove();}
 try{var bt=document.getElementById("bootterm");if(bt){bt.remove();}}catch(e2){}
 if(isProd){window._pendingProductId=decodeURIComponent(h.replace("#product-","").trim());history.replaceState(null,"",location.pathname);}
 if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").trim();history.replaceState(null,"",location.pathname);}
@@ -1851,7 +1851,7 @@ function pcardHTML(p){
     const lowStock=!isSold(p)&&liveCount>0&&liveCount<=2?`<div class="plowstock">Only ${liveCount} size${liveCount>1?'s':''} left</div>`:'';
     const restockNote=isSold(p)&&p.restockAt?`<div class="prestock" data-restock="${p.restockAt}" data-pid="${p.id}">Back in —</div>`:'';
     const rbl=p.reelUrl?`<div class="rl-btn" onclick="event.stopPropagation();window.open('${p.reelUrl}','_blank')">▶ Reel</div>`:'';
-    const plink=`https://365dropstore.com/#product-${p.id}`;
+    const plink=`https://365dropstore.com/p/${p.id}`;
     const cardClick=` onclick="openMo('${p.id}')"`;
     const fitBand=p.fit?`<div class="pfitband">${p.fit.toUpperCase()} FIT</div>`:'';
     const saved=isWishlisted(p.id);
@@ -2349,7 +2349,7 @@ function openMo(id){
   const arrows=imgs.length>1?`<button class="car-arr car-prev" onclick="slideDir(-1)">‹</button><button class="car-arr car-next" onclick="slideDir(1)">›</button>`:'';
   const dots=imgs.length>1?`<div class="car-dots">${imgs.map((_,i)=>`<button class="cdot${i===0?' act':''}" onclick="goSlide(${i})"></button>`).join("")}</div>`:'';
   const reelHtml=p.reelUrl?`<a href="${p.reelUrl}" target="_blank" rel="noopener" class="mo-reel">▶ Watch Reel on Instagram</a>`:'';
-  const plink=`https://365dropstore.com/#product-${p.id}`;
+  const plink=`https://365dropstore.com/p/${p.id}`;
   const shareHtml=`<div class="mo-share">
     <button class="share-btn" style="width:100%" onclick="shareProduct('${p.id}','${(p.name||"").replace(/'/g,"\\'")}','${plink}')">🔗 Share Product</button>
 
@@ -2406,7 +2406,7 @@ function closeMo(){document.getElementById("ov").classList.remove("op");document
 
 // CART
 function addCart(){const{p,size,color,qty}=ms;
-  if(typeof fbq==="function")fbq("track","AddToCart",{content_name:p.name,content_ids:[p.id],content_type:"product",value:eff(p),currency:"INR"});const key=p.id+size+color;const ex=cart.find(i=>i.key===key);if(ex)ex.qty+=qty;else cart.push({key,id:p.id,name:p.name,price:eff(p),image:(p.images||[])[0]||"",size,color,qty,link:"https://365dropstore.com/#product-"+p.id});LS.set("ds_cart",cart);closeMo();renderCart();openCart();}
+  if(typeof fbq==="function")fbq("track","AddToCart",{content_name:p.name,content_ids:[p.id],content_type:"product",value:eff(p),currency:"INR"});const key=p.id+size+color;const ex=cart.find(i=>i.key===key);if(ex)ex.qty+=qty;else cart.push({key,id:p.id,name:p.name,price:eff(p),image:(p.images||[])[0]||"",size,color,qty,link:"https://365dropstore.com/p/"+p.id});LS.set("ds_cart",cart);closeMo();renderCart();openCart();}
 function rmItem(key){cart=cart.filter(i=>i.key!==key);LS.set("ds_cart",cart);renderCart();}
 function renderCart(){
   document.getElementById("ccount").textContent=cart.reduce((s,i)=>s+i.qty,0);

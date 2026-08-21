@@ -1,12 +1,27 @@
-# 365 Drop Store - Netlify config
+# 365 Drop Store — Netlify config
 # Static site at root, serverless functions in netlify/functions.
 
 [build]
-publish = "public"
-functions = "netlify/functions"
+  publish = "public"
+  functions = "netlify/functions"
 
-# No build step needed - the site is a single static HTML file.
+# No build step needed — the site is a single static HTML file.
 # Functions are bundled automatically by Netlify.
 
 [functions]
   node_bundler = "esbuild"
+
+# Edge Functions — product OG meta injection for social sharing & SEO
+[[edge_functions]]
+  path = "/p/*"
+  function = "og-meta"
+
+[[edge_functions]]
+  path = "/sitemap.xml"
+  function = "sitemap"
+
+# Clean product URLs — serve index.html so the JS app handles /p/{id} routes
+[[redirects]]
+  from = "/p/*"
+  to = "/index.html"
+  status = 200
