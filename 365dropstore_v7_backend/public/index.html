@@ -4179,4 +4179,27 @@ function closeReviewForm(){
   </div>
 </div>
 <div id="sp-toast" onclick="spClick()"><img id="sp-img" alt=""/><div class="sp-info"><div class="sp-who" id="sp-who"></div><div class="sp-prod" id="sp-prod"></div><div class="sp-time" id="sp-time"></div></div></div>
+<script>
+// iOS Safari fallback — the boot script and chkRoute() both attempt to open
+// the product from /p/{id} URLs, but iOS WKWebView (WhatsApp in-app browser)
+// sometimes fails to read location.pathname during early script execution.
+// This runs 3s after page load as a last resort — by then products are
+// definitely loaded. If the modal is already open, this does nothing.
+(function(){
+  function tryOpenProduct(){
+    var pn=location.pathname||"";
+    if(pn.indexOf("/p/")!==0||pn.length<=3)return;
+    // Check if modal is already visible
+    var mo=document.getElementById("mo");
+    if(mo&&mo.style.display==="block")return;
+    var pid=decodeURIComponent(pn.replace("/p/","").replace(/\/$/,"").trim());
+    if(pid&&typeof openMo==="function"&&typeof products!=="undefined"&&products.length>0){
+      var found=products.find(function(x){return String(x.id)===pid;})||products.find(function(x){return String(x.id).toLowerCase()===pid.toLowerCase();});
+      if(found)openMo(found.id);
+    }
+  }
+  setTimeout(tryOpenProduct,2000);
+  setTimeout(tryOpenProduct,4000);
+})();
+</script>
 </body></html>
