@@ -2619,10 +2619,11 @@ function closeMob(){document.getElementById("mbnav").classList.remove("op");docu
 function chkRoute(){
   const h=location.hash.replace("#","");
   if(h===AP){document.getElementById("ag").style.display="block";document.body.style.overflow="hidden";return;}
-  // product/review IDs are saved into window._pending* by the early boot script
-  // and the hash is already cleared — so this function just opens the modal
-  // using the saved ID, guaranteed to run AFTER data loads (called from the
-  // data-load completion callback, not from a timer).
+  // Fallback: if boot script didn't catch the clean URL, detect it here
+  const pn=location.pathname||"";
+  if(!window._pendingProductId&&pn.indexOf("/p/")===0&&pn.length>3){
+    window._pendingProductId=decodeURIComponent(pn.replace("/p/","").replace(/\/$/,"").trim());
+  }
   const pid=window._pendingProductId;
   if(pid&&products&&products.length){
     const found=products.find(x=>String(x.id)===pid)||products.find(x=>String(x.id).toLowerCase()===pid.toLowerCase());
