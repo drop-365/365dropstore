@@ -167,9 +167,15 @@ export default async (request, context) => {
     `<script type="application/ld+json">${JSON.stringify(jsonLd)}</script>\n</head>`
   );
 
+  // Strip Content-Length — the original header is wrong now that we've
+  // modified the HTML. iOS Safari strictly enforces Content-Length and will
+  // truncate the response, cutting off JS at the end of the file.
+  const headers = new Headers(response.headers);
+  headers.delete("content-length");
+
   return new Response(modified, {
     status: response.status,
-    headers: response.headers,
+    headers,
   });
 };
 
