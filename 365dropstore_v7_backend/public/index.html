@@ -2548,7 +2548,7 @@ async function finalizeOrder(order,paymentId,rzpResponse){
       }catch(e){console.error("order-mark-paid failed:",e);}
     }
   }catch(e){console.error("public-orders failed:",e);}
-  const lines=cart.map(i=>`• ${i.name} (${i.size}, ${i.color}) x${i.qty} — ${inr(i.price*i.qty)}\n  Product link: ${i.link||'https://365dropstore.com'}`);
+  const lines=order.items.map(i=>`• ${i.name} (${i.size}, ${i.color}) x${i.qty} — ${inr(i.price*i.qty)}`);
   const msg=`Hi 365 Drop Store!\n\n✅ PAID via Razorpay — Payment ID: ${paymentId}\n\nOrder ID: ${order.orderId}\n\nCustomer: ${order.name}\nPhone: ${order.phone}\nAddress: ${order.addr} — ${order.pin}\n\nOrder:\n\n${lines.join("\n\n")}\n\nTotal: ${inr(order.total)}\n\nPlease confirm delivery. Thanks!`;
   sendOrderToWA(msg);
 }
