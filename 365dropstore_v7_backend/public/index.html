@@ -925,7 +925,11 @@ main,header,footer,.sec,.trust,.mq{position:relative;z-index:2}
 <script defer data-domain="365dropstore.com" src="https://plausible.io/js/script.js"></script>
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
-<!-- Meta Pixel Code — replace 2018974752158259 with your actual pixel ID from Meta Events Manager -->
+<!-- Meta Pixel DISABLED 2026-08-28 — see 365dropstore-images/... discrepancy: this ID
+     (2018974752158259) looks like an unswapped placeholder vs. the real pixel on /best/
+     (1202978898463818). Paused site-wide until confirmed in Meta Events Manager which ID
+     is actually wired to the ad account. All fbq(...) calls elsewhere in this file are
+     guarded with typeof fbq==="function", so no fbq global = safe no-op everywhere.
 <script>
 !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
 n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
@@ -936,6 +940,8 @@ fbq('init','2018974752158259');
 fbq('track','PageView');
 </script>
 <noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=2018974752158259&ev=PageView&noscript=1"/></noscript>
+-->
+<!-- End Meta Pixel (disabled) -->
 </head>
 <body>
 <div id="crtfx" aria-hidden="true"></div>
@@ -2474,7 +2480,7 @@ async function startRazorpayPayment(order){
   try{
     const res=await fetch(SB_FN_BASE+"razorpay-order",{
       method:"POST",headers:{"Content-Type":"application/json","apikey":SB_APIKEY},
-      body:JSON.stringify({amount:order.total,receipt:order.orderId})
+      body:JSON.stringify({order})
     });
     rpOrder=await res.json();
     if(rpOrder.error)throw new Error(rpOrder.error);
