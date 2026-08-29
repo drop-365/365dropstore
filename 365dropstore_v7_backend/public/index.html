@@ -118,7 +118,7 @@ header{position:sticky;top:0;z-index:100;background:rgba(20,19,18,.95);backdrop-
 .dropcount{align-items:flex-start!important}
 .termstrip{margin-left:0!important}
 /* RIGHT showcase */
-.showcase{position:relative;width:88%;max-width:560px;aspect-ratio:3/4;z-index:3;animation:hfloaty 7s ease-in-out infinite}
+.showcase{position:relative;width:72%;max-width:420px;aspect-ratio:9/16;z-index:3;animation:hfloaty 7s ease-in-out infinite}
 .hscape-tag{position:absolute;left:-6px;font-size:11px;font-weight:700;letter-spacing:.12em;color:var(--off);z-index:4;writing-mode:vertical-rl;text-orientation:mixed}
 .hscape-tag.top{top:-6px}
 .hscape-tag.bottom{bottom:-6px}
@@ -143,7 +143,7 @@ header{position:sticky;top:0;z-index:100;background:rgba(20,19,18,.95);backdrop-
 .scan{position:absolute;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--glow,#C0392B),transparent);box-shadow:0 0 12px var(--glow,#C0392B);z-index:6;opacity:.7;animation:hscan 4s ease-in-out infinite;border-radius:16px}
 
 /* ===== HERO GRID variant (replaces single scmain image) — size driven by admin rows/cols ===== */
-.showcase.grid-mode{width:94%;max-width:660px;aspect-ratio:3/4}
+.showcase.grid-mode{width:82%;max-width:520px;aspect-ratio:9/16}
 .hgrid{position:relative;width:100%;height:100%;border-radius:16px;overflow:hidden;display:grid;grid-template-columns:repeat(var(--hg-cols,3),1fr);grid-template-rows:repeat(var(--hg-rows,3),1fr);gap:10px;background:transparent;box-shadow:0 50px 100px -30px rgba(20,19,18,.35);grid-auto-flow:dense}
 .hgrid .tile.feat{grid-column:span 2;grid-row:span 2}
 .hgrid .tile.feat .vplay{width:76px;height:76px}
@@ -938,9 +938,7 @@ body:hover .cursor-glow{opacity:1}
 .glitch::after{color:rgba(0,200,200,.5);z-index:2;animation:glitch2 4s infinite linear}
 @keyframes glitch1{0%,93%,100%{opacity:0;clip-path:inset(0)}94%{opacity:.8;clip-path:inset(20% 0 60% 0);transform:translateX(-3px)}95%{opacity:0}97%{opacity:.6;clip-path:inset(50% 0 20% 0);transform:translateX(2px)}98%{opacity:0}}
 @keyframes glitch2{0%,91%,100%{opacity:0;clip-path:inset(0)}92%{opacity:.5;clip-path:inset(40% 0 30% 0);transform:translateX(3px)}93%{opacity:0}96%{opacity:.4;clip-path:inset(10% 0 70% 0);transform:translateX(-2px)}97%{opacity:0}}
-.pcard::before{content:"";position:absolute;inset:0;z-index:5;pointer-events:none;background:linear-gradient(105deg,transparent 40%,rgba(255,255,255,.07) 45%,rgba(255,255,255,.1) 50%,rgba(255,255,255,.07) 55%,transparent 60%);background-size:200% 100%;opacity:0;transition:opacity .3s;border-radius:inherit}
-.pcard:hover::before{opacity:1;animation:shimmer 1.5s ease-in-out infinite}
-@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+/* shimmer removed — was degrading product image clarity */
 .pbadge.bestseller-glow{box-shadow:0 0 12px rgba(192,57,43,.4)}
 .chip:not(.oos):hover{border-color:var(--red)!important;color:var(--red)!important}
 .circuit-div{position:relative;height:48px;overflow:hidden;max-width:var(--max);margin:0 auto;padding:0 20px}
@@ -949,8 +947,7 @@ body:hover .cursor-glow{opacity:1}
 .circuit-dot{fill:var(--red);opacity:0;r:2}
 .circuit-div.in .circuit-line{opacity:.15;stroke-dashoffset:0;transition:stroke-dashoffset 2s var(--ease),opacity .5s}
 .circuit-div.in .circuit-dot{opacity:.3;transition:opacity 1s .5s}
-.sr.in::after{content:"";position:absolute;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent 5%,var(--red) 50%,transparent 95%);animation:scanDown .6s var(--ease) forwards;opacity:.3;pointer-events:none;z-index:10}
-@keyframes scanDown{from{top:0}to{top:100%;opacity:0}}
+/* scan-line removed — was creating grain on images */
 </style>
 <script defer data-domain="365dropstore.com" src="https://plausible.io/js/script.js"></script>
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
