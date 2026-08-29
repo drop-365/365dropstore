@@ -343,7 +343,7 @@ header{position:sticky;top:0;z-index:100;background:rgba(20,19,18,.95);backdrop-
 
 /* PRODUCT GRID */
 .pgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
-.pcard{position:relative;cursor:pointer;border-radius:14px;overflow:hidden;background:var(--bg2);border:1px solid rgba(20,19,18,.07);transition:.35s var(--ease);box-shadow:0 2px 14px rgba(20,19,18,.06);transform-style:preserve-3d}
+.pcard{position:relative;cursor:pointer;border-radius:14px;overflow:hidden;background:var(--bg2);border:1px solid rgba(20,19,18,.07);transition:.35s var(--ease);box-shadow:0 2px 14px rgba(20,19,18,.06)}
 .pcard:hover{border-color:rgba(192,57,43,.18);box-shadow:0 20px 48px -12px rgba(20,19,18,.13),0 0 0 1px rgba(192,57,43,.08)}
 .pimg{position:relative;aspect-ratio:3/4;overflow:hidden;background:var(--bg3)}
 .pfront,.pback{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:.6s var(--ease)}
@@ -355,7 +355,7 @@ header{position:sticky;top:0;z-index:100;background:rgba(20,19,18,.95);backdrop-
 .pwish{position:absolute;top:8px;right:8px;z-index:3;width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.85);display:flex;align-items:center;justify-content:center;font-size:16px;color:#141312;cursor:pointer;transition:.2s}
 .pwish.on{color:#C0392B}
 .pwish:hover{background:var(--bg2);color:var(--red)}
-.pfitband{position:absolute;bottom:0;left:0;right:0;background:rgba(12,11,10,.72);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);color:rgba(255,255,255,.92);font-size:10.5px;font-weight:700;letter-spacing:.08em;text-align:center;padding:7px 0;z-index:2}
+.pfitband{position:absolute;bottom:0;left:0;right:0;background:rgba(12,11,10,.85);color:rgba(255,255,255,.95);font-size:10.5px;font-weight:700;letter-spacing:.08em;text-align:center;padding:7px 0;z-index:2}
 .bdg{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:4px 8px;border-radius:5px}
 .b-new{background:var(--white);color:var(--bg)}
 .b-best{background:var(--bg);color:var(--white);border:1px solid var(--line)}
@@ -699,9 +699,8 @@ table.ptbl{width:100%;border-collapse:collapse;font-size:13px}
 @media(max-width:900px){.hleft{padding:48px 20px}.pgrid{grid-template-columns:repeat(2,1fr)}.stinner{grid-template-columns:1fr}.stimg{height:260px}.editorial{grid-template-columns:1fr}.edimg{height:240px}.revgrid{grid-template-columns:1fr 1fr}.tgrid{grid-template-columns:repeat(2,1fr)}.mo{grid-template-columns:1fr}.mocar-imgs{aspect-ratio:3/4}.apstats{grid-template-columns:repeat(2,1fr)}.pfgrid{grid-template-columns:1fr}.pff.full{grid-column:unset}}
 @media(max-width:640px){.nlinks{display:none}.burger{display:flex}.w{padding:0 18px}.pgrid{grid-template-columns:repeat(2,1fr);gap:10px}.revgrid{grid-template-columns:1fr}.fgrid{grid-template-columns:1fr}.tgrid{grid-template-columns:repeat(2,1fr)}#sres{grid-template-columns:repeat(2,1fr)}.fit-sh{padding:16px 18px}}
 
-/* GRAIN */
-body::after{content:"";position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.03;mix-blend-mode:multiply;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+/* GRAIN — disabled, was adding noise texture over product images */
+/* body::after grain removed */
 main,header,footer,.sec,.trust,.mq{position:relative;z-index:2}
 
 /* HERO GRADIENT TEXT */
@@ -858,7 +857,9 @@ main,header,footer,.sec,.trust,.mq{position:relative;z-index:2}
 @media(prefers-reduced-motion:reduce){.hh1.glitch{animation:none}}
 #netfx{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;opacity:.6}
 #hero .hleft,#hero .hright{position:relative;z-index:2}
-#crtfx{position:fixed;inset:0;pointer-events:none;z-index:9998;background:repeating-linear-gradient(to bottom,rgba(255,255,255,0) 0,rgba(255,255,255,0) 2px,rgba(0,0,0,.035) 3px,rgba(0,0,0,.035) 3px);mix-blend-mode:multiply;opacity:.6;animation:crtflick 7s steps(60) infinite}
+/* CRT effect disabled — was overlaying horizontal lines on all product images and content */
+/* #crtfx{position:fixed;inset:0;pointer-events:none;z-index:9998;background:repeating-linear-gradient(to bottom,rgba(255,255,255,0) 0,rgba(255,255,255,0) 2px,rgba(0,0,0,.035) 3px,rgba(0,0,0,.035) 3px);mix-blend-mode:multiply;opacity:.6;animation:crtflick 7s steps(60) infinite} */
+#crtfx{display:none}
 @keyframes crtflick{0%,100%{opacity:.5}50%{opacity:.62}97%{opacity:.4}}
 .spark{position:fixed;width:4px;height:4px;border-radius:50%;background:var(--glow,#C0392B);pointer-events:none;z-index:9997;mix-blend-mode:screen;box-shadow:0 0 8px 2px var(--glow,#C0392B);transition:opacity .5s,transform .5s}
 @media(prefers-reduced-motion:reduce){#netfx{display:none}#crtfx{animation:none;opacity:.3}.spark{display:none}}
@@ -891,7 +892,7 @@ main,header,footer,.sec,.trust,.mq{position:relative;z-index:2}
 #scansweep.run{animation:sweep 1.6s var(--ease) forwards}
 @keyframes sweep{0%{top:0;opacity:0}8%{opacity:.85}92%{opacity:.85}100%{top:100vh;opacity:0}}
 /* Product card 3D tilt */
-.pcard{transition:transform .25s var(--ease),box-shadow .25s var(--ease);transform-style:preserve-3d;will-change:transform}
+.pcard{transition:transform .25s var(--ease),box-shadow .25s var(--ease);will-change:transform}
 .pcard.tilt{transition:transform .08s linear}
 /* Sold hologram stamp */
 .pcard.so .pimg::before{content:"SOLD OUT";position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-12deg);font-family:var(--dsp);font-size:clamp(28px,5vw,46px);letter-spacing:.08em;color:var(--red);border:3px solid var(--red);padding:6px 18px;border-radius:6px;z-index:5;opacity:.85;mix-blend-mode:screen;animation:holoflick 2.4s steps(40) infinite;pointer-events:none;text-shadow:0 0 12px var(--red)}
@@ -929,7 +930,7 @@ main,header,footer,.sec,.trust,.mq{position:relative;z-index:2}
 
 
 /* ===== SCI-FI EFFECTS ===== */
-.cursor-glow{position:fixed;width:280px;height:280px;border-radius:50%;pointer-events:none;z-index:9999;background:radial-gradient(circle,rgba(192,57,43,.06) 0%,transparent 70%);transform:translate(-50%,-50%);transition:opacity .3s;opacity:0;mix-blend-mode:multiply}
+.cursor-glow{position:fixed;width:280px;height:280px;border-radius:50%;pointer-events:none;z-index:9999;background:radial-gradient(circle,rgba(192,57,43,.06) 0%,transparent 70%);transform:translate(-50%,-50%);transition:opacity .3s;opacity:0}
 body:hover .cursor-glow{opacity:1}
 @media(max-width:768px){.cursor-glow{display:none}}
 .glitch{position:relative;display:inline-block}
@@ -4242,15 +4243,7 @@ function closeReviewForm(){
   // Cursor glow
   var g=document.getElementById('cursorGlow');
   if(g)document.addEventListener('mousemove',function(e){g.style.left=e.clientX+'px';g.style.top=e.clientY+'px';});
-  // Holographic tilt
-  document.querySelectorAll('.pcard').forEach(function(c){
-    c.addEventListener('mousemove',function(e){
-      var r=c.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top;
-      var rotY=((x-r.width/2)/(r.width/2))*4,rotX=((r.height/2-y)/(r.height/2))*3;
-      c.style.transform='perspective(800px) rotateX('+rotX+'deg) rotateY('+rotY+'deg) scale(1.02)';
-    });
-    c.addEventListener('mouseleave',function(){c.style.transform='';});
-  });
+  // Holographic tilt removed — perspective transforms cause image rendering artifacts
   // Glitch text on section headings
   document.querySelectorAll('.sec-head').forEach(function(h){
     var t=h.textContent,s=document.createElement('span');
