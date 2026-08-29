@@ -1268,6 +1268,13 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
       <button class="btn btn-g" onclick="rnAdmOrders()">↻ Refresh</button>
     </div>
     <div class="apstats" id="ordstats"></div>
+    <div id="abandoned-box" style="margin-top:16px;border:1px solid var(--line);border-radius:10px;overflow:hidden">
+      <div style="padding:12px 16px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;background:rgba(192,57,43,0.08)" onclick="toggleAbandoned()">
+        <span style="font-weight:700;color:var(--white)">⚠ Abandoned Checkouts <span id="ab-cnt" style="color:var(--off);font-weight:400"></span></span>
+        <span id="ab-arrow" style="color:var(--off)">▾</span>
+      </div>
+      <div id="abandoned-list" style="display:none;padding:0 16px 16px"></div>
+    </div>
     <div id="ord-list" style="margin-top:18px"></div>
   </div>
 
@@ -2676,7 +2683,7 @@ async function admLogin(){if(locked){shAErr("Locked. Run: localStorage.removeIte
     ldProds();apSts();rnAdmRev();loadSiteEd();loadFitsAdmin();loadBannerAdmin();loadPaletteAdmin();loadGlobalScAdmin();}else{attCnt++;LS.set("adm_att",attCnt);const left=MA-attCnt;if(left<=0){locked=true;LS.set("adm_lk",true);shAErr("Locked.");}else shAErr(`Wrong — ${left} left.`);document.getElementById("agatt").textContent=`${attCnt}/${MA}`;}}
 function shAErr(t){const e=document.getElementById("agerr");e.textContent=t;e.style.display="block";}
 function admOut(){document.getElementById("ap").style.display="none";location.hash="";document.body.style.overflow="";}
-function apTab(t){const all=["products","orders","add","site","banner","fits","reviews","stories","instagrid","faq","sizeguide","settings"];all.forEach(id=>document.getElementById("tab-"+id).style.display=id===t?"block":"none");document.querySelectorAll(".atab").forEach((b,i)=>b.classList.toggle("act",all[i]===t));if(t==="products"){ldProds();apSts();}if(t==="orders"){rnAdmOrders();loadOrdersFromSupabase().then(ok=>{if(ok)rnAdmOrders();});}if(t==="reviews")rnAdmRev();if(t==="site")loadSiteEd();if(t==="fits")loadFitsAdmin();if(t==="settings"){loadPaletteAdmin();loadGlobalScAdmin();rnStorageView();}if(t==="banner")loadBannerAdmin();if(t==="stories")renderStoryAdmin();if(t==="instagrid")renderHeroGridAdmin();if(t==="faq")renderFaqAdmin();if(t==="sizeguide")renderSizeGuideAdmin();}
+function apTab(t){const all=["products","orders","add","site","banner","fits","reviews","stories","instagrid","faq","sizeguide","settings"];all.forEach(id=>document.getElementById("tab-"+id).style.display=id===t?"block":"none");document.querySelectorAll(".atab").forEach((b,i)=>b.classList.toggle("act",all[i]===t));if(t==="products"){ldProds();apSts();}if(t==="orders"){rnAdmOrders();loadOrdersFromSupabase().then(ok=>{if(ok)rnAdmOrders();});loadAbandonedCount();}if(t==="reviews")rnAdmRev();if(t==="site")loadSiteEd();if(t==="fits")loadFitsAdmin();if(t==="settings"){loadPaletteAdmin();loadGlobalScAdmin();rnStorageView();}if(t==="banner")loadBannerAdmin();if(t==="stories")renderStoryAdmin();if(t==="instagrid")renderHeroGridAdmin();if(t==="faq")renderFaqAdmin();if(t==="sizeguide")renderSizeGuideAdmin();}
 function apSts(){const tot=products.length,sold=products.filter(p=>p.badges&&p.badges.includes("sold")).length,cats=[...new Set(products.map(p=>p.category))].length;document.getElementById("apstats").innerHTML=`<div class="apstat"><div class="v">${tot}</div><div class="k">Total</div></div><div class="apstat"><div class="v">${tot-sold}</div><div class="k">Active</div></div><div class="apstat"><div class="v">${sold}</div><div class="k">Sold Out</div></div><div class="apstat"><div class="v">${cats}</div><div class="k">Categories</div></div>`;}
 
 function ldProds(){
@@ -3185,6 +3192,50 @@ async function loadOrdersFromSupabase(){
     try{localStorage.setItem("ds_orders",JSON.stringify(orders));}catch(e){}
     return true;
   }catch(e){return false;}
+}
+let abandonedOrders=[];
+let _abExpanded=false;
+async function loadAbandonedCount(){
+  if(!_adminPw)return;
+  try{
+    const res=await fetch(SB_FN_BASE+"admin-orders",{
+      method:"POST",
+      headers:{"Content-Type":"application/json","apikey":SB_APIKEY},
+      body:JSON.stringify({password:_adminPw,action:"listAbandoned"})
+    });
+    const data=await res.json();
+    if(data.error||!data.orders)return;
+    abandonedOrders=data.orders;
+    const cntEl=document.getElementById("ab-cnt");
+    if(cntEl)cntEl.textContent=`(${abandonedOrders.length})`;
+    if(_abExpanded)renderAbandonedList();
+  }catch(e){}
+}
+function toggleAbandoned(){
+  _abExpanded=!_abExpanded;
+  const listEl=document.getElementById("abandoned-list");
+  listEl.style.display=_abExpanded?"block":"none";
+  document.getElementById("ab-arrow").textContent=_abExpanded?"▴":"▾";
+  if(_abExpanded)renderAbandonedList();
+}
+function renderAbandonedList(){
+  const el=document.getElementById("abandoned-list");
+  if(!abandonedOrders.length){el.innerHTML='<p style="color:var(--off);font-size:13px;padding-top:10px">No abandoned checkouts right now — nice.</p>';return;}
+  el.innerHTML=abandonedOrders.map(o=>{
+    const itemsHtml=(o.items||[]).map(i=>`${i.name||"Item"} (${i.size||""}${i.color?", "+i.color:""}) x${i.qty||1}`).join(", ");
+    const mins=o.minutes_ago||0;
+    const ago=mins<60?`${mins}m ago`:mins<1440?`${Math.floor(mins/60)}h ago`:`${Math.floor(mins/1440)}d ago`;
+    const nudgeMsg=encodeURIComponent(`Hi ${o.customer_name||"there"}, this is 365 Drop Store — noticed your order didn't go through. Want a hand completing it? Happy to help 🙂`);
+    const waLink=o.phone?`https://wa.me/91${o.phone}?text=${nudgeMsg}`:"";
+    return`<div style="border-top:1px solid var(--line);padding:12px 0;font-size:13px">
+      <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px">
+        <b style="color:var(--white)">${o.order_id}</b>
+        <span style="color:var(--off)">${ago}</span>
+      </div>
+      <div style="color:var(--white);margin-top:4px">${o.customer_name||"—"} · ${o.email||"—"}${o.phone?` · <a href="${waLink}" target="_blank" rel="noopener" style="color:#2980B9">${o.phone}</a>`:""}</div>
+      <div style="color:var(--off);margin-top:4px">${itemsHtml||"—"} — ${o.total?inr(o.total):"—"}</div>
+    </div>`;
+  }).join("");
 }
 function rnAdmOrders(){
   document.getElementById("ocnt").textContent=orders.length?`(${orders.length})`:"";
