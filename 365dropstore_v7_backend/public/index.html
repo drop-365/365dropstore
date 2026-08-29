@@ -343,8 +343,8 @@ header{position:sticky;top:0;z-index:100;background:rgba(20,19,18,.95);backdrop-
 
 /* PRODUCT GRID */
 .pgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
-.pcard{position:relative;cursor:pointer;border-radius:14px;overflow:hidden;background:var(--bg2);border:1px solid rgba(20,19,18,.07);transition:.35s var(--ease);box-shadow:0 2px 14px rgba(20,19,18,.06)}
-.pcard:hover{border-color:rgba(192,57,43,.18);transform:translateY(-5px);box-shadow:0 20px 48px -12px rgba(20,19,18,.13)}
+.pcard{position:relative;cursor:pointer;border-radius:14px;overflow:hidden;background:var(--bg2);border:1px solid rgba(20,19,18,.07);transition:.35s var(--ease);box-shadow:0 2px 14px rgba(20,19,18,.06);transform-style:preserve-3d}
+.pcard:hover{border-color:rgba(192,57,43,.18);box-shadow:0 20px 48px -12px rgba(20,19,18,.13),0 0 0 1px rgba(192,57,43,.08)}
 .pimg{position:relative;aspect-ratio:3/4;overflow:hidden;background:var(--bg3)}
 .pfront,.pback{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:.6s var(--ease)}
 .pback{opacity:0}
@@ -927,6 +927,30 @@ main,header,footer,.sec,.trust,.mq{position:relative;z-index:2}
 @keyframes fitShine{0%{left:-60%}100%{left:140%}}
 @media(prefers-reduced-motion:reduce){.btn-attract{animation:none}.btn-attract::after{display:none}}
 
+
+/* ===== SCI-FI EFFECTS ===== */
+.cursor-glow{position:fixed;width:280px;height:280px;border-radius:50%;pointer-events:none;z-index:9999;background:radial-gradient(circle,rgba(192,57,43,.06) 0%,transparent 70%);transform:translate(-50%,-50%);transition:opacity .3s;opacity:0;mix-blend-mode:multiply}
+body:hover .cursor-glow{opacity:1}
+@media(max-width:768px){.cursor-glow{display:none}}
+.glitch{position:relative;display:inline-block}
+.glitch::before,.glitch::after{content:attr(data-text);position:absolute;top:0;left:0;width:100%;height:100%;overflow:hidden;pointer-events:none;opacity:0}
+.glitch::before{color:var(--red);z-index:1;animation:glitch1 4s infinite linear}
+.glitch::after{color:rgba(0,200,200,.5);z-index:2;animation:glitch2 4s infinite linear}
+@keyframes glitch1{0%,93%,100%{opacity:0;clip-path:inset(0)}94%{opacity:.8;clip-path:inset(20% 0 60% 0);transform:translateX(-3px)}95%{opacity:0}97%{opacity:.6;clip-path:inset(50% 0 20% 0);transform:translateX(2px)}98%{opacity:0}}
+@keyframes glitch2{0%,91%,100%{opacity:0;clip-path:inset(0)}92%{opacity:.5;clip-path:inset(40% 0 30% 0);transform:translateX(3px)}93%{opacity:0}96%{opacity:.4;clip-path:inset(10% 0 70% 0);transform:translateX(-2px)}97%{opacity:0}}
+.pcard::before{content:"";position:absolute;inset:0;z-index:5;pointer-events:none;background:linear-gradient(105deg,transparent 40%,rgba(255,255,255,.07) 45%,rgba(255,255,255,.1) 50%,rgba(255,255,255,.07) 55%,transparent 60%);background-size:200% 100%;opacity:0;transition:opacity .3s;border-radius:inherit}
+.pcard:hover::before{opacity:1;animation:shimmer 1.5s ease-in-out infinite}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.pbadge.bestseller-glow{box-shadow:0 0 12px rgba(192,57,43,.4)}
+.chip:not(.oos):hover{border-color:var(--red)!important;color:var(--red)!important}
+.circuit-div{position:relative;height:48px;overflow:hidden;max-width:var(--max);margin:0 auto;padding:0 20px}
+.circuit-div svg{width:100%;height:100%}
+.circuit-line{stroke:var(--red);stroke-width:.5;fill:none;opacity:0;stroke-dasharray:200;stroke-dashoffset:200}
+.circuit-dot{fill:var(--red);opacity:0;r:2}
+.circuit-div.in .circuit-line{opacity:.15;stroke-dashoffset:0;transition:stroke-dashoffset 2s var(--ease),opacity .5s}
+.circuit-div.in .circuit-dot{opacity:.3;transition:opacity 1s .5s}
+.sr.in::after{content:"";position:absolute;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent 5%,var(--red) 50%,transparent 95%);animation:scanDown .6s var(--ease) forwards;opacity:.3;pointer-events:none;z-index:10}
+@keyframes scanDown{from{top:0}to{top:100%;opacity:0}}
 </style>
 <script defer data-domain="365dropstore.com" src="https://plausible.io/js/script.js"></script>
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
@@ -950,6 +974,7 @@ fbq('track','PageView');
 <!-- End Meta Pixel (disabled) -->
 </head>
 <body>
+<div class="cursor-glow" id="cursorGlow"></div>
 <div id="crtfx" aria-hidden="true"></div>
 <div id="hud" aria-hidden="true"><span class="hud-c tl"></span><span class="hud-c tr"></span><span class="hud-c bl"></span><span class="hud-c br"></span></div>
 <div id="scansweep" aria-hidden="true"></div>
@@ -1106,6 +1131,7 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
   </div>
 </div></section>
 
+<div class="circuit-div sr"><svg viewBox="0 0 900 48" preserveAspectRatio="none"><line class="circuit-line" x1="0" y1="24" x2="350" y2="24"/><line class="circuit-line" x1="350" y1="24" x2="370" y2="8"/><line class="circuit-line" x1="370" y1="8" x2="530" y2="8"/><line class="circuit-line" x1="530" y1="8" x2="550" y2="24"/><line class="circuit-line" x1="550" y1="24" x2="900" y2="24"/><circle class="circuit-dot" cx="350" cy="24"/><circle class="circuit-dot" cx="450" cy="8"/><circle class="circuit-dot" cx="550" cy="24"/></svg></div>
 <!-- reviews -->
 <section class="sec" id="reviews"><div class="w">
   <div class="sh sr"><div><h2 data-dec>WORD ON THE STREET</h2><p class="shs" id="review-summary"></p><p class="shs">Tag <b style="color:var(--white)">@365dropstore</b> on Instagram to get featured.</p></div></div>
@@ -4212,6 +4238,32 @@ function closeReviewForm(){
   }
   setTimeout(tryOpenProduct,2000);
   setTimeout(tryOpenProduct,4000);
+})();
+</script>
+<script id="scifi-fx">
+(function(){
+  // Cursor glow
+  var g=document.getElementById('cursorGlow');
+  if(g)document.addEventListener('mousemove',function(e){g.style.left=e.clientX+'px';g.style.top=e.clientY+'px';});
+  // Holographic tilt
+  document.querySelectorAll('.pcard').forEach(function(c){
+    c.addEventListener('mousemove',function(e){
+      var r=c.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top;
+      var rotY=((x-r.width/2)/(r.width/2))*4,rotX=((r.height/2-y)/(r.height/2))*3;
+      c.style.transform='perspective(800px) rotateX('+rotX+'deg) rotateY('+rotY+'deg) scale(1.02)';
+    });
+    c.addEventListener('mouseleave',function(){c.style.transform='';});
+  });
+  // Glitch text on section headings
+  document.querySelectorAll('.sec-head').forEach(function(h){
+    var t=h.textContent,s=document.createElement('span');
+    s.className='glitch';s.setAttribute('data-text',t);s.textContent=t;
+    h.textContent='';h.appendChild(s);
+  });
+  // Bestseller badge glow
+  document.querySelectorAll('.pbadge').forEach(function(b){
+    if(b.textContent.trim()==='BESTSELLER')b.classList.add('bestseller-glow');
+  });
 })();
 </script>
 </body></html>
