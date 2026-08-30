@@ -2339,6 +2339,14 @@ function getSizeRec(p,size){
   if(!guide)return null;
   return guide.find(g=>g.size===size)||null;
 }
+function getOosMessage(p,size){
+  const rd=(p.sizeRestockDates||{})[size];
+  if(!rd)return'<div class="rec-oos">This size is currently out of stock</div>';
+  const dt=new Date(rd);
+  if(isNaN(dt)||dt<new Date())return'<div class="rec-oos">This size is currently out of stock</div>';
+  const formatted=dt.toLocaleDateString('en-IN',{day:'numeric',month:'short'});
+  return`<div class="rec-restock" style="color:#f39c12;font-size:13px;font-weight:600;margin-top:6px">🔄 Restocking on <b>${formatted}</b> — will dispatch same day</div><div style="color:var(--off);font-size:12px;margin-top:4px">This drop won't last. You snooze, you lose.</div>`;
+}
 function showSizeRec(p,size,isOos){
   const el=document.getElementById("mo-size-rec");if(!el)return;
   const bagBtn=document.querySelector('#mo .moact');
@@ -2346,7 +2354,7 @@ function showSizeRec(p,size,isOos){
     el.innerHTML='';
     // size guide off doesn't affect OOS gating — still block Add to Bag for OOS sizes
     if(bagBtn){
-      if(isOos){bagBtn.style.opacity='.4';bagBtn.style.pointerEvents='none';bagBtn.textContent='Out of Stock';}
+      if(isOos){bagBtn.style.opacity='.4';bagBtn.style.pointerEvents='none';const srd=(p.sizeRestockDates||{})[size];if(srd){const sdt=new Date(srd);if(!isNaN(sdt)&&sdt>new Date())bagBtn.textContent='Restocking '+sdt.toLocaleDateString('en-IN',{day:'numeric',month:'short'});else bagBtn.textContent='Out of Stock';}else bagBtn.textContent='Out of Stock';}
       else{bagBtn.style.opacity='1';bagBtn.style.pointerEvents='auto';bagBtn.textContent=`Add to Bag · ${inr(eff(ms.p))}`;}
     }
     return;
@@ -2356,10 +2364,10 @@ function showSizeRec(p,size,isOos){
   el.innerHTML=`<div class="size-rec-card${isOos?' oos-rec':''}">
     <div class="rec-label">Waist ${rec.waist}"</div>
     <div class="rec-best">${rec.bestFor}</div>
-    ${isOos?'<div class="rec-oos">This size is currently out of stock</div>':'<div class="rec-avail">✓ Available — select to add to bag</div>'}
+    ${isOos?getOosMessage(p,size):'<div class="rec-avail">✓ Available — select to add to bag</div>'}
   </div>`;
   if(bagBtn){
-    if(isOos){bagBtn.style.opacity='.4';bagBtn.style.pointerEvents='none';bagBtn.textContent='Out of Stock';}
+    if(isOos){bagBtn.style.opacity='.4';bagBtn.style.pointerEvents='none';const srd2=(p.sizeRestockDates||{})[size];if(srd2){const sdt2=new Date(srd2);if(!isNaN(sdt2)&&sdt2>new Date())bagBtn.textContent='Restocking '+sdt2.toLocaleDateString('en-IN',{day:'numeric',month:'short'});else bagBtn.textContent='Out of Stock';}else bagBtn.textContent='Out of Stock';}
     else{bagBtn.style.opacity='1';bagBtn.style.pointerEvents='auto';bagBtn.textContent=`Add to Bag · ${inr(eff(ms.p))}`;}
   }
 }
@@ -2913,8 +2921,9 @@ function setRestockDate(id){
     LS.set("ds_p",products);ldProds();if(typeof renderGrid==="function")renderGrid();if(typeof window.rebuildRestockCountdowns==="function")setTimeout(window.rebuildRestockCountdowns,80);syncProductToSupabase("save",p);d.remove();
   };
 }
-function renderSzTog(id){const p=products.find(x=>x.id===id);const c=document.getElementById('sztog');if(!c||!p)return;c.innerHTML=(p.sizes||[]).map(s=>{const oos=(p.oosizes||[]).includes(s);return'<button onclick="togOOS(\''+id+'\',\''+s+'\')" style="padding:12px 20px;border-radius:9px;font-size:14px;font-weight:700;cursor:pointer;border:2px solid '+(oos?'#c0392b':'#4ade80')+';background:'+(oos?'rgba(192,57,43,.1)':'rgba(74,222,128,.07)')+';color:'+(oos?'#c0392b':'#4ade80')+'">'+s+' '+(oos?'✗':'✓')+'</button>';}).join('');}
-function togOOS(pid,size){const p=products.find(x=>x.id===pid);if(!p)return;if(!p.oosizes)p.oosizes=[];if(p.oosizes.includes(size))p.oosizes=p.oosizes.filter(s=>s!==size);else p.oosizes.push(size);LS.set("ds_p",products);renderGrid();renderSzTog(pid);syncProductToSupabase("save",p);}
+function renderSzTog(id){const p=products.find(x=>x.id===id);const c=document.getElementById('sztog');if(!c||!p)return;if(!p.sizeRestockDates)p.sizeRestockDates={};c.innerHTML=(p.sizes||[]).map(s=>{const oos=(p.oosizes||[]).includes(s);const restockVal=p.sizeRestockDates[s]||'';let dateInput='';if(oos){let curVal='';if(restockVal){try{const dt=new Date(restockVal);if(!isNaN(dt))curVal=dt.toISOString().slice(0,10);}catch(e){}}dateInput=`<div style="margin-top:6px"><input type="date" value="${curVal}" onchange="setSizeRestock('${id}','${s}',this.value)" style="width:100%;background:var(--bg3);border:1px solid var(--line);border-radius:6px;padding:6px 8px;color:var(--white);font-size:12px" placeholder="Restock date"/><div style="color:var(--off);font-size:10px;margin-top:3px">${curVal?'Restocking '+new Date(curVal).toLocaleDateString('en-IN',{day:'numeric',month:'short'}):'No restock date set'}</div></div>`;}return'<div style="text-align:center"><button onclick="togOOS(\''+id+'\',\''+s+'\')" style="padding:12px 20px;border-radius:9px;font-size:14px;font-weight:700;cursor:pointer;border:2px solid '+(oos?'#c0392b':'#4ade80')+';background:'+(oos?'rgba(192,57,43,.1)':'rgba(74,222,128,.07)')+';color:'+(oos?'#c0392b':'#4ade80')+';width:100%">'+s+' '+(oos?'✗':'✓')+'</button>'+dateInput+'</div>';}).join('');}
+function setSizeRestock(pid,size,val){const p=products.find(x=>x.id===pid);if(!p)return;if(!p.sizeRestockDates)p.sizeRestockDates={};if(val){p.sizeRestockDates[size]=new Date(val).toISOString();}else{delete p.sizeRestockDates[size];}LS.set("ds_p",products);syncProductToSupabase("save",p);renderSzTog(pid);}
+function togOOS(pid,size){const p=products.find(x=>x.id===pid);if(!p)return;if(!p.oosizes)p.oosizes=[];if(!p.sizeRestockDates)p.sizeRestockDates={};if(p.oosizes.includes(size)){p.oosizes=p.oosizes.filter(s=>s!==size);delete p.sizeRestockDates[size];}else{p.oosizes.push(size);}LS.set("ds_p",products);renderGrid();renderSzTog(pid);syncProductToSupabase("save",p);}
 
 // SITE EDITOR
 function populateFitSelect(){const sel=document.getElementById("pf-fit");if(!sel)return;sel.innerHTML=fits.map(f=>`<option value="${f}">${f}</option>`).join("");}
@@ -3942,6 +3951,7 @@ async function refreshProductsFromSupabase(){
       reelUrl:p.reel_url||'',order:p.display_order||0,
       addedAt:p.added_at?new Date(p.added_at).getTime():Date.now(),
       restockAt:p.restock_at||'',
+      sizeRestockDates:p.size_restock_dates||{},
       soldCount:p.sold_count||0,sizeGuideMode:p.size_guide_mode||'default',customSizeGuide:p.custom_size_guide||undefined
     }));
     LS.set("ds_p",products);
@@ -3975,7 +3985,8 @@ async function loadFromSupabaseIfAvailable(){
       soldCount:p.sold_count||0, sizeGuideMode:p.size_guide_mode||'default', customSizeGuide:p.custom_size_guide||undefined,
       reelUrl:p.reel_url||'', order:p.display_order||0,
       addedAt:p.added_at?new Date(p.added_at).getTime():undefined,
-      restockAt:p.restock_at||''
+      restockAt:p.restock_at||'',
+      sizeRestockDates:p.size_restock_dates||{}
     }));
     if(!revRes.error && revRes.data && revRes.data.length){
       reviews = revRes.data.map(r=>({
