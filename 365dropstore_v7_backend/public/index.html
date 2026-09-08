@@ -337,6 +337,20 @@ header{position:sticky;top:0;z-index:100;background:rgba(20,19,18,.95);-webkit-b
   .dsp-sweep{opacity:0}
 }
 
+.ck-payopt{display:flex;gap:12px;align-items:flex-start;padding:14px;border:1.5px solid var(--line);
+  border-radius:12px;cursor:pointer;margin-bottom:10px;background:rgba(255,255,255,.03);
+  transition:border-color .2s,background .2s}
+.ck-payopt.on{border-color:var(--red);background:rgba(192,57,43,.06)}
+.ck-payopt input[type=radio]{margin-top:3px;accent-color:var(--red);width:18px;height:18px;flex:0 0 18px}
+.ck-payopt-body{flex:1}.ck-payopt-body b{display:block;font-size:14px;margin-bottom:2px}
+.ck-payopt-body span{font-size:12.5px;color:var(--off)}
+.ck-sumrow{display:flex;justify-content:space-between;padding:6px 0;font-size:13.5px;color:var(--off);border-bottom:1px solid rgba(221,216,208,.25)}
+.ck-sumrow:last-child{border-bottom:0}
+.ck-sumtotal{font-weight:800;color:var(--ink);font-size:15px;padding:10px 0}
+.ck-sumhigh{color:var(--red);font-weight:700}
+#ck-pay-summary{margin-bottom:16px;padding:14px;background:var(--bg2);border-radius:12px}
+#ck-pay-methods{margin-bottom:16px}
+
 /* Floating WhatsApp button removed 2026-09-05 — its rules (position, hover,
    focus, mobile sizing, reduced-motion) are gone. Everything below is the
    toast/sticky-bar/particle print rule, unrelated to the FAB. */
@@ -1402,7 +1416,8 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px"><button class="btn btn-w" style="padding:6px 12px;font-size:12px" onclick="showCkStep('details')">← Back</button><h4 style="font-family:var(--dsp);font-size:20px;margin:0">REVIEW YOUR ORDER</h4></div>
     <div id="ck-review-items" style="margin-bottom:16px"></div>
     <div id="ck-review-info" style="background:var(--bg2);border-radius:10px;padding:14px;margin-bottom:16px;font-size:13px;color:var(--off)"></div>
-    <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:16px"><span style="font-size:14px;color:var(--off)">Total</span><span style="font-family:var(--dsp);font-size:24px" id="ck-review-total"></span></div>
+    <div id="ck-pay-summary"></div>
+    <div id="ck-pay-methods"></div>
     <button class="wabtn" id="ck-pay-btn-review" onclick="proceedToPayment()">💳  Pay Now</button>
     <button class="btn btn-g" style="width:100%;justify-content:center;margin-top:10px" onclick="askBeforeBuying()">💬  Have a question? Message us first</button>
     <p id="ck-err-review" style="display:none;color:#E74C3C;font-size:13px;margin-top:8px;text-align:center"></p>
@@ -1434,6 +1449,7 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
   <button class="atab" onclick="apTab('instagrid')">Hero Grid</button>
   <button class="atab" onclick="apTab('faq')">FAQ</button>
   <button class="atab" onclick="apTab('sizeguide')">Size Guide</button>
+  <button class="atab" onclick="apTab('payment')">Payments</button>
   <button class="atab" onclick="apTab('settings')">Settings</button>
 </div>
 <div class="apbody">
@@ -1695,6 +1711,18 @@ https://raw.githubusercontent.com/drop-365/365dropstore/main/images/jean2.jpg" s
     <div id="sg-admin"></div>
     <button class="btn btn-g" style="margin-top:14px" onclick="saveSizeGuide()">Save Size Guide</button>
     <p id="sg-msg" style="display:none;font-size:12px;margin-top:8px"></p>
+  </div>
+  <div id="tab-payment" class="apsec" style="display:none">
+    <h3>PAYMENT SETTINGS</h3>
+    <p style="color:var(--off);font-size:12.5px;margin-bottom:16px">These settings control what payment options customers see at checkout. Changes reflect immediately on the website.</p>
+    <div class="pfgrid">
+      <div class="pff"><label>Prepaid (Online Payment)</label><select id="pay-prepaid"><option value="1">Enabled</option><option value="0">Disabled</option></select></div>
+      <div class="pff"><label>Cash on Delivery (COD)</label><select id="pay-cod"><option value="1">Enabled</option><option value="0">Disabled</option></select></div>
+      <div class="pff"><label>COD Additional Charge (&#8377;)</label><input type="number" id="pay-cod-charge" min="0" placeholder="50"/></div>
+      <div class="pff"><label>Partial COD</label><select id="pay-partial"><option value="1">Enabled</option><option value="0">Disabled</option></select></div>
+      <div class="pff"><label>Partial COD Advance Amount (&#8377;)</label><input type="number" id="pay-partial-adv" min="0" placeholder="199"/></div>
+      <div class="pff full"><button class="btn btn-w" onclick="savePaySettings()" style="width:100%;justify-content:center">Save Payment Settings</button></div>
+    </div>
   </div>
   <div id="tab-settings" class="apsec" style="display:none"><h3>SETTINGS <button class="btn btn-g" style="font-size:11px;padding:4px 10px;margin-left:8px" onclick="refreshSectionFromSupabase('settings')">↻ Refresh</button></h3><div class="pfgrid">
     <div class="pff full" style="border:1px solid var(--glow);border-radius:12px;padding:18px;margin-bottom:6px;background:rgba(192,57,43,.06)">
@@ -1968,6 +1996,9 @@ let attCnt=LS.get("adm_att",0);let locked=LS.get("adm_lk",false);
 let _adminPw="";
 const pwOv=LS.get("adm_pd",null);if(pwOv)AH=pwOv;
 let fCat="All",fSizes=[],fFits=[],fMaxPrice=5000,fShade="";
+// Payment config — stored in siteContent.paymentConfig, editable from admin
+const DEFAULT_PAY_CFG={prepaid:true,cod:true,codCharge:50,partialCod:true,partialCodAdvance:199};
+function getPayCfg(){return Object.assign({},DEFAULT_PAY_CFG,siteContent.paymentConfig||{});}
 const SHADES=[
   {k:"cream",     n:"Ecru",        hex:"#E4D9C3", L:88},
   {k:"iceblue",   n:"Ice Blue",    hex:"#A9C7DE", L:74},
@@ -3032,13 +3063,108 @@ function submitCheckoutDetails(){
   document.getElementById("ck-review-items").innerHTML=cart.map(i=>`<div style="display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)"><img src="${i.image}" style="width:50px;height:65px;object-fit:cover;border-radius:6px"/><div style="flex:1"><div style="font-weight:700;font-size:13px">${i.name}</div><div style="font-size:12px;color:var(--off)">${i.size} · ${i.color} · x${i.qty}</div></div><div style="font-weight:700;font-size:13px">${inr(i.price*i.qty)}</div></div>`).join("");
   document.getElementById("ck-review-info").innerHTML=`<b>${name}</b><br/>${phone}${email?'<br/>'+email:''}<br/>${addr} — ${pin}`;
   document.getElementById("ck-review-total").textContent=inr(sub);
+  _selectedPayMethod=getPayCfg().prepaid?"prepaid":(getPayCfg().partialCod?"partial":"cod");
+  renderPayMethods();
   showCkStep("review");
 }
+let _selectedPayMethod="prepaid";
+function renderPayMethods(){
+  const cfg=getPayCfg();
+  const sub=window._pendingOrder?window._pendingOrder.total:cart.reduce((s,i)=>s+i.price*i.qty,0);
+  const el=document.getElementById("ck-pay-methods");
+  if(!el)return;
+  let opts="";
+  if(cfg.prepaid)opts+=`<label class="ck-payopt${_selectedPayMethod==="prepaid"?" on":""}" onclick="pickPayMethod('prepaid')"><input type="radio" name="paymethod" value="prepaid" ${_selectedPayMethod==="prepaid"?"checked":""}/>
+    <div class="ck-payopt-body"><b>Pay Online</b><span>UPI, Cards, Netbanking &middot; ${inr(sub)}</span></div></label>`;
+  if(cfg.partialCod){
+    const adv=Math.min(cfg.partialCodAdvance||199,sub);
+    const rem=sub-adv;
+    opts+=`<label class="ck-payopt${_selectedPayMethod==="partial"?" on":""}" onclick="pickPayMethod('partial')"><input type="radio" name="paymethod" value="partial" ${_selectedPayMethod==="partial"?"checked":""}/>
+      <div class="ck-payopt-body"><b>Partial COD</b><span>Pay ${inr(adv)} now, ${inr(rem)} at delivery</span></div></label>`;
+  }
+  if(cfg.cod){
+    const codTotal=sub+(cfg.codCharge||0);
+    opts+=`<label class="ck-payopt${_selectedPayMethod==="cod"?" on":""}" onclick="pickPayMethod('cod')"><input type="radio" name="paymethod" value="cod" ${_selectedPayMethod==="cod"?"checked":""}/>
+      <div class="ck-payopt-body"><b>Cash on Delivery</b><span>${inr(codTotal)}${cfg.codCharge?` (includes ${inr(cfg.codCharge)} COD charge)`:""}</span></div></label>`;
+  }
+  el.innerHTML=opts||"<p>No payment methods available. Please contact us on WhatsApp.</p>";
+  // update the summary
+  renderPaySummary();
+  // update button text
+  const btn=document.getElementById("ck-pay-btn-review");
+  if(btn){
+    if(_selectedPayMethod==="cod"){btn.textContent="\u2714  Place COD Order";}
+    else if(_selectedPayMethod==="partial"){
+      const adv=Math.min((cfg.partialCodAdvance||199),sub);
+      btn.textContent="\uD83D\uDCB3  Pay "+inr(adv)+" Now";
+    }else{btn.textContent="\uD83D\uDCB3  Pay "+inr(sub)+" Now";}
+  }
+}
+function renderPaySummary(){
+  const el=document.getElementById("ck-pay-summary");if(!el)return;
+  const cfg=getPayCfg();
+  const sub=window._pendingOrder?window._pendingOrder.total:0;
+  let rows="<div class='ck-sumrow'><span>Subtotal</span><span>"+inr(sub)+"</span></div>";
+  rows+="<div class='ck-sumrow'><span>Shipping</span><span style='color:var(--ok)'>FREE</span></div>";
+  if(_selectedPayMethod==="cod"&&cfg.codCharge){
+    rows+="<div class='ck-sumrow'><span>COD Charge</span><span>"+inr(cfg.codCharge)+"</span></div>";
+    rows+="<div class='ck-sumrow ck-sumtotal'><span>Total</span><span>"+inr(sub+cfg.codCharge)+"</span></div>";
+  }else if(_selectedPayMethod==="partial"){
+    const adv=Math.min(cfg.partialCodAdvance||199,sub);
+    rows+="<div class='ck-sumrow ck-sumtotal'><span>Total</span><span>"+inr(sub)+"</span></div>";
+    rows+="<div class='ck-sumrow ck-sumhigh'><span>Pay now</span><span>"+inr(adv)+"</span></div>";
+    rows+="<div class='ck-sumrow'><span>Pay at delivery</span><span>"+inr(sub-adv)+"</span></div>";
+  }else{
+    rows+="<div class='ck-sumrow ck-sumtotal'><span>Total</span><span>"+inr(sub)+"</span></div>";
+  }
+  el.innerHTML=rows;
+}
+function pickPayMethod(m){_selectedPayMethod=m;renderPayMethods();}
 function proceedToPayment(){
   if(!window._pendingOrder){showCkStep("details");return;}
-  startRazorpayPayment(window._pendingOrder);
+  const cfg=getPayCfg();
+  const order=window._pendingOrder;
+  if(_selectedPayMethod==="cod"){
+    placeCodOrder(order,cfg);
+  }else if(_selectedPayMethod==="partial"){
+    const adv=Math.min(cfg.partialCodAdvance||199,order.total);
+    order._paymentMethod="partial_cod";
+    order._codAdvance=adv;
+    order._codRemaining=order.total-adv;
+    startRazorpayPayment(order,adv);
+  }else{
+    order._paymentMethod="prepaid";
+    startRazorpayPayment(order,order.total);
+  }
 }
-async function startRazorpayPayment(order){
+async function placeCodOrder(order,cfg){
+  const btn=document.getElementById("ck-pay-btn-review");
+  const errEl=document.getElementById("ck-err-review");
+  if(btn){btn.disabled=true;btn.textContent="Placing order...";}
+  try{
+    const codTotal=order.total+(cfg.codCharge||0);
+    const res=await fetch(SB_FN_BASE+"razorpay-order",{
+      method:"POST",headers:{"Content-Type":"application/json","apikey":SB_APIKEY},
+      body:JSON.stringify({order:Object.assign({},order,{total:codTotal,paymentMethod:"cod",codCharge:cfg.codCharge||0,status:"confirmed"})})
+    });
+    const data=await res.json();
+    if(data.error)throw new Error(data.error);
+    // COD order is placed immediately — no Razorpay sheet
+    document.getElementById("ck-orderid").textContent=order.orderId;
+    document.querySelector("#ckview-placed h4").textContent="Order Placed — COD";
+    document.querySelector("#ckview-placed p").innerHTML=
+      "Order ID <strong style=\"color:#141312\">"+order.orderId+"</strong><br/>"+
+      "Your order is confirmed. You will pay <strong>"+inr(codTotal)+"</strong> at delivery.<br/>"+
+      "We will pack and dispatch within 24 hours.";
+    showCkStep("placed");cart=[];LS.set("ds_cart",cart);renderCart();
+    if(typeof fbq==="function")fbq("track","Purchase",{value:codTotal,currency:"INR"});
+  }catch(e){
+    if(btn){btn.disabled=false;btn.textContent="\u2714  Place COD Order";}
+    if(errEl){errEl.textContent="Couldn't place order: "+e.message;errEl.style.display="block";}
+  }
+}
+async function startRazorpayPayment(order, chargeAmount){
+  if(!chargeAmount)chargeAmount=order.total;
   const payBtn=document.getElementById("ck-pay-btn-review");
   const errEl=document.getElementById("ck-err-review")||document.getElementById("ck-err");
   if(payBtn){payBtn.disabled=true;payBtn.textContent="Preparing payment...";}
@@ -3051,7 +3177,7 @@ async function startRazorpayPayment(order){
   try{
     const res=await fetch(SB_FN_BASE+"razorpay-order",{
       method:"POST",headers:{"Content-Type":"application/json","apikey":SB_APIKEY},
-      body:JSON.stringify({order})
+      body:JSON.stringify({order:Object.assign({},order,{chargeAmount:chargeAmount,paymentMethod:order._paymentMethod||"prepaid"})})
     });
     rpOrder=await res.json();
     if(rpOrder.error)throw new Error(rpOrder.error);
@@ -3218,7 +3344,8 @@ async function admLogin(){if(locked){shAErr("Locked. Run: localStorage.removeIte
 function shAErr(t){const e=document.getElementById("agerr");e.textContent=t;e.style.display="block";}
 function admOut(){document.getElementById("ap").style.display="none";location.hash="";document.body.style.overflow="";}
 function _woHook(t){if(t==="orders"&&typeof fillWoProducts==="function")fillWoProducts();}
-function apTab(t){const all=["products","orders","add","site","banner","fits","reviews","stories","instagrid","faq","sizeguide","settings"];all.forEach(id=>document.getElementById("tab-"+id).style.display=id===t?"block":"none");document.querySelectorAll(".atab").forEach((b,i)=>b.classList.toggle("act",all[i]===t));if(t==="products"){ldProds();apSts();}if(t==="orders"){rnAdmOrders();loadOrdersFromSupabase().then(ok=>{if(ok)rnAdmOrders();});loadAbandonedCount();_woHook("orders");}if(t==="reviews")rnAdmRev();if(t==="site")loadSiteEd();if(t==="fits")loadFitsAdmin();if(t==="settings"){loadPaletteAdmin();loadGlobalScAdmin();rnStorageView();}if(t==="banner")loadBannerAdmin();if(t==="stories")renderStoryAdmin();if(t==="instagrid")renderHeroGridAdmin();if(t==="faq")renderFaqAdmin();if(t==="sizeguide")renderSizeGuideAdmin();}
+function apTab(t){const all=["products","orders","add","site","banner","fits","reviews","stories","instagrid","faq","sizeguide","settings"];all.forEach(id=>document.getElementById("tab-"+id).style.display=id===t?"block":"none");document.querySelectorAll(".atab").forEach((b,i)=>b.classList.toggle("act",all[i]===t));if(t==="products"){ldProds();apSts();}if(t==="payment"){loadPaySettings();}
+  if(t==="orders"){rnAdmOrders();loadOrdersFromSupabase().then(ok=>{if(ok)rnAdmOrders();});loadAbandonedCount();_woHook("orders");}if(t==="reviews")rnAdmRev();if(t==="site")loadSiteEd();if(t==="fits")loadFitsAdmin();if(t==="settings"){loadPaletteAdmin();loadGlobalScAdmin();rnStorageView();}if(t==="banner")loadBannerAdmin();if(t==="stories")renderStoryAdmin();if(t==="instagrid")renderHeroGridAdmin();if(t==="faq")renderFaqAdmin();if(t==="sizeguide")renderSizeGuideAdmin();}
 function apSts(){const tot=products.length,sold=products.filter(p=>p.badges&&p.badges.includes("sold")).length,cats=[...new Set(products.map(p=>p.category))].length;document.getElementById("apstats").innerHTML=`<div class="apstat"><div class="v">${tot}</div><div class="k">Total</div></div><div class="apstat"><div class="v">${tot-sold}</div><div class="k">Active</div></div><div class="apstat"><div class="v">${sold}</div><div class="k">Sold Out</div></div><div class="apstat"><div class="v">${cats}</div><div class="k">Categories</div></div>`;}
 
 function ldProds(){
@@ -3460,7 +3587,7 @@ async function siteImgUp(k,inp){if(!inp.files||!inp.files[0])return;try{const bf
 function saveSite(){const _edI=siteContent.edImgs||[];const _stI=siteContent.stImgs||[];const _edS=siteContent.edImg||"";const _stS=siteContent.stImg||"";
   const prevSite=LS.get("ds_site",{});
   if((!_edI.length&&!_edS)&&((prevSite.edImgs||[]).length||(prevSite.edImg||""))){if(!confirm("Founder's Note image is empty. Save anyway? Re-upload in gallery if unintended."))return;}
-  if((!_stI.length&&!_stS)&&((prevSite.stImgs||[]).length||(prevSite.stImg||""))){if(!confirm("Story image is empty. Save anyway? Re-upload in gallery if unintended."))return;}const g=id=>{const el=document.getElementById(id);return el?el.value:"";};const ddRaw=g("site-drop-date");let ddIso="";if(ddRaw){const d=new Date(ddRaw);if(!isNaN(d))ddIso=d.toISOString();}siteContent={faq:(siteContent.faq||faqItems),ann:g("site-ann"),heroH1:g("site-hero-h1"),heroSub:g("site-hero-sub"),heroP1:g("site-hero-product"),dropDate:ddIso,trust:g("site-trust"),edH2:g("site-ed-h2"),edP:g("site-ed-p"),edImgs:_edI,stImgs:_stI,edImg:_edS,stImg:_stS,storyH2:g("site-story-h2"),storyP1:g("site-story-p1"),storyP2:g("site-story-p2"),shipping:g("site-shipping"),marquee:g("site-marquee"),stats:g("site-stats"),phone:g("site-phone"),email:g("site-email"),address:g("site-address"),insta:g("site-insta"),fb:g("site-fb"),heroImg:g("site-hero-img"),heroThumb1:g("site-hero-thumb1"),heroThumb2:g("site-hero-thumb2")};lsSafeSet("ds_site",siteContent);applySiteContent();if(typeof window.rebuildHeroShowcase==="function")window.rebuildHeroShowcase();if(typeof window.rebuildDropCountdown==="function")window.rebuildDropCountdown();const m=document.getElementById("site-msg");if(m){m.textContent="Saved ✓";m.style.color="#4ade80";m.style.background="rgba(74,222,128,.08)";m.style.display="block";setTimeout(()=>m.style.display="none",2000);}showToast("Site content saved ✓ — syncing live...",true);syncSiteToSupabase();}
+  if((!_stI.length&&!_stS)&&((prevSite.stImgs||[]).length||(prevSite.stImg||""))){if(!confirm("Story image is empty. Save anyway? Re-upload in gallery if unintended."))return;}const g=id=>{const el=document.getElementById(id);return el?el.value:"";};const ddRaw=g("site-drop-date");let ddIso="";if(ddRaw){const d=new Date(ddRaw);if(!isNaN(d))ddIso=d.toISOString();}siteContent={faq:(siteContent.faq||faqItems),paymentConfig:(siteContent.paymentConfig||DEFAULT_PAY_CFG),ann:g("site-ann"),heroH1:g("site-hero-h1"),heroSub:g("site-hero-sub"),heroP1:g("site-hero-product"),dropDate:ddIso,trust:g("site-trust"),edH2:g("site-ed-h2"),edP:g("site-ed-p"),edImgs:_edI,stImgs:_stI,edImg:_edS,stImg:_stS,storyH2:g("site-story-h2"),storyP1:g("site-story-p1"),storyP2:g("site-story-p2"),shipping:g("site-shipping"),marquee:g("site-marquee"),stats:g("site-stats"),phone:g("site-phone"),email:g("site-email"),address:g("site-address"),insta:g("site-insta"),fb:g("site-fb"),heroImg:g("site-hero-img"),heroThumb1:g("site-hero-thumb1"),heroThumb2:g("site-hero-thumb2")};lsSafeSet("ds_site",siteContent);applySiteContent();if(typeof window.rebuildHeroShowcase==="function")window.rebuildHeroShowcase();if(typeof window.rebuildDropCountdown==="function")window.rebuildDropCountdown();const m=document.getElementById("site-msg");if(m){m.textContent="Saved ✓";m.style.color="#4ade80";m.style.background="rgba(74,222,128,.08)";m.style.display="block";setTimeout(()=>m.style.display="none",2000);}showToast("Site content saved ✓ — syncing live...",true);syncSiteToSupabase();}
 
 // BANNER ADMIN
 function loadBannerAdmin(){document.getElementById("ban-text").value=banner.text||"";document.getElementById("ban-show").checked=banner.show||false;}
@@ -3840,6 +3967,26 @@ async function chgPwd(){const p1=document.getElementById("st0").value;const p2=d
   AH=h;_adminPw=p1;LS.set("adm_pd",h);
   alert("Password updated everywhere ✓");
   document.getElementById("st0").value="";document.getElementById("st1").value="";}
+function loadPaySettings(){
+  const cfg=getPayCfg();
+  document.getElementById("pay-prepaid").value=cfg.prepaid?"1":"0";
+  document.getElementById("pay-cod").value=cfg.cod?"1":"0";
+  document.getElementById("pay-cod-charge").value=cfg.codCharge||0;
+  document.getElementById("pay-partial").value=cfg.partialCod?"1":"0";
+  document.getElementById("pay-partial-adv").value=cfg.partialCodAdvance||199;
+}
+function savePaySettings(){
+  siteContent.paymentConfig={
+    prepaid:document.getElementById("pay-prepaid").value==="1",
+    cod:document.getElementById("pay-cod").value==="1",
+    codCharge:parseInt(document.getElementById("pay-cod-charge").value,10)||0,
+    partialCod:document.getElementById("pay-partial").value==="1",
+    partialCodAdvance:parseInt(document.getElementById("pay-partial-adv").value,10)||0
+  };
+  lsSafeSet("ds_site",siteContent);
+  syncSiteToSupabase();
+  showToast("Payment settings saved \u2713",true);
+}
 function expData(){const blob=new Blob([JSON.stringify({products,reviews,siteContent,banner,fits,palette,globalSizeChart:globalSc,stories,exportedAt:new Date().toISOString()},null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="365ds-backup-"+Date.now()+".json";a.click();}
 function rstProds(){products=[...DP];LS.set("ds_p",products);renderGrid();ldProds();apSts();}
 async function downloadZip(){
