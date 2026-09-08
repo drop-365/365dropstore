@@ -855,6 +855,52 @@ table.ptbl{width:100%;border-collapse:collapse;font-size:13px}
 .tb{padding:5px 11px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--line);background:none;color:var(--white);transition:.2s}
 .tb:hover{border-color:var(--white);background:var(--white);color:var(--bg)}
 .tb-sold{color:#c0a030;border-color:rgba(192,160,48,.3)}
+.tb.tb-on{background:var(--red);color:#fff;border-color:var(--red)}
+/* ===== SCI-FI DASHBOARD (scoped to #tab-dashboard only) ===== */
+.sfd-root{position:relative;background:#0A0908;border:1px solid rgba(192,57,43,.35);border-radius:14px;
+  padding:22px;font-family:var(--mono,ui-monospace,"SF Mono",Consolas,monospace);overflow:hidden}
+.sfd-scan{position:absolute;left:0;right:0;height:2px;top:0;background:linear-gradient(90deg,transparent,rgba(192,57,43,.9),transparent);
+  animation:sfdScan 4s linear infinite;pointer-events:none;opacity:.7}
+@keyframes sfdScan{0%{top:0}100%{top:100%}}
+.sfd-head{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:16px;position:relative}
+.sfd-title{color:#F8F7F4;font-size:15px;letter-spacing:.22em;font-weight:800;text-transform:uppercase;margin:0}
+.sfd-blink{color:#C0392B;animation:sfdBlink 1s steps(1) infinite}
+@keyframes sfdBlink{50%{opacity:0}}
+.sfd-export{background:transparent;border:1px solid rgba(192,57,43,.55);color:#C0392B;padding:8px 14px;border-radius:8px;
+  font-family:inherit;font-size:11px;letter-spacing:.1em;font-weight:700;cursor:pointer;min-height:38px}
+.sfd-export:hover{background:rgba(192,57,43,.12)}
+.sfd-range{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:20px;position:relative}
+.sfd-rbtn{background:#141312;border:1px solid rgba(248,247,244,.14);color:#8A8683;padding:7px 12px;border-radius:6px;
+  font-family:inherit;font-size:10.5px;letter-spacing:.08em;font-weight:700;cursor:pointer;min-height:36px}
+.sfd-rbtn.on{background:rgba(192,57,43,.16);border-color:#C0392B;color:#F8F7F4}
+.sfd-datein{background:#141312;border:1px solid rgba(248,247,244,.14);color:#F8F7F4;border-radius:6px;padding:6px 8px;
+  font-family:inherit;font-size:11px;min-height:36px}
+.sfd-arrow{color:#8A8683;font-size:11px}
+.sfd-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:20px;position:relative}
+.sfd-stats .apstat{background:#141312;border:1px solid rgba(192,57,43,.25);border-radius:10px;position:relative;overflow:hidden}
+.sfd-stats .apstat::before{content:"";position:absolute;inset:0 0 auto 0;height:2px;background:#C0392B;opacity:.6}
+.sfd-stats .apstat .v{color:#F8F7F4;font-family:var(--dsp,inherit);font-size:24px;text-shadow:0 0 12px rgba(192,57,43,.5)}
+.sfd-stats .apstat .k{color:#8A8683;font-size:10px;letter-spacing:.12em}
+.sfd-grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px;position:relative}
+@media(max-width:700px){.sfd-grid2{grid-template-columns:1fr}}
+.sfd-panel{background:#141312;border:1px solid rgba(248,247,244,.1);border-radius:10px;padding:14px;margin-bottom:14px;position:relative}
+.sfd-panel-h{color:#C0392B;font-size:10.5px;letter-spacing:.14em;font-weight:800;margin-bottom:10px;text-transform:uppercase}
+.sfd-panel-h span{text-transform:none}
+.sfd-row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(248,247,244,.08);
+  font-size:12.5px;color:#F8F7F4}
+.sfd-row b{color:#F8F7F4}.sfd-row .off{color:#8A8683}
+.sfd-cod{margin-bottom:16px;position:relative}
+.sfd-cod .box{padding:14px 16px;background:rgba(192,57,43,.1);border:1px solid rgba(192,57,43,.4);border-radius:10px;
+  color:#F8F7F4;font-size:13px}
+.sfd-cod .box b{color:#C0392B;font-size:16px;text-shadow:0 0 8px rgba(192,57,43,.4)}
+.sfd-bar-wrap{display:flex;align-items:flex-end;gap:3px;height:90px;padding-top:6px}
+.sfd-bar{flex:1;background:linear-gradient(180deg,#C0392B,#7a241b);border-radius:2px 2px 0 0;min-height:2px;position:relative}
+.sfd-bar:hover::after{content:attr(data-v);position:absolute;bottom:100%;left:50%;transform:translateX(-50%);
+  background:#0A0908;border:1px solid rgba(192,57,43,.5);color:#F8F7F4;font-size:10px;padding:3px 6px;border-radius:4px;
+  white-space:nowrap;margin-bottom:4px}
+.sfd-daylabels{display:flex;gap:3px;margin-top:4px}
+.sfd-daylabels span{flex:1;text-align:center;font-size:8.5px;color:#8A8683;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media(prefers-reduced-motion:reduce){.sfd-scan{animation:none}.sfd-blink{animation:none}}
 .tb-del{color:#c0392b;border-color:rgba(192,57,43,.3)}
 .tb-del:hover{background:#c0392b;border-color:#c0392b;color:#fff}
 
@@ -1439,6 +1485,8 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
 <div class="apbar"><h1>365 DROP STORE — ADMIN</h1><button class="btn btn-g" onclick="admOut()" style="padding:8px 16px">Sign out</button></div>
 <div class="aptabs">
   <button class="atab act" onclick="apTab('products')">Products</button>
+  <button class="atab" onclick="apTab('dashboard')">Dashboard</button>
+  <button class="atab" onclick="apTab('sequence')">Sequence</button>
   <button class="atab" onclick="apTab('orders')">Orders</button>
   <button class="atab" onclick="apTab('add')">Add / Edit</button>
   <button class="atab" onclick="apTab('site')">Edit Site</button>
@@ -1468,6 +1516,43 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
   </div>
 
   <!-- orders tab -->
+  <div id="tab-dashboard" class="apsec sfd-root" style="display:none">
+    <div class="sfd-scan"></div>
+    <div class="sfd-head">
+      <h3 class="sfd-title">SALES ANALYTICS<span class="sfd-blink">_</span></h3>
+      <button class="sfd-export" onclick="exportDashboardCSV()">⬇ EXPORT CSV</button>
+    </div>
+    <div class="sfd-range" id="dash-range">
+      <button class="sfd-rbtn" data-r="today" onclick="setDashRange('today')">TODAY</button>
+      <button class="sfd-rbtn" data-r="7d" onclick="setDashRange('7d')">7D</button>
+      <button class="sfd-rbtn" data-r="30d" onclick="setDashRange('30d')">30D</button>
+      <button class="sfd-rbtn" data-r="month" onclick="setDashRange('month')">THIS MONTH</button>
+      <button class="sfd-rbtn" data-r="all" onclick="setDashRange('all')">ALL TIME</button>
+      <input type="date" id="dash-custom-from" class="sfd-datein" onchange="setDashRange('custom')"/>
+      <span class="sfd-arrow">→</span>
+      <input type="date" id="dash-custom-to" class="sfd-datein" onchange="setDashRange('custom')"/>
+    </div>
+    <div id="dash-stats" class="sfd-stats"></div>
+    <div class="sfd-grid2">
+      <div class="sfd-panel">
+        <div class="sfd-panel-h">CHANNEL BREAKDOWN</div>
+        <div id="dash-channel"></div>
+      </div>
+      <div class="sfd-panel">
+        <div class="sfd-panel-h">PAYMENT METHOD</div>
+        <div id="dash-paymethod"></div>
+      </div>
+    </div>
+    <div id="dash-coddue-wrap" class="sfd-cod"></div>
+    <div class="sfd-panel">
+      <div class="sfd-panel-h">TOP PRODUCTS <span id="dash-prod-count"></span></div>
+      <div id="dash-products"></div>
+    </div>
+    <div class="sfd-panel">
+      <div class="sfd-panel-h">DAILY REVENUE <span style="font-weight:400;opacity:.6">(current range)</span></div>
+      <div id="dash-daily"></div>
+    </div>
+  </div>
   <div id="tab-orders" class="apsec" style="display:none">
     <div style="border:1px solid rgba(37,211,102,.4);background:rgba(37,211,102,.06);border-radius:12px;padding:16px;margin-bottom:18px">
       <h3 style="margin-bottom:4px">LOG A WHATSAPP ORDER</h3>
@@ -1499,6 +1584,13 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
   </div>
 
   <!-- add/edit tab -->
+  <div id="tab-sequence" class="apsec" style="display:none">
+    <h3>PRODUCT SEQUENCE</h3>
+    <p style="color:var(--off);font-size:12.5px;margin-bottom:14px">This is the order products appear in on the website's "Featured" sort. Use the arrows to reorder — changes save automatically.</p>
+    <input type="text" id="seq-search" placeholder="Search by name, fit, or SKU..." oninput="renderSequenceList()" style="width:100%;margin-bottom:14px"/>
+    <div id="seq-list"></div>
+    <div id="seq-status" style="margin-top:10px;font-size:12.5px;color:var(--off)"></div>
+  </div>
   <div id="tab-add" class="apsec" style="display:none">
     <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
       <h3 id="add-title" style="margin:0">ADD NEW PRODUCT</h3>
@@ -3425,7 +3517,8 @@ async function admLogin(){if(locked){shAErr("Locked. Run: localStorage.removeIte
 function shAErr(t){const e=document.getElementById("agerr");e.textContent=t;e.style.display="block";}
 function admOut(){document.getElementById("ap").style.display="none";location.hash="";document.body.style.overflow="";}
 function _woHook(t){if(t==="orders"&&typeof fillWoProducts==="function")fillWoProducts();}
-function apTab(t){const all=["products","orders","add","site","banner","fits","reviews","stories","instagrid","faq","sizeguide","payment","settings"];all.forEach(id=>{const e=document.getElementById("tab-"+id);if(e)e.style.display=id===t?"block":"none";});document.querySelectorAll(".atab").forEach((b,i)=>b.classList.toggle("act",all[i]===t));if(t==="products"){ldProds();apSts();}if(t==="payment"){loadPaySettings();}
+function apTab(t){const all=["products","dashboard","sequence","orders","add","site","banner","fits","reviews","stories","instagrid","faq","sizeguide","payment","settings"];all.forEach(id=>{const e=document.getElementById("tab-"+id);if(e)e.style.display=id===t?"block":"none";});document.querySelectorAll(".atab").forEach((b,i)=>b.classList.toggle("act",all[i]===t));if(t==="products"){ldProds();apSts();}if(t==="payment"){loadPaySettings();}if(t==="dashboard"){renderDashboard();}if(t==="sequence"){renderSequenceList();}
+  if(t==="dashboard"){loadOrdersFromSupabase().then(()=>renderDashboard());}
   if(t==="orders"){rnAdmOrders();loadOrdersFromSupabase().then(ok=>{if(ok)rnAdmOrders();});loadAbandonedCount();_woHook("orders");}if(t==="reviews")rnAdmRev();if(t==="site")loadSiteEd();if(t==="fits")loadFitsAdmin();if(t==="settings"){loadPaletteAdmin();loadGlobalScAdmin();rnStorageView();}if(t==="banner")loadBannerAdmin();if(t==="stories")renderStoryAdmin();if(t==="instagrid")renderHeroGridAdmin();if(t==="faq")renderFaqAdmin();if(t==="sizeguide")renderSizeGuideAdmin();}
 function apSts(){const tot=products.length,sold=products.filter(p=>p.badges&&p.badges.includes("sold")).length,cats=[...new Set(products.map(p=>p.category))].length;document.getElementById("apstats").innerHTML=`<div class="apstat"><div class="v">${tot}</div><div class="k">Total</div></div><div class="apstat"><div class="v">${tot-sold}</div><div class="k">Active</div></div><div class="apstat"><div class="v">${sold}</div><div class="k">Sold Out</div></div><div class="apstat"><div class="v">${cats}</div><div class="k">Categories</div></div>`;}
 
@@ -3983,6 +4076,224 @@ function renderAbandonedList(){
       <div style="color:var(--off);margin-top:4px">${itemsHtml||"—"} — ${o.total?inr(o.total):"—"}</div>
     </div>`;
   }).join("");
+}
+// ===== PRODUCT SEQUENCE =====
+let _seqPending=false;
+function renderSequenceList(){
+  const q=(document.getElementById("seq-search")||{value:""}).value.trim().toLowerCase();
+  const list=document.getElementById("seq-list");
+  if(!list)return;
+  // Sort by current order (matches the storefront's own default sort exactly),
+  // then filter for display -- filtering never changes underlying order values.
+  const all=[...products].sort((a,b)=>(a.order||99)-(b.order||99));
+  const shown=q?all.filter(p=>(p.name||"").toLowerCase().includes(q)||(p.fit||"").toLowerCase().includes(q)||(p.id||"").toLowerCase().includes(q)):all;
+  if(!shown.length){list.innerHTML='<p style="color:var(--off);font-size:13px">No products match.</p>';return;}
+  list.innerHTML=shown.map((p,i)=>{
+    const globalIdx=all.indexOf(p);
+    const img=(p.images||[])[0]||"";
+    return `<div style="display:flex;align-items:center;gap:10px;padding:9px 10px;border:1px solid var(--line);border-radius:8px;margin-bottom:6px;background:rgba(255,255,255,.02)">
+      <span style="font-size:11px;color:var(--off);width:26px;flex:0 0 26px">#${p.order||"?"}</span>
+      ${img?`<img src="${img}" style="width:34px;height:44px;object-fit:cover;border-radius:4px;flex:0 0 34px"/>`:'<div style="width:34px;height:44px;background:var(--bg2);border-radius:4px;flex:0 0 34px"></div>'}
+      <div style="flex:1;min-width:0"><div style="font-size:12.5px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p.name||""}</div>
+      <div style="font-size:11px;color:var(--off)">${p.fit||""}</div></div>
+      <div style="display:flex;gap:4px;flex:0 0 auto">
+        <button class="tb" onclick="seqMove('${p.id}','top')" title="Move to top" ${globalIdx===0?"disabled":""}>⤒</button>
+        <button class="tb" onclick="seqMove('${p.id}','up')" title="Move up" ${globalIdx===0?"disabled":""}>↑</button>
+        <button class="tb" onclick="seqMove('${p.id}','down')" title="Move down" ${globalIdx===all.length-1?"disabled":""}>↓</button>
+      </div>
+    </div>`;
+  }).join("");
+}
+function seqMove(id,dir){
+  if(_seqPending)return; // ignore rapid double-taps mid-save
+  const all=[...products].sort((a,b)=>(a.order||99)-(b.order||99));
+  const idx=all.findIndex(p=>p.id===id);
+  if(idx<0)return;
+  if(dir==="up"&&idx>0){[all[idx-1],all[idx]]=[all[idx],all[idx-1]];}
+  else if(dir==="down"&&idx<all.length-1){[all[idx+1],all[idx]]=[all[idx],all[idx+1]];}
+  else if(dir==="top"&&idx>0){const [item]=all.splice(idx,1);all.unshift(item);}
+  else return;
+  // Renumber the FULL list 1..N by construction -- no duplicates or gaps
+  // are possible because every value is freshly assigned from scratch here,
+  // never incremented or shifted relative to a previous number.
+  all.forEach((p,i)=>{p.order=i+1;});
+  renderSequenceList();
+  seqSaveAll(all);
+}
+async function seqSaveAll(all){
+  _seqPending=true;
+  const statusEl=document.getElementById("seq-status");
+  if(statusEl){statusEl.textContent="Saving order...";statusEl.style.color="var(--off)";}
+  try{
+    const results=await Promise.all(all.map(p=>
+      fetch(SB_FN_BASE+"admin-product-meta",{
+        method:"POST",headers:{"Content-Type":"application/json","apikey":SB_APIKEY},
+        body:JSON.stringify({password:_adminPw,id:p.id,soldCount:p.soldCount,shade:p.shade||"",
+          sizeGuideMode:p.sizeGuideMode,customSizeGuide:p.customSizeGuide,displayOrder:p.order})
+      }).then(r=>r.json())
+    ));
+    const failed=results.filter(r=>r.error);
+    if(failed.length){
+      if(statusEl){statusEl.textContent="⚠️ "+failed.length+" product(s) failed to save — reordering may be incomplete. Try again.";statusEl.style.color="#C0392B";}
+    }else{
+      try{localStorage.setItem("ds_p",JSON.stringify(products));}catch(e){}
+      if(statusEl){statusEl.textContent="✓ Order saved";statusEl.style.color="#2ecc71";}
+    }
+  }catch(e){
+    if(statusEl){statusEl.textContent="⚠️ Network error — order may not have saved. Try again.";statusEl.style.color="#C0392B";}
+  }finally{
+    _seqPending=false;
+  }
+}
+
+let _dashRange="30d";
+function setDashRange(r){_dashRange=r;renderDashboard();}
+function _dashFiltered(){
+  const now=Date.now();
+  let cutoff=0,upper=now;
+  if(_dashRange==="today"){const d=new Date();d.setHours(0,0,0,0);cutoff=d.getTime();}
+  else if(_dashRange==="7d")cutoff=now-7*86400000;
+  else if(_dashRange==="30d")cutoff=now-30*86400000;
+  else if(_dashRange==="month"){const d=new Date();d.setDate(1);d.setHours(0,0,0,0);cutoff=d.getTime();}
+  else if(_dashRange==="custom"){
+    const fromEl=document.getElementById("dash-custom-from"),toEl=document.getElementById("dash-custom-to");
+    if(fromEl&&fromEl.value)cutoff=new Date(fromEl.value+"T00:00:00").getTime();
+    if(toEl&&toEl.value)upper=new Date(toEl.value+"T23:59:59").getTime();
+  }
+  // "all" leaves cutoff at 0
+  return orders.filter(o=>o.placedAt>=cutoff && o.placedAt<=upper && ["confirmed","fulfilled"].includes(o.status));
+}
+let _dashLastList=[];
+function renderDashboard(){
+  document.querySelectorAll("#dash-range .sfd-rbtn").forEach(b=>b.classList.toggle("on",b.dataset.r===_dashRange));
+  const list=_dashFiltered();
+  _dashLastList=list;
+  const revenue=list.reduce((s,o)=>s+(Number(o.total)||0),0);
+  const n=list.length;
+  const aov=n?Math.round(revenue/n):0;
+  const units=list.reduce((s,o)=>s+(o.items||[]).reduce((si,i)=>si+(Number(i.qty)||1),0),0);
+
+  const statsEl=document.getElementById("dash-stats");
+  if(statsEl)statsEl.innerHTML=[
+    ["Revenue",inr(revenue)],["Orders",n],["AOV",inr(aov)],["Units Sold",units]
+  ].map(([k,v])=>`<div class="apstat"><div class="v">${v}</div><div class="k">${k}</div></div>`).join("");
+
+  // Channel breakdown
+  const byChan={};
+  list.forEach(o=>{const c=o.channel||"website";byChan[c]=byChan[c]||{n:0,rev:0};byChan[c].n++;byChan[c].rev+=Number(o.total)||0;});
+  const chanLabel={website:"Website",whatsapp:"WhatsApp",walkin:"Walk-in / Store",instagram:"Instagram"};
+  const chanEl=document.getElementById("dash-channel");
+  if(chanEl){
+    const rows=Object.keys(byChan).sort((a,b)=>byChan[b].rev-byChan[a].rev);
+    chanEl.innerHTML=rows.length?rows.map(c=>`<div class="sfd-row">
+      <span>${chanLabel[c]||c}</span><span><b>${inr(byChan[c].rev)}</b> <span class="off">(${byChan[c].n})</span></span></div>`).join("")
+      :'<p style="color:#8A8683;font-size:12.5px">No orders in this range.</p>';
+  }
+
+  // Payment method breakdown
+  const byPay={};
+  list.forEach(o=>{const p=o.paymentMode||"prepaid";byPay[p]=byPay[p]||{n:0,rev:0};byPay[p].n++;byPay[p].rev+=Number(o.total)||0;});
+  const payLabel={prepaid:"Prepaid",cod:"Cash on Delivery",partial_cod:"Partial COD"};
+  const payEl=document.getElementById("dash-paymethod");
+  if(payEl){
+    const rows=Object.keys(byPay).sort((a,b)=>byPay[b].rev-byPay[a].rev);
+    payEl.innerHTML=rows.length?rows.map(p=>`<div class="sfd-row">
+      <span>${payLabel[p]||p}</span><span><b>${inr(byPay[p].rev)}</b> <span class="off">(${byPay[p].n})</span></span></div>`).join("")
+      :'<p style="color:#8A8683;font-size:12.5px">No orders in this range.</p>';
+  }
+
+  // Outstanding COD due -- money that's confirmed sold but not yet in hand.
+  // Deliberately NOT date-filtered by _dashRange: an order placed 3 weeks ago
+  // with cash still due at delivery is still real outstanding cash today,
+  // regardless of which reporting window is selected.
+  const codWrap=document.getElementById("dash-coddue-wrap");
+  if(codWrap){
+    const outstanding=orders.filter(o=>["confirmed"].includes(o.status)&&Number(o.codDue||0)>0);
+    const total=outstanding.reduce((s,o)=>s+Number(o.codDue||0),0);
+    codWrap.innerHTML=outstanding.length?`<div class="box">
+      <b>${inr(total)} still to collect</b> <span class="off">across ${outstanding.length} confirmed COD/Partial COD order${outstanding.length>1?"s":""} not yet marked fulfilled</span>
+    </div>`:"";
+  }
+
+  // Top products by units, computed from this range's orders
+  const byProd={};
+  list.forEach(o=>(o.items||[]).forEach(i=>{
+    const key=i.name||"Unknown";
+    byProd[key]=byProd[key]||{units:0,rev:0};
+    byProd[key].units+=Number(i.qty)||1;
+    byProd[key].rev+=(Number(i.price)||0)*(Number(i.qty)||1);
+  }));
+  const prodEl=document.getElementById("dash-products");
+  const prodCountEl=document.getElementById("dash-prod-count");
+  if(prodCountEl)prodCountEl.textContent=Object.keys(byProd).length?`(${Object.keys(byProd).length} sold)`:"";
+  if(prodEl){
+    const rows=Object.keys(byProd).sort((a,b)=>byProd[b].units-byProd[a].units).slice(0,10);
+    prodEl.innerHTML=rows.length?rows.map((name,i)=>`<div class="sfd-row">
+      <span><span class="off" style="margin-right:8px">${String(i+1).padStart(2,"0")}</span>${name}</span>
+      <span><b>${byProd[name].units}</b> <span class="off">units</span> &middot; ${inr(byProd[name].rev)}</span></div>`).join("")
+      :'<p style="color:#8A8683;font-size:12.5px">No sales in this range.</p>';
+  }
+
+  // Daily revenue bars -- one bar per calendar day covered by the current
+  // range, capped at 60 bars so a full "All time" view stays legible rather
+  // than rendering hundreds of illegible slivers.
+  const dailyEl=document.getElementById("dash-daily");
+  if(dailyEl){
+    const byDay={};
+    list.forEach(o=>{
+      const d=new Date(o.placedAt);d.setHours(0,0,0,0);
+      const key=d.getTime();
+      byDay[key]=(byDay[key]||0)+(Number(o.total)||0);
+    });
+    let days=Object.keys(byDay).map(Number).sort((a,b)=>a-b);
+    if(days.length>60)days=days.slice(-60);
+    if(!days.length){
+      dailyEl.innerHTML='<p style="color:#8A8683;font-size:12.5px">No sales in this range.</p>';
+    }else{
+      const max=Math.max(...days.map(d=>byDay[d]),1);
+      const bars=days.map(d=>{
+        const v=byDay[d];
+        const pct=Math.max(2,Math.round(v/max*100));
+        return `<div class="sfd-bar" style="height:${pct}%" data-v="${inr(v)}"></div>`;
+      }).join("");
+      const labels=days.map(d=>`<span>${new Date(d).toLocaleDateString("en-IN",{day:"numeric",month:"short"})}</span>`).join("");
+      dailyEl.innerHTML=`<div class="sfd-bar-wrap">${bars}</div><div class="sfd-daylabels">${labels}</div>`;
+    }
+  }
+}
+
+// CSV export -- three sections in one file (summary, channel/payment
+// breakdown, order-level detail) so it opens straight into Excel/Sheets
+// with everything from the current range in one place. UTF-8 BOM included
+// so ₹ and non-ASCII customer names render correctly in Excel specifically
+// (Excel mis-decodes UTF-8 without it).
+function _csvCell(v){
+  const s=String(v==null?"":v);
+  return /[",\n]/.test(s) ? '"'+s.replace(/"/g,'""')+'"' : s;
+}
+function exportDashboardCSV(){
+  const list=_dashLastList||[];
+  const lines=[];
+  lines.push(["365 Drop Store — Sales Export"].map(_csvCell).join(","));
+  lines.push(["Range",_dashRange,"Generated",new Date().toLocaleString("en-IN")].map(_csvCell).join(","));
+  lines.push([]);
+  lines.push(["Order ID","Date","Channel","Payment Mode","Status","Items","Total","COD Due","Customer","Phone"].map(_csvCell).join(","));
+  list.forEach(o=>{
+    const itemsStr=(o.items||[]).map(i=>`${i.name} (${i.size||""}) x${i.qty||1}`).join(" | ");
+    lines.push([
+      o.orderId, new Date(o.placedAt).toLocaleString("en-IN"), o.channel||"website",
+      o.paymentMode||"prepaid", o.status, itemsStr, o.total, o.codDue||0, o.name, o.phone
+    ].map(_csvCell).join(","));
+  });
+  const csv="\uFEFF"+lines.join("\r\n"); // BOM for Excel
+  const blob=new Blob([csv],{type:"text/csv;charset=utf-8;"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  a.href=url;
+  a.download="365dropstore-sales-"+_dashRange+"-"+new Date().toISOString().slice(0,10)+".csv";
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast("CSV downloaded — "+list.length+" orders",true);
 }
 function rnAdmOrders(){
   document.getElementById("ocnt").textContent=orders.length?`(${orders.length})`:"";
