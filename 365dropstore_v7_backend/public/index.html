@@ -1720,7 +1720,13 @@ https://raw.githubusercontent.com/drop-365/365dropstore/main/images/jean2.jpg" s
       <div class="pff"><label>Cash on Delivery (COD)</label><select id="pay-cod"><option value="1">Enabled</option><option value="0">Disabled</option></select></div>
       <div class="pff"><label>COD Additional Charge (&#8377;)</label><input type="number" id="pay-cod-charge" min="0" placeholder="50"/></div>
       <div class="pff"><label>Partial COD</label><select id="pay-partial"><option value="1">Enabled</option><option value="0">Disabled</option></select></div>
-      <div class="pff"><label>Partial COD Advance Amount (&#8377;)</label><input type="number" id="pay-partial-adv" min="0" placeholder="199"/></div>
+      <div class="pff"><label>Partial COD Advance Type</label><select id="pay-partial-mode" onchange="togglePartialModeFields()"><option value="flat">Flat amount</option><option value="percent">Percentage of order</option></select></div>
+      <div class="pff" id="pay-partial-flat-wrap"><label>Flat Advance Amount (&#8377;)</label><input type="number" id="pay-partial-adv" min="0" placeholder="199"/></div>
+      <div class="pff" id="pay-partial-pct-wrap" style="display:none">
+        <label>Advance Percentage (%)</label><input type="number" id="pay-partial-pct" min="1" max="100" placeholder="20"/>
+        <small style="display:block;margin-top:4px;color:var(--off)">Scales with cart size &mdash; a 5-item order asks for 5&times; the deposit of a 1-item order, same risk protection either way.</small>
+      </div>
+      <div class="pff" id="pay-partial-min-wrap" style="display:none"><label>Minimum Advance (&#8377;)</label><input type="number" id="pay-partial-min" min="0" placeholder="99"/></div>
       <div class="pff full"><button class="btn btn-w" onclick="savePaySettings()" style="width:100%;justify-content:center">Save Payment Settings</button></div>
     </div>
   </div>
@@ -1997,8 +2003,24 @@ let _adminPw="";
 const pwOv=LS.get("adm_pd",null);if(pwOv)AH=pwOv;
 let fCat="All",fSizes=[],fFits=[],fMaxPrice=5000,fShade="";
 // Payment config — stored in siteContent.paymentConfig, editable from admin
-const DEFAULT_PAY_CFG={prepaid:true,cod:true,codCharge:50,partialCod:true,partialCodAdvance:199};
+const DEFAULT_PAY_CFG={prepaid:true,cod:true,codCharge:50,partialCod:true,partialCodAdvance:199,partialCodMode:"flat",partialCodPercent:20,partialCodMin:99};
 function getPayCfg(){return Object.assign({},DEFAULT_PAY_CFG,siteContent.paymentConfig||{});}
+// Single source of truth for the Partial COD advance. Previously this
+// calculation (Math.min(cfg.partialCodAdvance||199, sub)) was duplicated in
+// three places, which is exactly why the COD-charge fix earlier today had
+// to be applied three times. "flat" preserves the original behaviour
+// unchanged; "percent" scales the deposit with cart size so a 5-item order
+// carries a bigger upfront commitment than a 1-item order, not the same
+// tiny flat fee against a much larger cash-on-delivery exposure.
+function computePartialAdvance(cfg,sub){
+  if(cfg.partialCodMode==="percent"){
+    const pct=Math.max(1,Math.min(100,cfg.partialCodPercent||20));
+    const raw=Math.round(sub*pct/100);
+    const floor=Math.min(cfg.partialCodMin||99,sub);
+    return Math.max(floor,Math.min(raw,sub));
+  }
+  return Math.min(cfg.partialCodAdvance||199,sub);
+}
 const SHADES=[
   {k:"cream",     n:"Ecru",        hex:"#E4D9C3", L:88},
   {k:"iceblue",   n:"Ice Blue",    hex:"#A9C7DE", L:74},
@@ -3131,7 +3153,7 @@ function renderPayMethods(){
   if(cfg.prepaid)opts+=`<label class="ck-payopt${_selectedPayMethod==="prepaid"?" on":""}" onclick="pickPayMethod('prepaid')"><input type="radio" name="paymethod" value="prepaid" ${_selectedPayMethod==="prepaid"?"checked":""}/>
     <div class="ck-payopt-body"><b>Pay Online</b><span>UPI, Cards, Netbanking &middot; ${inr(sub)}</span></div></label>`;
   if(cfg.partialCod){
-    const adv=Math.min(cfg.partialCodAdvance||199,sub);
+    const adv=computePartialAdvance(cfg,sub);
     const rem=sub-adv+(cfg.codCharge||0);
     opts+=`<label class="ck-payopt${_selectedPayMethod==="partial"?" on":""}" onclick="pickPayMethod('partial')"><input type="radio" name="paymethod" value="partial" ${_selectedPayMethod==="partial"?"checked":""}/>
       <div class="ck-payopt-body"><b>Partial COD</b><span>Pay ${inr(adv)} now, ${inr(rem)} at delivery${cfg.codCharge?` (incl. ${inr(cfg.codCharge)} COD charge)`:""}</span></div></label>`;
@@ -3164,7 +3186,7 @@ function renderPaySummary(){
     rows+="<div class='ck-sumrow'><span>COD Charge</span><span>"+inr(cfg.codCharge)+"</span></div>";
     rows+="<div class='ck-sumrow ck-sumtotal'><span>Total</span><span>"+inr(sub+cfg.codCharge)+"</span></div>";
   }else if(_selectedPayMethod==="partial"){
-    const adv=Math.min(cfg.partialCodAdvance||199,sub);
+    const adv=computePartialAdvance(cfg,sub);
     const remP=sub-adv+(cfg.codCharge||0);
     if(cfg.codCharge)rows+="<div class='ck-sumrow'><span>COD Charge</span><span>"+inr(cfg.codCharge)+"</span></div>";
     rows+="<div class='ck-sumrow ck-sumtotal'><span>Total</span><span>"+inr(sub+(cfg.codCharge||0))+"</span></div>";
@@ -3183,7 +3205,7 @@ function proceedToPayment(){
   if(_selectedPayMethod==="cod"){
     placeCodOrder(order,cfg);
   }else if(_selectedPayMethod==="partial"){
-    const adv=Math.min(cfg.partialCodAdvance||199,order.total);
+    const adv=computePartialAdvance(cfg,order.total);
     order._paymentMethod="partial_cod";
     order._codAdvance=adv;
     order._codCharge=cfg.codCharge||0;
@@ -4026,13 +4048,23 @@ async function chgPwd(){const p1=document.getElementById("st0").value;const p2=d
   AH=h;_adminPw=p1;LS.set("adm_pd",h);
   alert("Password updated everywhere ✓");
   document.getElementById("st0").value="";document.getElementById("st1").value="";}
+function togglePartialModeFields(){
+  const mode=document.getElementById("pay-partial-mode").value;
+  document.getElementById("pay-partial-flat-wrap").style.display=mode==="flat"?"":"none";
+  document.getElementById("pay-partial-pct-wrap").style.display=mode==="percent"?"":"none";
+  document.getElementById("pay-partial-min-wrap").style.display=mode==="percent"?"":"none";
+}
 function loadPaySettings(){
   const cfg=getPayCfg();
   document.getElementById("pay-prepaid").value=cfg.prepaid?"1":"0";
   document.getElementById("pay-cod").value=cfg.cod?"1":"0";
   document.getElementById("pay-cod-charge").value=cfg.codCharge||0;
   document.getElementById("pay-partial").value=cfg.partialCod?"1":"0";
+  document.getElementById("pay-partial-mode").value=cfg.partialCodMode||"flat";
   document.getElementById("pay-partial-adv").value=cfg.partialCodAdvance||199;
+  document.getElementById("pay-partial-pct").value=cfg.partialCodPercent||20;
+  document.getElementById("pay-partial-min").value=cfg.partialCodMin||99;
+  togglePartialModeFields();
 }
 function savePaySettings(){
   siteContent.paymentConfig={
@@ -4040,7 +4072,10 @@ function savePaySettings(){
     cod:document.getElementById("pay-cod").value==="1",
     codCharge:parseInt(document.getElementById("pay-cod-charge").value,10)||0,
     partialCod:document.getElementById("pay-partial").value==="1",
-    partialCodAdvance:parseInt(document.getElementById("pay-partial-adv").value,10)||0
+    partialCodMode:document.getElementById("pay-partial-mode").value,
+    partialCodAdvance:parseInt(document.getElementById("pay-partial-adv").value,10)||0,
+    partialCodPercent:Math.max(1,Math.min(100,parseInt(document.getElementById("pay-partial-pct").value,10)||20)),
+    partialCodMin:parseInt(document.getElementById("pay-partial-min").value,10)||0
   };
   lsSafeSet("ds_site",siteContent);
   syncSiteToSupabase();
