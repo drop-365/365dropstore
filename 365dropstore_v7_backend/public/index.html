@@ -3101,7 +3101,13 @@ function _submitCheckoutDetailsInner(){
   // populate the review screen
   document.getElementById("ck-review-items").innerHTML=cart.map(i=>`<div style="display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)"><img src="${i.image}" style="width:50px;height:65px;object-fit:cover;border-radius:6px"/><div style="flex:1"><div style="font-weight:700;font-size:13px">${i.name}</div><div style="font-size:12px;color:var(--off)">${i.size} · ${i.color} · x${i.qty}</div></div><div style="font-weight:700;font-size:13px">${inr(i.price*i.qty)}</div></div>`).join("");
   document.getElementById("ck-review-info").innerHTML=`<b>${name}</b><br/>${phone}${email?'<br/>'+email:''}<br/>${addr} — ${pin}`;
-  document.getElementById("ck-review-total").textContent=inr(sub);
+  // NOTE: the old #ck-review-total element was removed from the markup when
+  // the payment-method summary (#ck-pay-summary, via renderPaySummary()) was
+  // added -- that box already shows the total. This line writing into the
+  // now-nonexistent element was dead code left behind by that change, and
+  // getElementById(...).textContent on a null result threw a TypeError here
+  // EVERY time, before showCkStep("review") could ever run. That is the
+  // entire cause of "Continue to Review" doing nothing.
   try{
     _selectedPayMethod=getPayCfg().prepaid?"prepaid":(getPayCfg().partialCod?"partial":"cod");
     renderPayMethods();
