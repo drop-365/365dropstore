@@ -3931,7 +3931,10 @@ async function loadOrdersFromSupabase(){
     orders=data.orders.map(o=>({
       orderId:o.order_id,name:o.customer_name,phone:o.phone,
       addr:o.address,pin:o.pincode,items:o.items||[],
-      total:o.total,status:o.status,placedAt:new Date(o.placed_at).getTime()
+      total:o.total,status:o.status,placedAt:new Date(o.placed_at).getTime(),
+      paymentMode:o.payment_mode||"prepaid",
+      amountPaidOnline:o.amount_paid_online,
+      codDue:o.cod_due
     }));
     try{localStorage.setItem("ds_orders",JSON.stringify(orders));}catch(e){}
     return true;
@@ -4012,6 +4015,21 @@ function rnAdmOrders(){
       <div style="font-size:13px;color:var(--off);margin-top:2px">${o.addr} — ${o.pin}</div>
       <div style="font-size:13px;color:var(--off);margin-top:8px;line-height:1.6">${itemsHtml}</div>
       <div style="margin-top:8px;font-weight:700;color:var(--white)">Total: ${inr(o.total)}</div>
+      ${(()=>{
+        const mode=o.paymentMode||"prepaid";
+        const codDue=Number(o.codDue||0);
+        const paidOnline=o.amountPaidOnline!=null?Number(o.amountPaidOnline):null;
+        if(mode==="cod"&&codDue>0){
+          return `<div style="margin-top:8px;padding:8px 10px;background:rgba(192,57,43,.12);border:1px solid rgba(192,57,43,.35);border-radius:7px;font-size:12.5px;font-weight:700;color:#C0392B">💰 Full COD — collect ${inr(codDue)} at delivery</div>`;
+        }
+        if(mode==="partial_cod"&&codDue>0){
+          return `<div style="margin-top:8px;padding:8px 10px;background:rgba(192,57,43,.12);border:1px solid rgba(192,57,43,.35);border-radius:7px;font-size:12.5px;font-weight:700;color:#C0392B">💰 Partial COD — paid ${inr(paidOnline||0)} online, collect ${inr(codDue)} at delivery</div>`;
+        }
+        if(mode==="prepaid"){
+          return `<div style="margin-top:6px;font-size:11.5px;color:var(--off)">Prepaid — nothing due at delivery</div>`;
+        }
+        return "";
+      })()}
     </div>`;
   }).join("");
 }
