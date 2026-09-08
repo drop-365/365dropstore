@@ -3041,6 +3041,26 @@ function goToDetails(){
 }
 function backToBag(){showCkStep("bag");}
 function submitCheckoutDetails(){
+  try{
+    return _submitCheckoutDetailsInner();
+  }catch(e){
+    // Safety net: whatever the cause, the customer must see SOMETHING
+    // instead of a dead button. This element is created fresh every time,
+    // so it can never depend on some other hidden/misrouted node.
+    console.error("checkout: submitCheckoutDetails failed:",e);
+    let box=document.getElementById("ck-fatal-err");
+    if(!box){
+      box=document.createElement("div");
+      box.id="ck-fatal-err";
+      box.style.cssText="background:#C0392B;color:#fff;padding:12px 14px;border-radius:10px;font-size:13px;margin:10px 0;font-weight:600";
+      const details=document.getElementById("ckview-details");
+      if(details)details.insertBefore(box,details.firstChild);
+    }
+    box.textContent="Something went wrong loading the next step. Please try again, or message us on WhatsApp to complete your order — we will not lose your cart.";
+    box.style.display="block";
+  }
+}
+function _submitCheckoutDetailsInner(){
   if(typeof fbq==="function")fbq("track","InitiateCheckout",{value:cart.reduce((s,i)=>s+i.price*i.qty,0),currency:"INR",num_items:cart.length});
   const name=document.getElementById("ck-name").value.trim();
   // Chrome autofill sets input.value directly and can bypass maxlength,
@@ -3055,12 +3075,15 @@ function submitCheckoutDetails(){
   const addr=document.getElementById("ck-addr").value.trim();
   const pin=document.getElementById("ck-pin").value.trim();
   // Resolve the error element for whichever step is CURRENTLY on screen.
-  // The previous version always preferred ck-err-review because that
-  // element exists in the DOM at all times (just hidden), so it never
-  // fell through to ck-err — every validation failure on the details
-  // step was written into an element the customer could never see,
-  // which looked exactly like the button doing nothing.
-  const onReview=document.getElementById("ckview-review")&&document.getElementById("ckview-review").style.display!=="none";
+  // Visibility here is controlled by the "active" class (see showCkStep /
+  // .ckview.active{display:flex} in the stylesheet) -- NOT inline
+  // style.display, which this app never sets on these elements. Checking
+  // .style.display (an earlier attempt at this same fix) always read as
+  // "" and was therefore always truthy, which silently reproduced the
+  // exact original bug: every error still landed on ck-err-review.
+  // classList.contains("active") reads the real state.
+  const reviewEl=document.getElementById("ckview-review");
+  const onReview=!!(reviewEl&&reviewEl.classList&&reviewEl.classList.contains("active"));
   const errEl=onReview
     ? (document.getElementById("ck-err-review")||document.getElementById("ck-err"))
     : (document.getElementById("ck-err")||document.getElementById("ck-err-review"));
