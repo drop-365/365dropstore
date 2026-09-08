@@ -3132,9 +3132,9 @@ function renderPayMethods(){
     <div class="ck-payopt-body"><b>Pay Online</b><span>UPI, Cards, Netbanking &middot; ${inr(sub)}</span></div></label>`;
   if(cfg.partialCod){
     const adv=Math.min(cfg.partialCodAdvance||199,sub);
-    const rem=sub-adv;
+    const rem=sub-adv+(cfg.codCharge||0);
     opts+=`<label class="ck-payopt${_selectedPayMethod==="partial"?" on":""}" onclick="pickPayMethod('partial')"><input type="radio" name="paymethod" value="partial" ${_selectedPayMethod==="partial"?"checked":""}/>
-      <div class="ck-payopt-body"><b>Partial COD</b><span>Pay ${inr(adv)} now, ${inr(rem)} at delivery</span></div></label>`;
+      <div class="ck-payopt-body"><b>Partial COD</b><span>Pay ${inr(adv)} now, ${inr(rem)} at delivery${cfg.codCharge?` (incl. ${inr(cfg.codCharge)} COD charge)`:""}</span></div></label>`;
   }
   if(cfg.cod){
     const codTotal=sub+(cfg.codCharge||0);
@@ -3165,9 +3165,11 @@ function renderPaySummary(){
     rows+="<div class='ck-sumrow ck-sumtotal'><span>Total</span><span>"+inr(sub+cfg.codCharge)+"</span></div>";
   }else if(_selectedPayMethod==="partial"){
     const adv=Math.min(cfg.partialCodAdvance||199,sub);
-    rows+="<div class='ck-sumrow ck-sumtotal'><span>Total</span><span>"+inr(sub)+"</span></div>";
+    const remP=sub-adv+(cfg.codCharge||0);
+    if(cfg.codCharge)rows+="<div class='ck-sumrow'><span>COD Charge</span><span>"+inr(cfg.codCharge)+"</span></div>";
+    rows+="<div class='ck-sumrow ck-sumtotal'><span>Total</span><span>"+inr(sub+(cfg.codCharge||0))+"</span></div>";
     rows+="<div class='ck-sumrow ck-sumhigh'><span>Pay now</span><span>"+inr(adv)+"</span></div>";
-    rows+="<div class='ck-sumrow'><span>Pay at delivery</span><span>"+inr(sub-adv)+"</span></div>";
+    rows+="<div class='ck-sumrow'><span>Pay at delivery</span><span>"+inr(remP)+"</span></div>";
   }else{
     rows+="<div class='ck-sumrow ck-sumtotal'><span>Total</span><span>"+inr(sub)+"</span></div>";
   }
@@ -3184,7 +3186,10 @@ function proceedToPayment(){
     const adv=Math.min(cfg.partialCodAdvance||199,order.total);
     order._paymentMethod="partial_cod";
     order._codAdvance=adv;
-    order._codRemaining=order.total-adv;
+    order._codCharge=cfg.codCharge||0;
+    order._codRemaining=order.total-adv+(cfg.codCharge||0);
+    // The online-charged amount is the advance only -- the COD charge is
+    // collected at delivery along with the remainder, same as full COD.
     startRazorpayPayment(order,adv);
   }else{
     order._paymentMethod="prepaid";
