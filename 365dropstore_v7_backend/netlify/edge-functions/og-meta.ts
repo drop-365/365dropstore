@@ -145,6 +145,23 @@ export default async (request, context) => {
     `<meta name="twitter:image" content="${escHtml(image)}"/>`
   );
 
+  // Classic Open Graph Product namespace tags -- the actual documented gap.
+  // These are separate from (and older than) the Schema.org JSON-LD block
+  // below; Instagram/Facebook's product-tagging crawler reads this
+  // og:type=product namespace directly, and it was never being emitted here.
+  const priceVal = Number(product.offer_price || product.price || 0).toFixed(2);
+  const inStock = true; // product page only renders for products that exist; size-level stock is handled elsewhere and doesn't block the page itself
+  modified = modified.replace(
+    "</head>",
+    `<meta property="product:price:amount" content="${priceVal}"/>
+<meta property="product:price:currency" content="INR"/>
+<meta property="product:availability" content="${inStock ? "in stock" : "out of stock"}"/>
+<meta property="product:condition" content="new"/>
+<meta property="product:brand" content="365 Drop Store"/>
+<meta property="product:retailer_item_id" content="${escHtml(product.id)}"/>
+</head>`
+  );
+
   // Add structured data (JSON-LD) for Google rich results
   const jsonLd = {
     "@context": "https://schema.org",
