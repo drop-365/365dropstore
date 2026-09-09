@@ -1291,21 +1291,20 @@ body:hover .cursor-glow{opacity:1}
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
 <!-- ============================================================
-     META PIXEL — currently OFF by decision (2026-09-02).
-     All ads are running through Instagram Boost, so no Ads Manager
-     pixel is in use. NOTE: Boost still runs on Meta's ad system —
-     with the pixel off you build no retargeting audience and get no
-     conversion attribution. To turn back on: confirm the real ID in
-     Meta Events Manager, set it in BOTH places below AND in
-     public/best/index.html (currently 1202978898463818), then delete
-     the comment wrapper. Every fbq() call elsewhere in this file is
-     guarded with typeof fbq==="function", so leaving it off is safe.
+     META PIXEL — RE-ENABLED 2026-09-09.
+     Confirmed directly in Meta Events Manager: dataset 2018974752158259
+     ("365DropStore") is the one real, active pixel -- it has genuine
+     historical event volume, Conversions API connected, tied to
+     365dropstore.com, with the Catalog_Products catalogue attached.
+     Verified by checking it under two different ad-account contexts in
+     Events Manager and confirming the exact same Dataset ID appeared
+     both times -- there is only one dataset here, not two competing
+     IDs. 1202978898463818 (referenced in the old disable comment below)
+     is the ad account / Page ID, not a second pixel -- the "unswapped
+     placeholder" concern that paused this on 2026-08-28 was based on
+     that mistaken assumption. No ID change was needed, only removing
+     the comment wrapper below.
      ============================================================ -->
-<!-- Meta Pixel DISABLED 2026-08-28 — see 365dropstore-images/... discrepancy: this ID
-     (2018974752158259) looks like an unswapped placeholder vs. the real pixel on /best/
-     (1202978898463818). Paused site-wide until confirmed in Meta Events Manager which ID
-     is actually wired to the ad account. All fbq(...) calls elsewhere in this file are
-     guarded with typeof fbq==="function", so no fbq global = safe no-op everywhere.
 <script>
 !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
 n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
@@ -1316,8 +1315,7 @@ fbq('init','2018974752158259');
 fbq('track','PageView');
 </script>
 <noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=2018974752158259&ev=PageView&noscript=1"/></noscript>
--->
-<!-- End Meta Pixel (disabled) -->
+<!-- End Meta Pixel -->
 </head>
 <body>
 <div class="cursor-glow" id="cursorGlow"></div>
