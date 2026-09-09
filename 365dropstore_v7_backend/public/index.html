@@ -513,45 +513,57 @@ button,a,.btn,[onclick]{-webkit-tap-highlight-color:transparent}
 #ap .apstat .k{font-size:10px;letter-spacing:.1em;color:#8A8683;text-transform:uppercase}
 @media(prefers-reduced-motion:reduce){#ap *{animation:none!important}}
 
-/* Theme presets. Each overrides the same handful of surfaces the default
-   sci-fi rules already style, via higher specificity -- the original rules
-   above are the "scifi" preset itself and stay completely untouched. */
-#ap[data-theme="mono"]{background:#000;color:#e8e8e8}
-#ap[data-theme="mono"] .apsec{background:#0d0d0d;border-color:rgba(255,255,255,.14)}
+/* Theme presets.
+   ROOT CAUSE FOUND 2026-09-09: #ag,#ap already redefines --bg/--white/--off/
+   etc. with !important (pre-existing, before this feature was built), and
+   176 separate inline style="" attributes throughout the admin panel
+   reference those exact variable names. My first attempt at this only
+   restyled a handful of CSS classes and had no !important -- it could never
+   have visibly changed anything, on any of those 176 elements, regardless
+   of which theme was picked. Fixed by redefining the SAME variables the
+   existing rule sets, with matching !important and higher specificity via
+   [data-theme=...], so it can actually win and cascades correctly to every
+   inline style already using var(--off) etc. -- not just the few classes a
+   narrower fix would have reached. */
+#ap[data-theme="mono"]{--bg:#000!important;--bg2:#0d0d0d!important;--bg3:#1a1a1a!important;--bg4:#242424!important;--white:#fff!important;--w2:#ddd!important;--off:#999!important;--mid:#555!important;--line:rgba(255,255,255,.12)!important;--glass:rgba(255,255,255,.05)!important;--glass2:rgba(255,255,255,.08)!important;background:var(--bg)!important;color:var(--white)!important}
+#ap[data-theme="ocean"]{--bg:#071018!important;--bg2:#0d1b26!important;--bg3:#122536!important;--bg4:#17304a!important;--white:#dceefc!important;--w2:#b8dcf0!important;--off:#7aa8c0!important;--mid:#4a7590!important;--line:rgba(60,160,220,.2)!important;--glass:rgba(60,160,220,.06)!important;--glass2:rgba(60,160,220,.1)!important;background:var(--bg)!important;color:var(--white)!important}
+#ap[data-theme="light"]{--bg:#F4F1EC!important;--bg2:#EAE7E1!important;--bg3:#DDD9D2!important;--bg4:#D0CBC3!important;--white:#141312!important;--w2:#2A2826!important;--off:#7A756E!important;--mid:#AAA5A0!important;--line:rgba(10,9,8,.14)!important;--glass:rgba(10,9,8,.04)!important;--glass2:rgba(10,9,8,.07)!important;background:var(--bg)!important;color:var(--white)!important}
+
+/* A few specific surfaces use hardcoded hex rather than the variables
+   above (the .apsec panel glow, sci-fi scanline, tab active-state) --
+   these still need per-theme adjustment since they never read var(--bg) */
+#ap[data-theme="mono"] .apsec{background:var(--bg2);border-color:rgba(255,255,255,.16)}
 #ap[data-theme="mono"] .apsec::before{background:linear-gradient(90deg,transparent,rgba(255,255,255,.35),transparent)}
-#ap[data-theme="mono"] h3{border-left-color:#fff;color:#fff}
-#ap[data-theme="mono"] h4{color:#bbb}
-#ap[data-theme="mono"] .atab.act{background:rgba(255,255,255,.1);border-color:#fff;color:#fff}
+#ap[data-theme="mono"] h3{border-left-color:#fff}
+#ap[data-theme="mono"] h4{color:#ccc}
+#ap[data-theme="mono"] .atab.act{background:rgba(255,255,255,.12);border-color:#fff}
 #ap[data-theme="mono"] .tb:hover{border-color:#fff}
-#ap[data-theme="mono"] .apstat{border-color:rgba(255,255,255,.14)}
+#ap[data-theme="mono"] .apstat{border-color:rgba(255,255,255,.16)}
 #ap[data-theme="mono"] .apstat .v{text-shadow:none}
 #ap[data-theme="mono"] input:focus,#ap[data-theme="mono"] select:focus{border-color:#fff}
 
-#ap[data-theme="ocean"]{background:#071018;color:#dceefc}
-#ap[data-theme="ocean"] .apsec{background:#0d1b26;border-color:rgba(60,160,220,.3)}
+#ap[data-theme="ocean"] .apsec{background:var(--bg2);border-color:rgba(60,160,220,.3)}
 #ap[data-theme="ocean"] .apsec::before{background:linear-gradient(90deg,transparent,rgba(60,160,220,.6),transparent)}
-#ap[data-theme="ocean"] h3{border-left-color:#3ca0dc;color:#dceefc}
+#ap[data-theme="ocean"] h3{border-left-color:#3ca0dc}
 #ap[data-theme="ocean"] h4{color:#5cc0f0}
-#ap[data-theme="ocean"] .atab.act{background:rgba(60,160,220,.16);border-color:#3ca0dc;color:#dceefc}
+#ap[data-theme="ocean"] .atab.act{background:rgba(60,160,220,.18);border-color:#3ca0dc}
 #ap[data-theme="ocean"] .tb:hover{border-color:#3ca0dc}
-#ap[data-theme="ocean"] table th{color:#5cc0f0;border-bottom-color:rgba(60,160,220,.25)}
+#ap[data-theme="ocean"] table th{color:#5cc0f0;border-bottom-color:rgba(60,160,220,.3)}
 #ap[data-theme="ocean"] .apstat{border-color:rgba(60,160,220,.3)}
 #ap[data-theme="ocean"] .apstat .v{text-shadow:0 0 10px rgba(60,160,220,.4)}
 #ap[data-theme="ocean"] input:focus,#ap[data-theme="ocean"] select:focus{border-color:#3ca0dc}
 
-#ap[data-theme="light"]{background:#F4F1EC;color:#0A0908;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
-#ap[data-theme="light"] .apsec{background:#fff;border-color:#DDD8D0}
+#ap[data-theme="light"] .apsec{background:#fff;border-color:var(--line)}
 #ap[data-theme="light"] .apsec::before{display:none}
-#ap[data-theme="light"] h3{border-left-color:#C0392B;color:#0A0908}
+#ap[data-theme="light"] h3{border-left-color:#C0392B}
 #ap[data-theme="light"] h4{color:#C0392B}
-#ap[data-theme="light"] .atab{background:#fff;border-color:#DDD8D0;color:#7A756E}
-#ap[data-theme="light"] .atab.act{background:rgba(192,57,43,.08);border-color:#C0392B;color:#0A0908}
-#ap[data-theme="light"] .tb{background:#fff;border-color:#DDD8D0;color:#0A0908}
-#ap[data-theme="light"] input,#ap[data-theme="light"] select,#ap[data-theme="light"] textarea{background:#fff;border-color:#DDD8D0;color:#0A0908}
-#ap[data-theme="light"] table th{border-bottom-color:rgba(192,57,43,.2)}
-#ap[data-theme="light"] table td{border-bottom-color:rgba(10,9,8,.08)}
-#ap[data-theme="light"] .apstat{background:#fff;border-color:#DDD8D0}
-#ap[data-theme="light"] .apstat .v{color:#0A0908;text-shadow:none}
+#ap[data-theme="light"] .atab{background:#fff;border-color:var(--line)}
+#ap[data-theme="light"] .atab.act{background:rgba(192,57,43,.08);border-color:#C0392B}
+#ap[data-theme="light"] .tb{background:#fff;border-color:var(--line)}
+#ap[data-theme="light"] input,#ap[data-theme="light"] select,#ap[data-theme="light"] textarea{background:#fff;border-color:var(--line)}
+#ap[data-theme="light"] table th{border-bottom-color:rgba(192,57,43,.25)}
+#ap[data-theme="light"] .apstat{background:#fff;border-color:var(--line)}
+#ap[data-theme="light"] .apstat .v{text-shadow:none}
 #ap[data-theme="light"] .theme-swatch.on{background:rgba(192,57,43,.1)}
 
 /* ===== FIT STUDIO (all classes prefixed fs- so nothing can collide with
@@ -1710,6 +1722,25 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
       <button class="btn btn-g" onclick="rnAdmOrders()">↻ Refresh</button>
     </div>
     <div class="apstats" id="ordstats"></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin:14px 0" id="ord-filters">
+      <input type="date" id="ord-f-from" onchange="rnAdmOrders()" style="min-width:130px"/>
+      <span style="color:var(--off);align-self:center;font-size:12px">to</span>
+      <input type="date" id="ord-f-to" onchange="rnAdmOrders()" style="min-width:130px"/>
+      <select id="ord-f-channel" onchange="rnAdmOrders()">
+        <option value="">All channels</option>
+        <option value="website">Website</option>
+        <option value="whatsapp">WhatsApp</option>
+        <option value="walkin">Walk-in / Store</option>
+        <option value="instagram">Instagram</option>
+      </select>
+      <select id="ord-f-paymode" onchange="rnAdmOrders()">
+        <option value="">All payment methods</option>
+        <option value="prepaid">Prepaid</option>
+        <option value="cod">Cash on Delivery</option>
+        <option value="partial_cod">Partial COD</option>
+      </select>
+      <button class="tb" onclick="clearOrderFilters()">Clear filters</button>
+    </div>
     <div id="abandoned-box" style="margin-top:16px;border:1px solid var(--line);border-radius:10px;overflow:hidden">
       <div style="padding:12px 16px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;background:rgba(192,57,43,0.08)" onclick="toggleAbandoned()">
         <span style="font-weight:700;color:var(--white)">⚠ Abandoned Checkouts <span id="ab-cnt" style="color:var(--off);font-weight:400"></span></span>
@@ -4838,18 +4869,43 @@ function exportDashboardCSV(){
   URL.revokeObjectURL(url);
   showToast("CSV downloaded — "+list.length+" orders",true);
 }
+function clearOrderFilters(){
+  ["ord-f-from","ord-f-to","ord-f-channel","ord-f-paymode"].forEach(id=>{const e=document.getElementById(id);if(e)e.value="";});
+  rnAdmOrders();
+}
+function _filteredOrders(){
+  const from=(document.getElementById("ord-f-from")||{}).value;
+  const to=(document.getElementById("ord-f-to")||{}).value;
+  const channel=(document.getElementById("ord-f-channel")||{}).value;
+  const paymode=(document.getElementById("ord-f-paymode")||{}).value;
+  const fromTs=from?new Date(from+"T00:00:00").getTime():0;
+  const toTs=to?new Date(to+"T23:59:59").getTime():Infinity;
+  return orders.filter(o=>{
+    if(o.placedAt<fromTs||o.placedAt>toTs)return false;
+    if(channel&&(o.channel||"website")!==channel)return false;
+    if(paymode&&(o.paymentMode||"prepaid")!==paymode)return false;
+    return true;
+  });
+}
 function rnAdmOrders(){
-  document.getElementById("ocnt").textContent=orders.length?`(${orders.length})`:"";
-  const pend=orders.filter(o=>o.status==="pending").length;
-  const conf=orders.filter(o=>o.status==="confirmed").length;
-  const fulf=orders.filter(o=>o.status==="fulfilled").length;
-  const canc=orders.filter(o=>o.status==="cancelled").length;
-  document.getElementById("ordstats").innerHTML=`<div class="apstat"><div class="v">${orders.length}</div><div class="k">Total</div></div><div class="apstat"><div class="v">${pend}</div><div class="k">Pending</div></div><div class="apstat"><div class="v">${conf}</div><div class="k">Confirmed</div></div><div class="apstat"><div class="v">${fulf}</div><div class="k">Fulfilled</div></div>`;
+  const filtered=_filteredOrders();
+  document.getElementById("ocnt").textContent=filtered.length===orders.length
+    ?(orders.length?`(${orders.length})`:"")
+    :`(${filtered.length} of ${orders.length})`;
+  const pend=filtered.filter(o=>o.status==="pending").length;
+  const conf=filtered.filter(o=>o.status==="confirmed").length;
+  const fulf=filtered.filter(o=>o.status==="fulfilled").length;
+  const canc=filtered.filter(o=>o.status==="cancelled").length;
+  document.getElementById("ordstats").innerHTML=`<div class="apstat"><div class="v">${filtered.length}</div><div class="k">Total</div></div><div class="apstat"><div class="v">${pend}</div><div class="k">Pending</div></div><div class="apstat"><div class="v">${conf}</div><div class="k">Confirmed</div></div><div class="apstat"><div class="v">${fulf}</div><div class="k">Fulfilled</div></div>`;
   const list=document.getElementById("ord-list");
-  if(!orders.length){list.innerHTML='<p style="color:var(--off);font-size:13px">No orders yet.</p>';return;}
+  if(!filtered.length){list.innerHTML='<p style="color:var(--off);font-size:13px">No orders match these filters.</p>';return;}
+  const orders_=filtered;
   const statusColor={pending:"#C0392B",confirmed:"#2980B9",fulfilled:"#27AE60",cancelled:"#7A756E"};
-  list.innerHTML=orders.map(o=>{
-    const itemsHtml=(o.items||[]).map(i=>`${i.name} (${i.size}, ${i.color}) x${i.qty} — ${inr(i.price*i.qty)}`).join("<br>");
+  list.innerHTML=orders_.map(o=>{
+    const itemsHtml=(o.items||[]).map(i=>{
+      const attrs=[i.size,i.color].filter(Boolean).join(", ");
+      return `${i.name}${attrs?" ("+attrs+")":""} x${i.qty} — ${inr(i.price*i.qty)}`;
+    }).join("<br>");
     const when=new Date(o.placedAt).toLocaleString("en-IN",{day:"numeric",month:"short",hour:"numeric",minute:"2-digit"});
     const waLink=`https://wa.me/91${o.phone}`;
     return`<div style="border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin-bottom:12px">
@@ -4864,6 +4920,7 @@ function rnAdmOrders(){
           <option value="fulfilled" ${o.status==="fulfilled"?"selected":""}>Fulfilled</option>
           <option value="cancelled" ${o.status==="cancelled"?"selected":""}>Cancelled</option>
         </select>
+        <button class="tb tb-del" onclick="deleteOrder('${o.orderId}')" title="Delete this order permanently" style="margin-left:6px">Delete</button>
       </div>
       <div style="margin-top:10px;font-size:13.5px;color:var(--white)"><b>${o.name}</b> · <a href="${waLink}" target="_blank" rel="noopener" style="color:#2980B9">${o.phone}</a></div>
       <div style="font-size:13px;color:var(--off);margin-top:2px">${o.addr} — ${o.pin}</div>
@@ -4886,6 +4943,20 @@ function rnAdmOrders(){
       })()}
     </div>`;
   }).join("");
+}
+function deleteOrder(orderId){
+  if(!confirm("Delete order "+orderId+" permanently? This cannot be undone."))return;
+  if(!_adminPw){showToast("Admin session expired — refresh and log in again.",false);return;}
+  fetch(SB_FN_BASE+"admin-orders",{
+    method:"POST",headers:{"Content-Type":"application/json","apikey":SB_APIKEY},
+    body:JSON.stringify({password:_adminPw,action:"delete",orderId})
+  }).then(r=>r.json()).then(d=>{
+    if(d.error){showToast("⚠️ Could not delete: "+d.error,false);return;}
+    orders=orders.filter(o=>o.orderId!==orderId);
+    try{localStorage.setItem("ds_orders",JSON.stringify(orders));}catch(e){}
+    rnAdmOrders();
+    showToast("Order "+orderId+" deleted",true);
+  }).catch(()=>showToast("⚠️ Network error — order may not have been deleted.",false));
 }
 function setOrderStatus(orderId,status){
   const o=orders.find(x=>x.orderId===orderId);if(!o)return;
