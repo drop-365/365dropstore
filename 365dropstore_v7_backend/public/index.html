@@ -478,11 +478,50 @@ button,a,.btn,[onclick]{-webkit-tap-highlight-color:transparent}
 .pwish:hover{background:var(--bg2);color:var(--red)}
 .pfitband{position:absolute;bottom:0;left:0;right:0;background:rgba(12,11,10,.85);color:rgba(255,255,255,.95);font-size:10.5px;font-weight:700;letter-spacing:.08em;text-align:center;padding:7px 0;z-index:2}
 .bdg{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:4px 8px;border-radius:5px}
-.b-new{background:var(--white);color:var(--bg)}
+/* ===== FIT STUDIO (all classes prefixed fs- so nothing can collide with
+   storefront badge/tag classes the way .b-new/.b-so just did) ===== */
+.fs-trigger{display:block;width:100%;margin-top:10px;padding:11px;background:transparent;
+  border:1px dashed var(--line);border-radius:10px;color:var(--red);font-size:12.5px;font-weight:700;
+  cursor:pointer;text-align:center;min-height:42px;-webkit-tap-highlight-color:transparent}
+.fs-trigger:hover{border-color:var(--red);background:rgba(192,57,43,.05)}
+.fs-ov{position:fixed;inset:0;background:rgba(10,9,8,.72);z-index:600;display:none;
+  align-items:center;justify-content:center;padding:16px}
+.fs-ov.on{display:flex}
+.fs-panel{position:relative;background:var(--bg);border-radius:16px;padding:26px 22px;max-width:420px;
+  width:100%;max-height:88vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.4)}
+.fs-close{position:absolute;top:14px;right:14px;width:32px;height:32px;border-radius:50%;border:1px solid var(--line);
+  background:var(--bg2);cursor:pointer;font-size:14px;color:var(--ink)}
+.fs-h{font-family:var(--dsp);font-size:20px;margin:0 0 2px}
+.fs-sub{color:var(--off);font-size:12.5px;margin-bottom:18px}
+.fs-lbl{display:block;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--off);font-weight:700;margin-bottom:8px}
+.fs-readout{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:2px}
+.fs-readout b{font-size:24px}
+.fs-readout span{font-size:11.5px;color:var(--off)}
+.fs-range{width:100%;accent-color:var(--red);margin-bottom:16px}
+.fs-seg{display:flex;gap:8px;margin-bottom:18px}
+.fs-seg button{flex:1;padding:9px;border:1px solid var(--line);border-radius:9px;background:transparent;
+  cursor:pointer;font-size:12.5px;color:var(--ink);min-height:40px}
+.fs-seg button.on{border-color:var(--red);background:rgba(192,57,43,.08);font-weight:700;color:var(--red)}
+.fs-link{background:none;border:0;color:var(--red);font-size:12px;text-decoration:underline;cursor:pointer;padding:0;margin-bottom:16px;display:block}
+.fs-result{border:1px solid var(--red);background:rgba(192,57,43,.05);border-radius:14px;padding:18px;margin-top:6px}
+.fs-conf{display:inline-flex;font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  padding:4px 10px;border-radius:20px;margin-bottom:10px}
+.fs-conf.high{background:rgba(46,204,113,.15);color:#2ecc71}
+.fs-conf.mid{background:rgba(184,134,11,.15);color:#B8860B}
+.fs-conf.low{background:rgba(192,57,43,.14);color:var(--red)}
+.fs-big{font-family:var(--dsp);font-size:38px;line-height:1;margin-bottom:6px}
+.fs-why{font-size:13px;color:var(--ink);margin-bottom:10px;line-height:1.5}
+.fs-note{font-size:12px;color:var(--off);border-top:1px solid var(--line);padding-top:10px;margin-top:10px}
+.fs-wa{display:block;width:100%;min-height:46px;margin-top:12px;background:var(--ink);color:var(--bg);
+  border:0;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer}
+.fs-empty{font-size:13px;color:var(--off);text-align:center;padding:20px 0}
+@media(max-width:480px){.fs-panel{padding:22px 16px}}
+
+.adm-active{background:rgba(46,204,113,.16);color:#4ade80;border:1px solid rgba(74,222,128,.4)}
 .b-best{background:var(--bg);color:var(--white);border:1px solid var(--line)}
 .b-ltd{background:rgba(15,15,15,.8);color:#e0c060;border:1px solid rgba(224,192,96,.3)}
 .b-off{background:var(--bg3);color:var(--w2);border:1px solid var(--line)}
-.b-so{background:rgba(15,15,15,.8);color:var(--off);border:1px solid var(--line)}
+.adm-soldout{background:rgba(192,57,43,.14);color:#e88a80;border:1px solid rgba(192,57,43,.4)}
 /* product card actions overlay */
 .pactions{position:absolute;left:0;right:0;bottom:0;z-index:3;display:flex;gap:1px;transform:translateY(100%);transition:.28s var(--ease)}
 .pcard:hover .pactions{transform:translateY(0)}
@@ -1415,6 +1454,14 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
 
 <!-- product modal -->
 <div class="ov" id="ov" onclick="if(event.target===this)closeMo()"><div class="mo" id="mo" style="position:relative"></div></div>
+<div class="fs-ov" id="fs-ov" onclick="if(event.target===this)closeFitStudio()">
+  <div class="fs-panel">
+    <button class="fs-close" onclick="closeFitStudio()" aria-label="Close">✕</button>
+    <h3 class="fs-h">FIND YOUR SIZE</h3>
+    <p class="fs-sub" id="fs-product-name"></p>
+    <div id="fs-body"></div>
+  </div>
+</div>
 
 <!-- universal lightbox -->
 <div class="lb" id="lb">
@@ -1487,6 +1534,7 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
   <button class="atab act" onclick="apTab('products')">Products</button>
   <button class="atab" onclick="apTab('dashboard')">Dashboard</button>
   <button class="atab" onclick="apTab('sequence')">Sequence</button>
+  <button class="atab" onclick="apTab('sizemodels')">Size Models</button>
   <button class="atab" onclick="apTab('orders')">Orders</button>
   <button class="atab" onclick="apTab('add')">Add / Edit</button>
   <button class="atab" onclick="apTab('site')">Edit Site</button>
@@ -1619,9 +1667,11 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
         <option value="default">Use Fit default (from admin Size Guide)</option>
         <option value="custom">Custom for this product</option>
         <option value="off">Don't show size guide on this product</option>
+        <optgroup label="Size Models" id="pf-sg-models-group"></optgroup>
       </select>
-      <small style="color:var(--off);display:block;margin-top:8px">Default pulls from the fit-based table in Admin → Size Guide. Pick Custom to set different waist/fit numbers just for this one product — useful for a cut that runs differently from the rest of its fit.</small>
+      <small style="color:var(--off);display:block;margin-top:8px">Default pulls from the fit-based table in Admin → Size Guide. Pick a Size Model to reuse a named chart shared across products — edit the model once in Admin → Size Models and every product using it updates. Pick Custom for a one-off just for this product.</small>
       <div id="pf-sg-custom" style="display:none;margin-top:14px"></div>
+      <div id="pf-sg-model-preview" style="display:none;margin-top:14px;padding:12px;background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:8px;font-size:12.5px"></div>
     </div>
     <div class="pff full">
       <label>Product Images * (up to 5 — first = main card image)</label>
@@ -1803,6 +1853,12 @@ https://raw.githubusercontent.com/drop-365/365dropstore/main/images/jean2.jpg" s
     <div id="sg-admin"></div>
     <button class="btn btn-g" style="margin-top:14px" onclick="saveSizeGuide()">Save Size Guide</button>
     <p id="sg-msg" style="display:none;font-size:12px;margin-top:8px"></p>
+  </div>
+  <div id="tab-sizemodels" class="apsec" style="display:none">
+    <h3>SIZE MODELS</h3>
+    <p style="color:var(--off);font-size:12.5px;margin-bottom:16px">Named, reusable size charts. Assign one to any product from its Edit screen — editing a model here updates every product using it at once.</p>
+    <button class="btn btn-g" style="margin-bottom:16px" onclick="addSizeModel()">+ New Size Model</button>
+    <div id="szm-list"></div>
   </div>
   <div id="tab-payment" class="apsec" style="display:none">
     <h3>PAYMENT SETTINGS</h3>
@@ -2027,6 +2083,16 @@ const DEFAULT_SIZE_GUIDE={
   ]
 };
 let sizeGuide=LS.get("ds_size_guide",DEFAULT_SIZE_GUIDE);
+// Named, reusable size models -- e.g. a "Slim Taper" model used across
+// several products of different fits, edited once in one place.
+let sizeModels=LS.get("ds_size_models",[
+  {id:"model-classic",name:"Classic Straight (example)",rows:[
+    {size:"28",waist:"28",bestFor:"Best for waists 28–29.5"},
+    {size:"30",waist:"30",bestFor:"Best for waists 30–31.5"},
+    {size:"32",waist:"32",bestFor:"Best for waists 32–34"},
+    {size:"34",waist:"34",bestFor:"Best for waists 34.5–36"}
+  ]}
+]);
 
 function renderFaqSection(){
   const el=document.getElementById("faq-grid");if(!el)return;
@@ -2086,9 +2152,84 @@ function addFitToSizeGuide(){
 }
 function saveSizeGuide(){
   LS.set("ds_size_guide",sizeGuide);
+  // Previously this never reached Supabase -- edits only ever applied on
+  // the browser that made them. Same fix pattern as FAQ: push through
+  // siteContent + admin-site, which writes the whole content blob with no
+  // field whitelist to fight.
+  siteContent.sizeGuide=sizeGuide;
+  lsSafeSet("ds_site",siteContent);
+  syncSiteToSupabase();
   const m=document.getElementById("sg-msg");
   if(m){m.textContent="Saved ✓";m.style.color="#4ade80";m.style.display="block";setTimeout(()=>m.style.display="none",2000);}
-  showToast("Size Guide saved ✓",true);
+  showToast("Size Guide saved ✓ — syncing live",true);
+}
+let _szmEditing=null; // id of the model currently expanded for editing, or null
+function renderSizeModelsList(){
+  const el=document.getElementById("szm-list");if(!el)return;
+  if(!sizeModels.length){el.innerHTML='<p style="color:var(--off);font-size:13px">No size models yet. Create one above.</p>';return;}
+  el.innerHTML=sizeModels.map(m=>{
+    const open=_szmEditing===m.id;
+    const rows=m.rows||[];
+    return `<div style="border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
+        <div><b style="color:var(--white)">${(m.name||"").replace(/</g,"&lt;")}</b>
+        <span style="color:var(--off);font-size:11.5px;margin-left:8px">${rows.length} size${rows.length===1?"":"s"}</span></div>
+        <div style="display:flex;gap:6px">
+          <button class="tb" onclick="toggleSzmEdit('${m.id}')">${open?"Close":"Edit"}</button>
+          <button class="tb tb-del" onclick="deleteSizeModel('${m.id}')">Delete</button>
+        </div>
+      </div>
+      ${open?`
+        <div style="margin-top:12px">
+          <input type="text" value="${(m.name||"").replace(/"/g,"&quot;")}" placeholder="Model name" oninput="updateSzmName('${m.id}',this.value)" style="margin-bottom:10px"/>
+          <div id="szm-rows-${m.id}">${szmRowsHtml(m)}</div>
+          <button class="tb" style="margin-top:8px" onclick="addSzmRow('${m.id}')">+ Add Size</button>
+        </div>
+      `:""}
+    </div>`;
+  }).join("");
+}
+function szmRowsHtml(m){
+  return (m.rows||[]).map((r,i)=>`<div style="display:flex;gap:6px;margin-bottom:6px;align-items:center">
+    <input type="text" value="${(r.size||"").replace(/"/g,"&quot;")}" placeholder="Size" style="width:60px" oninput="updateSzmRow('${m.id}',${i},'size',this.value)"/>
+    <input type="text" value="${(r.waist||"").replace(/"/g,"&quot;")}" placeholder="Waist" style="width:70px" oninput="updateSzmRow('${m.id}',${i},'waist',this.value)"/>
+    <input type="text" value="${(r.bestFor||"").replace(/"/g,"&quot;")}" placeholder="Best for waists X-Y" style="flex:1" oninput="updateSzmRow('${m.id}',${i},'bestFor',this.value)"/>
+    <button class="tb tb-del" style="flex:0 0 auto" onclick="removeSzmRow('${m.id}',${i})">✕</button>
+  </div>`).join("");
+}
+function _szmFind(id){return sizeModels.find(m=>m.id===id);}
+function toggleSzmEdit(id){_szmEditing=_szmEditing===id?null:id;renderSizeModelsList();}
+function addSizeModel(){
+  const id="szm-"+Date.now().toString(36);
+  sizeModels.push({id,name:"New Size Model",rows:[{size:"",waist:"",bestFor:""}]});
+  _szmEditing=id;
+  renderSizeModelsList();
+  saveSizeModels();
+}
+function deleteSizeModel(id){
+  if(!confirm("Delete this size model? Any product still assigned to it will fall back to its fit's default size guide."))return;
+  sizeModels=sizeModels.filter(m=>m.id!==id);
+  if(_szmEditing===id)_szmEditing=null;
+  renderSizeModelsList();
+  saveSizeModels();
+}
+function updateSzmName(id,val){const m=_szmFind(id);if(m)m.name=val;}
+function updateSzmRow(id,idx,field,val){const m=_szmFind(id);if(m&&m.rows[idx])m.rows[idx][field]=val;}
+function addSzmRow(id){const m=_szmFind(id);if(!m)return;m.rows.push({size:"",waist:"",bestFor:""});renderSizeModelsList();}
+function removeSzmRow(id,idx){const m=_szmFind(id);if(!m)return;m.rows.splice(idx,1);renderSizeModelsList();saveSizeModels();}
+// Name/row-text edits save on blur rather than every keystroke -- avoids
+// firing a full Supabase sync per character typed.
+document.addEventListener("focusout",e=>{
+  if(e.target&&e.target.closest&&e.target.closest('[id^="szm-rows-"], #szm-list input')){
+    saveSizeModels();
+  }
+},true);
+function saveSizeModels(){
+  LS.set("ds_size_models",sizeModels);
+  siteContent.sizeModels=sizeModels;
+  lsSafeSet("ds_site",siteContent);
+  syncSiteToSupabase();
+  showToast("Size Models saved ✓ — syncing live",true);
 }
 let attCnt=LS.get("adm_att",0);let locked=LS.get("adm_lk",false);
 let _adminPw="";
@@ -3000,15 +3141,160 @@ function renderMoSizes(p){
     if(oos){const hasRestock=(p.sizeRestockDates||{})[s]&&new Date((p.sizeRestockDates||{})[s])>new Date();if(hasRestock)return`<button class="chip restock-chip" onclick="selectOosSize(this,'${s}')" title="Restocking soon">${s}</button>`;return`<button class="chip oos-chip" onclick="selectOosSize(this,'${s}')" title="Out of stock — tap to see measurements"><s>${s}</s></button>`;}
     return`<button class="chip${sel?' sel':''}" onclick="pick('size','${s}',this)">${s}</button>`;
   }).join('');
-  return`<span class="mol">Size</span><div class="chips">${chips}</div><div id="mo-size-rec" class="mo-size-rec"></div>`;
+  return`<span class="mol">Size</span><div class="chips">${chips}</div><div id="mo-size-rec" class="mo-size-rec"></div><button class="fs-trigger" onclick="openFitStudio()">📏 Not sure of your size? Find it in 15 seconds</button>`;
+}
+// Single source of truth for "which size-guide rows apply to this product" --
+// used by both the existing per-size recommendation (getSizeRec, below) and
+// Fit Studio's waist-based finder. Anything that reads size-guide data
+// should call this rather than re-deriving default/custom/model resolution
+// a second time.
+function resolveSizeGuideRows(p){
+  if(!p||p.sizeGuideMode==="off")return null;
+  let guide;
+  if(p.sizeGuideMode==="custom"&&Array.isArray(p.customSizeGuide)&&p.customSizeGuide.length){
+    guide=p.customSizeGuide;
+  }else if(typeof p.sizeGuideMode==="string"&&p.sizeGuideMode.indexOf("model:")===0){
+    const modelId=p.sizeGuideMode.slice(6);
+    const model=(sizeModels||[]).find(m=>m.id===modelId);
+    guide=(model&&Array.isArray(model.rows)&&model.rows.length)?model.rows:sizeGuide[p.fit];
+  }else{
+    guide=sizeGuide[p.fit];
+  }
+  return (guide&&guide.length)?guide:null;
 }
 function getSizeRec(p,size){
-  if(!p||p.sizeGuideMode==="off")return null;
-  const guide=(p.sizeGuideMode==="custom"&&Array.isArray(p.customSizeGuide)&&p.customSizeGuide.length)
-    ?p.customSizeGuide
-    :sizeGuide[p.fit];
+  const guide=resolveSizeGuideRows(p);
   if(!guide)return null;
   return guide.find(g=>g.size===size)||null;
+}
+
+/* ===== FIT STUDIO =====
+   Waist-based size finder. Reads the SAME resolveSizeGuideRows(p) used by
+   the per-size chip recommendation -- one source of truth, so a product on
+   "model:x" or "custom" gets consistent answers in both places.
+
+   No height/length guidance here on purpose. The earlier prototype quoted
+   one real customer's height as if it applied to every product -- accurate
+   for that one review, but presented as general fact it would have been
+   the same category of problem as the fake sold-counts already removed
+   from this site. There is no admin-editable height/length field in the
+   size-guide data model to make that claim honestly for an arbitrary
+   product, so it's left out rather than invented. */
+let _fsPrefRoomy="true";
+function openFitStudio(){
+  const p=ms.p;
+  const ov=document.getElementById("fs-ov");
+  if(!p||!ov)return;
+  document.getElementById("fs-product-name").textContent=p.name||"";
+  ov.classList.add("on");
+  renderFitStudio();
+}
+function closeFitStudio(){
+  const ov=document.getElementById("fs-ov");if(ov)ov.classList.remove("on");
+}
+function fsPickPref(v){_fsPrefRoomy=v;renderFitStudio();}
+// Parses every band once and returns the real min/max the guide actually
+// covers, so the slider can be bounded to what this specific product
+// offers instead of a generic fixed range.
+function fsGuideBounds(guide){
+  let lo=Infinity,hi=-Infinity;
+  guide.forEach(g=>{
+    const parts=String(g.bestFor||"").match(/(\d+\.?\d*)\D+(\d+\.?\d*)/);
+    const min=parts?parseFloat(parts[1]):parseFloat(g.waist);
+    const max=parts?parseFloat(parts[2]):parseFloat(g.waist);
+    if(Number.isFinite(min))lo=Math.min(lo,min);
+    if(Number.isFinite(max))hi=Math.max(hi,max);
+  });
+  if(!Number.isFinite(lo)||!Number.isFinite(hi)){lo=26;hi=40;} // guide had no parseable numbers at all -- fall back to a sane generic range rather than break the slider
+  const BUFFER=2; // lets a genuinely borderline customer slide just past the real edge and see the honest "under/over range" message
+  return {min:Math.max(20,lo-BUFFER),max:Math.min(60,hi+BUFFER)};
+}
+function fsComputeRecommendation(guide,waist,pref){
+  const bands=guide.map(g=>{
+    const parts=String(g.bestFor||"").match(/(\d+\.?\d*)\D+(\d+\.?\d*)/);
+    return {size:g.size,waist:g.waist,bestFor:g.bestFor,
+      min:parts?parseFloat(parts[1]):parseFloat(g.waist),
+      max:parts?parseFloat(parts[2]):parseFloat(g.waist)};
+  }).sort((a,b)=>a.min-b.min);
+
+  let exact=bands.filter(b=>waist>=b.min&&waist<=b.max);
+  let pick=null,conf="low",why="";
+
+  if(exact.length===1){
+    pick=exact[0];conf="high";
+    why=`Size <b>${pick.size}</b> is cut for waists ${pick.min}–${pick.max}". You're ${waist}".`;
+  }else if(exact.length>1){
+    pick=pref==="roomy"?exact[exact.length-1]:exact[0];
+    conf="mid";
+    why=`You're right between <b>${exact.map(e=>e.size).join(" and ")}</b>. `+
+      (pref==="roomy"?"Going up since you said Looser.":pref==="snug"?"Going down since you said Tighter.":"We'd lean to the smaller one.");
+  }else{
+    const below=bands.filter(b=>b.max<waist).pop();
+    const above=bands.filter(b=>b.min>waist)[0];
+    if(below&&above){
+      pick=pref==="roomy"?above:below;conf="mid";
+      why=`At ${waist}" you're between our <b>${below.size}</b> (up to ${below.max}") and <b>${above.size}</b> (from ${above.min}"). `+
+        (pref==="roomy"?`Going up to ${above.size} since you said Looser.`:`We'd take the ${below.size} — the waistband gives a little.`);
+    }else{
+      let best=null,dist=Infinity;
+      bands.forEach(b=>{const d=waist<b.min?b.min-waist:waist-b.max;if(d<dist){dist=d;best=b;}});
+      pick=best;conf=dist<=1?"mid":"low";
+      why=waist<best.min
+        ?`At ${waist}" you're under our smallest cut. <b>${best.size}</b> is closest, made for ${best.min}–${best.max}".`
+        :`At ${waist}" you're above our largest cut. <b>${best.size}</b> is closest, made for ${best.min}–${best.max}".`;
+    }
+  }
+  return {pick,conf,why};
+}
+function renderFitStudio(){
+  const body=document.getElementById("fs-body");
+  const p=ms.p;
+  if(!body||!p)return;
+  const guide=resolveSizeGuideRows(p);
+  if(!guide||!guide.length){
+    body.innerHTML='<div class="fs-empty">Size details for this product aren\'t ready yet — message us on WhatsApp and we\'ll confirm your size directly.</div>'+
+      '<button class="fs-wa" onclick="fsWhatsApp()">Ask us on WhatsApp</button>';
+    return;
+  }
+  const bounds=fsGuideBounds(guide);
+  const prevEl=document.getElementById("fs-waist");
+  const waist=parseFloat((prevEl||{}).value)||Math.round((bounds.min+bounds.max)/2);
+  body.innerHTML=`
+    <label class="fs-lbl">Your waist, in inches</label>
+    <div class="fs-readout"><b>${waist}"</b><span>drag to adjust</span></div>
+    <input type="range" id="fs-waist" class="fs-range" min="${bounds.min}" max="${bounds.max}" step="0.5" value="${waist}" oninput="renderFitStudio()"/>
+    <label class="fs-lbl">Fit preference</label>
+    <div class="fs-seg">
+      <button class="${_fsPrefRoomy==='snug'?'on':''}" onclick="fsPickPref('snug')">Tighter</button>
+      <button class="${_fsPrefRoomy==='true'?'on':''}" onclick="fsPickPref('true')">Regular</button>
+      <button class="${_fsPrefRoomy==='roomy'?'on':''}" onclick="fsPickPref('roomy')">Looser</button>
+    </div>
+    <div id="fs-result"></div>
+  `;
+  const rec=fsComputeRecommendation(guide,waist,_fsPrefRoomy);
+  const confLabel={high:"Confident",mid:"Borderline — read this",low:"Let's check together"}[rec.conf];
+  const resEl=document.getElementById("fs-result");
+  if(resEl){
+    resEl.innerHTML=`<div class="fs-result">
+      <div class="fs-conf ${rec.conf}">${confLabel}</div>
+      <div class="fs-big">${rec.pick.size}</div>
+      <div class="fs-why">${rec.why}</div>
+      ${rec.conf!=="high"?'<div class="fs-note">Not sure? Send your waist on WhatsApp — we\'ll confirm and hold the size.</div>':''}
+      <button class="fs-wa" onclick="fsWhatsApp()">${rec.conf==="high"?"Confirm on WhatsApp":"Ask before ordering"}</button>
+    </div>`;
+  }
+  window._fsLastRec=rec;
+}
+function fsWhatsApp(){
+  const p=ms.p;
+  const waist=parseFloat((document.getElementById("fs-waist")||{}).value)||32;
+  const rec=window._fsLastRec;
+  const msg=`Hi! I used the size finder on 365dropstore.com for ${p?p.name:"a product"} — my waist is ${waist}". `+
+    (rec?`It suggested size ${rec.pick.size}. Can you confirm before I order?`:"Can you help me pick a size?");
+  const url="https://wa.me/919990905969?text="+encodeURIComponent(msg);
+  let w=null;
+  try{w=window.open(url,"_blank","noopener");}catch(e){}
+  if(!w)location.href=url;
 }
 function getOosMessage(p,size){
   const rd=(p.sizeRestockDates||{})[size];
@@ -3517,19 +3803,19 @@ async function admLogin(){if(locked){shAErr("Locked. Run: localStorage.removeIte
 function shAErr(t){const e=document.getElementById("agerr");e.textContent=t;e.style.display="block";}
 function admOut(){document.getElementById("ap").style.display="none";location.hash="";document.body.style.overflow="";}
 function _woHook(t){if(t==="orders"&&typeof fillWoProducts==="function")fillWoProducts();}
-function apTab(t){const all=["products","dashboard","sequence","orders","add","site","banner","fits","reviews","stories","instagrid","faq","sizeguide","payment","settings"];all.forEach(id=>{const e=document.getElementById("tab-"+id);if(e)e.style.display=id===t?"block":"none";});document.querySelectorAll(".atab").forEach((b,i)=>b.classList.toggle("act",all[i]===t));if(t==="products"){ldProds();apSts();}if(t==="payment"){loadPaySettings();}if(t==="dashboard"){renderDashboard();}if(t==="sequence"){renderSequenceList();}
+function apTab(t){const all=["products","dashboard","sequence","sizemodels","orders","add","site","banner","fits","reviews","stories","instagrid","faq","sizeguide","payment","settings"];all.forEach(id=>{const e=document.getElementById("tab-"+id);if(e)e.style.display=id===t?"block":"none";});document.querySelectorAll(".atab").forEach((b,i)=>b.classList.toggle("act",all[i]===t));if(t==="products"){ldProds();apSts();}if(t==="payment"){loadPaySettings();}if(t==="dashboard"){renderDashboard();}if(t==="sequence"){renderSequenceList();}if(t==="sizemodels"){renderSizeModelsList();}
   if(t==="dashboard"){loadOrdersFromSupabase().then(()=>renderDashboard());}
   if(t==="orders"){rnAdmOrders();loadOrdersFromSupabase().then(ok=>{if(ok)rnAdmOrders();});loadAbandonedCount();_woHook("orders");}if(t==="reviews")rnAdmRev();if(t==="site")loadSiteEd();if(t==="fits")loadFitsAdmin();if(t==="settings"){loadPaletteAdmin();loadGlobalScAdmin();rnStorageView();}if(t==="banner")loadBannerAdmin();if(t==="stories")renderStoryAdmin();if(t==="instagrid")renderHeroGridAdmin();if(t==="faq")renderFaqAdmin();if(t==="sizeguide")renderSizeGuideAdmin();}
 function apSts(){const tot=products.length,sold=products.filter(p=>p.badges&&p.badges.includes("sold")).length,cats=[...new Set(products.map(p=>p.category))].length;document.getElementById("apstats").innerHTML=`<div class="apstat"><div class="v">${tot}</div><div class="k">Total</div></div><div class="apstat"><div class="v">${tot-sold}</div><div class="k">Active</div></div><div class="apstat"><div class="v">${sold}</div><div class="k">Sold Out</div></div><div class="apstat"><div class="v">${cats}</div><div class="k">Categories</div></div>`;}
 
 function ldProds(){
   document.getElementById("pcnt").textContent=`(${products.length})`;
-  document.getElementById("ptbd").innerHTML=products.map(p=>{const sold=p.badges&&p.badges.includes("sold");return`<tr><td><img src="${(p.images||[])[0]||''}" alt="${p.name}"/></td><td><b style="color:var(--white)">${p.name}</b></td><td>${p.category}</td><td>${p.fit||''}</td><td>${p.offerPrice?`<b style="color:var(--white)">${inr(p.offerPrice)}</b> <s style="color:var(--off);font-size:11px">${inr(p.price)}</s>`:inr(p.price)}</td><td><span class="bdg ${sold?'b-so':'b-new'}">${sold?'Sold Out':'Active'}</span></td><td><div class="tba"><button class="tb" onclick="editP('${p.id}')">Edit</button><button class="tb" onclick="manageSizes('${p.id}')" style="color:#a0d060;border-color:rgba(160,208,96,.3)">Sizes</button><button class="tb tb-sold" onclick="togSold('${p.id}')">${sold?'Restock':'Mark Sold'}</button>${sold?`<button class="tb" onclick="setRestockDate('${p.id}')" style="color:#7ab0e0;border-color:rgba(122,176,224,.3)">Restock Date</button>`:''}<button class="tb tb-del" onclick="delP('${p.id}')">Delete</button></div></td></tr>`;}).join("");
+  document.getElementById("ptbd").innerHTML=products.map(p=>{const sold=p.badges&&p.badges.includes("sold");return`<tr><td><img src="${(p.images||[])[0]||''}" alt="${p.name}"/></td><td><b style="color:var(--white)">${p.name}</b></td><td>${p.category}</td><td>${p.fit||''}</td><td>${p.offerPrice?`<b style="color:var(--white)">${inr(p.offerPrice)}</b> <s style="color:var(--off);font-size:11px">${inr(p.price)}</s>`:inr(p.price)}</td><td><span class="bdg ${sold?'adm-soldout':'adm-active'}">${sold?'Sold Out':'Active'}</span></td><td><div class="tba"><button class="tb" onclick="editP('${p.id}')">Edit</button><button class="tb" onclick="manageSizes('${p.id}')" style="color:#a0d060;border-color:rgba(160,208,96,.3)">Sizes</button><button class="tb tb-sold" onclick="togSold('${p.id}')">${sold?'Restock':'Mark Sold'}</button>${sold?`<button class="tb" onclick="setRestockDate('${p.id}')" style="color:#7ab0e0;border-color:rgba(122,176,224,.3)">Restock Date</button>`:''}<button class="tb tb-del" onclick="delP('${p.id}')">Delete</button></div></td></tr>`;}).join("");
 }
 function togSold(id){const p=products.find(x=>x.id===id);if(!p)return;if(!p.badges)p.badges=[];if(p.badges.includes("sold")){p.badges=p.badges.filter(b=>b!=="sold");p.restockAt='';}else p.badges.push("sold");LS.set("ds_p",products);renderGrid();ldProds();apSts();syncProductToSupabase("save",p);}
 function delP(id){if(!confirm("Delete? Cannot be undone."))return;products=products.filter(p=>p.id!==id);LS.set("ds_p",products);renderGrid();ldProds();apSts();syncProductToSupabase("delete",{id});}
-function editP(id){const p=products.find(x=>x.id===id);if(!p)return;editId=id;document.getElementById("pf0").value=p.name;document.getElementById("pf1").value=p.category;populateFitSelect();document.getElementById("pf-fit").value=p.fit||"Baggy";document.getElementById("pf2").value=p.price;document.getElementById("pf3").value=p.offerPrice||"";document.getElementById("pf4").value=p.desc;document.getElementById("pf-desc2").value=p.desc2||"";document.getElementById("pf5").value=(p.sizes||[]).join("|");document.getElementById("pf6").value=(p.colors||[]).join("|");document.getElementById("pf7").value=(p.badges||[]).filter(b=>b!=="sold")[0]||"";document.getElementById("pf8").value=p.order||1;document.getElementById("pf-reel").value=p.reelUrl||"";document.getElementById("pf-soldcount").value=p.soldCount||"";_pfShade=p.shade||"";renderShadePicker();document.getElementById("pf-sg-mode").value=p.sizeGuideMode||"default";onSgModeChange();if(p.sizeGuideMode==="custom"&&Array.isArray(p.customSizeGuide)&&p.customSizeGuide.length){renderPfSgCustom(p.customSizeGuide.map(r=>({...r})));}pendingImgs=[...(p.images||[])];renderThumbs();if(p.sizeChartImg){document.getElementById("pf-scimg").value=p.sizeChartImg;document.getElementById("sc-prv").innerHTML=`<img src="${p.sizeChartImg}" style="width:120px;border-radius:7px" alt="Size chart"/>`;}document.getElementById("add-title").textContent="EDIT PRODUCT";apTab("add");}
-function resetF(){editId=null;_pfShade="";if(typeof renderShadePicker==="function")renderShadePicker();["pf0","pf2","pf3","pf4","pf-desc2","pf5","pf6","pf-reel","pf-scimg","pf-imgurls","pf-soldcount"].forEach(id=>{const e=document.getElementById(id);if(e)e.value=""});document.getElementById("pf7").value="new";document.getElementById("pf8").value=1;const sgSel=document.getElementById("pf-sg-mode");if(sgSel)sgSel.value="default";const sgWrap=document.getElementById("pf-sg-custom");if(sgWrap){sgWrap.style.display="none";sgWrap.dataset.rows="";}pendingImgs=[];renderThumbs();document.getElementById("sc-prv").innerHTML="";document.getElementById("add-title").textContent="ADD NEW PRODUCT";const m=document.getElementById("pf-msg");if(m)m.style.display="none";}
+function editP(id){const p=products.find(x=>x.id===id);if(!p)return;editId=id;document.getElementById("pf0").value=p.name;document.getElementById("pf1").value=p.category;populateFitSelect();document.getElementById("pf-fit").value=p.fit||"Baggy";document.getElementById("pf2").value=p.price;document.getElementById("pf3").value=p.offerPrice||"";document.getElementById("pf4").value=p.desc;document.getElementById("pf-desc2").value=p.desc2||"";document.getElementById("pf5").value=(p.sizes||[]).join("|");document.getElementById("pf6").value=(p.colors||[]).join("|");document.getElementById("pf7").value=(p.badges||[]).filter(b=>b!=="sold")[0]||"";document.getElementById("pf8").value=p.order||1;document.getElementById("pf-reel").value=p.reelUrl||"";document.getElementById("pf-soldcount").value=p.soldCount||"";_pfShade=p.shade||"";renderShadePicker();populateSgModelOptions(p.sizeGuideMode);document.getElementById("pf-sg-mode").value=p.sizeGuideMode||"default";onSgModeChange();if(p.sizeGuideMode==="custom"&&Array.isArray(p.customSizeGuide)&&p.customSizeGuide.length){renderPfSgCustom(p.customSizeGuide.map(r=>({...r})));}pendingImgs=[...(p.images||[])];renderThumbs();if(p.sizeChartImg){document.getElementById("pf-scimg").value=p.sizeChartImg;document.getElementById("sc-prv").innerHTML=`<img src="${p.sizeChartImg}" style="width:120px;border-radius:7px" alt="Size chart"/>`;}document.getElementById("add-title").textContent="EDIT PRODUCT";apTab("add");}
+function resetF(){editId=null;_pfShade="";if(typeof renderShadePicker==="function")renderShadePicker();["pf0","pf2","pf3","pf4","pf-desc2","pf5","pf6","pf-reel","pf-scimg","pf-imgurls","pf-soldcount"].forEach(id=>{const e=document.getElementById(id);if(e)e.value=""});document.getElementById("pf7").value="new";document.getElementById("pf8").value=1;populateSgModelOptions("default");const sgSel=document.getElementById("pf-sg-mode");if(sgSel)sgSel.value="default";const sgWrap=document.getElementById("pf-sg-custom");if(sgWrap){sgWrap.style.display="none";sgWrap.dataset.rows="";}pendingImgs=[];renderThumbs();document.getElementById("sc-prv").innerHTML="";document.getElementById("add-title").textContent="ADD NEW PRODUCT";const m=document.getElementById("pf-msg");if(m)m.style.display="none";}
 let pendingImgs=[];
 function handleImgs(inp){const files=[...inp.files].slice(0,5-pendingImgs.length);files.forEach(f=>{if(pendingImgs.length>=5)return;
   const slot=pendingImgs.length;pendingImgs.push("__uploading__");renderThumbs();
@@ -3646,10 +3932,30 @@ async function cleanupProductStorage(){
   m.textContent=`Done — cleaned up ${done} product(s). Storage usage updated above ✓`;
   m.style.color='#4ade80';m.style.background='rgba(74,222,128,.08)';
 }
+function populateSgModelOptions(selected){
+  const grp=document.getElementById("pf-sg-models-group");
+  if(!grp)return;
+  grp.innerHTML=(sizeModels||[]).map(m=>
+    `<option value="model:${m.id}"${selected==="model:"+m.id?" selected":""}>${(m.name||m.id).replace(/</g,"&lt;")}</option>`
+  ).join("");
+}
 function onSgModeChange(){
   const mode=document.getElementById("pf-sg-mode").value;
   const wrap=document.getElementById("pf-sg-custom");
+  const preview=document.getElementById("pf-sg-model-preview");
   if(!wrap)return;
+  if(mode.indexOf("model:")===0){
+    wrap.style.display="none";
+    if(preview){
+      const model=(sizeModels||[]).find(m=>"model:"+m.id===mode);
+      preview.style.display="block";
+      preview.innerHTML=model&&model.rows&&model.rows.length
+        ?`<b style="color:var(--white)">${model.name}</b><br>`+model.rows.map(r=>`${r.size}" — waist ${r.waist}" — ${r.bestFor||""}`).join("<br>")
+        :"This model has no size rows yet — add them in Admin → Size Models.";
+    }
+    return;
+  }
+  if(preview)preview.style.display="none";
   if(mode!=="custom"){wrap.style.display="none";return;}
   wrap.style.display="block";
   if(!wrap.dataset.rows){
@@ -3761,7 +4067,7 @@ async function siteImgUp(k,inp){if(!inp.files||!inp.files[0])return;try{const bf
 function saveSite(){const _edI=siteContent.edImgs||[];const _stI=siteContent.stImgs||[];const _edS=siteContent.edImg||"";const _stS=siteContent.stImg||"";
   const prevSite=LS.get("ds_site",{});
   if((!_edI.length&&!_edS)&&((prevSite.edImgs||[]).length||(prevSite.edImg||""))){if(!confirm("Founder's Note image is empty. Save anyway? Re-upload in gallery if unintended."))return;}
-  if((!_stI.length&&!_stS)&&((prevSite.stImgs||[]).length||(prevSite.stImg||""))){if(!confirm("Story image is empty. Save anyway? Re-upload in gallery if unintended."))return;}const g=id=>{const el=document.getElementById(id);return el?el.value:"";};const ddRaw=g("site-drop-date");let ddIso="";if(ddRaw){const d=new Date(ddRaw);if(!isNaN(d))ddIso=d.toISOString();}siteContent={faq:(siteContent.faq||faqItems),paymentConfig:(siteContent.paymentConfig||DEFAULT_PAY_CFG),ann:g("site-ann"),heroH1:g("site-hero-h1"),heroSub:g("site-hero-sub"),heroP1:g("site-hero-product"),dropDate:ddIso,trust:g("site-trust"),edH2:g("site-ed-h2"),edP:g("site-ed-p"),edImgs:_edI,stImgs:_stI,edImg:_edS,stImg:_stS,storyH2:g("site-story-h2"),storyP1:g("site-story-p1"),storyP2:g("site-story-p2"),shipping:g("site-shipping"),marquee:g("site-marquee"),stats:g("site-stats"),phone:g("site-phone"),email:g("site-email"),address:g("site-address"),insta:g("site-insta"),fb:g("site-fb"),heroImg:g("site-hero-img"),heroThumb1:g("site-hero-thumb1"),heroThumb2:g("site-hero-thumb2")};lsSafeSet("ds_site",siteContent);applySiteContent();if(typeof window.rebuildHeroShowcase==="function")window.rebuildHeroShowcase();if(typeof window.rebuildDropCountdown==="function")window.rebuildDropCountdown();const m=document.getElementById("site-msg");if(m){m.textContent="Saved ✓";m.style.color="#4ade80";m.style.background="rgba(74,222,128,.08)";m.style.display="block";setTimeout(()=>m.style.display="none",2000);}showToast("Site content saved ✓ — syncing live...",true);syncSiteToSupabase();}
+  if((!_stI.length&&!_stS)&&((prevSite.stImgs||[]).length||(prevSite.stImg||""))){if(!confirm("Story image is empty. Save anyway? Re-upload in gallery if unintended."))return;}const g=id=>{const el=document.getElementById(id);return el?el.value:"";};const ddRaw=g("site-drop-date");let ddIso="";if(ddRaw){const d=new Date(ddRaw);if(!isNaN(d))ddIso=d.toISOString();}siteContent={faq:(siteContent.faq||faqItems),paymentConfig:(siteContent.paymentConfig||DEFAULT_PAY_CFG),sizeGuide:(siteContent.sizeGuide||sizeGuide),sizeModels:(siteContent.sizeModels||sizeModels),ann:g("site-ann"),heroH1:g("site-hero-h1"),heroSub:g("site-hero-sub"),heroP1:g("site-hero-product"),dropDate:ddIso,trust:g("site-trust"),edH2:g("site-ed-h2"),edP:g("site-ed-p"),edImgs:_edI,stImgs:_stI,edImg:_edS,stImg:_stS,storyH2:g("site-story-h2"),storyP1:g("site-story-p1"),storyP2:g("site-story-p2"),shipping:g("site-shipping"),marquee:g("site-marquee"),stats:g("site-stats"),phone:g("site-phone"),email:g("site-email"),address:g("site-address"),insta:g("site-insta"),fb:g("site-fb"),heroImg:g("site-hero-img"),heroThumb1:g("site-hero-thumb1"),heroThumb2:g("site-hero-thumb2")};lsSafeSet("ds_site",siteContent);applySiteContent();if(typeof window.rebuildHeroShowcase==="function")window.rebuildHeroShowcase();if(typeof window.rebuildDropCountdown==="function")window.rebuildDropCountdown();const m=document.getElementById("site-msg");if(m){m.textContent="Saved ✓";m.style.color="#4ade80";m.style.background="rgba(74,222,128,.08)";m.style.display="block";setTimeout(()=>m.style.display="none",2000);}showToast("Site content saved ✓ — syncing live...",true);syncSiteToSupabase();}
 
 // BANNER ADMIN
 function loadBannerAdmin(){document.getElementById("ban-text").value=banner.text||"";document.getElementById("ban-show").checked=banner.show||false;}
@@ -5102,6 +5408,14 @@ async function loadFromSupabaseIfAvailable(){
         faqItems=siteContent.faq;
         try{LS.set("ds_faq",faqItems);}catch(e){}
         if(typeof renderFaqSection==="function")renderFaqSection();
+      }
+      if(siteContent.sizeGuide&&typeof siteContent.sizeGuide==="object"){
+        sizeGuide=siteContent.sizeGuide;
+        try{LS.set("ds_size_guide",sizeGuide);}catch(e){}
+      }
+      if(Array.isArray(siteContent.sizeModels)){
+        sizeModels=siteContent.sizeModels;
+        try{LS.set("ds_size_models",sizeModels);}catch(e){}
       }
     }
     if(!banRes.error && banRes.data && banRes.data.content && Object.keys(banRes.data.content).length){
