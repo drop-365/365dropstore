@@ -478,6 +478,40 @@ button,a,.btn,[onclick]{-webkit-tap-highlight-color:transparent}
 .pwish:hover{background:var(--bg2);color:var(--red)}
 .pfitband{position:absolute;bottom:0;left:0;right:0;background:rgba(12,11,10,.85);color:rgba(255,255,255,.95);font-size:10.5px;font-weight:700;letter-spacing:.08em;text-align:center;padding:7px 0;z-index:2}
 .bdg{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:4px 8px;border-radius:5px}
+/* ===== ADMIN-WIDE SCI-FI SHELL =====
+   Every rule here is ancestor-scoped under #ap -- the confirmed real admin
+   root (verified against the live file: .apsec/.atab/.apstat occur zero
+   times outside it). This is deliberate after the .b-new/.b-so collision
+   earlier the same day: no bare global class gets touched for admin
+   styling again, regardless of how unlikely a name collision seems. */
+#ap{background:#0A0908;color:#F8F7F4;font-family:var(--mono,ui-monospace,"SF Mono",Consolas,monospace)}
+#ap .apsec{background:#141312;border:1px solid rgba(192,57,43,.22);border-radius:12px;padding:18px;position:relative}
+#ap .apsec::before{content:"";position:absolute;left:0;right:0;top:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(192,57,43,.6),transparent)}
+#ap h3{letter-spacing:.16em;text-transform:uppercase;font-size:14px;font-weight:800;color:#F8F7F4;
+  border-left:3px solid #C0392B;padding-left:10px;margin-bottom:14px}
+#ap h4{letter-spacing:.1em;text-transform:uppercase;font-size:11.5px;color:#C0392B;font-weight:700}
+#ap .atab{background:#141312;border:1px solid rgba(248,247,244,.1);color:#8A8683;
+  font-family:inherit;letter-spacing:.04em;font-size:12px;padding:9px 14px;border-radius:7px;cursor:pointer}
+#ap .atab.act{background:rgba(192,57,43,.14);border-color:#C0392B;color:#F8F7F4}
+#ap .atab:hover{border-color:rgba(192,57,43,.5)}
+#ap .tb{background:#141312;border:1px solid rgba(248,247,244,.14);color:#F8F7F4;
+  font-family:inherit;font-size:11px;border-radius:6px;cursor:pointer}
+#ap .tb:hover{border-color:#C0392B}
+#ap .tb-del{border-color:rgba(192,57,43,.3);color:#e88a80}
+#ap .btn{font-family:inherit;letter-spacing:.05em}
+#ap input,#ap select,#ap textarea{background:#0F0E0D;border:1px solid rgba(248,247,244,.14);
+  color:#F8F7F4;font-family:inherit;border-radius:7px}
+#ap input:focus,#ap select:focus,#ap textarea:focus{border-color:#C0392B;outline:none}
+#ap table{border-collapse:collapse;width:100%}
+#ap table th{color:#C0392B;font-size:10px;letter-spacing:.12em;text-transform:uppercase;
+  text-align:left;padding:8px 6px;border-bottom:1px solid rgba(192,57,43,.25)}
+#ap table td{padding:8px 6px;border-bottom:1px solid rgba(248,247,244,.06);font-size:12.5px}
+#ap .apstat{background:#141312;border:1px solid rgba(192,57,43,.22);border-radius:10px;padding:12px}
+#ap .apstat .v{font-family:var(--dsp,inherit);font-size:22px;color:#F8F7F4;text-shadow:0 0 10px rgba(192,57,43,.4)}
+#ap .apstat .k{font-size:10px;letter-spacing:.1em;color:#8A8683;text-transform:uppercase}
+@media(prefers-reduced-motion:reduce){#ap *{animation:none!important}}
+
 /* ===== FIT STUDIO (all classes prefixed fs- so nothing can collide with
    storefront badge/tag classes the way .b-new/.b-so just did) ===== */
 .fs-trigger{display:block;width:100%;margin-top:10px;padding:11px;background:transparent;
@@ -1600,6 +1634,14 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
       <div class="sfd-panel-h">DAILY REVENUE <span style="font-weight:400;opacity:.6">(current range)</span></div>
       <div id="dash-daily"></div>
     </div>
+    <div class="sfd-panel">
+      <div class="sfd-panel-h">CUSTOMERS <span style="font-weight:400;opacity:.6">(lifetime + current range)</span></div>
+      <div id="dash-cust-stats" class="sfd-stats" style="margin-bottom:14px"></div>
+      <div style="display:grid;grid-template-columns:1fr;gap:6px">
+        <div class="sfd-panel-h" style="margin-top:6px">TOP CUSTOMERS BY LIFETIME SPEND</div>
+        <div id="dash-cust-top"></div>
+      </div>
+    </div>
   </div>
   <div id="tab-orders" class="apsec" style="display:none">
     <div style="border:1px solid rgba(37,211,102,.4);background:rgba(37,211,102,.06);border-radius:12px;padding:16px;margin-bottom:18px">
@@ -1636,6 +1678,18 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
     <h3>PRODUCT SEQUENCE</h3>
     <p style="color:var(--off);font-size:12.5px;margin-bottom:14px">This is the order products appear in on the website's "Featured" sort. Use the arrows to reorder — changes save automatically.</p>
     <input type="text" id="seq-search" placeholder="Search by name, fit, or SKU..." oninput="renderSequenceList()" style="width:100%;margin-bottom:14px"/>
+
+    <div style="border:1px solid rgba(192,57,43,.3);background:rgba(192,57,43,.06);border-radius:10px;padding:14px;margin-bottom:16px">
+      <div style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--red);font-weight:700;margin-bottom:8px">FIT STUDIO BULK CONTROL</div>
+      <p style="font-size:12px;color:var(--off);margin-bottom:10px">The "Find my size" button is off by default everywhere. Turn it on for every product in one fit at once, instead of one product at a time.</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+        <select id="fs-bulk-fit" style="flex:1;min-width:140px"></select>
+        <button class="tb" onclick="fsBulkSet(true)">Enable for this fit</button>
+        <button class="tb tb-del" onclick="fsBulkSet(false)">Disable for this fit</button>
+      </div>
+      <div id="fs-bulk-status" style="margin-top:8px;font-size:12px;color:var(--off)"></div>
+    </div>
+
     <div id="seq-list"></div>
     <div id="seq-status" style="margin-top:10px;font-size:12.5px;color:var(--off)"></div>
   </div>
@@ -1672,6 +1726,11 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
       <small style="color:var(--off);display:block;margin-top:8px">Default pulls from the fit-based table in Admin → Size Guide. Pick a Size Model to reuse a named chart shared across products — edit the model once in Admin → Size Models and every product using it updates. Pick Custom for a one-off just for this product.</small>
       <div id="pf-sg-custom" style="display:none;margin-top:14px"></div>
       <div id="pf-sg-model-preview" style="display:none;margin-top:14px;padding:12px;background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:8px;font-size:12.5px"></div>
+      <label style="display:flex;align-items:center;gap:8px;margin-top:16px;cursor:pointer">
+        <input type="checkbox" id="pf-fitstudio" style="width:16px;height:16px"/>
+        <span style="font-size:12.5px">Show "Not sure of your size? Find it" on this product</span>
+      </label>
+      <small style="color:var(--off);display:block;margin-top:4px">Off by default for every product. Turn on individually here, or use "Enable Fit Studio for this Fit" in the Sequence tab to switch on a whole fit at once.</small>
     </div>
     <div class="pff full">
       <label>Product Images * (up to 5 — first = main card image)</label>
@@ -1991,6 +2050,71 @@ const WA="919990905969";const AE="365dropstore@gmail.com";const AP="admin-c7eb81
 let AH="0cea13dbf9ea0a5a676f82d94c3315d7238e70cbd980131200a55d6c957337b7";
 const LS={get:(k,d=null)=>{try{return JSON.parse(localStorage.getItem(k))??d}catch{return d}},set:(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch{}}};
 const inr=n=>"₹"+Number(n).toLocaleString("en-IN");const eff=p=>p.offerPrice??p.price;
+// Customer identity = phone number. No new table -- derived entirely from
+// orders already in memory, since phone is validated (10-digit Indian
+// mobile) and captured on every order regardless of channel.
+function buildCustomerStats(allOrders,rangeStart,rangeEnd){
+  const valid=allOrders.filter(o=>["confirmed","fulfilled"].includes(o.status));
+  const byPhone={};
+  valid.forEach(o=>{
+    const ph=o.phone||"unknown";
+    if(!byPhone[ph])byPhone[ph]={orders:[],name:o.name};
+    byPhone[ph].orders.push(o);
+  });
+  let newInRange=0,returningInRange=0,repeatCustomers=0;
+  const totalCustomers=Object.keys(byPhone).length;
+  const topSpenders=[];
+  Object.entries(byPhone).forEach(([phone,data])=>{
+    const sorted=data.orders.slice().sort((a,b)=>a.placedAt-b.placedAt);
+    const firstOrderTime=sorted[0].placedAt;
+    const lifetimeOrders=sorted.length;
+    const lifetimeSpend=sorted.reduce((s,o)=>s+(Number(o.total)||0),0);
+    if(lifetimeOrders>=2)repeatCustomers++;
+    const ordersInRange=sorted.filter(o=>o.placedAt>=rangeStart&&o.placedAt<=rangeEnd);
+    if(ordersInRange.length>0){
+      if(firstOrderTime>=rangeStart)newInRange++;
+      else returningInRange++;
+    }
+    topSpenders.push({phone,name:data.name,lifetimeOrders,lifetimeSpend});
+  });
+  topSpenders.sort((a,b)=>b.lifetimeSpend-a.lifetimeSpend);
+  return{
+    totalCustomers,newInRange,returningInRange,
+    repeatRate:totalCustomers?(repeatCustomers/totalCustomers*100):0,
+    avgOrdersPerCustomer:totalCustomers?(valid.length/totalCustomers):0,
+    topSpenders:topSpenders.slice(0,10)
+  };
+}
+function renderCustomerPanel(){
+  const rangeEl=document.getElementById("dash-range");
+  if(!rangeEl)return;
+  const now=Date.now();
+  let cutoff=0,upper=now;
+  if(_dashRange==="today"){const d=new Date();d.setHours(0,0,0,0);cutoff=d.getTime();}
+  else if(_dashRange==="7d")cutoff=now-7*86400000;
+  else if(_dashRange==="30d")cutoff=now-30*86400000;
+  else if(_dashRange==="month"){const d=new Date();d.setDate(1);d.setHours(0,0,0,0);cutoff=d.getTime();}
+  else if(_dashRange==="custom"){
+    const f=document.getElementById("dash-custom-from"),t=document.getElementById("dash-custom-to");
+    if(f&&f.value)cutoff=new Date(f.value+"T00:00:00").getTime();
+    if(t&&t.value)upper=new Date(t.value+"T23:59:59").getTime();
+  }
+  const stats=buildCustomerStats(orders,cutoff,upper);
+  const statsEl=document.getElementById("dash-cust-stats");
+  if(statsEl)statsEl.innerHTML=[
+    ["Total Customers",stats.totalCustomers],
+    ["New (range)",stats.newInRange],
+    ["Returning (range)",stats.returningInRange],
+    ["Repeat Rate",stats.repeatRate.toFixed(0)+"%"]
+  ].map(([k,v])=>`<div class="apstat"><div class="v">${v}</div><div class="k">${k}</div></div>`).join("");
+  const topEl=document.getElementById("dash-cust-top");
+  if(topEl){
+    topEl.innerHTML=stats.topSpenders.length?stats.topSpenders.map((c,i)=>`<div class="sfd-row">
+      <span><span class="off" style="margin-right:8px">${String(i+1).padStart(2,"0")}</span>${(c.name||"Customer").replace(/</g,"&lt;")}</span>
+      <span><b>${inr(c.lifetimeSpend)}</b> <span class="off">(${c.lifetimeOrders} order${c.lifetimeOrders>1?"s":""})</span></span></div>`).join("")
+      :'<p style="color:#8A8683;font-size:12.5px">No customers yet in this range.</p>';
+  }
+}
 const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
 async function sha256(s){const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(s));return Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,"0")).join("");}
 const BM={new:{c:"b-new",t:"New"},best:{c:"b-best",t:"Bestseller"},ltd:{c:"b-ltd",t:"Limited"},off:{c:"b-off",t:"Offer"},sold:{c:"b-so",t:"Sold Out"}};
@@ -3141,7 +3265,8 @@ function renderMoSizes(p){
     if(oos){const hasRestock=(p.sizeRestockDates||{})[s]&&new Date((p.sizeRestockDates||{})[s])>new Date();if(hasRestock)return`<button class="chip restock-chip" onclick="selectOosSize(this,'${s}')" title="Restocking soon">${s}</button>`;return`<button class="chip oos-chip" onclick="selectOosSize(this,'${s}')" title="Out of stock — tap to see measurements"><s>${s}</s></button>`;}
     return`<button class="chip${sel?' sel':''}" onclick="pick('size','${s}',this)">${s}</button>`;
   }).join('');
-  return`<span class="mol">Size</span><div class="chips">${chips}</div><div id="mo-size-rec" class="mo-size-rec"></div><button class="fs-trigger" onclick="openFitStudio()">📏 Not sure of your size? Find it in 15 seconds</button>`;
+  const fsBtn=p.fitStudioEnabled?`<button class="fs-trigger" onclick="openFitStudio()">📏 Not sure of your size? Find it in 15 seconds</button>`:"";
+  return`<span class="mol">Size</span><div class="chips">${chips}</div><div id="mo-size-rec" class="mo-size-rec"></div>${fsBtn}`;
 }
 // Single source of truth for "which size-guide rows apply to this product" --
 // used by both the existing per-size recommendation (getSizeRec, below) and
@@ -3814,8 +3939,8 @@ function ldProds(){
 }
 function togSold(id){const p=products.find(x=>x.id===id);if(!p)return;if(!p.badges)p.badges=[];if(p.badges.includes("sold")){p.badges=p.badges.filter(b=>b!=="sold");p.restockAt='';}else p.badges.push("sold");LS.set("ds_p",products);renderGrid();ldProds();apSts();syncProductToSupabase("save",p);}
 function delP(id){if(!confirm("Delete? Cannot be undone."))return;products=products.filter(p=>p.id!==id);LS.set("ds_p",products);renderGrid();ldProds();apSts();syncProductToSupabase("delete",{id});}
-function editP(id){const p=products.find(x=>x.id===id);if(!p)return;editId=id;document.getElementById("pf0").value=p.name;document.getElementById("pf1").value=p.category;populateFitSelect();document.getElementById("pf-fit").value=p.fit||"Baggy";document.getElementById("pf2").value=p.price;document.getElementById("pf3").value=p.offerPrice||"";document.getElementById("pf4").value=p.desc;document.getElementById("pf-desc2").value=p.desc2||"";document.getElementById("pf5").value=(p.sizes||[]).join("|");document.getElementById("pf6").value=(p.colors||[]).join("|");document.getElementById("pf7").value=(p.badges||[]).filter(b=>b!=="sold")[0]||"";document.getElementById("pf8").value=p.order||1;document.getElementById("pf-reel").value=p.reelUrl||"";document.getElementById("pf-soldcount").value=p.soldCount||"";_pfShade=p.shade||"";renderShadePicker();populateSgModelOptions(p.sizeGuideMode);document.getElementById("pf-sg-mode").value=p.sizeGuideMode||"default";onSgModeChange();if(p.sizeGuideMode==="custom"&&Array.isArray(p.customSizeGuide)&&p.customSizeGuide.length){renderPfSgCustom(p.customSizeGuide.map(r=>({...r})));}pendingImgs=[...(p.images||[])];renderThumbs();if(p.sizeChartImg){document.getElementById("pf-scimg").value=p.sizeChartImg;document.getElementById("sc-prv").innerHTML=`<img src="${p.sizeChartImg}" style="width:120px;border-radius:7px" alt="Size chart"/>`;}document.getElementById("add-title").textContent="EDIT PRODUCT";apTab("add");}
-function resetF(){editId=null;_pfShade="";if(typeof renderShadePicker==="function")renderShadePicker();["pf0","pf2","pf3","pf4","pf-desc2","pf5","pf6","pf-reel","pf-scimg","pf-imgurls","pf-soldcount"].forEach(id=>{const e=document.getElementById(id);if(e)e.value=""});document.getElementById("pf7").value="new";document.getElementById("pf8").value=1;populateSgModelOptions("default");const sgSel=document.getElementById("pf-sg-mode");if(sgSel)sgSel.value="default";const sgWrap=document.getElementById("pf-sg-custom");if(sgWrap){sgWrap.style.display="none";sgWrap.dataset.rows="";}pendingImgs=[];renderThumbs();document.getElementById("sc-prv").innerHTML="";document.getElementById("add-title").textContent="ADD NEW PRODUCT";const m=document.getElementById("pf-msg");if(m)m.style.display="none";}
+function editP(id){const p=products.find(x=>x.id===id);if(!p)return;editId=id;document.getElementById("pf0").value=p.name;document.getElementById("pf1").value=p.category;populateFitSelect();document.getElementById("pf-fit").value=p.fit||"Baggy";document.getElementById("pf2").value=p.price;document.getElementById("pf3").value=p.offerPrice||"";document.getElementById("pf4").value=p.desc;document.getElementById("pf-desc2").value=p.desc2||"";document.getElementById("pf5").value=(p.sizes||[]).join("|");document.getElementById("pf6").value=(p.colors||[]).join("|");document.getElementById("pf7").value=(p.badges||[]).filter(b=>b!=="sold")[0]||"";document.getElementById("pf8").value=p.order||1;document.getElementById("pf-reel").value=p.reelUrl||"";document.getElementById("pf-soldcount").value=p.soldCount||"";_pfShade=p.shade||"";renderShadePicker();populateSgModelOptions(p.sizeGuideMode);document.getElementById("pf-sg-mode").value=p.sizeGuideMode||"default";onSgModeChange();document.getElementById("pf-fitstudio").checked=!!p.fitStudioEnabled;if(p.sizeGuideMode==="custom"&&Array.isArray(p.customSizeGuide)&&p.customSizeGuide.length){renderPfSgCustom(p.customSizeGuide.map(r=>({...r})));}pendingImgs=[...(p.images||[])];renderThumbs();if(p.sizeChartImg){document.getElementById("pf-scimg").value=p.sizeChartImg;document.getElementById("sc-prv").innerHTML=`<img src="${p.sizeChartImg}" style="width:120px;border-radius:7px" alt="Size chart"/>`;}document.getElementById("add-title").textContent="EDIT PRODUCT";apTab("add");}
+function resetF(){editId=null;_pfShade="";if(typeof renderShadePicker==="function")renderShadePicker();["pf0","pf2","pf3","pf4","pf-desc2","pf5","pf6","pf-reel","pf-scimg","pf-imgurls","pf-soldcount"].forEach(id=>{const e=document.getElementById(id);if(e)e.value=""});document.getElementById("pf7").value="new";document.getElementById("pf8").value=1;populateSgModelOptions("default");const sgSel=document.getElementById("pf-sg-mode");if(sgSel)sgSel.value="default";const fsChk=document.getElementById("pf-fitstudio");if(fsChk)fsChk.checked=false;const sgWrap=document.getElementById("pf-sg-custom");if(sgWrap){sgWrap.style.display="none";sgWrap.dataset.rows="";}pendingImgs=[];renderThumbs();document.getElementById("sc-prv").innerHTML="";document.getElementById("add-title").textContent="ADD NEW PRODUCT";const m=document.getElementById("pf-msg");if(m)m.style.display="none";}
 let pendingImgs=[];
 function handleImgs(inp){const files=[...inp.files].slice(0,5-pendingImgs.length);files.forEach(f=>{if(pendingImgs.length>=5)return;
   const slot=pendingImgs.length;pendingImgs.push("__uploading__");renderThumbs();
@@ -3994,7 +4119,7 @@ function saveProd(){
   const soldCountVal=parseInt(document.getElementById("pf-soldcount").value)||0;
   const sgMode=document.getElementById("pf-sg-mode").value;
   const customSizeGuide=sgMode==="custom"?readPfSgCustomRows():undefined;
-  const prod={id:editId||("P-"+uid()),name,category:document.getElementById("pf1").value,fit:document.getElementById("pf-fit").value,price,offerPrice:offer,images:[...cleanImgs],sizeChartImg:document.getElementById("pf-scimg").value||"",shade:_pfShade||"",badges:badge?[badge]:[],sizes:document.getElementById("pf5").value.split("|").map(s=>s.trim()).filter(Boolean),colors:document.getElementById("pf6").value.split("|").map(c=>c.trim()).filter(Boolean)||["As shown"],desc:document.getElementById("pf4").value.trim(),desc2:document.getElementById("pf-desc2").value.trim(),shippingInfo:"Delivery in 3-5 working days · Free shipping all over India · Only damaged or defective items can be returned · Unboxing video required for all return claims · Size exchange available for ₹200 fee · Item must be returned in original condition · Check size before ordering",reelUrl:document.getElementById("pf-reel").value.trim(),features:[],order:Number(document.getElementById("pf8").value)||99,soldCount:soldCountVal,sizeGuideMode:sgMode,customSizeGuide:customSizeGuide,addedAt:editId?(products.find(p=>p.id===editId)||{}).addedAt||Date.now():Date.now()};
+  const prod={id:editId||("P-"+uid()),name,category:document.getElementById("pf1").value,fit:document.getElementById("pf-fit").value,price,offerPrice:offer,images:[...cleanImgs],sizeChartImg:document.getElementById("pf-scimg").value||"",shade:_pfShade||"",badges:badge?[badge]:[],sizes:document.getElementById("pf5").value.split("|").map(s=>s.trim()).filter(Boolean),colors:document.getElementById("pf6").value.split("|").map(c=>c.trim()).filter(Boolean)||["As shown"],desc:document.getElementById("pf4").value.trim(),desc2:document.getElementById("pf-desc2").value.trim(),shippingInfo:"Delivery in 3-5 working days · Free shipping all over India · Only damaged or defective items can be returned · Unboxing video required for all return claims · Size exchange available for ₹200 fee · Item must be returned in original condition · Check size before ordering",reelUrl:document.getElementById("pf-reel").value.trim(),features:[],order:Number(document.getElementById("pf8").value)||99,soldCount:soldCountVal,sizeGuideMode:sgMode,customSizeGuide:customSizeGuide,fitStudioEnabled:document.getElementById("pf-fitstudio").checked,addedAt:editId?(products.find(p=>p.id===editId)||{}).addedAt||Date.now():Date.now()};
   const wasEdit=!!editId;
   if(editId)products=products.map(p=>p.id===editId?prod:p);else products.unshift(prod);
   LS.set("ds_p",products);renderGrid();renderHeroShowcase();
@@ -4020,7 +4145,7 @@ async function syncProductMeta(prod){
     const res=await fetch(SB_FN_BASE+"admin-product-meta",{
       method:"POST",
       headers:{"Content-Type":"application/json","apikey":SB_APIKEY},
-      body:JSON.stringify({password:_adminPw,id:prod.id,soldCount:prod.soldCount,shade:prod.shade,sizeGuideMode:prod.sizeGuideMode,customSizeGuide:prod.customSizeGuide})
+      body:JSON.stringify({password:_adminPw,id:prod.id,soldCount:prod.soldCount,shade:prod.shade,sizeGuideMode:prod.sizeGuideMode,customSizeGuide:prod.customSizeGuide,fitStudioEnabled:prod.fitStudioEnabled})
     });
     const data=await res.json();
     if(data.error){showToast("⚠️ Colour / Sold Count / Size Guide didn't save: "+data.error,false);}
@@ -4385,7 +4510,41 @@ function renderAbandonedList(){
 }
 // ===== PRODUCT SEQUENCE =====
 let _seqPending=false;
+function populateFsBulkFits(){
+  const sel=document.getElementById("fs-bulk-fit");
+  if(!sel||sel.options.length)return; // populate once; fit list doesn't change at runtime
+  const fits=[...new Set(products.map(p=>p.fit).filter(Boolean))].sort();
+  sel.innerHTML=fits.map(f=>`<option value="${f.replace(/"/g,"&quot;")}">${f}</option>`).join("");
+}
+async function fsBulkSet(enabled){
+  const fit=(document.getElementById("fs-bulk-fit")||{}).value;
+  if(!fit)return;
+  const statusEl=document.getElementById("fs-bulk-status");
+  const targets=products.filter(p=>p.fit===fit);
+  if(!targets.length){if(statusEl)statusEl.textContent="No products found for that fit.";return;}
+  if(statusEl){statusEl.textContent=`${enabled?"Enabling":"Disabling"} for ${targets.length} ${fit} product${targets.length>1?"s":""}...`;statusEl.style.color="var(--off)";}
+  targets.forEach(p=>{p.fitStudioEnabled=enabled;});
+  try{
+    const results=await Promise.all(targets.map(p=>
+      fetch(SB_FN_BASE+"admin-product-meta",{
+        method:"POST",headers:{"Content-Type":"application/json","apikey":SB_APIKEY},
+        body:JSON.stringify({password:_adminPw,id:p.id,soldCount:p.soldCount,shade:p.shade||"",
+          sizeGuideMode:p.sizeGuideMode,customSizeGuide:p.customSizeGuide,fitStudioEnabled:enabled})
+      }).then(r=>r.json())
+    ));
+    const failed=results.filter(r=>r.error);
+    if(failed.length){
+      if(statusEl){statusEl.textContent=`⚠️ ${failed.length} of ${targets.length} failed to save. Try again.`;statusEl.style.color="#e88a80";}
+    }else{
+      try{localStorage.setItem("ds_p",JSON.stringify(products));}catch(e){}
+      if(statusEl){statusEl.textContent=`✓ ${enabled?"Enabled":"Disabled"} for all ${targets.length} ${fit} products.`;statusEl.style.color="#4ade80";}
+    }
+  }catch(e){
+    if(statusEl){statusEl.textContent="⚠️ Network error — some products may not have saved.";statusEl.style.color="#e88a80";}
+  }
+}
 function renderSequenceList(){
+  populateFsBulkFits();
   const q=(document.getElementById("seq-search")||{value:""}).value.trim().toLowerCase();
   const list=document.getElementById("seq-list");
   if(!list)return;
@@ -4543,6 +4702,7 @@ function renderDashboard(){
   // Daily revenue bars -- one bar per calendar day covered by the current
   // range, capped at 60 bars so a full "All time" view stays legible rather
   // than rendering hundreds of illegible slivers.
+  renderCustomerPanel();
   const dailyEl=document.getElementById("dash-daily");
   if(dailyEl){
     const byDay={};
@@ -5358,7 +5518,7 @@ async function refreshProductsFromSupabase(){
       addedAt:p.added_at?new Date(p.added_at).getTime():Date.now(),
       restockAt:p.restock_at||'',
       sizeRestockDates:p.size_restock_dates||{},
-      soldCount:p.sold_count||0,shade:p.shade||"",sizeGuideMode:p.size_guide_mode||'default',customSizeGuide:p.custom_size_guide||undefined
+      soldCount:p.sold_count||0,shade:p.shade||"",sizeGuideMode:p.size_guide_mode||'default',customSizeGuide:p.custom_size_guide||undefined,fitStudioEnabled:!!p.fit_studio_enabled
     }));
     LS.set("ds_p",products);
     ldProds();apSts();renderGrid();
@@ -5394,6 +5554,7 @@ async function loadFromSupabaseIfAvailable(){
       addedAt:p.added_at?new Date(p.added_at).getTime():undefined,
       restockAt:p.restock_at||'',
       shade:p.shade||"",
+      fitStudioEnabled:!!p.fit_studio_enabled,
       sizeRestockDates:p.size_restock_dates||{}
     }));
     if(!revRes.error && revRes.data && revRes.data.length){
