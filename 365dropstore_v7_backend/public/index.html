@@ -499,6 +499,7 @@ button,a,.btn,[onclick]{-webkit-tap-highlight-color:transparent}
   font-family:inherit;font-size:11px;border-radius:6px;cursor:pointer}
 #ap .tb:hover{border-color:#C0392B}
 #ap .tb-del{border-color:rgba(192,57,43,.3);color:#e88a80}
+#ap .theme-swatch.on{border-color:#C0392B;background:rgba(192,57,43,.14)}
 #ap .btn{font-family:inherit;letter-spacing:.05em}
 #ap input,#ap select,#ap textarea{background:#0F0E0D;border:1px solid rgba(248,247,244,.14);
   color:#F8F7F4;font-family:inherit;border-radius:7px}
@@ -511,6 +512,47 @@ button,a,.btn,[onclick]{-webkit-tap-highlight-color:transparent}
 #ap .apstat .v{font-family:var(--dsp,inherit);font-size:22px;color:#F8F7F4;text-shadow:0 0 10px rgba(192,57,43,.4)}
 #ap .apstat .k{font-size:10px;letter-spacing:.1em;color:#8A8683;text-transform:uppercase}
 @media(prefers-reduced-motion:reduce){#ap *{animation:none!important}}
+
+/* Theme presets. Each overrides the same handful of surfaces the default
+   sci-fi rules already style, via higher specificity -- the original rules
+   above are the "scifi" preset itself and stay completely untouched. */
+#ap[data-theme="mono"]{background:#000;color:#e8e8e8}
+#ap[data-theme="mono"] .apsec{background:#0d0d0d;border-color:rgba(255,255,255,.14)}
+#ap[data-theme="mono"] .apsec::before{background:linear-gradient(90deg,transparent,rgba(255,255,255,.35),transparent)}
+#ap[data-theme="mono"] h3{border-left-color:#fff;color:#fff}
+#ap[data-theme="mono"] h4{color:#bbb}
+#ap[data-theme="mono"] .atab.act{background:rgba(255,255,255,.1);border-color:#fff;color:#fff}
+#ap[data-theme="mono"] .tb:hover{border-color:#fff}
+#ap[data-theme="mono"] .apstat{border-color:rgba(255,255,255,.14)}
+#ap[data-theme="mono"] .apstat .v{text-shadow:none}
+#ap[data-theme="mono"] input:focus,#ap[data-theme="mono"] select:focus{border-color:#fff}
+
+#ap[data-theme="ocean"]{background:#071018;color:#dceefc}
+#ap[data-theme="ocean"] .apsec{background:#0d1b26;border-color:rgba(60,160,220,.3)}
+#ap[data-theme="ocean"] .apsec::before{background:linear-gradient(90deg,transparent,rgba(60,160,220,.6),transparent)}
+#ap[data-theme="ocean"] h3{border-left-color:#3ca0dc;color:#dceefc}
+#ap[data-theme="ocean"] h4{color:#5cc0f0}
+#ap[data-theme="ocean"] .atab.act{background:rgba(60,160,220,.16);border-color:#3ca0dc;color:#dceefc}
+#ap[data-theme="ocean"] .tb:hover{border-color:#3ca0dc}
+#ap[data-theme="ocean"] table th{color:#5cc0f0;border-bottom-color:rgba(60,160,220,.25)}
+#ap[data-theme="ocean"] .apstat{border-color:rgba(60,160,220,.3)}
+#ap[data-theme="ocean"] .apstat .v{text-shadow:0 0 10px rgba(60,160,220,.4)}
+#ap[data-theme="ocean"] input:focus,#ap[data-theme="ocean"] select:focus{border-color:#3ca0dc}
+
+#ap[data-theme="light"]{background:#F4F1EC;color:#0A0908;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+#ap[data-theme="light"] .apsec{background:#fff;border-color:#DDD8D0}
+#ap[data-theme="light"] .apsec::before{display:none}
+#ap[data-theme="light"] h3{border-left-color:#C0392B;color:#0A0908}
+#ap[data-theme="light"] h4{color:#C0392B}
+#ap[data-theme="light"] .atab{background:#fff;border-color:#DDD8D0;color:#7A756E}
+#ap[data-theme="light"] .atab.act{background:rgba(192,57,43,.08);border-color:#C0392B;color:#0A0908}
+#ap[data-theme="light"] .tb{background:#fff;border-color:#DDD8D0;color:#0A0908}
+#ap[data-theme="light"] input,#ap[data-theme="light"] select,#ap[data-theme="light"] textarea{background:#fff;border-color:#DDD8D0;color:#0A0908}
+#ap[data-theme="light"] table th{border-bottom-color:rgba(192,57,43,.2)}
+#ap[data-theme="light"] table td{border-bottom-color:rgba(10,9,8,.08)}
+#ap[data-theme="light"] .apstat{background:#fff;border-color:#DDD8D0}
+#ap[data-theme="light"] .apstat .v{color:#0A0908;text-shadow:none}
+#ap[data-theme="light"] .theme-swatch.on{background:rgba(192,57,43,.1)}
 
 /* ===== FIT STUDIO (all classes prefixed fs- so nothing can collide with
    storefront badge/tag classes the way .b-new/.b-so just did) ===== */
@@ -1568,7 +1610,6 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
   <button class="atab act" onclick="apTab('products')">Products</button>
   <button class="atab" onclick="apTab('dashboard')">Dashboard</button>
   <button class="atab" onclick="apTab('sequence')">Sequence</button>
-  <button class="atab" onclick="apTab('sizemodels')">Size Models</button>
   <button class="atab" onclick="apTab('orders')">Orders</button>
   <button class="atab" onclick="apTab('add')">Add / Edit</button>
   <button class="atab" onclick="apTab('site')">Edit Site</button>
@@ -1645,12 +1686,18 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
   </div>
   <div id="tab-orders" class="apsec" style="display:none">
     <div style="border:1px solid rgba(37,211,102,.4);background:rgba(37,211,102,.06);border-radius:12px;padding:16px;margin-bottom:18px">
-      <h3 style="margin-bottom:4px">LOG A WHATSAPP ORDER</h3>
-      <p style="color:var(--off);font-size:12px;margin-bottom:14px">WhatsApp sales never hit the database, so sold counts and the dispatch map under-report. Log them here and both correct themselves.</p>
+      <h3 style="margin-bottom:4px">LOG AN OFFLINE SALE</h3>
+      <p style="color:var(--off);font-size:12px;margin-bottom:14px">WhatsApp and walk-in sales never hit the database on their own — sold counts and the dispatch map under-report until you log them here.</p>
       <div class="pfgrid">
+        <div class="pff"><label>Where did this sell?</label>
+          <select id="wo-channel"><option value="whatsapp">WhatsApp</option><option value="walkin">Walk-in / Store</option><option value="instagram">Instagram DM</option></select>
+        </div>
+        <div class="pff"><label>How did they pay?</label>
+          <select id="wo-paymode"><option value="cash">Cash</option><option value="upi">UPI</option><option value="cod">COD</option><option value="card">Card</option><option value="bank">Bank Transfer</option></select>
+        </div>
         <div class="pff"><label>Customer Name</label><input type="text" id="wo-name" placeholder="Aryan M."/></div>
         <div class="pff"><label>Phone</label><input type="text" id="wo-phone" placeholder="9xxxxxxxxx"/></div>
-        <div class="pff"><label>Pincode</label><input type="text" id="wo-pin" inputmode="numeric" maxlength="6" placeholder="110001"/></div>
+        <div class="pff"><label>Pincode <span style="text-transform:none;font-weight:400">(leave blank for a walk-in)</span></label><input type="text" id="wo-pin" inputmode="numeric" maxlength="6" placeholder="110001"/></div>
         <div class="pff"><label>Amount Paid (₹)</label><input type="number" id="wo-total" placeholder="1099"/></div>
         <div class="pff full"><label>Product</label><select id="wo-prod"></select></div>
         <div class="pff"><label>Size</label><input type="text" id="wo-size" placeholder="32"/></div>
@@ -1907,15 +1954,17 @@ https://raw.githubusercontent.com/drop-365/365dropstore/main/images/jean2.jpg" s
     <button class="btn btn-g" style="margin-top:14px;margin-left:8px" onclick="saveFaqItems()">Save FAQ</button>
     <p id="faq-msg" style="display:none;font-size:12px;margin-top:8px"></p>
   </div>
-  <div id="tab-sizeguide" class="apsec" style="display:none"><h3>SIZE GUIDE BY FIT</h3>
-    <p style="color:var(--off);font-size:13px;margin:6px 0 14px">Edit waist measurements and "best for" recommendations per fit type. These show in the product modal when a customer selects a size.</p>
+  <div id="tab-sizeguide" class="apsec" style="display:none"><h3>SIZE GUIDE</h3>
+    <p style="color:var(--off);font-size:13px;margin:6px 0 18px">Every product uses ONE of these, picked on its own Edit screen: the default chart for its fit below, a named model, or a one-off custom guide just for that product.</p>
+
+    <h4 style="margin-bottom:6px">1 — DEFAULT, BY FIT</h4>
+    <p style="color:var(--off);font-size:12.5px;margin-bottom:14px">The normal chart. Every Wide-Leg product uses this unless you specifically switch it to something else on its own Edit screen.</p>
     <div id="sg-admin"></div>
     <button class="btn btn-g" style="margin-top:14px" onclick="saveSizeGuide()">Save Size Guide</button>
     <p id="sg-msg" style="display:none;font-size:12px;margin-top:8px"></p>
-  </div>
-  <div id="tab-sizemodels" class="apsec" style="display:none">
-    <h3>SIZE MODELS</h3>
-    <p style="color:var(--off);font-size:12.5px;margin-bottom:16px">Named, reusable size charts. Assign one to any product from its Edit screen — editing a model here updates every product using it at once.</p>
+
+    <h4 style="margin:26px 0 6px">2 — NAMED MODELS (OPTIONAL)</h4>
+    <p style="color:var(--off);font-size:12.5px;margin-bottom:14px">Only needed if a specific product runs differently from its fit's default above — e.g. a cut that fits smaller than the rest of the Wide-Leg range. Create a model here once, then pick it on that product's Edit screen. Editing it here updates every product using it at once. Most products will never need this section.</p>
     <button class="btn btn-g" style="margin-bottom:16px" onclick="addSizeModel()">+ New Size Model</button>
     <div id="szm-list"></div>
   </div>
@@ -1937,7 +1986,18 @@ https://raw.githubusercontent.com/drop-365/365dropstore/main/images/jean2.jpg" s
       <div class="pff full"><button class="btn btn-w" onclick="savePaySettings()" style="width:100%;justify-content:center">Save Payment Settings</button></div>
     </div>
   </div>
-  <div id="tab-settings" class="apsec" style="display:none"><h3>SETTINGS <button class="btn btn-g" style="font-size:11px;padding:4px 10px;margin-left:8px" onclick="refreshSectionFromSupabase('settings')">↻ Refresh</button></h3><div class="pfgrid">
+  <div id="tab-settings" class="apsec" style="display:none"><h3>SETTINGS <button class="btn btn-g" style="font-size:11px;padding:4px 10px;margin-left:8px" onclick="refreshSectionFromSupabase('settings')">↻ Refresh</button></h3>
+    <div style="border:1px solid rgba(192,57,43,.25);border-radius:10px;padding:14px;margin-bottom:18px">
+      <h4 style="margin-bottom:10px">ADMIN THEME</h4>
+      <p style="color:var(--off);font-size:12px;margin-bottom:12px">Just how the admin panel looks on this device — doesn't affect the website customers see.</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap" id="theme-picker">
+        <button class="tb theme-swatch" data-theme="scifi" onclick="setAdminTheme('scifi')">Sci-Fi Red</button>
+        <button class="tb theme-swatch" data-theme="mono" onclick="setAdminTheme('mono')">Mono Dark</button>
+        <button class="tb theme-swatch" data-theme="ocean" onclick="setAdminTheme('ocean')">Ocean</button>
+        <button class="tb theme-swatch" data-theme="light" onclick="setAdminTheme('light')">Clean Light</button>
+      </div>
+    </div>
+    <div class="pfgrid">
     <div class="pff full" style="border:1px solid var(--glow);border-radius:12px;padding:18px;margin-bottom:6px;background:rgba(192,57,43,.06)">
       <label style="font-size:15px">🚀 PUBLISH TO LIVE (legacy — optional)</label>
       <p style="color:var(--off)!important;font-size:12px;line-height:1.55;margin:8px 0 12px">Your saves now sync live automatically — you don't need this anymore for normal edits. <b>Preview</b> still works for checking unsaved drafts before saving. <b>Publish</b> is kept as a manual backup push, not required for day-to-day use.</p>
@@ -2993,30 +3053,36 @@ async function saveWhatsappOrder(){
   const name=g("wo-name").trim(), phone=g("wo-phone").trim(), pin=g("wo-pin").trim();
   const total=parseFloat(g("wo-total"))||0, pid=g("wo-prod"), size=g("wo-size").trim();
   const qty=Math.max(1,parseInt(g("wo-qty"),10)||1);
+  const channel=g("wo-channel")||"whatsapp", paymentMode=g("wo-paymode")||"cash";
   const p=products.find(x=>x.id===pid);
   function fail(t){if(msg){msg.textContent="\u2717 "+t;msg.style.color="#C0392B";}}
   if(!name)return fail("Customer name is required.");
-  if(!/^[1-9][0-9]{5}$/.test(pin))return fail("Pincode must be 6 digits and not start with 0.");
+  // Pincode is optional for a genuine walk-in (nothing was shipped), but
+  // still validated as a real 6-digit pin whenever one IS given.
+  if(pin&&!/^[1-9][0-9]{5}$/.test(pin))return fail("Pincode must be 6 digits and not start with 0.");
   if(!p)return fail("Pick a product.");
   if(total<=0)return fail("Enter the amount actually paid.");
-  const _c=_sb();
-  if(!_c)return fail("Supabase not connected — refresh and try again.");
-  const oid="WA-"+Date.now().toString(36).toUpperCase()+Math.random().toString(36).slice(2,6).toUpperCase();
+  if(!_adminPw)return fail("Admin session expired — refresh and log in again.");
   if(msg){msg.textContent="Saving\u2026";msg.style.color="";}
+  // Routes through the log-sale Edge Function, which writes with the
+  // service-role key server-side. The orders table's RLS has no insert
+  // policy for the browser's own key by design -- this form previously
+  // tried to insert directly and could never succeed (confirmed: "new row
+  // violates row-level security policy for table orders" on every attempt).
   try{
-    const {error}=await _c.from("orders").insert({
-      order_id:oid, customer_name:name, phone:phone, address:"WhatsApp order",
-      pincode:pin, total:total, status:"fulfilled", source:"whatsapp",
-      items:[{id:p.id,name:p.name,size:size,qty:qty,price:total}],
-      placed_at:new Date().toISOString()
+    const res=await fetch(SB_FN_BASE+"log-sale",{
+      method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({action:"log",password:_adminPw,productId:p.id,size,qty,total,
+        channel,paymentMode,customerName:name,phone,pincode:pin})
     });
-    if(error)throw error;
-    if(msg){msg.textContent="\u2713 Logged "+oid+" \u2014 sold count and dispatch map will update on next load.";msg.style.color="#2ecc71";}
+    const data=await res.json();
+    if(data.error)throw new Error(data.error);
+    if(msg){msg.textContent="\u2713 Logged "+data.order_id+" \u2014 sold count and dispatch map will update on next load.";msg.style.color="#2ecc71";}
     ["wo-name","wo-phone","wo-pin","wo-total","wo-size"].forEach(i=>{const e=document.getElementById(i);if(e)e.value="";});
     const q=document.getElementById("wo-qty");if(q)q.value="1";
     if(typeof loadDispatchStats==="function")loadDispatchStats();
     if(typeof loadOrdersFromSupabase==="function")loadOrdersFromSupabase();
-  }catch(e){fail(e.message||"Insert failed. Check the orders table policy allows this insert.");}
+  }catch(e){fail(e.message||"Could not reach the logging service. Try again.");}
 }
 
 const DSP_ST={"c":{"an":[516.0,571.2],"ap":[246.1,503.8],"ar":[554.5,224.8],"as":[515.8,264.3],"br":[364.6,280.2],"ch":[179.7,159.6],"ct":[290.1,380.6],"dn":[102.5,405.2],"dd":[54.5,390.6],"dl":[186.9,210.3],"ga":[122.9,512.0],"gj":[71.6,348.7],"hr":[170.5,197.1],"hp":[189.4,130.5],"jk":[169.8,62.5],"jh":[363.5,327.0],"ka":[167.1,525.6],"kl":[171.9,617.2],"ld":[101.8,663.5],"mp":[211.6,329.2],"mh":[166.0,421.5],"mn":[537.9,302.1],"ml":[483.4,283.7],"mz":[516.0,334.9],"nl":[550.2,271.2],"or":[339.8,398.2],"py":[241.9,586.2],"pb":[151.1,157.3],"rj":[118.6,258.6],"sk":[424.7,236.1],"tn":[213.8,605.4],"tg":[227.6,458.4],"tr":[493.2,324.9],"up":[258.8,250.6],"ut":[230.4,173.8],"wb":[413.7,320.9]},"n":{"an":"Andaman and Nicobar Islands","ap":"Andhra Pradesh","ar":"Arunachal Pradesh","as":"Assam","br":"Bihar","ch":"Chandigarh","ct":"Chhattisgarh","dn":"Dadra and Nagar Haveli","dd":"Daman and Diu","dl":"Delhi","ga":"Goa","gj":"Gujarat","hr":"Haryana","hp":"Himachal Pradesh","jk":"Jammu and Kashmir","jh":"Jharkhand","ka":"Karnataka","kl":"Kerala","ld":"Lakshadweep","mp":"Madhya Pradesh","mh":"Maharashtra","mn":"Manipur","ml":"Meghalaya","mz":"Mizoram","nl":"Nagaland","or":"Odisha","py":"Puducherry","pb":"Punjab","rj":"Rajasthan","sk":"Sikkim","tn":"Tamil Nadu","tg":"Telangana","tr":"Tripura","up":"Uttar Pradesh","ut":"Uttarakhand","wb":"West Bengal"}};
@@ -3928,7 +3994,18 @@ async function admLogin(){if(locked){shAErr("Locked. Run: localStorage.removeIte
 function shAErr(t){const e=document.getElementById("agerr");e.textContent=t;e.style.display="block";}
 function admOut(){document.getElementById("ap").style.display="none";location.hash="";document.body.style.overflow="";}
 function _woHook(t){if(t==="orders"&&typeof fillWoProducts==="function")fillWoProducts();}
-function apTab(t){const all=["products","dashboard","sequence","sizemodels","orders","add","site","banner","fits","reviews","stories","instagrid","faq","sizeguide","payment","settings"];all.forEach(id=>{const e=document.getElementById("tab-"+id);if(e)e.style.display=id===t?"block":"none";});document.querySelectorAll(".atab").forEach((b,i)=>b.classList.toggle("act",all[i]===t));if(t==="products"){ldProds();apSts();}if(t==="payment"){loadPaySettings();}if(t==="dashboard"){renderDashboard();}if(t==="sequence"){renderSequenceList();}if(t==="sizemodels"){renderSizeModelsList();}
+function setAdminTheme(t){
+  const ap=document.getElementById("ap");
+  if(ap)ap.dataset.theme=t;
+  try{localStorage.setItem("ds_admin_theme",t);}catch(e){}
+  document.querySelectorAll(".theme-swatch").forEach(b=>b.classList.toggle("on",b.dataset.theme===t));
+}
+(function(){
+  let saved="scifi";
+  try{saved=localStorage.getItem("ds_admin_theme")||"scifi";}catch(e){}
+  document.addEventListener("DOMContentLoaded",function(){setAdminTheme(saved);});
+})();
+function apTab(t){const all=["products","dashboard","sequence","orders","add","site","banner","fits","reviews","stories","instagrid","faq","sizeguide","payment","settings"];all.forEach(id=>{const e=document.getElementById("tab-"+id);if(e)e.style.display=id===t?"block":"none";});document.querySelectorAll(".atab").forEach((b,i)=>b.classList.toggle("act",all[i]===t));if(t==="products"){ldProds();apSts();}if(t==="payment"){loadPaySettings();}if(t==="dashboard"){renderDashboard();}if(t==="sequence"){renderSequenceList();}if(t==="sizeguide"){renderSizeModelsList();}
   if(t==="dashboard"){loadOrdersFromSupabase().then(()=>renderDashboard());}
   if(t==="orders"){rnAdmOrders();loadOrdersFromSupabase().then(ok=>{if(ok)rnAdmOrders();});loadAbandonedCount();_woHook("orders");}if(t==="reviews")rnAdmRev();if(t==="site")loadSiteEd();if(t==="fits")loadFitsAdmin();if(t==="settings"){loadPaletteAdmin();loadGlobalScAdmin();rnStorageView();}if(t==="banner")loadBannerAdmin();if(t==="stories")renderStoryAdmin();if(t==="instagrid")renderHeroGridAdmin();if(t==="faq")renderFaqAdmin();if(t==="sizeguide")renderSizeGuideAdmin();}
 function apSts(){const tot=products.length,sold=products.filter(p=>p.badges&&p.badges.includes("sold")).length,cats=[...new Set(products.map(p=>p.category))].length;document.getElementById("apstats").innerHTML=`<div class="apstat"><div class="v">${tot}</div><div class="k">Total</div></div><div class="apstat"><div class="v">${tot-sold}</div><div class="k">Active</div></div><div class="apstat"><div class="v">${sold}</div><div class="k">Sold Out</div></div><div class="apstat"><div class="v">${cats}</div><div class="k">Categories</div></div>`;}
