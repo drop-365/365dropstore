@@ -6002,7 +6002,7 @@ window.lookupAllOrders=async function(){
   }
   resultEl.innerHTML='<p style="color:var(--off);font-size:13px">Looking up your orders...</p>';
   try{
-    const res=await fetch(SB_FN_BASE+"orders-by-phone",{
+    const res=await fetch(SB_FN_BASE+"orders-by-phone-ts",{
       method:"POST",headers:{"Content-Type":"application/json","apikey":SB_APIKEY},
       body:JSON.stringify({phone})
     });
