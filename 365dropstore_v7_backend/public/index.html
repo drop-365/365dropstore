@@ -5988,6 +5988,49 @@ window.lookupOrderStatus=async function(){
     resultEl.innerHTML='<p style="color:#E74C3C;font-size:13px">Could not check right now — try again in a moment.</p>';
   }
 };
+function toggleAllOrdersLookup(){
+  const el=document.getElementById("ot-all-orders");
+  if(!el)return;
+  el.style.display=el.style.display==="none"?"block":"none";
+}
+window.lookupAllOrders=async function(){
+  const phone=(document.getElementById("ot-phone-only").value||"").trim();
+  const resultEl=document.getElementById("ot-all-result");
+  if(!/^[6-9]\d{9}$/.test(phone)){
+    resultEl.innerHTML='<p style="color:#E74C3C;font-size:13px">Enter a valid 10-digit mobile number.</p>';
+    return;
+  }
+  resultEl.innerHTML='<p style="color:var(--off);font-size:13px">Looking up your orders...</p>';
+  try{
+    const res=await fetch(SB_FN_BASE+"orders-by-phone",{
+      method:"POST",headers:{"Content-Type":"application/json","apikey":SB_APIKEY},
+      body:JSON.stringify({phone})
+    });
+    const data=await res.json();
+    if(data.error){resultEl.innerHTML=`<p style="color:#E74C3C;font-size:13px">${data.error}</p>`;return;}
+    if(!data.orders||!data.orders.length){
+      resultEl.innerHTML='<p style="color:var(--off);font-size:13px">No orders found with this number.</p>';
+      return;
+    }
+    resultEl.innerHTML=data.orders.map(o=>{
+      const dateStr=o.placedAt?new Date(o.placedAt).toLocaleDateString("en-IN",{day:"numeric",month:"short",year:"numeric"}):"";
+      const sc=(STATUS_COPY[o.status]||{label:o.status,color:"#141312"});
+      return `<div onclick="document.getElementById('ot-orderid').value='${o.orderId}';document.getElementById('ot-phone').value='${phone}';toggleAllOrdersLookup();lookupOrderStatus();"
+        style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:8px;margin-bottom:8px;cursor:pointer">
+        <div>
+          <div style="font-size:13px;font-weight:700">${o.orderId}</div>
+          <div style="font-size:11.5px;color:var(--off)">${dateStr}</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:12px;font-weight:700;color:${sc.color}">${sc.label}</div>
+          <div style="font-size:12.5px">${inr(o.total)}</div>
+        </div>
+      </div>`;
+    }).join("");
+  }catch(e){
+    resultEl.innerHTML='<p style="color:#E74C3C;font-size:13px">Could not look up orders right now — try again in a moment.</p>';
+  }
+};
 function openReviewForm(pid){
   const p=(typeof products!=="undefined"?products:[]).find(x=>x.id===pid);
   const el=document.getElementById("rf-content");
@@ -6109,6 +6152,15 @@ function closeReviewForm(){
     <input id="ot-phone" placeholder="10-digit mobile number" style="width:100%;padding:12px;border:1px solid var(--line);border-radius:10px;font-size:14px;margin-bottom:18px"/>
     <button class="btn btn-w" style="width:100%;justify-content:center" onclick="lookupOrderStatus()">Check Status →</button>
     <div id="ot-result" style="margin-top:18px"></div>
+    <div style="text-align:center;margin-top:16px">
+      <a onclick="toggleAllOrdersLookup()" style="font-size:12.5px;color:var(--off);text-decoration:underline;cursor:pointer">Don't remember your Order ID? See all your orders →</a>
+    </div>
+    <div id="ot-all-orders" style="display:none;margin-top:16px;padding-top:16px;border-top:1px solid var(--line)">
+      <label style="font-size:12px;font-weight:700;color:var(--off);letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px;display:block">Just your phone number</label>
+      <input id="ot-phone-only" placeholder="10-digit mobile number" style="width:100%;padding:12px;border:1px solid var(--line);border-radius:10px;font-size:14px;margin-bottom:12px"/>
+      <button class="btn btn-g" style="width:100%;justify-content:center" onclick="lookupAllOrders()">Find My Orders →</button>
+      <div id="ot-all-result" style="margin-top:14px"></div>
+    </div>
   </div>
 </div>
 <div id="review-form-overlay">
