@@ -603,6 +603,19 @@ button,a,.btn,[onclick]{-webkit-tap-highlight-color:transparent}
 .fs-wa{display:block;width:100%;min-height:46px;margin-top:12px;background:var(--ink);color:var(--bg);
   border:0;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer}
 .fs-empty{font-size:13px;color:var(--off);text-align:center;padding:20px 0}
+.notify-trigger{display:block;width:100%;margin-top:10px;padding:11px;background:transparent;
+  border:1px dashed var(--line);border-radius:10px;color:var(--ink);font-size:12.5px;font-weight:700;
+  cursor:pointer;text-align:center;min-height:42px;-webkit-tap-highlight-color:transparent}
+.notify-trigger:hover{border-color:var(--red)}
+.notify-panel{margin-top:10px;padding:14px;background:var(--bg2);border-radius:10px;border:1px solid var(--line)}
+.notify-lbl{display:block;font-size:12px;color:var(--off);margin-bottom:8px}
+.notify-row{display:flex;gap:8px}
+.notify-row input{flex:1;padding:10px;border:1px solid var(--line);border-radius:8px;font-size:13px}
+.notify-submit{padding:10px 16px;background:var(--ink);color:var(--bg);border:0;border-radius:8px;
+  font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap}
+.notify-msg{margin-top:6px;font-size:12px;min-height:16px}
+.notify-done{margin-top:10px;padding:12px;background:rgba(46,204,113,.1);border:1px solid rgba(46,204,113,.3);
+  border-radius:10px;color:#2ecc71;font-size:13px;text-align:center;font-weight:700}
 @media(max-width:480px){.fs-panel{padding:22px 16px}}
 
 .adm-active{background:rgba(46,204,113,.16);color:#4ade80;border:1px solid rgba(74,222,128,.4)}
@@ -1443,6 +1456,11 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
     <div class="dcard"><h4>Delhi Drop Info</h4><p>Secure Razorpay checkout. Try before you buy in Subhash Vihar, Delhi. Questions? WhatsApp us.</p></div>
   </div>
 </aside>
+
+<!-- new arrivals: placed right after the hero, ahead of the main grid --
+     this is deliberately one of the first things a visitor sees, not a
+     buried section near returning-visitor content. -->
+<section class="sec" id="new-arrivals" style="padding:32px 0;display:none"><div class="w"><h2 style="font-family:var(--dsp);font-size:clamp(22px,4vw,30px);margin-bottom:16px">NEW ARRIVALS</h2><div class="rv-strip" id="na-strip"></div></div></section>
 
 <!-- shop -->
 <section class="sec" id="shop" style="padding-top:32px"><div class="w">
@@ -3361,7 +3379,7 @@ function renderMoSizes(p){
     return`<button class="chip${sel?' sel':''}" onclick="pick('size','${s}',this)">${s}</button>`;
   }).join('');
   const fsBtn=p.fitStudioEnabled?`<button class="fs-trigger" onclick="openFitStudio()">📏 Not sure of your size? Find it in 15 seconds</button>`:"";
-  return`<span class="mol">Size</span><div class="chips">${chips}</div><div id="mo-size-rec" class="mo-size-rec"></div>${fsBtn}`;
+  return`<span class="mol">Size</span><div class="chips">${chips}</div><div id="mo-size-rec" class="mo-size-rec"></div><div id="mo-notify-host"></div>${fsBtn}`;
 }
 // Single source of truth for "which size-guide rows apply to this product" --
 // used by both the existing per-size recommendation (getSizeRec, below) and
@@ -3553,17 +3571,90 @@ window.selectOosSize=function(btn,size){
   btn.classList.add('sel');
   ms.size=size;
   showSizeRec(ms.p,size,true);
+  renderNotifyMe(size);
 };
+function renderNotifyMe(size){
+  const host=document.getElementById("mo-notify-host");
+  if(!host)return;
+  host.dataset.size=size;
+  host.innerHTML=`<button class="notify-trigger" onclick="openNotifyForm('${size}')">🔔 Notify me when size ${size} is back</button>`;
+}
+function openNotifyForm(size){
+  const host=document.getElementById("mo-notify-host");
+  if(!host)return;
+  host.innerHTML=`
+    <div class="notify-panel">
+      <label class="notify-lbl">Get an email when size ${size} is back in stock</label>
+      <div class="notify-row">
+        <input type="email" id="notify-email" placeholder="you@email.com"/>
+        <button class="notify-submit" onclick="submitNotifyMe('${size}')">Notify me</button>
+      </div>
+      <div id="notify-msg" class="notify-msg"></div>
+    </div>`;
+  const inp=document.getElementById("notify-email");
+  if(inp)inp.focus();
+}
+async function submitNotifyMe(size){
+  const p=ms.p;
+  const emailEl=document.getElementById("notify-email");
+  const msgEl=document.getElementById("notify-msg");
+  const email=(emailEl?emailEl.value:"").trim();
+  if(!p||!size){return;}
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
+    if(msgEl){msgEl.textContent="Enter a valid email address.";msgEl.style.color="#C0392B";}
+    return;
+  }
+  if(msgEl){msgEl.textContent="Saving...";msgEl.style.color="var(--off)";}
+  try{
+    const res=await fetch("https://fhiivshoikcnanbvdtxm.supabase.co/rest/v1/restock_notifications",{
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json",
+        "apikey":SB_APIKEY,
+        "Authorization":"Bearer "+SB_APIKEY,
+        "Prefer":"return=minimal"
+      },
+      body:JSON.stringify({product_id:p.id,size:size,email:email})
+    });
+    if(!res.ok)throw new Error("Save failed");
+    const host=document.getElementById("mo-notify-host");
+    if(host)host.innerHTML=`<div class="notify-done">✓ We'll email you the moment size ${size} is back.</div>`;
+  }catch(e){
+    if(msgEl){msgEl.textContent="Something went wrong — please try again.";msgEl.style.color="#C0392B";}
+  }
+}
 // hook into the existing pick() function to show rec on normal size select too
 const _origPick=window.pick;
 window.pick=function(key,val,el){
   if(_origPick)_origPick(key,val,el);
-  if(key==='size'&&ms.p){showSizeRec(ms.p,val,false);}
+  if(key==='size'&&ms.p){
+    showSizeRec(ms.p,val,false);
+    // Clear a lingering Notify Me panel if the customer switches from a
+    // sold-out size to one that's actually in stock.
+    const host=document.getElementById("mo-notify-host");
+    if(host)host.innerHTML="";
+  }
 };
 
 let ms={p:null,size:"",color:"",qty:1,idx:0};
 let recentlyViewed=JSON.parse(localStorage.getItem("ds_rv")||"[]");
 function trackRecentView(pid){recentlyViewed=recentlyViewed.filter(function(x){return x!==pid});recentlyViewed.unshift(pid);if(recentlyViewed.length>12)recentlyViewed=recentlyViewed.slice(0,12);localStorage.setItem("ds_rv",JSON.stringify(recentlyViewed));renderRecentlyViewed();}
+// Genuinely new -- added within the last 14 days, sorted newest first.
+// If fewer than 4 products qualify, the section hides itself rather than
+// padding out with older stock relabeled as "new".
+function renderNewArrivals(){
+  const sec=document.getElementById("new-arrivals");
+  const strip=document.getElementById("na-strip");
+  if(!sec||!strip)return;
+  const cutoff=Date.now()-14*86400000;
+  const items=products
+    .filter(p=>(p.images||[]).length && typeof p.addedAt==="number" && p.addedAt>=cutoff)
+    .sort((a,b)=>b.addedAt-a.addedAt)
+    .slice(0,8);
+  if(items.length<4){sec.style.display="none";return;}
+  sec.style.display="block";
+  strip.innerHTML=items.map(p=>`<div class="rv-item" onclick="openMo('${p.id}')"><img src="${(p.images||[])[0]||''}" alt="" loading="lazy"/><div class="rv-name">${p.name}</div><div class="rv-price">${inr(eff(p))}</div></div>`).join("");
+}
 function renderRecentlyViewed(){var sec=document.getElementById("recently-viewed");var strip=document.getElementById("rv-strip");if(!sec||!strip)return;var items=recentlyViewed.map(function(pid){return products.find(function(p){return p.id===pid})}).filter(Boolean).slice(0,6);if(items.length<2){sec.style.display="none";return;}sec.style.display="block";strip.innerHTML=items.map(function(p){return '<div class="rv-item" onclick="openMo(\''+p.id+'\')"><img src="'+(p.images&&p.images[0]||'')+'" alt="" loading="lazy"/><div class="rv-name">'+p.name+'</div><div class="rv-price">'+inr(eff(p))+'</div></div>'}).join("");}
 function openMo(id){
   const p=products.find(x=>x.id===id);if(!p)return;
@@ -5765,6 +5856,7 @@ const _isPreview = sessionStorage.getItem("ds_preview")==="1";
     usedSupabase = await loadFromSupabaseIfAvailable();
   }
   buildFilterUI();populateFitSelect();setCat("All");renderGrid();renderCart();renderRevs();renderFaqSection();applyPalette();applyBanner();renderStoriesRail();applySiteContent();chkRoute();
+  if(typeof renderNewArrivals==="function")renderNewArrivals();
   if(typeof renderFooterFits==="function")renderFooterFits();
   if(typeof buildShadeBar==="function")buildShadeBar();
   if(typeof loadDispatchStats==="function")loadDispatchStats();
