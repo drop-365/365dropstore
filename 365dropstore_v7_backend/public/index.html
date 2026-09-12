@@ -814,15 +814,17 @@ button,a,.btn,[onclick]{-webkit-tap-highlight-color:transparent}
 .slbl{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--off);margin-top:3px}
 
 /* REVIEWS */
-.revgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
-/* ===== REVIEWS UX (rebuilt 2026-09-05) ===== */
+.revgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;align-items:start}
+/* ===== REVIEWS UX — SCI-FI UPGRADE (2026-09-12) ===== */
 .revsum{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin:2px 0 18px;
-  padding:16px 20px;border:1px solid var(--line);border-radius:14px;background:rgba(255,255,255,.55)}
+  padding:20px 24px;border:1px solid rgba(192,57,43,.12);border-radius:14px;background:linear-gradient(135deg,rgba(192,57,43,.04),rgba(20,19,18,.02));position:relative;overflow:hidden}
+.revsum::before{content:"";position:absolute;top:0;left:0;right:0;height:1.5px;background:linear-gradient(90deg,transparent,rgba(192,57,43,.5),transparent);animation:revScan 4s ease-in-out infinite}
+@keyframes revScan{0%,100%{opacity:.3}50%{opacity:.8}}
 .rs-score{display:flex;align-items:baseline;gap:9px}
-.rs-score b{font-family:var(--dsp);font-size:clamp(30px,5vw,42px);line-height:1;color:var(--ink)}
-.rs-stars{color:#E8A33D;font-size:15px;letter-spacing:2px}
-.rs-meta{display:flex;flex-direction:column;gap:2px;border-left:1px solid var(--line);padding-left:18px}
-.rs-meta b{font-size:13.5px;color:var(--ink)}
+.rs-score b{font-family:var(--dsp);font-size:clamp(36px,5vw,52px);line-height:1;color:var(--ink);text-shadow:0 0 20px rgba(192,57,43,.12)}
+.rs-stars{color:#E8A33D;font-size:17px;letter-spacing:2px}
+.rs-meta{display:flex;flex-direction:column;gap:2px;border-left:1px solid rgba(192,57,43,.15);padding-left:18px}
+.rs-meta b{font-size:14px;color:var(--ink)}
 .rs-meta span{font-size:12px;color:var(--off)}
 .revthemes{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
 .rth{padding:7px 14px;border:1px solid var(--line);border-radius:20px;background:rgba(255,255,255,.6);
@@ -830,7 +832,7 @@ button,a,.btn,[onclick]{-webkit-tap-highlight-color:transparent}
   -webkit-tap-highlight-color:transparent;touch-action:manipulation;transition:border-color .2s,box-shadow .2s}
 .rth b{color:var(--off);font-weight:700;font-size:11px;margin-left:3px}
 .rth:hover{border-color:rgba(192,57,43,.45)}
-.rth.on{border-color:var(--red);box-shadow:0 0 0 2px rgba(192,57,43,.13)}
+.rth.on{border-color:var(--red);box-shadow:0 0 0 2px rgba(192,57,43,.13);background:rgba(192,57,43,.04)}
 .rth.on b{color:var(--red)}
 .rth:focus-visible{outline:2px solid var(--red);outline-offset:2px}
 .revmore{display:flex;justify-content:center;margin-top:22px}
@@ -843,7 +845,6 @@ button,a,.btn,[onclick]{-webkit-tap-highlight-color:transparent}
 @media(max-width:860px){
   .revsum{gap:12px;padding:14px 16px}
   .rs-meta{border-left:0;padding-left:0;flex:1 1 100%}
-  /* a stacked wall of cards is unreadable on a phone — swipe rail instead */
   .revgrid{display:flex;overflow-x:auto;gap:12px;scroll-snap-type:x mandatory;
     -webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:6px;
     margin-inline:-20px;padding-inline:20px}
@@ -854,10 +855,12 @@ button,a,.btn,[onclick]{-webkit-tap-highlight-color:transparent}
   .rth{flex:0 0 auto}
 }
 @media(prefers-reduced-motion:reduce){.rth,.btn-revmore{transition:none}}
-.revcard{background:var(--bg2);border:1px solid rgba(20,19,18,.06);border-radius:14px;padding:24px;transition:.3s var(--ease);box-shadow:0 2px 10px rgba(20,19,18,.04);position:relative;overflow:hidden}
-.revcard::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--red),transparent);opacity:0;transition:.3s}
-.revcard:hover{border-color:rgba(192,57,43,.15);box-shadow:0 8px 28px rgba(20,19,18,.08)}
-.revcard:hover::before{opacity:.5}
+.revcard{background:var(--bg2);border:1px solid rgba(20,19,18,.06);border-radius:14px;padding:24px;transition:.35s var(--ease2);box-shadow:0 2px 10px rgba(20,19,18,.04);position:relative;overflow:hidden}
+.revcard::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--red),transparent);opacity:0;transition:.35s}
+.revcard::after{content:"";position:absolute;inset:0;border-radius:14px;opacity:0;transition:.35s;pointer-events:none;box-shadow:inset 0 0 0 1px rgba(192,57,43,.2),0 0 20px rgba(192,57,43,.05)}
+.revcard:hover{border-color:rgba(192,57,43,.18);box-shadow:0 14px 40px rgba(20,19,18,.1);transform:translateY(-3px)}
+.revcard:hover::before{opacity:.7}
+.revcard:hover::after{opacity:1}
 .revstars{color:var(--gold);font-size:13px;letter-spacing:2px;margin-bottom:9px}
 .revtext{font-size:14px;line-height:1.62;color:var(--w2);font-style:italic;margin-bottom:14px}
 .revtext::before{content:"\201C";color:var(--red);font-size:22px;line-height:0;vertical-align:-4px;margin-right:3px;font-style:normal}
@@ -1169,14 +1172,15 @@ main,header,footer,.sec,.trust,.mq{position:relative;z-index:2}
 .edimg,.stimg{position:relative}
 .edimg img,.stimg img{cursor:zoom-in}
 
-/* ===== IMAGE-BASED REVIEW CARDS ===== */
+/* ===== IMAGE-BASED REVIEW CARDS — SCI-FI UPGRADE ===== */
 .revgrid{align-items:start}
-.revcard.imgrev{padding:0;overflow:hidden;background:#0c0c0c;border:1px solid rgba(255,255,255,.08);cursor:zoom-in;aspect-ratio:9/16;position:relative}
-.revcard.imgrev img{width:100%;height:100%;object-fit:cover;display:block;transition:.4s}
-.revcard.imgrev:hover img{transform:scale(1.04)}
-.revcard.imgrev .rev-zoom{position:absolute;top:10px;right:10px;width:30px;height:30px;border-radius:50%;background:rgba(0,0,0,.5);color:#fff;display:flex;align-items:center;justify-content:center;font-size:15px;opacity:0;transition:.2s}
+.revcard.imgrev{padding:0;overflow:hidden;background:#0c0c0c;border:1px solid rgba(192,57,43,.12);cursor:zoom-in;aspect-ratio:9/16;position:relative}
+.revcard.imgrev img{width:100%;height:100%;object-fit:cover;display:block;transition:.5s var(--ease2)}
+.revcard.imgrev:hover img{transform:scale(1.06)}
+.revcard.imgrev:hover{border-color:rgba(192,57,43,.4);box-shadow:0 0 28px rgba(192,57,43,.15)}
+.revcard.imgrev .rev-zoom{position:absolute;top:10px;right:10px;width:30px;height:30px;border-radius:50%;background:rgba(20,19,18,.7);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);color:#fff;display:flex;align-items:center;justify-content:center;font-size:15px;opacity:0;transition:.3s;z-index:2}
 .revcard.imgrev:hover .rev-zoom{opacity:1}
-@media(max-width:640px){.revgrid{grid-template-columns:1fr 1fr}.revcard.imgrev{aspect-ratio:9/16}}
+@media(max-width:640px){.revcard.imgrev{aspect-ratio:9/16}}
 
 /* ===== ADMIN multi-image gallery manager ===== */
 .gmgr{display:flex;flex-wrap:wrap;gap:9px;margin-top:10px}
@@ -1301,6 +1305,64 @@ body:hover .cursor-glow{opacity:1}
 .circuit-div.in .circuit-line{opacity:.15;stroke-dashoffset:0;transition:stroke-dashoffset 2s var(--ease),opacity .5s}
 .circuit-div.in .circuit-dot{opacity:.3;transition:opacity 1s .5s}
 /* scan-line removed — was creating grain on images */
+
+/* ===== COMPACT REVIEW TRUST STRIP (above product grid) ===== */
+.rev-trust-strip{display:flex;align-items:center;justify-content:center;gap:16px;padding:16px 0;margin-bottom:8px;cursor:pointer;transition:.2s}
+.rev-trust-strip:hover{opacity:.8}
+.rts-stars{color:#B8860B;font-size:16px;letter-spacing:1px}
+.rts-score{font-family:var(--dsp);font-size:28px;color:var(--white)}
+.rts-meta{font-size:13px;color:var(--off);line-height:1.4}
+.rts-meta b{color:var(--white)}
+.rts-quote{font-size:13px;color:var(--off);font-style:italic;max-width:280px;text-align:left;border-left:2px solid var(--red);padding-left:12px;display:none}
+@media(min-width:768px){.rts-quote{display:block}}
+
+/* ===== STICKY MOBILE ADD-TO-BAG BAR ===== */
+.sticky-buy-bar{display:none;position:fixed;bottom:0;left:0;right:0;z-index:998;background:rgba(20,19,18,.97);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);padding:10px 16px;border-top:1px solid rgba(255,255,255,.08);gap:10px;align-items:center}
+.sticky-buy-bar .sbb-name{flex:1;color:#F8F7F4;font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sticky-buy-bar .sbb-price{color:var(--red);font-family:var(--dsp);font-size:22px;flex-shrink:0}
+.sticky-buy-bar .sbb-btn{background:#F8F7F4;color:#141312;font-weight:700;font-size:13px;padding:12px 20px;border-radius:10px;border:none;cursor:pointer;flex-shrink:0;transition:.2s}
+.sticky-buy-bar .sbb-btn:hover{background:#EDECE8}
+@media(max-width:768px){.sticky-buy-bar.visible{display:flex}}
+
+/* ===== DESIGNER COLLECTION — LUXURY SECTION ===== */
+.des-sec{background:#0c0b0a;position:relative;overflow:hidden;padding:80px 0 90px}
+.des-sec::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(184,134,11,.06) 0%,transparent 60%);pointer-events:none}
+.des-sec::after{content:"";position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(184,134,11,.4),transparent)}
+.des-eyebrow{text-align:center;font-family:var(--mono,monospace);font-size:10px;letter-spacing:.35em;text-transform:uppercase;color:rgba(184,134,11,.7);margin-bottom:12px;display:flex;align-items:center;justify-content:center;gap:12px}
+.des-eyebrow::before,.des-eyebrow::after{content:"";width:40px;height:1px;background:linear-gradient(90deg,transparent,rgba(184,134,11,.4))}
+.des-eyebrow::after{background:linear-gradient(90deg,rgba(184,134,11,.4),transparent)}
+.des-title{text-align:center;font-family:var(--dsp);font-size:clamp(32px,6vw,56px);color:#F8F7F4;letter-spacing:.06em;margin-bottom:8px}
+.des-sub{text-align:center;font-size:14px;color:rgba(248,247,244,.4);max-width:480px;margin:0 auto 48px;line-height:1.6}
+.des-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:32px;max-width:960px;margin:0 auto}
+@media(max-width:700px){.des-grid{grid-template-columns:1fr;gap:24px;max-width:440px}}
+.des-card{position:relative;border-radius:16px;overflow:hidden;cursor:pointer;background:#161514;border:1px solid rgba(184,134,11,.12);transition:.45s var(--ease2);group:des}
+.des-card:hover{border-color:rgba(184,134,11,.35);box-shadow:0 24px 60px rgba(0,0,0,.5),0 0 40px rgba(184,134,11,.08);transform:translateY(-6px)}
+.des-card::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(184,134,11,.5),transparent);opacity:0;transition:.4s;z-index:3}
+.des-card:hover::before{opacity:1}
+.des-card .des-img{position:relative;aspect-ratio:3/4;overflow:hidden}
+.des-card .des-img img{width:100%;height:100%;object-fit:cover;transition:.6s var(--ease2)}
+.des-card:hover .des-img img{transform:scale(1.05)}
+.des-card .des-img::after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,rgba(12,11,10,.85) 0%,transparent 50%);pointer-events:none}
+.des-card .des-badge{position:absolute;top:16px;left:16px;z-index:3;background:rgba(184,134,11,.15);border:1px solid rgba(184,134,11,.35);color:#B8860B;font-family:var(--mono,monospace);font-size:9px;letter-spacing:.2em;text-transform:uppercase;padding:5px 12px;border-radius:6px;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.des-card .des-info{position:absolute;bottom:0;left:0;right:0;padding:24px;z-index:2}
+.des-card .des-name{font-family:var(--dsp);font-size:clamp(20px,3vw,28px);color:#F8F7F4;letter-spacing:.04em;margin-bottom:4px}
+.des-card .des-fit{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:rgba(248,247,244,.4);margin-bottom:12px}
+.des-card .des-price{font-family:var(--dsp);font-size:26px;color:#B8860B;letter-spacing:.02em}
+.des-card .des-price .des-mrp{font-family:var(--bod);font-size:13px;color:rgba(248,247,244,.3);text-decoration:line-through;margin-left:8px;font-weight:400}
+.des-card .des-cta{display:inline-flex;align-items:center;gap:6px;margin-top:14px;background:rgba(184,134,11,.12);border:1px solid rgba(184,134,11,.3);color:#B8860B;font-size:12px;font-weight:600;letter-spacing:.06em;padding:10px 20px;border-radius:8px;transition:.3s;cursor:pointer}
+.des-card:hover .des-cta{background:rgba(184,134,11,.2);border-color:rgba(184,134,11,.5)}
+.des-sizes{display:flex;gap:6px;margin-top:10px}
+.des-sizes span{width:28px;height:28px;display:grid;place-content:center;border-radius:6px;font-size:11px;font-weight:600;color:rgba(248,247,244,.6);border:1px solid rgba(248,247,244,.12);background:rgba(248,247,244,.04)}
+.des-sizes span.oos{opacity:.3;text-decoration:line-through}
+.des-stock{font-size:11px;color:rgba(184,134,11,.7);margin-top:6px;letter-spacing:.03em;font-weight:500}
+.des-stock.low{color:#E8A33D;font-weight:600}
+.des-stock.sold-out{color:rgba(248,247,244,.3)}
+/* designer badge in regular grid */
+.bdg.b-des{background:linear-gradient(135deg,#B8860B,#D4A017);color:#0c0b0a;font-weight:700;letter-spacing:.04em}
+
+/* ===== HERO HEIGHT REDUCTION — get products visible faster ===== */
+#hero{min-height:calc(85svh - 0px)!important}
+@media(max-width:640px){#hero{min-height:calc(75svh - 0px)!important}}
 </style>
 <script defer data-domain="365dropstore.com" src="https://plausible.io/js/script.js"></script>
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
@@ -1439,9 +1501,9 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
 <!-- trust -->
 <div class="trust"><div class="w tgrid" id="trust-grid">
   <div class="titem"><div class="tic">📦</div><div><div class="tit">Pan India</div><div class="tis">3–5 day delivery</div></div></div>
-  <div class="titem"><div class="tic">🔄</div><div><div class="tit">7-Day Exchange</div><div class="tis">₹200 exchange fee</div></div></div>
+  <div class="titem"><div class="tic">💰</div><div><div class="tit">COD Available</div><div class="tis">Pay when you receive</div></div></div>
   <div class="titem"><div class="tic">✆</div><div><div class="tit">WhatsApp Orders</div><div class="tis">Direct with founder</div></div></div>
-  <div class="titem"><div class="tic">📹</div><div><div class="tit">Unboxing Required</div><div class="tis">For returns & claims</div></div></div>
+  <div class="titem"><div class="tic">📹</div><div><div class="tit">Easy Returns</div><div class="tis">Record unboxing, exchange free</div></div></div>
 </div></div>
 
 <!-- filter drawer -->
@@ -1459,6 +1521,16 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
   </div>
 </aside>
 
+<!-- ===== DESIGNER COLLECTION — luxury showcase, auto-populated from products with 'designer' badge ===== -->
+<section class="des-sec" id="designer-sec" style="display:none">
+  <div class="w">
+    <div class="des-eyebrow">DESIGNER COLLECTION · LIMITED EDITION</div>
+    <h2 class="des-title">CRAFTED DIFFERENT.</h2>
+    <p class="des-sub">Hand-picked designer articles. Premium fabric, elevated cuts — produced in limited numbers. When these are gone, they don't come back.</p>
+    <div class="des-grid" id="des-grid"></div>
+  </div>
+</section>
+
 <!-- new arrivals: placed right after the hero, ahead of the main grid --
      this is deliberately one of the first things a visitor sees, not a
      buried section near returning-visitor content. -->
@@ -1467,6 +1539,12 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
 <!-- shop -->
 <section class="sec" id="shop" style="padding-top:32px"><div class="w">
 <div id="shadebar" class="shadebar"></div>
+  <div class="rev-trust-strip" id="revTrustStrip" onclick="goTo('#reviews')" style="display:none">
+    <span class="rts-score">5.0</span>
+    <span class="rts-stars">★★★★★</span>
+    <span class="rts-meta"><b id="rtsCount">42</b> verified reviews · Real Google reviews</span>
+    <span class="rts-quote" id="rtsQuote">"Quality way above the price. Heavyweight denim that actually lasts."</span>
+  </div>
   <div class="sh sr"><div><h2 data-dec>SHOP ALL <span id="shopall-count" style="font-family:var(--bod);font-size:15px;color:var(--off);font-weight:400;text-transform:none;letter-spacing:0"></span></h2><p class="shs">Every style, every fit — the full drop, in one place.</p></div></div>
   <div class="fit-strip" id="fit-btns"><!-- populated by renderFitBtns() --></div>
   <div class="shopbar sr">
@@ -1798,7 +1876,7 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
     <div class="pff"><label>Product Name *</label><input type="text" id="pf0" placeholder="e.g. Faded Wide-Leg Jeans"/></div>
     <div class="pff"><label>Category *</label><select id="pf1"><option>Jeans</option><option>T-Shirts</option></select></div>
     <div class="pff"><label>Fit *</label><select id="pf-fit"></select></div>
-    <div class="pff"><label>Badge</label><select id="pf7"><option value="new">New</option><option value="best">Bestseller</option><option value="ltd">Limited</option><option value="off">Offer</option><option value="">None</option></select></div>
+    <div class="pff"><label>Badge</label><select id="pf7"><option value="new">New</option><option value="best">Bestseller</option><option value="designer">Designer</option><option value="ltd">Limited</option><option value="off">Offer</option><option value="">None</option></select></div>
     <div class="pff"><label>MRP (₹) *</label><input type="number" id="pf2" placeholder="1799"/></div>
     <div class="pff"><label>Offer Price (₹) — blank if none</label><input type="number" id="pf3" placeholder="1299"/></div>
     <div class="pff full"><label>Short Description *</label><textarea id="pf4" rows="2" placeholder="Brief selling description shown in modal"></textarea></div>
@@ -2226,13 +2304,13 @@ function renderCustomerPanel(){
 }
 const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
 async function sha256(s){const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(s));return Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,"0")).join("");}
-const BM={new:{c:"b-new",t:"New"},best:{c:"b-best",t:"Bestseller"},ltd:{c:"b-ltd",t:"Limited"},off:{c:"b-off",t:"Offer"},sold:{c:"b-so",t:"Sold Out"}};
+const BM={new:{c:"b-new",t:"New"},best:{c:"b-best",t:"Bestseller"},ltd:{c:"b-ltd",t:"Limited"},off:{c:"b-off",t:"Offer"},sold:{c:"b-so",t:"Sold Out"},designer:{c:"b-des",t:"Designer"}};
 const ALL_SIZES=["28","30","32","34","36","S","M","L","XL","XXL"];
 
 // DEFAULT DATA
 const DP=[];
 const DR=[{id:"R1",stars:5,text:"The wide-leg fit is exactly what I wanted. Quality way above the price. Heavyweight denim that actually lasts.",who:"Aryan M.",where:"Delhi"},{id:"R2",stars:5,text:"Denim feels premium and heavy. Got compliments the same day I wore it. Delivered in 4 days.",who:"Simran K.",where:"Gurgaon"},{id:"R3",stars:5,text:"Small brand, real founder. Replied on WhatsApp instantly. Will order every drop.",who:"Rohit V.",where:"Noida"}];
-const DSite={ann:"Drop 001 · Delhi · WhatsApp-only checkout · Pan India shipping",heroH1:"365 DROP|STORE|",heroSub:"Premium denim built from zero in Delhi — wide-leg, baggy, straight. Dropped limited, worn everywhere.",heroP1:"DR-001",heroP2:"DR-003",trust:"📦|Pan India|3-5 day delivery\n🔄|7-Day Exchange|₹200 exchange fee\n✆|WhatsApp Orders|Direct with founder\n📹|Unboxing Required|For returns & claims",edH2:"We don't restock. We don't compromise.",edP:"Every drop is small on purpose. When the run is gone, that's it. You're not wearing what everyone else is wearing.",storyH2:"Started in a bedroom. Worn everywhere.",storyP1:"365 Drop Store started the way real things do — one person, no safety net, and zero tolerance for the same five fits everyone else was selling.",storyP2:"Heavy washes. Honest cuts. Limited drops. You're not buying mass production — you're buying the drop.",shipping:"Delivery in 3-5 working days|Free shipping all over India|Only damaged or defective items can be returned|Unboxing video required for all return claims|Size exchange available for ₹200 fee|Item must be returned in original condition|Check size before ordering",marquee:"365 DROP|CLOTHING OR NOTHING|PREMIUM DENIM|DELHI DROPS|LIMITED RUNS",stats:"365|Days dropping,\u221E|Ways to wear,0|Middlemen",phone:"+91 9990905969",email:"365dropstore@gmail.com",address:"E-42/2A Subhash Vihar, Delhi 110053",insta:"https://instagram.com/365dropstore",fb:"https://facebook.com/fazalsaifi2"};
+const DSite={ann:"Drop 001 · Delhi · WhatsApp-only checkout · Pan India shipping",heroH1:"365 DROP|STORE|",heroSub:"Premium denim built from zero in Delhi — wide-leg, baggy, straight. Dropped limited, worn everywhere.",heroP1:"DR-001",heroP2:"DR-003",trust:"📦|Pan India|3-5 day delivery\n💰|COD Available|Pay when you receive\n✆|WhatsApp Orders|Direct with founder\n📹|Easy Returns|Record unboxing, exchange free",edH2:"We don't restock. We don't compromise.",edP:"Every drop is small on purpose. When the run is gone, that's it. You're not wearing what everyone else is wearing.",storyH2:"Started in a bedroom. Worn everywhere.",storyP1:"365 Drop Store started the way real things do — one person, no safety net, and zero tolerance for the same five fits everyone else was selling.",storyP2:"Heavy washes. Honest cuts. Limited drops. You're not buying mass production — you're buying the drop.",shipping:"Delivery in 3-5 working days|Free shipping all over India|Only damaged or defective items can be returned|Unboxing video required for all return claims|Size exchange available for ₹200 fee|Item must be returned in original condition|Check size before ordering",marquee:"365 DROP|CLOTHING OR NOTHING|PREMIUM DENIM|DELHI DROPS|LIMITED RUNS",stats:"365|Days dropping,\u221E|Ways to wear,0|Middlemen",phone:"+91 9990905969",email:"365dropstore@gmail.com",address:"E-42/2A Subhash Vihar, Delhi 110053",insta:"https://instagram.com/365dropstore",fb:"https://facebook.com/fazalsaifi2"};
 const DBanner={text:"🔥 FLASH SALE — First 200 orders get ₹200 OFF. Use code DROP200 on WhatsApp.",show:false};
 const DFits=["Baggy","Straight","Slim","Oversized","Cargo","Wide-Leg","Relaxed"];
 
@@ -2278,9 +2356,9 @@ function normalizeHeroGrid(raw){
 }
 let heroGrid=normalizeHeroGrid(LS.get("ds_hero_grid",null));
 const DEFAULT_FAQ=[
-  {q:"How do I pay?",a:"Two ways, both prepaid — no COD. (1) Checkout on the site: secure online payment via Razorpay — UPI, cards, netbanking and wallets all work, order confirmed instantly. (2) Order on WhatsApp: message us and pay by UPI or bank transfer directly with the founder. Same price, same shipping, either way."},
+  {q:"How do I pay?",a:"Three ways. (1) Online checkout via Razorpay — UPI, cards, netbanking, wallets — order confirmed instantly. (2) Cash on Delivery — pay when the package arrives (small COD fee may apply). (3) Order on WhatsApp — message us and pay by UPI or bank transfer directly with the founder. Same price, same shipping, every method."},
   {q:"When does it ship?",a:"Orders are dispatched within 24 hours. Delivery takes 3–5 days Pan India, tracked and shipped free on every order. Delhi NCR customers often receive same-day or next-day."},
-  {q:"What if it doesn't fit?",a:"Easy exchange within 7 days of delivery — same style, different size. Unboxing video is required for all return and exchange claims (no exceptions). No questions asked on exchanges; refunds are processed case-by-case on WhatsApp."},
+  {q:"What if it doesn't fit?",a:"Easy exchange within 7 days of delivery — same style, different size. Just record a quick unboxing video (protects both of us). No questions asked on exchanges; refunds are processed case-by-case on WhatsApp."},
   {q:"How do I know my size?",a:"Every product page has a size guide with exact waist and length measurements. Still unsure? Message on WhatsApp with your height, weight, and usual size — the founder picks your fit personally."}
 ];
 let faqItems=LS.get("ds_faq",DEFAULT_FAQ);
@@ -3036,11 +3114,15 @@ function renderGrid(){
   gridPage=0;_pcardIdx=0;
   const srt=document.getElementById("srt").value;
   let list=[...products].filter(p=>fCat==="All"||p.category===fCat);
+  // Exclude designer products from the regular grid — they have their own section
+  list=list.filter(p=>!(p.badges||[]).includes("designer"));
   if(fSizes.length)list=list.filter(p=>(p.sizes||[]).some(s=>fSizes.includes(s)));
   if(fFits.length)list=list.filter(p=>fFits.includes(p.fit));
   if(fShade)list=list.filter(p=>{const s=shadeOf(p);return s&&s.k===fShade;});
   list=list.filter(p=>eff(p)<=fMaxPrice);
   if(srt==="low")list.sort((a,b)=>eff(a)-eff(b));else if(srt==="high")list.sort((a,b)=>eff(b)-eff(a));else if(srt==="new")list.sort((a,b)=>(b.addedAt||0)-(a.addedAt||0));else list.sort((a,b)=>(a.order||99)-(b.order||99));
+  // Always push fully sold-out products below available ones
+  list.sort((a,b)=>(isSold(a)?1:0)-(isSold(b)?1:0));
   // When a colour is picked with no explicit sort, arrange the family
   // light -> dark so the customer sees the full tonal range in order.
   if(fShade&&(srt===""||srt==="default")){
@@ -3058,6 +3140,7 @@ function renderGrid(){
   renderFitBtns();
   if(typeof rebuildStickyBuy==="function")rebuildStickyBuy();
   renderHeroGrid();
+  renderDesignerSection();
 }
 function loadMoreProducts(){
   gridPage++;
@@ -3070,6 +3153,46 @@ function loadMoreProducts(){
   const remaining=list.length-start-next.length;
   const lmEl=document.getElementById("load-more-wrap");
   if(lmEl)lmEl.innerHTML=remaining>0?`<button class="btn-loadmore" onclick="loadMoreProducts()">Load ${Math.min(remaining,GRID_PAGE_SIZE)} more styles ↓</button>`:'';
+}
+
+// ===== DESIGNER COLLECTION RENDER =====
+function renderDesignerSection(){
+  const sec=document.getElementById("designer-sec");
+  const grid=document.getElementById("des-grid");
+  if(!sec||!grid)return;
+  const desProducts=products.filter(p=>(p.badges||[]).includes("designer"));
+  if(!desProducts.length){sec.style.display="none";return;}
+  sec.style.display="block";
+  grid.innerHTML=desProducts.map(p=>{
+    const imgs=p.images||[];
+    const img1=imgs[0]||"";
+    const sold=isSold(p);
+    const priceHtml=p.offerPrice
+      ?`<span>${inr(p.offerPrice)}</span><span class="des-mrp">${inr(p.price)}</span>`
+      :`<span>${inr(p.price)}</span>`;
+    const sizesHtml=(p.sizes||[]).map(s=>{
+      const oos=(p.oosizes||[]).includes(s);
+      return `<span class="${oos?'oos':''}">${s}</span>`;
+    }).join("");
+    const liveSizes=(p.sizes||[]).filter(s=>!(p.oosizes||[]).includes(s)).length;
+    const stockLine=sold
+      ?`<div class="des-stock sold-out">Sold out</div>`
+      :liveSizes<=3
+        ?`<div class="des-stock low">Only ${liveSizes} size${liveSizes>1?'s':''} left</div>`
+        :`<div class="des-stock">Limited edition · Few pieces only</div>`;
+    return `<div class="des-card" onclick="openMo('${p.id}')">
+      <div class="des-img"><img src="${img1}" alt="${p.name}" loading="lazy"/></div>
+      <span class="des-badge">Limited edition</span>
+      <div class="des-info">
+        <div class="des-name">${p.name}</div>
+        <div class="des-fit">${p.fit||p.category||""} · Designer article</div>
+        <div class="des-price">${priceHtml}</div>
+        ${stockLine}
+        <div class="des-sizes">${sizesHtml}</div>
+        <div class="des-cta">${sold?"Sold out":"View details"}</div>
+      </div>
+    </div>`;
+  }).join("");
 }
 
 // SHARE PRODUCT
@@ -3342,6 +3465,16 @@ function renderRevs(){
   }
   const sum2=document.getElementById("review-summary");
   if(sum2&&_txt.length)sum2.textContent=_txt.length+" reviews";
+  // Update compact trust strip above product grid
+  const rtsEl=document.getElementById("revTrustStrip");
+  if(rtsEl&&_txt.length>=3){
+    rtsEl.style.display="flex";
+    const rtsC=document.getElementById("rtsCount");if(rtsC)rtsC.textContent=_txt.length;
+    const rtsQ=document.getElementById("rtsQuote");
+    if(rtsQ&&_txt[0]&&_txt[0].text){
+      const qt=_txt[0].text;rtsQ.textContent='"'+(qt.length>80?qt.slice(0,77)+'…':qt)+'"';
+    }
+  }
 }
 function openImgReview(id){const imgs=reviews.filter(r=>r.type==="img").map(r=>r.img);const idx=reviews.filter(r=>r.type==="img").findIndex(r=>r.id===id);openLB(imgs,Math.max(0,idx));}
 
@@ -3722,6 +3855,8 @@ function openMo(id){
   setTimeout(cleanupModopen,650);
   // show size rec for the initially selected size
   if(ms.size)setTimeout(()=>showSizeRec(p,ms.size,!!(p.oosizes||[]).includes(ms.size)),100);
+  // sticky mobile buy bar
+  showStickyBuy(p);
 }
 function openSizeChart(id){const p=products.find(x=>x.id===id);if(!p)return;const scSrc=p.sizeChartImg||globalSc;if(!scSrc)return;const d=document.createElement('div');d.style.cssText='position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.9);display:flex;align-items:center;justify-content:center;padding:20px;cursor:pointer;z-index:9999';d.onclick=()=>d.remove();d.innerHTML=`<div style="background:var(--bg2);border-radius:12px;padding:16px;max-width:700px;width:100%;max-height:90vh;overflow-y:auto"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><h3 style="font-family:var(--dsp);font-size:20px;color:var(--white)">SIZE CHART</h3><button onclick="this.closest('[style]').remove()" style="background:var(--glass);border:1px solid var(--line);color:var(--white);width:34px;height:34px;border-radius:8px;font-size:20px;cursor:pointer">×</button></div><img src="${scSrc}" style="width:100%;border-radius:8px;image-rendering:crisp-edges" alt="Size chart" onclick="event.stopPropagation();window.open(this.src,'_blank')" title="Tap to open full size"/><p style="text-align:center;font-size:12px;color:var(--off);margin-top:8px">Tap the chart to open it full size</p></div>`;document.body.appendChild(d);}
 function toggleExp(row){row.classList.toggle("open");row.nextElementSibling.classList.toggle("open");}
@@ -3732,7 +3867,9 @@ function toggleImgZoom(e){var w=e.target.closest(".mocar-imgs");if(!w)return;if(
 function slideDir(d){const n=(ms.p.images||[]).length;if(n<2)return;ms.idx=(ms.idx+d+n)%n;goSlide(ms.idx);}
 function pick(k,v,el){ms[k]=v;[...el.parentElement.children].forEach(c=>c.classList.remove("sel"));el.classList.add("sel");}
 function stp(d){ms.qty=Math.max(1,ms.qty+d);const e=document.getElementById("mqty");if(e)e.textContent=ms.qty;}
-function closeMo(){document.getElementById("ov").classList.remove("op");unlockScroll();}
+function closeMo(){document.getElementById("ov").classList.remove("op");unlockScroll();const sbb=document.getElementById("stickyBuyBar");if(sbb)sbb.classList.remove("visible");}
+function showStickyBuy(p){const sbb=document.getElementById("stickyBuyBar");if(!sbb||window.innerWidth>768)return;const sold=p.badges&&p.badges.includes("sold");if(sold){sbb.classList.remove("visible");return;}document.getElementById("sbbName").textContent=p.name;document.getElementById("sbbPrice").textContent=inr(eff(p));sbb.dataset.pid=p.id;sbb.classList.add("visible");}
+function addFromStickyBar(){const sbb=document.getElementById("stickyBuyBar");if(!sbb)return;const pid=sbb.dataset.pid;if(pid&&ms&&ms.p&&ms.p.id===pid)addCart();}
 
 // CART
 function addCart(){const{p,size,color,qty}=ms;
@@ -6387,4 +6524,10 @@ setTimeout(function(){
   if(s&&s.style.display==="none"&&typeof loadDispatchStats==="function")loadDispatchStats();
 },3500);
 </script>
+<!-- Sticky Mobile Buy Bar (shown/hidden by JS when PDP is open) -->
+<div class="sticky-buy-bar" id="stickyBuyBar">
+  <span class="sbb-name" id="sbbName"></span>
+  <span class="sbb-price" id="sbbPrice"></span>
+  <button class="sbb-btn" id="sbbBtn" onclick="addFromStickyBar()">Add to Bag</button>
+</div>
 </body></html>
