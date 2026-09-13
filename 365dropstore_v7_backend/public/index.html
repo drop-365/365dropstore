@@ -39,8 +39,122 @@
 
 <section class="vault-door">
   <div class="vault-door-inner">
-    <div class="vault-door-img">
-      <!-- Replace with: <img src="YOUR_R2_URL/obsidian_denim_laser_grid.webp" alt="Vault Obsidian"> -->
+<!--
+  ══════════════════════════════════════════════
+  VAULT TEASER — REDACTED/LOCKED VISUAL
+  Replaces the blank "OBSIDIAN DENIM — REPLACE WITH IMAGE"
+  placeholder with an actual designed visual that builds hype.
+  No image file required — pure CSS/SVG.
+
+  FIND this line in your vault-door section:
+    <div style="position:relative;z-index:2;font-family:monospace;font-size:10px;color:#555">OBSIDIAN DENIM — REPLACE WITH IMAGE</div>
+
+  DELETE that one line, and paste this ENTIRE block in its
+  exact place (still inside <div class="vault-door-img">).
+  ══════════════════════════════════════════════
+-->
+<div class="vd-locked">
+  <svg viewBox="0 0 500 550" xmlns="http://www.w3.org/2000/svg" class="vd-locked-svg">
+    <!-- Rough jean silhouette, heavily blurred/obscured -->
+    <defs>
+      <filter id="vd-blur"><feGaussianBlur stdDeviation="14"/></filter>
+      <linearGradient id="vd-fade" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#3a3a36" stop-opacity="0.5"/>
+        <stop offset="100%" stop-color="#1a1a18" stop-opacity="0.2"/>
+      </linearGradient>
+    </defs>
+    <!-- Silhouette shape (wide-leg jeans, abstracted) -->
+    <path d="M170 60 L330 60 L340 220 L400 480 L320 500 L270 280 L230 280 L180 500 L100 480 L160 220 Z"
+          fill="url(#vd-fade)" filter="url(#vd-blur)" opacity="0.7"/>
+    <!-- Redaction bars covering key areas -->
+    <rect x="140" y="140" width="220" height="26" fill="#0E0E0C" opacity="0.85"/>
+    <rect x="120" y="260" width="260" height="22" fill="#0E0E0C" opacity="0.85"/>
+    <rect x="150" y="380" width="200" height="20" fill="#0E0E0C" opacity="0.85"/>
+  </svg>
+
+  <!-- Scan line -->
+  <div class="vd-locked-scan"></div>
+
+  <!-- Grid overlay -->
+  <div class="vd-locked-grid"></div>
+
+  <!-- HUD labels -->
+  <div class="vd-locked-hud vd-locked-hud--tl">FILE // 365-BLK-001</div>
+  <div class="vd-locked-hud vd-locked-hud--tr">ENCRYPTED</div>
+  <div class="vd-locked-center">
+    <div class="vd-lock-icon">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+        <rect x="5" y="11" width="14" height="9" rx="1.5" stroke="#C0392B" stroke-width="1.6"/>
+        <path d="M8 11V7a4 4 0 0 1 8 0v4" stroke="#C0392B" stroke-width="1.6"/>
+      </svg>
+    </div>
+    <div class="vd-lock-text">VISUAL LOCKED</div>
+    <div class="vd-lock-sub">DECRYPTS AT 9:00 PM</div>
+  </div>
+  <div class="vd-locked-hud vd-locked-hud--bl">RES: CLASSIFIED</div>
+  <div class="vd-locked-hud vd-locked-hud--br">ED. 04/12</div>
+</div>
+
+<style>
+.vd-locked{
+  position:absolute;inset:0;
+  background:linear-gradient(160deg,#161614,#0E0E0C 60%);
+  overflow:hidden;
+}
+.vd-locked-svg{
+  position:absolute;top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  width:70%;height:auto;opacity:0.5;
+}
+/* Fine grid overlay, evokes a targeting/scan HUD */
+.vd-locked-grid{
+  position:absolute;inset:0;pointer-events:none;
+  background-image:
+    linear-gradient(rgba(192,57,43,0.06) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(192,57,43,0.06) 1px,transparent 1px);
+  background-size:28px 28px;
+}
+/* Scan line sweeps top to bottom, slow, deliberate */
+.vd-locked-scan{
+  position:absolute;left:0;right:0;height:2px;
+  background:rgba(192,57,43,0.55);
+  box-shadow:0 0 16px rgba(192,57,43,0.4),0 0 40px rgba(192,57,43,0.15);
+  animation:vd-locked-sweep 4s ease-in-out infinite;
+}
+@keyframes vd-locked-sweep{
+  0%{top:0%}
+  50%{top:100%}
+  100%{top:0%}
+}
+.vd-locked-hud{
+  position:absolute;font-family:'JetBrains Mono',monospace;
+  font-size:9px;color:rgba(138,135,131,0.7);letter-spacing:0.08em;
+  padding:16px;
+}
+.vd-locked-hud--tl{top:0;left:0}
+.vd-locked-hud--tr{top:0;right:0;color:#C0392B}
+.vd-locked-hud--bl{bottom:0;left:0}
+.vd-locked-hud--br{bottom:0;right:0;color:#C0392B}
+.vd-locked-center{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  display:flex;flex-direction:column;align-items:center;gap:10px;
+  z-index:3;
+}
+.vd-lock-icon{
+  width:52px;height:52px;border:1px solid rgba(192,57,43,0.35);
+  border-radius:50%;display:flex;align-items:center;justify-content:center;
+  background:rgba(14,14,12,0.5);
+}
+.vd-lock-text{
+  font-family:'JetBrains Mono',monospace;font-size:11px;color:#F6F3EE;
+  letter-spacing:0.12em;
+}
+.vd-lock-sub{
+  font-family:'JetBrains Mono',monospace;font-size:9px;color:#C0392B;
+  letter-spacing:0.08em;
+}
+</style>
+    <!-- Replace with: <img src="YOUR_R2_URL/obsidian_denim_laser_grid.webp" alt="Vault Obsidian"> -->
       <div style="position:relative;z-index:2;font-family:monospace;font-size:10px;color:#555">OBSIDIAN DENIM — REPLACE WITH IMAGE</div>
       <div class="vault-door-scan"></div>
     </div>
