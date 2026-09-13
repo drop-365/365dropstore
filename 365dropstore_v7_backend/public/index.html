@@ -1736,32 +1736,51 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
 </section>
 <script>
 (function(){
+  var vdInterval=null;
   function getTarget(){
+    // Reads the admin-set date from Edit Site -> "Vault Drop Countdown".
+    // Falls back to 9 PM today only if the admin hasn't set one.
+    try{
+      if(typeof siteContent!=="undefined"&&siteContent.vaultDropDate){
+        var d=new Date(siteContent.vaultDropDate);
+        if(!isNaN(d))return d;
+      }
+    }catch(e){}
     var now = new Date();
     var t = new Date();
     t.setHours(21,0,0,0);
     if (t <= now) t.setDate(t.getDate()+1);
     return t;
   }
-  var target = getTarget();
-  function tick(){
-    var diff = target - new Date();
-    var hEl=document.getElementById('vd-h'), mEl=document.getElementById('vd-m'), sEl=document.getElementById('vd-s');
-    if (!hEl||!mEl||!sEl) return;
-    if (diff <= 0){
-      hEl.textContent='00'; mEl.textContent='00'; sEl.textContent='00';
-      var sub=document.getElementById('vd-lock-sub'); if(sub) sub.textContent='LIVE NOW';
-      return;
+  function build(){
+    if(vdInterval){clearInterval(vdInterval);vdInterval=null;}
+    var target=getTarget();
+    function tick(){
+      var diff = target - new Date();
+      var hEl=document.getElementById('vd-h'), mEl=document.getElementById('vd-m'), sEl=document.getElementById('vd-s');
+      if (!hEl||!mEl||!sEl) return;
+      if (diff <= 0){
+        hEl.textContent='00'; mEl.textContent='00'; sEl.textContent='00';
+        var sub=document.getElementById('vd-lock-sub'); if(sub) sub.textContent='LIVE NOW';
+        if(vdInterval){clearInterval(vdInterval);vdInterval=null;}
+        return;
+      }
+      var h = Math.floor(diff/3600000);
+      var m = Math.floor((diff%3600000)/60000);
+      var s = Math.floor((diff%60000)/1000);
+      hEl.textContent = String(h).padStart(2,'0');
+      mEl.textContent = String(m).padStart(2,'0');
+      sEl.textContent = String(s).padStart(2,'0');
     }
-    var h = Math.floor(diff/3600000);
-    var m = Math.floor((diff%3600000)/60000);
-    var s = Math.floor((diff%60000)/1000);
-    hEl.textContent = String(h).padStart(2,'0');
-    mEl.textContent = String(m).padStart(2,'0');
-    sEl.textContent = String(s).padStart(2,'0');
+    tick();
+    vdInterval=setInterval(tick,1000);
   }
-  tick();
-  setInterval(tick, 1000);
+  // Deferred to next tick — same pattern as the site's own drop countdown
+  // (see window.rebuildDropCountdown below). Without this, siteContent
+  // hasn't loaded yet at this point in the page and every visitor would
+  // see the hardcoded 9pm fallback regardless of what's saved in admin.
+  setTimeout(build, 0);
+  window.rebuildVaultCountdown = build;
 })();
 </script>
 
@@ -2176,6 +2195,11 @@ https://raw.githubusercontent.com/drop-365/365dropstore/main/images/jean2.jpg" s
       <label>NEXT DROP COUNTDOWN — set the exact date &amp; time</label>
       <input type="datetime-local" id="site-drop-date"/>
       <small>Countdown on the homepage ticks down to this. Leave blank to fall back to the default (next Friday 8pm IST).</small>
+    </div>
+    <div class="pff full" style="border-bottom:1px solid var(--line);padding-bottom:14px;margin-bottom:4px">
+      <label>VAULT DROP COUNTDOWN — separate from the drop above</label>
+      <input type="datetime-local" id="site-vault-drop-date"/>
+      <small>Controls the Vault door countdown on the homepage AND the countdown on 365dropstore.com/vault/ — both read this same date, so they always match. Leave blank to fall back to 9 PM today.</small>
     </div>
     <!-- hero showcase removed -->
     <div class="pff full" style="border-bottom:1px solid var(--line);padding-bottom:14px;margin-bottom:4px">
@@ -4839,13 +4863,13 @@ function togOOS(pid,size){const p=products.find(x=>x.id===pid);if(!p)return;if(!
 
 // SITE EDITOR
 function populateFitSelect(){const sel=document.getElementById("pf-fit");if(!sel)return;sel.innerHTML=fits.map(f=>`<option value="${f}">${f}</option>`).join("");}
-function loadSiteEd(){const s=siteContent;const sv=(id,v)=>{const el=document.getElementById(id);if(el)el.value=v||"";};sv("site-ann",s.ann);sv("site-hero-h1",s.heroH1);sv("site-hero-sub",s.heroSub);sv("site-ed-h2",s.edH2);sv("site-ed-p",s.edP);sv("site-story-h2",s.storyH2);sv("site-story-p1",s.storyP1);sv("site-story-p2",s.storyP2);sv("site-trust",s.trust);sv("site-shipping",s.shipping);sv("site-marquee",s.marquee);sv("site-stats",s.stats);sv("site-phone",s.phone);sv("site-email",s.email);sv("site-address",s.address);sv("site-insta",s.insta);sv("site-fb",s.fb);sv("site-hero-img",s.heroImg);sv("site-hero-thumb1",s.heroThumb1);sv("site-hero-thumb2",s.heroThumb2);populateHeroProductSelect();const hpSel=document.getElementById("site-hero-product");if(hpSel)hpSel.value=s.heroP1||"";const ddEl=document.getElementById("site-drop-date");if(ddEl){if(s.dropDate){try{const d=new Date(s.dropDate);if(!isNaN(d))ddEl.value=new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,16);}catch(e){}}else{ddEl.value="";}}if(s.edImg&&!(s.edImgs&&s.edImgs.length))s.edImgs=[s.edImg];if(s.stImg&&!(s.stImgs&&s.stImgs.length))s.stImgs=[s.stImg];renderGmgr("ed");renderGmgr("st");}
+function loadSiteEd(){const s=siteContent;const sv=(id,v)=>{const el=document.getElementById(id);if(el)el.value=v||"";};sv("site-ann",s.ann);sv("site-hero-h1",s.heroH1);sv("site-hero-sub",s.heroSub);sv("site-ed-h2",s.edH2);sv("site-ed-p",s.edP);sv("site-story-h2",s.storyH2);sv("site-story-p1",s.storyP1);sv("site-story-p2",s.storyP2);sv("site-trust",s.trust);sv("site-shipping",s.shipping);sv("site-marquee",s.marquee);sv("site-stats",s.stats);sv("site-phone",s.phone);sv("site-email",s.email);sv("site-address",s.address);sv("site-insta",s.insta);sv("site-fb",s.fb);sv("site-hero-img",s.heroImg);sv("site-hero-thumb1",s.heroThumb1);sv("site-hero-thumb2",s.heroThumb2);populateHeroProductSelect();const hpSel=document.getElementById("site-hero-product");if(hpSel)hpSel.value=s.heroP1||"";const ddEl=document.getElementById("site-drop-date");if(ddEl){if(s.dropDate){try{const d=new Date(s.dropDate);if(!isNaN(d))ddEl.value=new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,16);}catch(e){}}else{ddEl.value="";}}const vddEl=document.getElementById("site-vault-drop-date");if(vddEl){if(s.vaultDropDate){try{const d=new Date(s.vaultDropDate);if(!isNaN(d))vddEl.value=new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,16);}catch(e){}}else{vddEl.value="";}}if(s.edImg&&!(s.edImgs&&s.edImgs.length))s.edImgs=[s.edImg];if(s.stImg&&!(s.stImgs&&s.stImgs.length))s.stImgs=[s.stImg];renderGmgr("ed");renderGmgr("st");}
 function populateHeroProductSelect(){const sel=document.getElementById("site-hero-product");if(!sel)return;const cur=sel.value;sel.innerHTML='<option value="">— Auto (bestseller / first live product) —</option>'+products.map(p=>`<option value="${p.id}">${(p.name||'').replace(/</g,'&lt;')}</option>`).join('');sel.value=cur;}
 async function siteImgUp(k,inp){if(!inp.files||!inp.files[0])return;try{const bf=await toBrowserFile(inp.files[0]);let d=await compressImg(bf,800,0.75);document.getElementById('site-'+k+'-prv').innerHTML=`<img src="${d}" style="width:110px;border-radius:7px" alt="Uploading..."/>`;d=await uploadToR2(d,"site");document.getElementById('site-'+k+'-imgdata').value=d;document.getElementById('site-'+k+'-prv').innerHTML=`<img src="${d}" style="width:110px;border-radius:7px" alt="Uploaded preview"/>`;}catch(e){alert("Couldn't read that image — try a JPEG/PNG.");}}
 function saveSite(){const _edI=siteContent.edImgs||[];const _stI=siteContent.stImgs||[];const _edS=siteContent.edImg||"";const _stS=siteContent.stImg||"";
   const prevSite=LS.get("ds_site",{});
   if((!_edI.length&&!_edS)&&((prevSite.edImgs||[]).length||(prevSite.edImg||""))){if(!confirm("Founder's Note image is empty. Save anyway? Re-upload in gallery if unintended."))return;}
-  if((!_stI.length&&!_stS)&&((prevSite.stImgs||[]).length||(prevSite.stImg||""))){if(!confirm("Story image is empty. Save anyway? Re-upload in gallery if unintended."))return;}const g=id=>{const el=document.getElementById(id);return el?el.value:"";};const ddRaw=g("site-drop-date");let ddIso="";if(ddRaw){const d=new Date(ddRaw);if(!isNaN(d))ddIso=d.toISOString();}siteContent={faq:(siteContent.faq||faqItems),paymentConfig:(siteContent.paymentConfig||DEFAULT_PAY_CFG),sizeGuide:(siteContent.sizeGuide||sizeGuide),sizeModels:(siteContent.sizeModels||sizeModels),ann:g("site-ann"),heroH1:g("site-hero-h1"),heroSub:g("site-hero-sub"),heroP1:g("site-hero-product"),dropDate:ddIso,trust:g("site-trust"),edH2:g("site-ed-h2"),edP:g("site-ed-p"),edImgs:_edI,stImgs:_stI,edImg:_edS,stImg:_stS,storyH2:g("site-story-h2"),storyP1:g("site-story-p1"),storyP2:g("site-story-p2"),shipping:g("site-shipping"),marquee:g("site-marquee"),stats:g("site-stats"),phone:g("site-phone"),email:g("site-email"),address:g("site-address"),insta:g("site-insta"),fb:g("site-fb"),heroImg:g("site-hero-img"),heroThumb1:g("site-hero-thumb1"),heroThumb2:g("site-hero-thumb2")};lsSafeSet("ds_site",siteContent);applySiteContent();if(typeof window.rebuildHeroShowcase==="function")window.rebuildHeroShowcase();if(typeof window.rebuildDropCountdown==="function")window.rebuildDropCountdown();const m=document.getElementById("site-msg");if(m){m.textContent="Saved ✓";m.style.color="#4ade80";m.style.background="rgba(74,222,128,.08)";m.style.display="block";setTimeout(()=>m.style.display="none",2000);}showToast("Site content saved ✓ — syncing live...",true);syncSiteToSupabase();}
+  if((!_stI.length&&!_stS)&&((prevSite.stImgs||[]).length||(prevSite.stImg||""))){if(!confirm("Story image is empty. Save anyway? Re-upload in gallery if unintended."))return;}const g=id=>{const el=document.getElementById(id);return el?el.value:"";};const ddRaw=g("site-drop-date");let ddIso="";if(ddRaw){const d=new Date(ddRaw);if(!isNaN(d))ddIso=d.toISOString();}const vddRaw=g("site-vault-drop-date");let vddIso="";if(vddRaw){const d2=new Date(vddRaw);if(!isNaN(d2))vddIso=d2.toISOString();}siteContent={faq:(siteContent.faq||faqItems),paymentConfig:(siteContent.paymentConfig||DEFAULT_PAY_CFG),sizeGuide:(siteContent.sizeGuide||sizeGuide),sizeModels:(siteContent.sizeModels||sizeModels),ann:g("site-ann"),heroH1:g("site-hero-h1"),heroSub:g("site-hero-sub"),heroP1:g("site-hero-product"),dropDate:ddIso,vaultDropDate:vddIso,trust:g("site-trust"),edH2:g("site-ed-h2"),edP:g("site-ed-p"),edImgs:_edI,stImgs:_stI,edImg:_edS,stImg:_stS,storyH2:g("site-story-h2"),storyP1:g("site-story-p1"),storyP2:g("site-story-p2"),shipping:g("site-shipping"),marquee:g("site-marquee"),stats:g("site-stats"),phone:g("site-phone"),email:g("site-email"),address:g("site-address"),insta:g("site-insta"),fb:g("site-fb"),heroImg:g("site-hero-img"),heroThumb1:g("site-hero-thumb1"),heroThumb2:g("site-hero-thumb2")};lsSafeSet("ds_site",siteContent);applySiteContent();if(typeof window.rebuildHeroShowcase==="function")window.rebuildHeroShowcase();if(typeof window.rebuildDropCountdown==="function")window.rebuildDropCountdown();if(typeof window.rebuildVaultCountdown==="function")window.rebuildVaultCountdown();const m=document.getElementById("site-msg");if(m){m.textContent="Saved ✓";m.style.color="#4ade80";m.style.background="rgba(74,222,128,.08)";m.style.display="block";setTimeout(()=>m.style.display="none",2000);}showToast("Site content saved ✓ — syncing live...",true);syncSiteToSupabase();}
 
 // BANNER ADMIN
 function loadBannerAdmin(){document.getElementById("ban-text").value=banner.text||"";document.getElementById("ban-show").checked=banner.show||false;}
