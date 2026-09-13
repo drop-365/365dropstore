@@ -1654,6 +1654,9 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
 .vault-door{background:#0E0E0C;border-top:1px solid #222;border-bottom:1px solid #222;margin:0;position:relative;overflow:hidden}
 .vault-door-inner{max-width:1280px;margin:0 auto;display:grid;grid-template-columns:1.2fr 0.8fr;min-height:400px;position:relative;z-index:1}
 .vault-door-img{position:relative;overflow:hidden;min-height:400px;background:linear-gradient(160deg,#161614,#0E0E0C 60%)}
+.vd-real-imgs{position:absolute;inset:0;display:flex;gap:2px}
+.vd-real-img{flex:1;width:50%;height:100%;object-fit:cover;object-position:top center;display:block;background:#161614}
+.vd-real-imgs::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(14,14,12,0.55) 0%,rgba(14,14,12,0) 22%,rgba(14,14,12,0) 78%,rgba(14,14,12,0.55) 100%);pointer-events:none}
 .vault-door-copy{padding:44px;display:flex;flex-direction:column;justify-content:center;gap:12px}
 .vault-door-copy .vd-tag{font-family:ui-monospace,monospace;font-size:10px;color:#8A8783;text-transform:uppercase;letter-spacing:0.08em;line-height:2}
 .vault-door-copy h2{font-family:var(--dsp);font-size:40px;color:#F6F3EE;line-height:0.92;letter-spacing:0.01em;text-transform:none}
@@ -1690,33 +1693,13 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
   <div class="vault-door-inner">
     <div class="vault-door-img">
       <div class="vd-locked">
-        <svg viewBox="0 0 500 550" xmlns="http://www.w3.org/2000/svg" class="vd-locked-svg">
-          <defs>
-            <filter id="vd-blur"><feGaussianBlur stdDeviation="14"/></filter>
-            <linearGradient id="vd-fade" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="#3a3a36" stop-opacity="0.5"/>
-              <stop offset="100%" stop-color="#1a1a18" stop-opacity="0.2"/>
-            </linearGradient>
-          </defs>
-          <path d="M170 60 L330 60 L340 220 L400 480 L320 500 L270 280 L230 280 L180 500 L100 480 L160 220 Z" fill="url(#vd-fade)" filter="url(#vd-blur)" opacity="0.7"/>
-          <rect x="140" y="140" width="220" height="26" fill="#0E0E0C" opacity="0.85"/>
-          <rect x="120" y="260" width="260" height="22" fill="#0E0E0C" opacity="0.85"/>
-          <rect x="150" y="380" width="200" height="20" fill="#0E0E0C" opacity="0.85"/>
-        </svg>
-        <div class="vd-locked-scan"></div>
+        <div class="vd-real-imgs">
+          <img id="vd-img-1" class="vd-real-img" alt="">
+          <img id="vd-img-2" class="vd-real-img" alt="">
+        </div>
         <div class="vd-locked-grid"></div>
         <div class="vd-locked-hud vd-locked-hud--tl" id="vd-file-tag">FILE // 365-BLK-001</div>
         <div class="vd-locked-hud vd-locked-hud--tr" id="vd-enc-tag">ENCRYPTED</div>
-        <div class="vd-locked-center">
-          <div class="vd-lock-icon">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-              <rect x="5" y="11" width="14" height="9" rx="1.5" stroke="#C0392B" stroke-width="1.6"/>
-              <path d="M8 11V7a4 4 0 0 1 8 0v4" stroke="#C0392B" stroke-width="1.6"/>
-            </svg>
-          </div>
-          <div class="vd-lock-text" id="vd-lock-label">VISUAL LOCKED</div>
-          <div class="vd-lock-sub" id="vd-lock-sub">DECRYPTS AT 9:00 PM</div>
-        </div>
         <div class="vd-locked-hud vd-locked-hud--bl" id="vd-res-tag">RES: CLASSIFIED</div>
         <div class="vd-locked-hud vd-locked-hud--br" id="vd-ed-tag">ED. 04/12</div>
       </div>
@@ -1781,6 +1764,23 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
   // see the hardcoded 9pm fallback regardless of what's saved in admin.
   setTimeout(build, 0);
   window.rebuildVaultCountdown = build;
+})();
+
+/* Fetch the first two "Vault" badged products and show their real
+   first photo here — replaces the old abstract locked-silhouette
+   placeholder. If fewer than 2 exist, the second slot just stays empty. */
+(async function(){
+  try{
+    const SBu='https://fhiivshoikcnanbvdtxm.supabase.co',
+          SKu='sb_publishable_LPwVp36pEOfQIEchjefMfw_SmGNcxUt';
+    const res=await fetch(SBu+'/rest/v1/products?select=images,badges',{headers:{apikey:SKu,Authorization:'Bearer '+SKu}});
+    const rows=await res.json();
+    const vaultItems=(rows||[]).filter(p=>Array.isArray(p.badges)&&p.badges.includes('vault'));
+    const img1=document.getElementById('vd-img-1'), img2=document.getElementById('vd-img-2');
+    if(vaultItems[0]&&vaultItems[0].images&&vaultItems[0].images[0]&&img1) img1.src=vaultItems[0].images[0];
+    if(vaultItems[1]&&vaultItems[1].images&&vaultItems[1].images[0]&&img2) img2.src=vaultItems[1].images[0];
+    else if(img2) img2.style.display='none';
+  }catch(e){ console.error('Vault teaser images failed to load:',e); }
 })();
 </script>
 
