@@ -54,6 +54,13 @@ button{padding:13px 22px;border-radius:8px;border:none;font-size:13px;font-weigh
       <div><label>Headline line 2 (accent italic)</label><input id="h1b" placeholder="Built to last."/></div>
     </div>
     <div class="row full"><div><label>Sub-headline paragraph</label><textarea id="sub" rows="2" placeholder="Okayama 18oz selvedge, hand-forged in our Delhi studio..."></textarea></div></div>
+    <div class="row full">
+      <div>
+        <label>Hero Background Video URL</label>
+        <input id="heroVideoUrl" placeholder="https://pub-....r2.dev/vault/hero-bg.mp4"/>
+        <small>Full-bleed video behind the headline at the top of the page. Direct .mp4 link only. This is separate from the Entry I / Entry II product videos below — changing this never affects them. Leave blank to keep a plain dark panel.</small>
+      </div>
+    </div>
   </div>
 
   <div class="card">
@@ -152,7 +159,7 @@ async function loadContent(){
     const v=fullSiteContent.vault||{};
     const set=(id,val)=>{const el=document.getElementById(id);if(el)el.value=val||'';};
 
-    set('kicker',v.kicker); set('h1a',v.h1a); set('h1b',v.h1b); set('sub',v.sub);
+    set('kicker',v.kicker); set('h1a',v.h1a); set('h1b',v.h1b); set('sub',v.sub); set('heroVideoUrl',v.heroVideoUrl);
     const e1=v.e1||{}, e2=v.e2||{};
     set('e1-name',e1.name); set('e1-meta',e1.meta); set('e1-desc',e1.desc);
     set('e1-price',e1.price); set('e1-mrp',e1.mrp); set('e1-prov',provToLines(e1.prov));
@@ -184,7 +191,7 @@ async function saveContent(){
   }
 
   fullSiteContent.vault={
-    kicker:g('kicker'), h1a:g('h1a'), h1b:g('h1b'), sub:g('sub'),
+    kicker:g('kicker'), h1a:g('h1a'), h1b:g('h1b'), sub:g('sub'), heroVideoUrl:g('heroVideoUrl'),
     e1:{name:g('e1-name'),meta:g('e1-meta'),desc:g('e1-desc'),
         price:g('e1-price')?Number(g('e1-price')):null,
         mrp:g('e1-mrp')?Number(g('e1-mrp')):null,

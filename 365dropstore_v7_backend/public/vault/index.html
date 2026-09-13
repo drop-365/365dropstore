@@ -73,12 +73,20 @@ body::before{
 /* ═══════════════════════════════════════
    HERO
    ═══════════════════════════════════════ */
-.hero{max-width:640px;margin:0 auto;padding:140px 32px 90px;text-align:center;position:relative;z-index:1}
+.hero{max-width:none;width:100%;margin:0;padding:0;text-align:center;position:relative;z-index:1;overflow:hidden;min-height:88vh;display:flex;align-items:center;justify-content:center}
+.hero-video-wrap{position:absolute;inset:0;z-index:0;background:var(--ink)}
+.hero-video-wrap video{width:100%;height:100%;object-fit:cover;display:none}
+.hero-video-wrap video.ready{display:block}
+.hero-video-wrap::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,8,6,0.35) 0%,rgba(10,8,6,0.55) 55%,var(--paper) 96%)}
+.hero-inner{position:relative;z-index:1;max-width:640px;padding:140px 32px 90px}
+.hero .kicker{color:rgba(242,234,224,0.75)}
+.hero h1{color:#F2EAE0;text-shadow:0 4px 26px rgba(0,0,0,0.5)}
+.hero p{color:rgba(242,234,224,0.8);text-shadow:0 2px 12px rgba(0,0,0,0.5)}
+@media(max-width:640px){.hero{min-height:74vh}.hero-inner{padding:100px 24px 60px}}
 .hero .kicker{font-size:13px;color:var(--stone);margin-bottom:28px;letter-spacing:0.02em}
 .hero h1{font-family:var(--serif);font-size:clamp(48px,7vw,76px);line-height:0.98;letter-spacing:-0.01em;color:var(--ink);margin-bottom:24px}
 .hero h1 em{font-style:italic;color:var(--ox)}
 .hero p{font-size:16px;color:var(--stone);line-height:1.75;max-width:440px;margin:0 auto}
-@media(max-width:640px){.hero{padding:100px 24px 60px}}
 
 /* ═══════════════════════════════════════
    LEDGER — one product entry
@@ -239,9 +247,17 @@ body::before{
 </header>
 
 <section class="hero">
-  <div class="kicker" id="v-kicker">The Vault — twelve pairs, worldwide</div>
-  <h1><span id="v-h1a">Two forms.</span><br><em id="v-h1b">Built to last.</em></h1>
-  <p id="v-sub">Okayama 18oz selvedge, hand-forged in our Delhi studio. Each pair numbered, each pair authenticated. Nothing here will be made again.</p>
+  <div class="hero-video-wrap">
+    <!-- Background video — set from Admin (Vault Content -> Hero Background Video).
+         Left empty here on purpose; the page fetches the URL from Supabase on load.
+         If none is set, this stays a plain dark panel behind the text. -->
+    <video id="heroBgVideo" autoplay muted loop playsinline></video>
+  </div>
+  <div class="hero-inner">
+    <div class="kicker" id="v-kicker">The Vault — twelve pairs, worldwide</div>
+    <h1><span id="v-h1a">Two forms.</span><br><em id="v-h1b">Built to last.</em></h1>
+    <p id="v-sub">Okayama 18oz selvedge, hand-forged in our Delhi studio. Each pair numbered, each pair authenticated. Nothing here will be made again.</p>
+  </div>
 </section>
 
 <!-- ═══════════════════════════════════════
@@ -440,6 +456,17 @@ async function hydrateVaultContent(){
     setText('v-h1a',v.h1a);
     setText('v-h1b',v.h1b);
     setText('v-sub',v.sub);
+
+    // Hero background video — independent of the Entry I / Entry II video
+    // fields below, which are untouched by this.
+    if(v.heroVideoUrl){
+      const hv=document.getElementById('heroBgVideo');
+      if(hv){
+        hv.src=v.heroVideoUrl;
+        hv.addEventListener('loadeddata',()=>hv.classList.add('ready'),{once:true});
+        hv.load();
+      }
+    }
 
     if(v.e1){
       setText('e1-meta',v.e1.meta);
