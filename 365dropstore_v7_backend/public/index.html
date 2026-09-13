@@ -1970,6 +1970,7 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
   <button class="atab" onclick="apTab('add')">Add / Edit</button>
   <button class="atab" onclick="apTab('site')">Edit Site</button>
   <button class="atab" onclick="apTab('banner')">Live Banner</button>
+  <button class="atab" onclick="apTab('vault')">Vault Content</button>
   <button class="atab" onclick="apTab('fits')">Fits Manager</button>
   <button class="atab" onclick="apTab('reviews')">Reviews</button>
   <button class="atab" onclick="apTab('stories')">Story Updates</button>
@@ -2281,6 +2282,55 @@ https://raw.githubusercontent.com/drop-365/365dropstore/main/images/jean2.jpg" s
       </div>
       <div class="pff full" style="display:flex;gap:12px"><button class="btn btn-w" onclick="saveBanner()">Save Banner</button></div>
       <div id="ban-msg" class="pff full" style="display:none;padding:10px;border-radius:9px"></div>
+    </div>
+  </div>
+
+  <!-- vault content tab -->
+  <div id="tab-vault" class="apsec" style="display:none"><h3>VAULT CONTENT</h3>
+    <p style="color:var(--off);font-size:14px;margin-bottom:20px">Every piece of text on 365dropstore.com/vault/ — headline, both products, and the certificate section. Leave any field blank to keep the page's current default wording.</p>
+    <div class="pfgrid">
+      <div class="pff full"><label>Kicker line (above the headline)</label><input type="text" id="vc-kicker" placeholder="The Vault — twelve pairs, worldwide"/></div>
+      <div class="pff"><label>Headline — line 1</label><input type="text" id="vc-h1a" placeholder="Two forms."/></div>
+      <div class="pff"><label>Headline — line 2 (shown in accent italic)</label><input type="text" id="vc-h1b" placeholder="Built to last."/></div>
+      <div class="pff full"><label>Sub-headline paragraph</label><textarea id="vc-sub" rows="2" placeholder="Okayama 18oz selvedge, hand-forged in our Delhi studio..."></textarea></div>
+
+      <div class="pff full" style="border-top:1px solid var(--line);padding-top:16px;margin-top:6px"><label style="font-size:15px">ENTRY I</label></div>
+      <div class="pff"><label>Product name</label><input type="text" id="vc-e1-name" placeholder="365-WD Obsidian"/></div>
+      <div class="pff"><label>Edition meta line</label><input type="text" id="vc-e1-meta" placeholder="Carbon Black · Wide-Leg · Edition 4 of 12"/></div>
+      <div class="pff full"><label>Short description</label><input type="text" id="vc-e1-desc" placeholder="Carbon black, twelve dips..."/></div>
+      <div class="pff"><label>Price (₹)</label><input type="number" id="vc-e1-price" placeholder="7999"/></div>
+      <div class="pff"><label>MRP / crossed-out price (₹)</label><input type="number" id="vc-e1-mrp" placeholder="12000"/></div>
+      <div class="pff full"><label>Provenance — 4 lines, format: Label|Description text</label>
+        <textarea id="vc-e1-prov" rows="4" placeholder="Cloth|18oz Okayama selvedge...
+Hardware|Copper rivets, hand-set...
+Fit|Wide-leg, true to size...
+Origin|Cut, sewn, and inspected..."></textarea>
+      </div>
+
+      <div class="pff full" style="border-top:1px solid var(--line);padding-top:16px;margin-top:6px"><label style="font-size:15px">ENTRY II</label></div>
+      <div class="pff"><label>Product name</label><input type="text" id="vc-e2-name" placeholder="365-WD Gilded Indigo"/></div>
+      <div class="pff"><label>Edition meta line</label><input type="text" id="vc-e2-meta" placeholder="Wide-Leg · Edition 2 of 12"/></div>
+      <div class="pff full"><label>Short description</label><input type="text" id="vc-e2-desc" placeholder="Kurabo mill selvedge..."/></div>
+      <div class="pff"><label>Price (₹)</label><input type="number" id="vc-e2-price" placeholder="8499"/></div>
+      <div class="pff"><label>MRP / crossed-out price (₹)</label><input type="number" id="vc-e2-mrp" placeholder="13500"/></div>
+      <div class="pff full"><label>Provenance — 4 lines, format: Label|Description text</label>
+        <textarea id="vc-e2-prov" rows="4" placeholder="Cloth|Kurabo mill selvedge...
+Hardware|Chain-stitched hem...
+Fit|The same wide-leg cut...
+Origin|Delhi studio..."></textarea>
+      </div>
+
+      <div class="pff full" style="border-top:1px solid var(--line);padding-top:16px;margin-top:6px"><label style="font-size:15px">CERTIFICATE SECTION</label>
+        <p style="color:var(--off);font-size:12px;margin-top:4px">This is the authenticity section near the bottom of the page — it does not claim NFC chips, since the product doesn't have them. Keep it truthful when editing.</p>
+      </div>
+      <div class="pff"><label>Kicker</label><input type="text" id="vc-cert-kicker" placeholder="Authenticity"/></div>
+      <div class="pff"><label>Headline — line 2 (accent italic)</label><input type="text" id="vc-cert-h1b" placeholder="numbered by hand."/></div>
+      <div class="pff full"><label>Headline — line 1</label><input type="text" id="vc-cert-h1a" placeholder="Every pair,"/></div>
+      <div class="pff full"><label>Body paragraph</label><textarea id="vc-cert-body" rows="3" placeholder="Each pair ships with a signed certificate..."></textarea></div>
+      <div class="pff full"><label>Bottom mark line</label><input type="text" id="vc-cert-mark" placeholder="Certificate enclosed · Delhi Studio · Free shipping"/></div>
+
+      <div class="pff full" style="display:flex;gap:12px;margin-top:8px"><button class="btn btn-w" onclick="saveVaultContent()">Save Vault Content</button></div>
+      <div id="vc-msg" class="pff full" style="display:none;padding:10px;border-radius:9px"></div>
     </div>
   </div>
 
@@ -4605,7 +4655,7 @@ function setAdminTheme(t){
   try{saved=localStorage.getItem("ds_admin_theme")||"scifi";}catch(e){}
   document.addEventListener("DOMContentLoaded",function(){setAdminTheme(saved);});
 })();
-function apTab(t){const all=["products","dashboard","sequence","orders","add","site","banner","fits","reviews","stories","instagrid","faq","sizeguide","payment","settings"];all.forEach(id=>{const e=document.getElementById("tab-"+id);if(e)e.style.display=id===t?"block":"none";});document.querySelectorAll(".atab").forEach((b,i)=>b.classList.toggle("act",all[i]===t));if(t==="products"){ldProds();apSts();}if(t==="payment"){loadPaySettings();}if(t==="dashboard"){renderDashboard();}if(t==="sequence"){renderSequenceList();}if(t==="sizeguide"){renderSizeModelsList();}
+function apTab(t){const all=["products","dashboard","sequence","orders","add","site","banner","vault","fits","reviews","stories","instagrid","faq","sizeguide","payment","settings"];all.forEach(id=>{const e=document.getElementById("tab-"+id);if(e)e.style.display=id===t?"block":"none";});document.querySelectorAll(".atab").forEach((b,i)=>b.classList.toggle("act",all[i]===t));if(t==="products"){ldProds();apSts();}if(t==="payment"){loadPaySettings();}if(t==="dashboard"){renderDashboard();}if(t==="sequence"){renderSequenceList();}if(t==="sizeguide"){renderSizeModelsList();}if(t==="vault"){loadVaultAdmin();}
   if(t==="dashboard"){loadOrdersFromSupabase().then(()=>renderDashboard());}
   if(t==="orders"){rnAdmOrders();loadOrdersFromSupabase().then(ok=>{if(ok)rnAdmOrders();});loadAbandonedCount();_woHook("orders");}if(t==="reviews")rnAdmRev();if(t==="site")loadSiteEd();if(t==="fits")loadFitsAdmin();if(t==="settings"){loadPaletteAdmin();loadGlobalScAdmin();rnStorageView();}if(t==="banner")loadBannerAdmin();if(t==="stories")renderStoryAdmin();if(t==="instagrid")renderHeroGridAdmin();if(t==="faq")renderFaqAdmin();if(t==="sizeguide")renderSizeGuideAdmin();}
 function apSts(){const tot=products.length,sold=products.filter(p=>p.badges&&p.badges.includes("sold")).length,cats=[...new Set(products.map(p=>p.category))].length;document.getElementById("apstats").innerHTML=`<div class="apstat"><div class="v">${tot}</div><div class="k">Total</div></div><div class="apstat"><div class="v">${tot-sold}</div><div class="k">Active</div></div><div class="apstat"><div class="v">${sold}</div><div class="k">Sold Out</div></div><div class="apstat"><div class="v">${cats}</div><div class="k">Categories</div></div>`;}
@@ -4874,6 +4924,57 @@ function saveSite(){const _edI=siteContent.edImgs||[];const _stI=siteContent.stI
 // BANNER ADMIN
 function loadBannerAdmin(){document.getElementById("ban-text").value=banner.text||"";document.getElementById("ban-show").checked=banner.show||false;}
 function saveBanner(){banner={text:document.getElementById("ban-text").value,show:document.getElementById("ban-show").checked};LS.set("ds_ban",banner);applyBanner();const m=document.getElementById("ban-msg");m.textContent="Banner saved ✓";m.style.color="#4ade80";m.style.background="rgba(74,222,128,.08)";m.style.display="block";setTimeout(()=>m.style.display="none",2000);showToast("Banner saved ✓",true);syncSettingsToSupabase("banner",banner);}
+
+/* ===== VAULT CONTENT (added 2026-09-13) =====
+   Stored inside siteContent.vault -- reuses the exact same admin-site
+   Edge Function and Supabase table every other piece of site copy
+   already goes through. No new backend, no new table. The public vault
+   page (365dropstore.com/vault/) fetches this same site_content row on
+   load and hydrates its text; if this is never filled in, the vault
+   page simply keeps its own hardcoded defaults, so it's never broken. */
+function vaultProvToLines(rows){
+  return (rows||[]).map(r=>`${r.label||""}|${r.text||""}`).join("\n");
+}
+function vaultProvFromLines(text){
+  return (text||"").split("\n").map(l=>l.trim()).filter(Boolean).map(l=>{
+    const i=l.indexOf("|");
+    return i===-1?{label:"",text:l}:{label:l.slice(0,i).trim(),text:l.slice(i+1).trim()};
+  });
+}
+function loadVaultAdmin(){
+  const v=(siteContent&&siteContent.vault)||{};
+  const sv=(id,val)=>{const el=document.getElementById(id);if(el)el.value=val||"";};
+  sv("vc-kicker",v.kicker);sv("vc-h1a",v.h1a);sv("vc-h1b",v.h1b);sv("vc-sub",v.sub);
+  const e1=v.e1||{},e2=v.e2||{};
+  sv("vc-e1-name",e1.name);sv("vc-e1-meta",e1.meta);sv("vc-e1-desc",e1.desc);
+  sv("vc-e1-price",e1.price);sv("vc-e1-mrp",e1.mrp);sv("vc-e1-prov",vaultProvToLines(e1.prov));
+  sv("vc-e2-name",e2.name);sv("vc-e2-meta",e2.meta);sv("vc-e2-desc",e2.desc);
+  sv("vc-e2-price",e2.price);sv("vc-e2-mrp",e2.mrp);sv("vc-e2-prov",vaultProvToLines(e2.prov));
+  const c=v.cert||{};
+  sv("vc-cert-kicker",c.kicker);sv("vc-cert-h1a",c.h1a);sv("vc-cert-h1b",c.h1b);
+  sv("vc-cert-body",c.body);sv("vc-cert-mark",c.mark);
+}
+function saveVaultContent(){
+  const g=id=>{const el=document.getElementById(id);return el?el.value.trim():"";};
+  siteContent.vault={
+    kicker:g("vc-kicker"),h1a:g("vc-h1a"),h1b:g("vc-h1b"),sub:g("vc-sub"),
+    e1:{name:g("vc-e1-name"),meta:g("vc-e1-meta"),desc:g("vc-e1-desc"),
+        price:g("vc-e1-price")?Number(g("vc-e1-price")):null,
+        mrp:g("vc-e1-mrp")?Number(g("vc-e1-mrp")):null,
+        prov:vaultProvFromLines(g("vc-e1-prov"))},
+    e2:{name:g("vc-e2-name"),meta:g("vc-e2-meta"),desc:g("vc-e2-desc"),
+        price:g("vc-e2-price")?Number(g("vc-e2-price")):null,
+        mrp:g("vc-e2-mrp")?Number(g("vc-e2-mrp")):null,
+        prov:vaultProvFromLines(g("vc-e2-prov"))},
+    cert:{kicker:g("vc-cert-kicker"),h1a:g("vc-cert-h1a"),h1b:g("vc-cert-h1b"),
+          body:g("vc-cert-body"),mark:g("vc-cert-mark")}
+  };
+  lsSafeSet("ds_site",siteContent);
+  const m=document.getElementById("vc-msg");
+  if(m){m.textContent="Saved ✓";m.style.color="#4ade80";m.style.background="rgba(74,222,128,.08)";m.style.display="block";setTimeout(()=>m.style.display="none",2000);}
+  showToast("Vault content saved ✓ — syncing live...",true);
+  syncSiteToSupabase();
+}
 
 // FITS MANAGER
 function loadFitsAdmin(){renderFitsList();renderHomeSectionsAdmin();}
