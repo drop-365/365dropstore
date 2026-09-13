@@ -75,8 +75,8 @@ body::before{
    ═══════════════════════════════════════ */
 .hero{max-width:none;width:100%;margin:0;padding:0;text-align:center;position:relative;z-index:1;overflow:hidden;min-height:88vh;display:flex;align-items:center;justify-content:center}
 .hero-video-wrap{position:absolute;inset:0;z-index:0;background:var(--ink)}
-.hero-video-wrap video{width:100%;height:100%;object-fit:cover;display:none}
-.hero-video-wrap video.ready{display:block}
+.hero-video-wrap video,.hero-video-wrap img{width:100%;height:100%;object-fit:cover;display:none;position:absolute;inset:0}
+.hero-video-wrap video.ready,.hero-video-wrap img.ready{display:block}
 .hero-video-wrap::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,8,6,0.35) 0%,rgba(10,8,6,0.55) 55%,var(--paper) 96%)}
 .hero-inner{position:relative;z-index:1;max-width:640px;padding:140px 32px 90px}
 .hero .kicker{color:rgba(242,234,224,0.75)}
@@ -252,6 +252,7 @@ body::before{
          Left empty here on purpose; the page fetches the URL from Supabase on load.
          If none is set, this stays a plain dark panel behind the text. -->
     <video id="heroBgVideo" autoplay muted loop playsinline></video>
+    <img id="heroBgImage" alt="">
   </div>
   <div class="hero-inner">
     <div class="kicker" id="v-kicker">The Vault — twelve pairs, worldwide</div>
@@ -457,14 +458,27 @@ async function hydrateVaultContent(){
     setText('v-h1b',v.h1b);
     setText('v-sub',v.sub);
 
-    // Hero background video — independent of the Entry I / Entry II video
-    // fields below, which are untouched by this.
-    if(v.heroVideoUrl){
+    // Hero background — video or image, chosen from admin (same
+    // Video/Image type pattern as the homepage Hero Grid). Independent
+    // of the Entry I / Entry II product videos below, which are untouched.
+    const hm=v.heroMedia||(v.heroVideoUrl?{type:'video',url:v.heroVideoUrl}:null);
+    if(hm&&hm.url){
       const hv=document.getElementById('heroBgVideo');
-      if(hv){
-        hv.src=v.heroVideoUrl;
-        hv.addEventListener('loadeddata',()=>hv.classList.add('ready'),{once:true});
-        hv.load();
+      const hi=document.getElementById('heroBgImage');
+      if(hm.type==='image'){
+        if(hi){ hi.src=hm.url; hi.classList.add('ready'); }
+        if(hv){ hv.pause(); hv.removeAttribute('src'); hv.classList.remove('ready'); }
+      }else{
+        if(hv){
+          hv.src=hm.url;
+          hv.addEventListener('canplay',()=>{
+            hv.classList.add('ready');
+            hv.play().catch(err=>console.warn('Hero video autoplay blocked:',err));
+          },{once:true});
+          hv.addEventListener('error',()=>console.error('Hero video failed to load:',hm.url),{once:true});
+          hv.load();
+        }
+        if(hi){ hi.classList.remove('ready'); }
       }
     }
 
