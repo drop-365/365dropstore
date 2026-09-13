@@ -170,35 +170,53 @@ button{cursor:pointer;border:none;background:none;font-family:inherit}
 const SB='https://fhiivshoikcnanbvdtxm.supabase.co',
       SK='sb_publishable_LPwVp36pEOfQIEchjefMfw_SmGNcxUt';
 
-// ── Countdown target: today 9:00 PM IST ──
-function getTarget(){
+// ── Countdown target: reads the same admin-set date the homepage
+// vault-door uses (Edit Site -> "Vault Drop Countdown"), fetched from
+// Supabase so both places always show the exact same time. Falls back
+// to 9 PM today only if the admin hasn't set a date yet.
+let cdInterval = null;
+async function getTarget(){
+  try {
+    const res = await fetch(SB + '/rest/v1/site_content?select=content&id=eq.1', {
+      headers: { 'apikey': SK, 'Authorization': 'Bearer ' + SK }
+    });
+    const rows = await res.json();
+    const vdd = rows && rows[0] && rows[0].content && rows[0].content.vaultDropDate;
+    if (vdd) {
+      const d = new Date(vdd);
+      if (!isNaN(d)) return d;
+    }
+  } catch (e) { /* falls through to default below */ }
   const now = new Date();
-  const target = new Date();
-  target.setHours(21, 0, 0, 0); // 9 PM local time
-  if (target <= now) target.setDate(target.getDate() + 1); // if past 9PM, count to tomorrow
-  return target;
+  const t = new Date();
+  t.setHours(21, 0, 0, 0);
+  if (t <= now) t.setDate(t.getDate() + 1);
+  return t;
 }
-const target = getTarget();
 
-function tick(){
-  const now = new Date();
-  let diff = target - now;
-  if (diff <= 0) {
-    document.getElementById('cd-h').textContent = '00';
-    document.getElementById('cd-m').textContent = '00';
-    document.getElementById('cd-s').textContent = '00';
-    document.querySelector('.notify-msg').textContent = "It's live. Refresh to enter.";
-    return;
+(async function initCountdown(){
+  const target = await getTarget();
+  function tick(){
+    const now = new Date();
+    let diff = target - now;
+    if (diff <= 0) {
+      document.getElementById('cd-h').textContent = '00';
+      document.getElementById('cd-m').textContent = '00';
+      document.getElementById('cd-s').textContent = '00';
+      document.querySelector('.notify-msg').textContent = "It's live. Refresh to enter.";
+      if (cdInterval) { clearInterval(cdInterval); cdInterval = null; }
+      return;
+    }
+    const h = Math.floor(diff / 3600000);
+    const m = Math.floor((diff % 3600000) / 60000);
+    const s = Math.floor((diff % 60000) / 1000);
+    document.getElementById('cd-h').textContent = String(h).padStart(2,'0');
+    document.getElementById('cd-m').textContent = String(m).padStart(2,'0');
+    document.getElementById('cd-s').textContent = String(s).padStart(2,'0');
   }
-  const h = Math.floor(diff / 3600000);
-  const m = Math.floor((diff % 3600000) / 60000);
-  const s = Math.floor((diff % 60000) / 1000);
-  document.getElementById('cd-h').textContent = String(h).padStart(2,'0');
-  document.getElementById('cd-m').textContent = String(m).padStart(2,'0');
-  document.getElementById('cd-s').textContent = String(s).padStart(2,'0');
-}
-tick();
-setInterval(tick, 1000);
+  tick();
+  cdInterval = setInterval(tick, 1000);
+})();
 
 // ── Notify form ──
 document.getElementById('notify-form').addEventListener('submit', async (e) => {
