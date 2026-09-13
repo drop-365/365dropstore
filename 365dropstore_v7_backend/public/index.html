@@ -1705,8 +1705,8 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
         </svg>
         <div class="vd-locked-scan"></div>
         <div class="vd-locked-grid"></div>
-        <div class="vd-locked-hud vd-locked-hud--tl">FILE // 365-BLK-001</div>
-        <div class="vd-locked-hud vd-locked-hud--tr">ENCRYPTED</div>
+        <div class="vd-locked-hud vd-locked-hud--tl" id="vd-file-tag">FILE // 365-BLK-001</div>
+        <div class="vd-locked-hud vd-locked-hud--tr" id="vd-enc-tag">ENCRYPTED</div>
         <div class="vd-locked-center">
           <div class="vd-lock-icon">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
@@ -1714,23 +1714,23 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
               <path d="M8 11V7a4 4 0 0 1 8 0v4" stroke="#C0392B" stroke-width="1.6"/>
             </svg>
           </div>
-          <div class="vd-lock-text">VISUAL LOCKED</div>
+          <div class="vd-lock-text" id="vd-lock-label">VISUAL LOCKED</div>
           <div class="vd-lock-sub" id="vd-lock-sub">DECRYPTS AT 9:00 PM</div>
         </div>
-        <div class="vd-locked-hud vd-locked-hud--bl">RES: CLASSIFIED</div>
-        <div class="vd-locked-hud vd-locked-hud--br">ED. 04/12</div>
+        <div class="vd-locked-hud vd-locked-hud--bl" id="vd-res-tag">RES: CLASSIFIED</div>
+        <div class="vd-locked-hud vd-locked-hud--br" id="vd-ed-tag">ED. 04/12</div>
       </div>
     </div>
     <div class="vault-door-copy">
-      <div class="vd-tag">VAULT 000 — ATELIER EDITION<br>12 UNITS WORLDWIDE · DELHI STUDIO</div>
-      <h2>Two forms.<br><em>Dropping tonight.</em></h2>
-      <p>Okayama 18oz selvedge. Hand-forged in Delhi studio — not a warehouse. Numbered, NFC authenticated.</p>
+      <div class="vd-tag"><span id="vd-kicker-1">VAULT 000 — ATELIER EDITION</span><br><span id="vd-kicker-2">12 UNITS WORLDWIDE · DELHI STUDIO</span></div>
+      <h2><span id="vd-h1a">Two forms.</span><br><em id="vd-h1b">Dropping tonight.</em></h2>
+      <p id="vd-body">Okayama 18oz selvedge. Hand-forged in Delhi studio — not a warehouse. Numbered, certificate enclosed.</p>
       <div class="vault-door-cd" id="vd-countdown">
         <div class="vd-cd-unit"><div class="vd-cd-num" id="vd-h">00</div><div class="vd-cd-lbl">HRS</div></div>
         <div class="vd-cd-unit"><div class="vd-cd-num" id="vd-m">00</div><div class="vd-cd-lbl">MIN</div></div>
         <div class="vd-cd-unit"><div class="vd-cd-num" id="vd-s">00</div><div class="vd-cd-lbl">SEC</div></div>
       </div>
-      <a href="/vault/" class="vault-door-cta">OPENS 9 PM →</a>
+      <a href="/vault/" class="vault-door-cta" id="vd-cta">OPENS 9 PM →</a>
     </div>
   </div>
 </section>
@@ -2306,6 +2306,26 @@ https://raw.githubusercontent.com/drop-365/365dropstore/main/images/jean2.jpg" s
         </div>
         <input type="url" id="vc-hero-url" placeholder="https://pub-....r2.dev/vault/hero-bg.mp4" style="width:100%"/>
         <small style="color:var(--off);display:block;margin-top:6px">Direct .mp4 link for Video, or a direct image link for Static image. Leave blank to keep a plain dark panel.</small>
+      </div>
+
+      <div class="pff full" style="border-top:1px solid var(--line);padding-top:16px;margin-top:6px;border:1px solid var(--line);border-radius:10px;padding:16px">
+        <label style="font-size:15px">HOMEPAGE TEASER (Vault Door widget)</label>
+        <p style="color:var(--off);font-size:12.5px;margin:6px 0 14px">The pre-launch teaser card on the homepage, between New Arrivals and Shop. Separate copy from the Vault page above since this is time-limited "before launch" language, not the evergreen headline. Editing here updates the homepage automatically — the countdown time itself stays on the "Vault Drop Countdown" field in Edit Site.</p>
+        <div class="pfgrid">
+          <div class="pff"><label>Headline line 1</label><input type="text" id="vc-t-h1a" placeholder="Two forms."/></div>
+          <div class="pff"><label>Headline line 2 (italic)</label><input type="text" id="vc-t-h1b" placeholder="Dropping tonight."/></div>
+          <div class="pff"><label>Kicker line 1</label><input type="text" id="vc-t-kicker1" placeholder="VAULT 000 — ATELIER EDITION"/></div>
+          <div class="pff"><label>Kicker line 2</label><input type="text" id="vc-t-kicker2" placeholder="12 UNITS WORLDWIDE · DELHI STUDIO"/></div>
+          <div class="pff full"><label>Body line</label><input type="text" id="vc-t-body" placeholder="Okayama 18oz selvedge. Hand-forged in Delhi studio — not a warehouse. Numbered, certificate enclosed."/></div>
+          <div class="pff"><label>Button text</label><input type="text" id="vc-t-cta" placeholder="OPENS 9 PM →"/></div>
+          <div class="pff full" style="border-top:1px solid var(--line);padding-top:12px;margin-top:4px"><label style="font-size:13px;color:var(--off)">Locked-visual HUD labels (small print on the blurred image)</label></div>
+          <div class="pff"><label>Top-left tag</label><input type="text" id="vc-t-file" placeholder="FILE // 365-BLK-001"/></div>
+          <div class="pff"><label>Top-right tag</label><input type="text" id="vc-t-enc" placeholder="ENCRYPTED"/></div>
+          <div class="pff"><label>Center label</label><input type="text" id="vc-t-lock" placeholder="VISUAL LOCKED"/></div>
+          <div class="pff"><label>Center sub-label</label><input type="text" id="vc-t-locksub" placeholder="DECRYPTS AT 9:00 PM"/></div>
+          <div class="pff"><label>Bottom-left tag</label><input type="text" id="vc-t-res" placeholder="RES: CLASSIFIED"/></div>
+          <div class="pff"><label>Bottom-right tag</label><input type="text" id="vc-t-ed" placeholder="ED. 04/12"/></div>
+        </div>
       </div>
 
       <div class="pff full" style="border-top:1px solid var(--line);padding-top:16px;margin-top:6px"><label style="font-size:15px">ENTRY I</label></div>
@@ -2991,6 +3011,26 @@ function applySiteContent(){
   const stH=document.getElementById("story-h2");if(stH)stH.textContent=s.storyH2||DSite.storyH2;
   const stP1=document.getElementById("story-p1");if(stP1)stP1.textContent=s.storyP1||DSite.storyP1;
   const stP2=document.getElementById("story-p2");if(stP2)stP2.textContent=s.storyP2||DSite.storyP2;
+
+  // Vault Door teaser (homepage) — reuses siteContent.vault.teaser, edited from
+  // the same "Vault Content" admin tab as the Vault page itself. Falls back to
+  // hardcoded copy already in the HTML if never set.
+  if(s.vault&&s.vault.teaser){
+    const t=s.vault.teaser;
+    const setT=(id,val)=>{ if(!val)return; const el=document.getElementById(id); if(el)el.innerHTML=val; };
+    setT("vd-file-tag",t.fileTag);
+    setT("vd-enc-tag",t.encTag);
+    setT("vd-lock-label",t.lockLabel);
+    setT("vd-lock-sub",t.lockSub);
+    setT("vd-res-tag",t.resTag);
+    setT("vd-ed-tag",t.edTag);
+    setT("vd-kicker-1",t.kicker1);
+    setT("vd-kicker-2",t.kicker2);
+    setT("vd-h1a",t.h1a);
+    setT("vd-h1b",t.h1b);
+    setT("vd-body",t.body);
+    setT("vd-cta",t.cta);
+  }
   if(s.trust){const tg=document.getElementById("trust-grid");if(tg){const items=s.trust.split("\n").filter(l=>l.trim()).slice(0,4);if(items.length)tg.innerHTML=items.map(l=>{const[ic,ti,su]=l.split("|").map(x=>(x||"").trim());return`<div class="titem"><div class="tic">${ic}</div><div><div class="tit">${ti}</div><div class="tis">${su}</div></div></div>`;}).join("");}}
   applyGallery("ed-img",s.edImgs,s.edImg);
   applyGallery("story-img",s.stImgs,s.stImg);
@@ -4970,6 +5010,11 @@ function loadVaultAdmin(){
   const c=v.cert||{};
   sv("vc-cert-kicker",c.kicker);sv("vc-cert-h1a",c.h1a);sv("vc-cert-h1b",c.h1b);
   sv("vc-cert-body",c.body);sv("vc-cert-mark",c.mark);
+  const t=v.teaser||{};
+  sv("vc-t-h1a",t.h1a);sv("vc-t-h1b",t.h1b);sv("vc-t-kicker1",t.kicker1);sv("vc-t-kicker2",t.kicker2);
+  sv("vc-t-body",t.body);sv("vc-t-cta",t.cta);
+  sv("vc-t-file",t.fileTag);sv("vc-t-enc",t.encTag);sv("vc-t-lock",t.lockLabel);
+  sv("vc-t-locksub",t.lockSub);sv("vc-t-res",t.resTag);sv("vc-t-ed",t.edTag);
 }
 function saveVaultContent(){
   const g=id=>{const el=document.getElementById(id);return el?el.value.trim():"";};
@@ -4985,9 +5030,13 @@ function saveVaultContent(){
         mrp:g("vc-e2-mrp")?Number(g("vc-e2-mrp")):null,
         prov:vaultProvFromLines(g("vc-e2-prov"))},
     cert:{kicker:g("vc-cert-kicker"),h1a:g("vc-cert-h1a"),h1b:g("vc-cert-h1b"),
-          body:g("vc-cert-body"),mark:g("vc-cert-mark")}
+          body:g("vc-cert-body"),mark:g("vc-cert-mark")},
+    teaser:{h1a:g("vc-t-h1a"),h1b:g("vc-t-h1b"),kicker1:g("vc-t-kicker1"),kicker2:g("vc-t-kicker2"),
+          body:g("vc-t-body"),cta:g("vc-t-cta"),fileTag:g("vc-t-file"),encTag:g("vc-t-enc"),
+          lockLabel:g("vc-t-lock"),lockSub:g("vc-t-locksub"),resTag:g("vc-t-res"),edTag:g("vc-t-ed")}
   };
   lsSafeSet("ds_site",siteContent);
+  applySiteContent();
   const m=document.getElementById("vc-msg");
   if(m){m.textContent="Saved ✓";m.style.color="#4ade80";m.style.background="rgba(74,222,128,.08)";m.style.display="block";setTimeout(()=>m.style.display="none",2000);}
   showToast("Vault content saved ✓ — syncing live...",true);
