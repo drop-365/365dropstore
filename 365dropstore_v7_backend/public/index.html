@@ -2125,7 +2125,7 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
     <div class="pff"><label>Product Name *</label><input type="text" id="pf0" placeholder="e.g. Faded Wide-Leg Jeans"/></div>
     <div class="pff"><label>Category *</label><select id="pf1"><option>Jeans</option><option>T-Shirts</option></select></div>
     <div class="pff"><label>Fit *</label><select id="pf-fit"></select></div>
-    <div class="pff"><label>Badge</label><select id="pf7"><option value="new">New</option><option value="best">Bestseller</option><option value="designer">Designer</option><option value="ltd">Limited</option><option value="off">Offer</option><option value="">None</option></select></div>
+    <div class="pff"><label>Badge</label><select id="pf7"><option value="new">New</option><option value="best">Bestseller</option><option value="designer">Designer</option><option value="vault">Vault</option><option value="ltd">Limited</option><option value="off">Offer</option><option value="">None</option></select></div>
     <div class="pff" style="grid-column:1/-1"><label>Designer "Why This Piece" bullets (pipe-separated, e.g. Japanese denim | Hand-finished stitching | Only 12 made)</label><input type="text" id="pf-story" placeholder="Bullet one | Bullet two | Bullet three"/></div>
     <div class="pff"><label>MRP (₹) *</label><input type="number" id="pf2" placeholder="1799"/></div>
     <div class="pff"><label>Offer Price (₹) — blank if none</label><input type="number" id="pf3" placeholder="1299"/></div>
@@ -2608,7 +2608,7 @@ function renderCustomerPanel(){
 }
 const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
 async function sha256(s){const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(s));return Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,"0")).join("");}
-const BM={new:{c:"b-new",t:"New"},best:{c:"b-best",t:"Bestseller"},ltd:{c:"b-ltd",t:"Limited"},off:{c:"b-off",t:"Offer"},sold:{c:"b-so",t:"Sold Out"},designer:{c:"b-des",t:"Designer"}};
+const BM={new:{c:"b-new",t:"New"},best:{c:"b-best",t:"Bestseller"},ltd:{c:"b-ltd",t:"Limited"},off:{c:"b-off",t:"Offer"},sold:{c:"b-so",t:"Sold Out"},designer:{c:"b-des",t:"Designer"},vault:{c:"b-des",t:"Vault"}};
 const ALL_SIZES=["28","30","32","34","36","S","M","L","XL","XXL"];
 
 // DEFAULT DATA
@@ -3419,7 +3419,7 @@ function renderGrid(){
   const srt=document.getElementById("srt").value;
   let list=[...products].filter(p=>fCat==="All"||p.category===fCat);
   // Exclude designer products from the regular grid — they have their own section
-  list=list.filter(p=>!(p.badges||[]).includes("designer"));
+  list=list.filter(p=>!(p.badges||[]).includes("designer")&&!(p.badges||[]).includes("vault"));
   if(fSizes.length)list=list.filter(p=>(p.sizes||[]).some(s=>fSizes.includes(s)));
   if(fFits.length)list=list.filter(p=>fFits.includes(p.fit));
   if(fShade)list=list.filter(p=>{const s=shadeOf(p);return s&&s.k===fShade;});
