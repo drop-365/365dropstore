@@ -1630,13 +1630,52 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
   </div>
 </aside>
 
-<!-- ===== DESIGNER COLLECTION — luxury showcase, auto-populated from products with 'designer' badge ===== -->
-<section class="des-sec" id="designer-sec" style="display:none">
-  <div class="w">
-    <div class="des-eyebrow">DESIGNER COLLECTION · LIMITED EDITION</div>
-    <h2 class="des-title">CRAFTED DIFFERENT.</h2>
-    <p class="des-sub">Hand-picked designer articles. Premium fabric, elevated cuts — produced in limited numbers. When these are gone, they don't come back.</p>
-    <div class="des-grid" id="des-grid"></div>
+<!--
+  ══════════════════════════════════════════════
+  VAULT TEASER — paste this block into index.html
+  wherever you want the vault door to appear
+  (after New Arrivals, before Shop All recommended)
+  ══════════════════════════════════════════════
+-->
+<style>
+.vault-door{background:#0E0E0C;border-top:1px solid #222;border-bottom:1px solid #222;margin:40px 0;position:relative;overflow:hidden}
+.vault-door::before{content:'';position:absolute;inset:0;background-image:radial-gradient(circle,rgba(192,57,43,0.05) 1px,transparent 1px);background-size:20px 20px;pointer-events:none}
+.vault-door-inner{max-width:1280px;margin:0 auto;display:grid;grid-template-columns:1.2fr 0.8fr;min-height:440px;position:relative;z-index:1}
+.vault-door-img{position:relative;overflow:hidden;min-height:440px}
+.vault-door-img img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
+.vault-door-img::after{content:'';position:absolute;inset:0;box-shadow:inset 0 0 40px rgba(255,255,255,0.06);pointer-events:none}
+.vault-door-scan{position:absolute;top:0;left:0;right:0;height:2px;background:rgba(192,57,43,0.5);box-shadow:0 0 12px rgba(192,57,43,0.3);animation:vd-scan 3s linear infinite;pointer-events:none}
+@keyframes vd-scan{0%{top:0}100%{top:100%}}
+.vault-door-copy{padding:48px;display:flex;flex-direction:column;justify-content:center;gap:14px}
+.vault-door-copy .vd-tag{font-family:'JetBrains Mono',monospace;font-size:10px;color:#8A8783;text-transform:uppercase;letter-spacing:0.08em;line-height:2}
+.vault-door-copy h2{font-family:'Instrument Serif',Georgia,serif;font-size:44px;color:#F6F3EE;line-height:0.92;letter-spacing:-0.04em}
+.vault-door-copy h2 em{font-style:italic}
+.vault-door-copy p{font-size:13px;color:#8A8783;line-height:1.7;max-width:360px}
+.vault-door-cta{display:inline-flex;align-items:center;gap:8px;padding:12px 20px;background:#F6F3EE;color:#111;font-family:'JetBrains Mono',monospace;font-size:11px;text-transform:uppercase;letter-spacing:0.08em;text-decoration:none;width:fit-content;transition:box-shadow 0.3s}
+.vault-door-cta:hover{box-shadow:0 8px 24px rgba(246,243,238,0.12)}
+.vault-door-link{font-family:'JetBrains Mono',monospace;font-size:10px;color:#8A8783;text-decoration:underline;text-underline-offset:3px}
+@media(max-width:960px){
+  .vault-door-inner{grid-template-columns:1fr}
+  .vault-door-img{min-height:280px}
+  .vault-door-copy{padding:28px 20px}
+  .vault-door-copy h2{font-size:32px}
+}
+</style>
+
+<section class="vault-door">
+  <div class="vault-door-inner">
+    <div class="vault-door-img">
+      <!-- Replace with: <img src="YOUR_R2_URL/obsidian_denim_laser_grid.webp" alt="Vault Obsidian"> -->
+      <div style="position:absolute;inset:0;background:linear-gradient(135deg,#1a1a18,#2a2a26);display:flex;align-items:center;justify-content:center;font-family:monospace;font-size:10px;color:#555">OBSIDIAN DENIM — REPLACE WITH IMAGE</div>
+      <div class="vault-door-scan"></div>
+    </div>
+    <div class="vault-door-copy">
+      <div class="vd-tag">VAULT 000 — ATELIER EDITION<br>12 UNITS WORLDWIDE · DELHI STUDIO</div>
+      <h2>Two forms.<br><em>Built to archive.</em></h2>
+      <p>Okayama 18oz selvedge. Hand-forged in Delhi studio — not a warehouse. 7.5 hours per unit. Numbered, NFC authenticated.</p>
+      <a href="/vault/" class="vault-door-cta">ENTER ATELIER →</a>
+      <a href="/vault/" class="vault-door-link">View 2 articles →</a>
+    </div>
   </div>
 </section>
 
