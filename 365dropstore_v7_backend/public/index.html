@@ -2363,6 +2363,10 @@ Origin|Delhi studio..."></textarea>
       <div class="pff full"><label>Headline — line 1</label><input type="text" id="vc-cert-h1a" placeholder="Every pair,"/></div>
       <div class="pff full"><label>Body paragraph</label><textarea id="vc-cert-body" rows="3" placeholder="Each pair ships with a signed certificate..."></textarea></div>
       <div class="pff full"><label>Bottom mark line</label><input type="text" id="vc-cert-mark" placeholder="Certificate enclosed · Delhi Studio · Free shipping"/></div>
+      <div class="pff"><label>Signature name (on the card)</label><input type="text" id="vc-cert-sig" placeholder="e.g. your name or initials"/></div>
+      <div class="pff"><label>Location line (on the card)</label><input type="text" id="vc-cert-loc" placeholder="Delhi Studio|Est. 2025"/><small style="color:var(--off)">Two lines — separate with a pipe |</small></div>
+      <div class="pff"><label>Edition number (this card)</label><input type="text" id="vc-cert-ed-no" placeholder="04"/></div>
+      <div class="pff"><label>Edition total</label><input type="text" id="vc-cert-ed-total" placeholder="12"/></div>
 
       <div class="pff full" style="display:flex;gap:12px;margin-top:8px"><button class="btn btn-w" onclick="saveVaultContent()">Save Vault Content</button></div>
       <div id="vc-msg" class="pff full" style="display:none;padding:10px;border-radius:9px"></div>
@@ -5010,7 +5014,9 @@ function loadVaultAdmin(){
   sv("vc-e2-price",e2.price);sv("vc-e2-mrp",e2.mrp);sv("vc-e2-prov",vaultProvToLines(e2.prov));
   const c=v.cert||{};
   sv("vc-cert-kicker",c.kicker);sv("vc-cert-h1a",c.h1a);sv("vc-cert-h1b",c.h1b);
-  sv("vc-cert-body",c.body);sv("vc-cert-mark",c.mark);
+  sv("vc-cert-body",c.body);sv("vc-cert-mark",c.mark);sv("vc-cert-sig",c.sigName);
+  sv("vc-cert-loc",c.location?c.location.split("<br>").join("|"):"");
+  sv("vc-cert-ed-no",c.editionNo);sv("vc-cert-ed-total",c.editionTotal);
   const t=v.teaser||{};
   sv("vc-t-h1a",t.h1a);sv("vc-t-h1b",t.h1b);sv("vc-t-kicker1",t.kicker1);sv("vc-t-kicker2",t.kicker2);
   sv("vc-t-body",t.body);sv("vc-t-cta",t.cta);
@@ -5031,7 +5037,10 @@ function saveVaultContent(){
         mrp:g("vc-e2-mrp")?Number(g("vc-e2-mrp")):null,
         prov:vaultProvFromLines(g("vc-e2-prov"))},
     cert:{kicker:g("vc-cert-kicker"),h1a:g("vc-cert-h1a"),h1b:g("vc-cert-h1b"),
-          body:g("vc-cert-body"),mark:g("vc-cert-mark")},
+          body:g("vc-cert-body"),mark:g("vc-cert-mark"),
+          sigName:g("vc-cert-sig"),
+          location:g("vc-cert-loc").split("|").map(s=>s.trim()).filter(Boolean).join("<br>"),
+          editionNo:g("vc-cert-ed-no"),editionTotal:g("vc-cert-ed-total")},
     teaser:{h1a:g("vc-t-h1a"),h1b:g("vc-t-h1b"),kicker1:g("vc-t-kicker1"),kicker2:g("vc-t-kicker2"),
           body:g("vc-t-body"),cta:g("vc-t-cta"),fileTag:g("vc-t-file"),encTag:g("vc-t-enc"),
           lockLabel:g("vc-t-lock"),lockSub:g("vc-t-locksub"),resTag:g("vc-t-res"),edTag:g("vc-t-ed")}

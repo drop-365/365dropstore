@@ -179,6 +179,7 @@ body::before{
 .cert-card-mid{text-align:center;padding:18px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
 .cert-card-no{font-family:var(--serif);font-size:44px;color:var(--ink)}
 .cert-card-no span{color:var(--brass)}
+.cert-card-no #cert-ed-no{color:var(--ink)}
 .cert-card-sub{font-size:11px;color:var(--stone);letter-spacing:0.05em;margin-top:4px;text-transform:uppercase}
 .cert-card-bot{display:flex;justify-content:space-between;align-items:flex-end}
 .cert-card-sig{font-family:var(--serif);font-style:italic;font-size:16px;color:var(--stone);border-bottom:1px solid var(--line);padding-bottom:4px}
@@ -326,12 +327,12 @@ body::before{
         <div class="cert-card-title">Certificate of Authenticity</div>
       </div>
       <div class="cert-card-mid">
-        <div class="cert-card-no">04<span>/12</span></div>
+        <div class="cert-card-no"><span id="cert-ed-no">04</span><span id="cert-ed-total-wrap">/<span id="cert-ed-total">12</span></span></div>
         <div class="cert-card-sub">Edition Number</div>
       </div>
       <div class="cert-card-bot">
-        <div class="cert-card-sig">Wasi</div>
-        <div class="cert-card-loc">Delhi Studio<br>Est. 2025</div>
+        <div class="cert-card-sig" id="cert-sig">Wasi</div>
+        <div class="cert-card-loc" id="cert-loc">Delhi Studio<br>Est. 2025</div>
       </div>
     </div>
     <div class="cert-copy">
@@ -458,6 +459,18 @@ async function hydrateVaultContent(){
         }
         if(hi){ hi.classList.remove('ready'); }
       }
+    }
+
+    if(v.cert){
+      setText('cert-kicker',v.cert.kicker);
+      setText('cert-h1a',v.cert.h1a);
+      setText('cert-h1b',v.cert.h1b);
+      setText('cert-body',v.cert.body);
+      setText('cert-mark',v.cert.mark);
+      setText('cert-sig',v.cert.sigName);
+      setText('cert-ed-no',v.cert.editionNo);
+      setText('cert-ed-total',v.cert.editionTotal);
+      if(v.cert.location){ const loc=document.getElementById('cert-loc'); if(loc)loc.innerHTML=v.cert.location; }
     }
   }catch(e){ console.error('hydrateVaultContent failed:',e); }
 }
