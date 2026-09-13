@@ -256,7 +256,7 @@ body::before{
   <div class="vitrine">
     <div class="vitrine-main">
       <!-- VAULT VIDEO — paste real R2 .mp4 URL into src="" to autoplay here, same as the homepage hero grid -->
-      <video class="v-video" autoplay muted loop playsinline src=""></video>
+      <video id="e1-video-el" class="v-video" autoplay muted loop playsinline src="https://pub-439f2b6b71214b70a749ab163b863494.r2.dev/hero/1786716920922-ed41a046.mp4"></video>
       <div class="img-ph ph-obsidian v-fallback">Front — full length</div>
     </div>
     <div class="vitrine-side">
@@ -308,7 +308,7 @@ body::before{
   <div class="vitrine">
     <div class="vitrine-main">
       <!-- VAULT VIDEO — paste real R2 .mp4 URL into src="" to autoplay here, same as the homepage hero grid -->
-      <video class="v-video" autoplay muted loop playsinline src=""></video>
+      <video id="e2-video-el" class="v-video" autoplay muted loop playsinline src="https://pub-439f2b6b71214b70a749ab163b863494.r2.dev/hero/1786716923225-4e1dfcab.mp4"></video>
       <div class="img-ph ph-indigo v-fallback">Front — full length</div>
     </div>
     <div class="vitrine-side">
@@ -448,6 +448,7 @@ async function hydrateVaultContent(){
       if(v.e1.price){ setText('e1-price',fmt(v.e1.price)); P.obsidian.price=Number(v.e1.price); }
       if(v.e1.mrp) setText('e1-mrp',fmt(v.e1.mrp));
       setProv('e1-prov',v.e1.prov);
+      if(v.e1.videoUrl){ const vid=document.getElementById('e1-video-el'); if(vid){ vid.src=v.e1.videoUrl; vid.load(); } }
     }
     if(v.e2){
       setText('e2-meta',v.e2.meta);
@@ -456,6 +457,7 @@ async function hydrateVaultContent(){
       if(v.e2.price){ setText('e2-price',fmt(v.e2.price)); P.indigo.price=Number(v.e2.price); }
       if(v.e2.mrp) setText('e2-mrp',fmt(v.e2.mrp));
       setProv('e2-prov',v.e2.prov);
+      if(v.e2.videoUrl){ const vid=document.getElementById('e2-video-el'); if(vid){ vid.src=v.e2.videoUrl; vid.load(); } }
     }
     if(v.cert){
       setText('cert-kicker',v.cert.kicker);
