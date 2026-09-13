@@ -1640,11 +1640,6 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
   </div>
 </section>
 
-<!-- new arrivals: placed right after the hero, ahead of the main grid --
-     this is deliberately one of the first things a visitor sees, not a
-     buried section near returning-visitor content. -->
-<section class="sec" id="new-arrivals" style="padding:32px 0;display:none"><div class="w"><h2 style="font-family:var(--dsp);font-size:clamp(22px,4vw,30px);margin-bottom:16px">NEW ARRIVALS</h2><div class="rv-strip" id="na-strip"></div></div></section>
-
 <!-- ═══════════════════════════════════════
      VAULT DOOR TEASER — links to /vault/
      All CSS scoped under .vault-door-* to avoid any collision
@@ -1663,6 +1658,8 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
 .vault-door-copy h2 em{font-style:italic}
 .vault-door-copy p{font-size:13px;color:#8A8783;line-height:1.7;max-width:360px}
 .vault-door-cd{display:flex;gap:16px;margin:6px 0 4px;font-family:ui-monospace,monospace}
+.vd-live-msg{font-family:'Bebas Neue',ui-sans-serif,sans-serif;font-size:22px;letter-spacing:0.03em;color:#E85D45;text-shadow:0 0 20px rgba(232,93,69,0.4);animation:vd-live-pulse 1.6s ease-in-out infinite}
+@keyframes vd-live-pulse{0%,100%{opacity:1}50%{opacity:0.72}}
 .vd-cd-unit{display:flex;flex-direction:column;align-items:center}
 .vd-cd-num{font-size:22px;font-weight:600;color:#F6F3EE;font-variant-numeric:tabular-nums}
 .vd-cd-lbl{font-size:8px;color:#8A8783;letter-spacing:0.08em;margin-top:2px}
@@ -1708,15 +1705,19 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
       <div class="vd-tag"><span id="vd-kicker-1">VAULT 000 — ATELIER EDITION</span><br><span id="vd-kicker-2">12 UNITS WORLDWIDE · DELHI STUDIO</span></div>
       <h2><span id="vd-h1a">Two forms.</span><br><em id="vd-h1b">Dropping tonight.</em></h2>
       <p id="vd-body">Okayama 18oz selvedge. Hand-forged in Delhi studio — not a warehouse. Numbered, certificate enclosed.</p>
-      <div class="vault-door-cd" id="vd-countdown">
-        <div class="vd-cd-unit"><div class="vd-cd-num" id="vd-h">00</div><div class="vd-cd-lbl">HRS</div></div>
-        <div class="vd-cd-unit"><div class="vd-cd-num" id="vd-m">00</div><div class="vd-cd-lbl">MIN</div></div>
-        <div class="vd-cd-unit"><div class="vd-cd-num" id="vd-s">00</div><div class="vd-cd-lbl">SEC</div></div>
+      <div class="vault-door-cd" id="vd-countdown" style="display:block">
+        <div class="vd-live-msg" id="vd-live-msg">LIVE NOW — GO GRAB IT!!! LFG~~₹</div>
       </div>
-      <a href="/vault/" class="vault-door-cta" id="vd-cta">OPENS 9 PM →</a>
+      <a href="/vault/" class="vault-door-cta" id="vd-cta">SHOP THE VAULT →</a>
     </div>
   </div>
 </section>
+
+<!-- new arrivals: placed right after the hero, ahead of the main grid --
+     this is deliberately one of the first things a visitor sees, not a
+     buried section near returning-visitor content. -->
+<section class="sec" id="new-arrivals" style="padding:32px 0;display:none"><div class="w"><h2 style="font-family:var(--dsp);font-size:clamp(22px,4vw,30px);margin-bottom:16px">NEW ARRIVALS</h2><div class="rv-strip" id="na-strip"></div></div></section>
+
 <script>
 (function(){
   var vdInterval=null;
