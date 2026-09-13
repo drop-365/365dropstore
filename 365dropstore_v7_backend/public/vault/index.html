@@ -33,12 +33,16 @@ a{color:inherit;text-decoration:none}
 button{cursor:pointer;border:none;background:none;font-family:inherit}
 ::selection{background:var(--ox);color:var(--paper)}
 
+/* Fine grain — barely visible, gives the dark background texture */
 body::before{
   content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
   background-image:radial-gradient(rgba(255,255,255,0.02) 1px,transparent 1px);
   background-size:3px 3px;
 }
 
+/* ═══════════════════════════════════════
+   ARRIVAL — vault doors part once on load
+   ═══════════════════════════════════════ */
 .arrival{position:fixed;inset:0;z-index:9999;display:flex;pointer-events:none}
 .arrival-panel{flex:1;background:#0A0806;transition:transform 1.4s cubic-bezier(0.76,0,0.24,1)}
 .arrival-panel.left{transform-origin:left}
@@ -50,8 +54,12 @@ body::before{
 .arrival.open .arrival-seam{opacity:0}
 @media(prefers-reduced-motion:reduce){.arrival{display:none}}
 
+/* ═══════════════════════════════════════
+   HEADER
+   ═══════════════════════════════════════ */
 .hdr{position:sticky;top:0;z-index:100;background:var(--paper);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:20px 40px}
-.hdr-logo{display:flex;align-items:center;gap:11px;font-family:var(--serif);font-size:20px;color:var(--ink);letter-spacing:0.01em}
+.hdr-logo{font-family:var(--serif);font-size:20px;color:var(--ink);letter-spacing:0.01em}
+.hdr-logo{display:flex;align-items:center;gap:11px}
 .hdr-mark{width:32px;height:32px;border:1px solid var(--brass-dim);border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-style:italic;font-size:16px;color:var(--brass);flex-shrink:0}
 .hdr-word{font-family:var(--serif);font-size:19px;letter-spacing:0.01em}
 .hdr-word .w-accent{color:var(--brass)}
@@ -62,18 +70,31 @@ body::before{
 .hdr-bag:hover{border-color:var(--brass)}
 @media(max-width:640px){.hdr{padding:16px 20px}}
 
+/* ═══════════════════════════════════════
+   HERO
+   ═══════════════════════════════════════ */
 .hero{max-width:none;width:100%;margin:0;padding:0;text-align:center;position:relative;z-index:1;overflow:hidden;min-height:88vh;display:flex;align-items:center;justify-content:center}
-.hero-video-wrap{position:absolute;inset:0;z-index:0;background:#0A0806}
+.hero-video-wrap{position:absolute;inset:0;z-index:0;background:var(--ink)}
 .hero-video-wrap video,.hero-video-wrap img{width:100%;height:100%;object-fit:cover;display:none;position:absolute;inset:0}
 .hero-video-wrap video.ready,.hero-video-wrap img.ready{display:block}
 .hero-video-wrap::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,8,6,0.35) 0%,rgba(10,8,6,0.55) 55%,var(--paper) 96%)}
 .hero-inner{position:relative;z-index:1;max-width:640px;padding:140px 32px 90px}
-.hero .kicker{font-size:13px;color:var(--stone);margin-bottom:28px;letter-spacing:0.02em}
-.hero h1{font-family:var(--serif);font-size:clamp(48px,7vw,76px);line-height:0.98;letter-spacing:-0.01em;color:var(--ink);margin-bottom:24px;text-shadow:0 4px 26px rgba(0,0,0,0.5)}
-.hero h1 em{font-style:italic;color:var(--ox)}
-.hero p{font-size:16px;color:var(--stone);line-height:1.75;max-width:440px;margin:0 auto;text-shadow:0 2px 12px rgba(0,0,0,0.5)}
+.hero .kicker{color:rgba(242,234,224,0.75)}
+.hero h1{color:#F2EAE0;text-shadow:0 4px 26px rgba(0,0,0,0.5)}
+.hero p{color:rgba(242,234,224,0.8);text-shadow:0 2px 12px rgba(0,0,0,0.5)}
 @media(max-width:640px){.hero{min-height:74vh}.hero-inner{padding:100px 24px 60px}}
+.hero .kicker{font-size:13px;color:var(--stone);margin-bottom:28px;letter-spacing:0.02em}
+.hero h1{font-family:var(--serif);font-size:clamp(48px,7vw,76px);line-height:0.98;letter-spacing:-0.01em;color:var(--ink);margin-bottom:24px}
+.hero h1 em{font-style:italic;color:var(--ox)}
+.hero p{font-size:16px;color:var(--stone);line-height:1.75;max-width:440px;margin:0 auto}
+.status-bar{max-width:620px;margin:0 auto 60px;display:flex;align-items:center;justify-content:center;gap:14px;font-size:13px;color:var(--stone);border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:14px 0}
+.status-bar b{color:var(--ink);font-variant-numeric:tabular-nums}
+.status-dot{width:6px;height:6px;border-radius:50%;background:var(--ox)}
+.status-dot.live{background:#2FAE66}
 
+/* ═══════════════════════════════════════
+   LEDGER — one product entry
+   ═══════════════════════════════════════ */
 .ledger{max-width:1120px;margin:0 auto 140px;padding:0 32px;position:relative;z-index:1}
 .ledger-head{display:flex;align-items:baseline;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:40px;padding-bottom:20px;border-bottom:1px solid var(--line)}
 .ledger-head .entry-no{font-family:var(--serif);font-size:15px;color:var(--ox);font-style:italic}
@@ -81,7 +102,9 @@ body::before{
 
 .vitrine{display:grid;grid-template-columns:1.3fr 1fr;gap:6px;margin-bottom:48px}
 .vitrine-main{position:relative;aspect-ratio:4/5;overflow:hidden;border:1px solid var(--line)}
-.vitrine-main::before{content:'';position:absolute;inset:10px;border:1px solid var(--brass-dim);pointer-events:none;z-index:3}
+.vitrine-main::before{
+  content:'';position:absolute;inset:10px;border:1px solid var(--brass-dim);pointer-events:none;z-index:3;
+}
 .vitrine-main img,.vitrine-main .img-ph{width:100%;height:100%;object-fit:cover}
 .v-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1}
 .v-video:not([src]),.v-video[src=""]{display:none}
@@ -95,6 +118,7 @@ body::before{
   .vitrine-main{aspect-ratio:1/1}
 }
 
+/* Sample placeholder textures — swap for real photography before launch */
 .img-ph{display:flex;align-items:center;justify-content:center;font-size:10px;color:rgba(255,255,255,0.35);letter-spacing:0.04em}
 .img-ph.ph-obsidian{background:linear-gradient(150deg,#1c1a17,#2d2926)}
 .img-ph.ph-indigo{background:linear-gradient(150deg,#1c2a3a,#2e4763)}
@@ -120,6 +144,7 @@ body::before{
 .btn-reserve:disabled{opacity:0.3;cursor:not-allowed}
 .ship-note{font-size:12.5px;color:var(--stone);text-align:center;margin-top:14px}
 
+/* Provenance — quiet description list, not a sci-fi readout */
 .provenance{border-top:1px solid var(--line);padding-top:28px;margin-top:8px}
 .provenance-h{font-family:var(--serif);font-style:italic;font-size:16px;color:var(--stone);margin-bottom:18px}
 .prov-row{display:grid;grid-template-columns:110px 1fr;gap:16px;padding:12px 0;border-top:1px solid var(--line)}
@@ -127,29 +152,25 @@ body::before{
 .prov-row dt{font-size:12px;color:var(--stone)}
 .prov-row dd{font-size:13.5px;color:var(--ink);line-height:1.6}
 
+/* ═══════════════════════════════════════
+   CERTIFICATE — authentication, warm not sci-fi
+   ═══════════════════════════════════════ */
 .cert{background:var(--paper-deep);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
 .cert-inner{max-width:1000px;margin:0 auto;padding:90px 32px;display:grid;grid-template-columns:0.8fr 1.2fr;gap:64px;align-items:center}
-.cert-card{aspect-ratio:1/1.2;border:1px solid var(--brass-dim);position:relative;background:radial-gradient(circle at 35% 30%,#241d16,#100d0a 75%);padding:32px;display:flex;flex-direction:column;justify-content:space-between}
-.cert-card::before{content:'';position:absolute;inset:8px;border:1px solid var(--line);pointer-events:none}
-.cert-card-top{text-align:center}
-.cert-card-mark{font-family:var(--serif);font-style:italic;font-size:22px;color:var(--brass);margin-bottom:6px}
-.cert-card-brand{font-family:var(--serif);font-size:13px;color:var(--stone);letter-spacing:0.08em;text-transform:uppercase}
-.cert-card-title{font-family:var(--serif);font-style:italic;font-size:19px;color:var(--ink);margin-top:22px;letter-spacing:0.02em}
-.cert-card-mid{text-align:center;padding:18px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
-.cert-card-no{font-family:var(--serif);font-size:44px;color:var(--ink)}
-.cert-card-no span{color:var(--brass)}
-.cert-card-sub{font-size:11px;color:var(--stone);letter-spacing:0.05em;margin-top:4px;text-transform:uppercase}
-.cert-card-bot{display:flex;justify-content:space-between;align-items:flex-end}
-.cert-card-sig{font-family:var(--serif);font-style:italic;font-size:16px;color:var(--stone);border-bottom:1px solid var(--line);padding-bottom:4px}
-.cert-card-loc{font-size:10.5px;color:var(--stone);text-align:right;line-height:1.5}
+.cert-img{aspect-ratio:1/1;border:1px solid var(--brass-dim);position:relative}
+.cert-img::before{content:'';position:absolute;inset:8px;border:1px solid var(--line)}
+.cert-img img,.cert-img .img-ph{width:100%;height:100%;object-fit:cover}
 .cert-copy .kicker{font-size:13px;color:var(--stone);margin-bottom:18px}
 .cert-copy h2{font-family:var(--serif);font-size:38px;line-height:1.1;color:var(--ink);margin-bottom:20px}
 .cert-copy h2 em{font-style:italic;color:var(--ox)}
 .cert-copy p{font-size:14px;color:var(--stone);line-height:1.75;margin-bottom:16px;max-width:420px}
 .cert-mark{display:inline-flex;align-items:center;gap:10px;font-size:12.5px;color:var(--ink);border:1px solid var(--brass-dim);padding:12px 18px;border-radius:2px;margin-top:8px}
 .cert-mark::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--ox)}
-@media(max-width:860px){.cert-inner{grid-template-columns:1fr;gap:32px;padding:56px 24px}.cert-card{aspect-ratio:1/1.1;max-width:340px;margin:0 auto}}
+@media(max-width:860px){.cert-inner{grid-template-columns:1fr;gap:32px;padding:56px 24px}}
 
+/* ═══════════════════════════════════════
+   FOOTER
+   ═══════════════════════════════════════ */
 .ftr{padding:48px 32px;text-align:center}
 .ftr-logo{font-family:var(--serif);font-size:16px;color:var(--ink);margin-bottom:8px}
 .ftr p{font-size:12.5px;color:var(--stone)}
@@ -157,6 +178,9 @@ body::before{
 .ftr-links a{font-size:12.5px;color:var(--stone);transition:color 0.2s}
 .ftr-links a:hover{color:var(--ink)}
 
+/* ═══════════════════════════════════════
+   RESERVATION DRAWER (cart)
+   ═══════════════════════════════════════ */
 .drawer-bg{position:fixed;inset:0;background:rgba(27,21,18,0.45);z-index:299;opacity:0;pointer-events:none;transition:opacity 0.3s}
 .drawer-bg.open{opacity:1;pointer-events:auto}
 .drawer{position:fixed;top:0;right:0;width:460px;max-width:100vw;height:100vh;background:var(--paper);z-index:300;transform:translateX(100%);transition:transform 0.5s cubic-bezier(0.16,1,0.3,1);display:flex;flex-direction:column}
@@ -199,6 +223,7 @@ body::before{
 .btn-done{padding:13px 30px;border:1px solid var(--ink);color:var(--ink);font-size:12.5px;background:var(--paper);border-radius:2px;transition:all 0.2s}
 .btn-done:hover{background:var(--ink);color:var(--paper)}
 
+/* Mobile buy bar */
 .mob-bar{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--paper);border-top:1px solid var(--line);padding:12px 20px;z-index:200;justify-content:space-between;align-items:center;gap:12px}
 .mob-bar .mp{font-family:var(--serif);font-size:20px;color:var(--ink)}
 .mob-bar .ma{padding:13px 22px;background:var(--ink);color:var(--paper);font-size:12px;border-radius:2px}
@@ -207,6 +232,7 @@ body::before{
 </head>
 <body>
 
+<!-- One arrival moment: doors part, never repeats -->
 <div class="arrival" id="arrival">
   <div class="arrival-panel left"></div>
   <div class="arrival-panel right"></div>
@@ -226,6 +252,9 @@ body::before{
 
 <section class="hero">
   <div class="hero-video-wrap">
+    <!-- Background video — set from Admin (Vault Content -> Hero Background Video).
+         Left empty here on purpose; the page fetches the URL from Supabase on load.
+         If none is set, this stays a plain dark panel behind the text. -->
     <video id="heroBgVideo" autoplay muted loop playsinline></video>
     <img id="heroBgImage" alt="">
   </div>
@@ -236,119 +265,25 @@ body::before{
   </div>
 </section>
 
-<section class="ledger" id="obsidian">
-  <div class="ledger-head">
-    <div class="entry-no" id="e1-no">Entry I</div>
-    <div class="entry-meta" id="e1-meta">Carbon Black · Wide-Leg · Edition 4 of 12</div>
-  </div>
+<div class="status-bar" id="status-bar">
+  <span class="status-dot" id="status-dot"></span>
+  <span id="status-text">Checking...</span>
+</div>
 
-  <div class="vitrine">
-    <div class="vitrine-main">
-      <video id="e1-video-el" class="v-video" autoplay muted loop playsinline src="https://pub-439f2b6b71214b70a749ab163b863494.r2.dev/hero/1786716920922-ed41a046.mp4"></video>
-      <div class="img-ph ph-obsidian v-fallback">Front — full length</div>
-    </div>
-    <div class="vitrine-side">
-      <div class="v-cell"><div class="img-ph ph-obsidian">Selvedge detail</div></div>
-      <div class="v-cell"><div class="img-ph ph-obsidian">Studio, on model</div></div>
-    </div>
-  </div>
+<!-- ═══════════════════════════════════════
+     VAULT PRODUCTS — rendered dynamically from
+     Supabase. Any product marked "Vault" in the
+     admin Add/Edit screen appears here automatically,
+     in the same visual style as the rest of this page.
+     ═══════════════════════════════════════ -->
+<div id="vault-products"></div>
 
-  <div class="ledger-body">
-    <div>
-      <div class="entry-name" id="e1-name">365-WD Obsidian</div>
-      <div class="entry-desc" id="e1-desc">Carbon black, twelve dips. The heaviest denim we make.</div>
-      <div class="entry-price"><span id="e1-price">₹7,999</span><span class="mrp" id="e1-mrp">₹12,000</span></div>
-      <div class="size-row" data-prod="obsidian">
-        <button class="size-btn" data-sz="28">28</button>
-        <button class="size-btn" data-sz="30">30</button>
-        <button class="size-btn" data-sz="32">32</button>
-        <button class="size-btn" data-sz="34">34</button>
-        <button class="size-btn" data-sz="36">36</button>
-      </div>
-      <div class="stock-note" id="stk-obsidian"></div>
-      <button class="btn-reserve" data-prod="obsidian" disabled>Reserve this pair</button>
-      <div class="ship-note">Free shipping, pan-India · 3–5 days · dispatched from Delhi</div>
-    </div>
-
-    <div>
-      <div class="provenance">
-        <div class="provenance-h">Provenance</div>
-        <dl id="e1-prov">
-          <div class="prov-row"><dt>Cloth</dt><dd>18oz Okayama selvedge, twelve indigo-carbon dips — this is denim built to outlast the person who bought it, not just the season.</dd></div>
-          <div class="prov-row"><dt>Hardware</dt><dd>Copper rivets, hand-set. Chain-stitched hem. The gold selvedge line shows when cuffed.</dd></div>
-          <div class="prov-row"><dt>Fit</dt><dd>Wide-leg, true to size. Comfortably worn from 5'7" to 5'9" without alteration.</dd></div>
-          <div class="prov-row"><dt>Origin</dt><dd>Cut, sewn, and inspected in our Delhi studio — never a warehouse, never outsourced.</dd></div>
-        </dl>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section class="ledger" id="indigo">
-  <div class="ledger-head">
-    <div class="entry-no" id="e2-no">Entry II</div>
-    <div class="entry-meta" id="e2-meta">Wide-Leg · Edition 2 of 12</div>
-  </div>
-
-  <div class="vitrine">
-    <div class="vitrine-main">
-      <video id="e2-video-el" class="v-video" autoplay muted loop playsinline src="https://pub-439f2b6b71214b70a749ab163b863494.r2.dev/hero/1786716923225-4e1dfcab.mp4"></video>
-      <div class="img-ph ph-indigo v-fallback">Front — full length</div>
-    </div>
-    <div class="vitrine-side">
-      <div class="v-cell"><div class="img-ph ph-indigo">Selvedge detail</div></div>
-      <div class="v-cell"><div class="img-ph ph-indigo">Editorial, on model</div></div>
-    </div>
-  </div>
-
-  <div class="ledger-body">
-    <div>
-      <div class="entry-name" id="e2-name">365-WD Gilded Indigo</div>
-      <div class="entry-desc" id="e2-desc">Kurabo mill selvedge. Shifts under changing light.</div>
-      <div class="entry-price"><span id="e2-price">₹8,499</span><span class="mrp" id="e2-mrp">₹13,500</span></div>
-      <div class="size-row" data-prod="indigo">
-        <button class="size-btn" data-sz="28">28</button>
-        <button class="size-btn" data-sz="30">30</button>
-        <button class="size-btn" data-sz="32">32</button>
-        <button class="size-btn" data-sz="34">34</button>
-        <button class="size-btn" data-sz="36">36</button>
-      </div>
-      <div class="stock-note" id="stk-indigo"></div>
-      <button class="btn-reserve" data-prod="indigo" disabled>Reserve this pair</button>
-      <div class="ship-note">Free shipping, pan-India · 3–5 days · dispatched from Delhi</div>
-    </div>
-
-    <div>
-      <div class="provenance">
-        <div class="provenance-h">Provenance</div>
-        <dl id="e2-prov">
-          <div class="prov-row"><dt>Cloth</dt><dd>Kurabo mill selvedge with a liquid-metal wash — the same pair reads differently indoors and in daylight.</dd></div>
-          <div class="prov-row"><dt>Hardware</dt><dd>Chain-stitched hem, copper rivets, a gold selvedge line running the inseam.</dd></div>
-          <div class="prov-row"><dt>Fit</dt><dd>The same wide-leg cut as Obsidian — proven across the same height range.</dd></div>
-          <div class="prov-row"><dt>Origin</dt><dd>Delhi studio. Hand-checked before it ships, every time.</dd></div>
-        </dl>
-      </div>
-    </div>
-  </div>
-</section>
-
+<!-- ═══════════════════════════════════════
+     CERTIFICATE — authentication
+     ═══════════════════════════════════════ -->
 <section class="cert">
   <div class="cert-inner">
-    <div class="cert-card">
-      <div class="cert-card-top">
-        <div class="cert-card-mark">∞</div>
-        <div class="cert-card-brand">365 Drop Store</div>
-        <div class="cert-card-title">Certificate of Authenticity</div>
-      </div>
-      <div class="cert-card-mid">
-        <div class="cert-card-no">04<span>/12</span></div>
-        <div class="cert-card-sub">Edition Number</div>
-      </div>
-      <div class="cert-card-bot">
-        <div class="cert-card-sig">Wasi</div>
-        <div class="cert-card-loc">Delhi Studio<br>Est. 2025</div>
-      </div>
-    </div>
+    <div class="cert-img"><div class="img-ph ph-brass">Certificate card, close</div></div>
     <div class="cert-copy">
       <div class="kicker" id="cert-kicker">Authenticity</div>
       <h2><span id="cert-h1a">Every pair,</span><br><em id="cert-h1b">numbered by hand.</em></h2>
@@ -368,11 +303,13 @@ body::before{
   </div>
 </footer>
 
+<!-- Mobile buy bar -->
 <div class="mob-bar" id="mob-bar">
   <div class="mp" id="mob-price">₹7,999</div>
   <button class="ma" id="mob-add">Reserve</button>
 </div>
 
+<!-- Reservation drawer (cart) -->
 <div class="drawer-bg" id="drawer-bg"></div>
 <div class="drawer" id="drawer">
   <div class="drawer-head">
@@ -407,29 +344,28 @@ body::before{
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script>
 /* ═══════════════════════════════════════
-   CONFIG + STATE — declared FIRST, before
-   anything that references them. This is
-   the fix: hydrateVaultContent() below
-   reads SB/SK/P, so they must exist before
-   it is defined and called, not after.
+   CONFIG + STATE — declared first, always,
+   before anything that references them.
    ═══════════════════════════════════════ */
 const SB='https://fhiivshoikcnanbvdtxm.supabase.co',
       SK='sb_publishable_LPwVp36pEOfQIEchjefMfw_SmGNcxUt';
 
-const P={
-  obsidian:{name:'365-WD Obsidian',sub:'Carbon Black / Wide-Leg / Edition 4 of 12',price:7999,mrp:12000,
-    stock:{28:2,30:3,32:2,34:2,36:1}},
-  indigo:{name:'365-WD Gilded Indigo',sub:'Wide-Leg / Edition 2 of 12',price:8499,mrp:13500,
-    stock:{28:1,30:2,32:2,34:2,36:1}}
-};
-
-let cart=[],selSz={};
+let cart=[],selSz={},vaultProducts=[],P={},liveTarget=null,isLive=false;
 
 /* ═══════════════════════════════════════
-   Content hydration — pulls admin-edited text from Supabase.
-   Every field here falls back to the hardcoded copy already in the
-   HTML if the admin hasn't set anything yet — the page never looks
-   broken or empty, it just prefers the admin's version when present.
+   Arrival — plays once per visit
+   ═══════════════════════════════════════ */
+(function(){
+  const a=document.getElementById('arrival');
+  requestAnimationFrame(()=>{
+    setTimeout(()=>a.classList.add('open'),150);
+    setTimeout(()=>a.classList.add('done'),1700);
+  });
+})();
+
+/* ═══════════════════════════════════════
+   Content hydration — headline text, hero
+   background, teaser (unchanged behavior)
    ═══════════════════════════════════════ */
 async function hydrateVaultContent(){
   try{
@@ -439,15 +375,7 @@ async function hydrateVaultContent(){
     const rows=await res.json();
     const v=rows&&rows[0]&&rows[0].content&&rows[0].content.vault;
     if(!v)return;
-
     const setText=(id,val)=>{ if(val==null||val==='')return; const el=document.getElementById(id); if(el)el.textContent=val; };
-    const setProv=(id,rows)=>{
-      if(!Array.isArray(rows)||!rows.length)return;
-      const el=document.getElementById(id); if(!el)return;
-      el.innerHTML=rows.map(r=>`<div class="prov-row"><dt>${r.label||''}</dt><dd>${r.text||''}</dd></div>`).join('');
-    };
-    const fmt=n=>'₹'+Number(n).toLocaleString('en-IN');
-
     setText('v-kicker',v.kicker);
     setText('v-h1a',v.h1a);
     setText('v-h1b',v.h1b);
@@ -463,128 +391,167 @@ async function hydrateVaultContent(){
       }else{
         if(hv){
           hv.src=hm.url;
-          hv.addEventListener('canplay',()=>{
-            hv.classList.add('ready');
-            hv.play().catch(err=>console.warn('Hero video autoplay blocked:',err));
-          },{once:true});
-          hv.addEventListener('error',()=>console.error('Hero video failed to load:',hm.url),{once:true});
+          hv.addEventListener('canplay',()=>{ hv.classList.add('ready'); hv.play().catch(()=>{}); },{once:true});
           hv.load();
         }
         if(hi){ hi.classList.remove('ready'); }
       }
-    }
-
-    if(v.e1){
-      setText('e1-meta',v.e1.meta);
-      setText('e1-name',v.e1.name);
-      setText('e1-desc',v.e1.desc);
-      if(v.e1.price){ setText('e1-price',fmt(v.e1.price)); P.obsidian.price=Number(v.e1.price); }
-      if(v.e1.mrp) setText('e1-mrp',fmt(v.e1.mrp));
-      setProv('e1-prov',v.e1.prov);
-      if(v.e1.videoUrl){ const vid=document.getElementById('e1-video-el'); if(vid){ vid.src=v.e1.videoUrl; vid.load(); } }
-    }
-    if(v.e2){
-      setText('e2-meta',v.e2.meta);
-      setText('e2-name',v.e2.name);
-      setText('e2-desc',v.e2.desc);
-      if(v.e2.price){ setText('e2-price',fmt(v.e2.price)); P.indigo.price=Number(v.e2.price); }
-      if(v.e2.mrp) setText('e2-mrp',fmt(v.e2.mrp));
-      setProv('e2-prov',v.e2.prov);
-      if(v.e2.videoUrl){ const vid=document.getElementById('e2-video-el'); if(vid){ vid.src=v.e2.videoUrl; vid.load(); } }
-    }
-    if(v.cert){
-      setText('cert-kicker',v.cert.kicker);
-      setText('cert-h1a',v.cert.h1a);
-      setText('cert-h1b',v.cert.h1b);
-      setText('cert-body',v.cert.body);
-      setText('cert-mark',v.cert.mark);
     }
   }catch(e){ console.error('hydrateVaultContent failed:',e); }
 }
 hydrateVaultContent();
 
 /* ═══════════════════════════════════════
-   Arrival — plays once per visit
+   Countdown / lock status
    ═══════════════════════════════════════ */
-(function(){
-  const a=document.getElementById('arrival');
-  requestAnimationFrame(()=>{
-    setTimeout(()=>a.classList.add('open'),150);
-    setTimeout(()=>a.classList.add('done'),1700);
-  });
-})();
+async function getLiveTarget(){
+  try{
+    const res=await fetch(SB+'/rest/v1/site_content?select=content&id=eq.1',{headers:{apikey:SK,Authorization:'Bearer '+SK}});
+    const rows=await res.json();
+    const vdd=rows&&rows[0]&&rows[0].content&&rows[0].content.vaultDropDate;
+    if(vdd){ const d=new Date(vdd); if(!isNaN(d)) return d; }
+  }catch(e){}
+  const now=new Date(); const t=new Date(); t.setHours(21,0,0,0);
+  if(t<=now) t.setDate(t.getDate()+1);
+  return t;
+}
+function tickStatus(){
+  const bar=document.getElementById('status-bar');
+  if(!bar)return;
+  const dot=document.getElementById('status-dot'), txt=document.getElementById('status-text');
+  const diff=liveTarget-new Date();
+  if(diff<=0){
+    isLive=true;
+    if(dot)dot.classList.add('live');
+    if(txt)txt.innerHTML='<b>Live now</b> — reservations open';
+    document.querySelectorAll('.btn-reserve').forEach(b=>{ if(b.dataset.hasSize==='1') b.disabled=false; b.textContent=b.dataset.label||'Reserve this pair'; });
+    return;
+  }
+  isLive=false;
+  const h=Math.floor(diff/3600000),m=Math.floor((diff%3600000)/60000),s=Math.floor((diff%60000)/1000);
+  if(txt)txt.innerHTML='Opens in <b>'+String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0')+'</b> — browsing only until then';
+}
 
-document.querySelectorAll('.size-row').forEach(row=>{
-  const pid=row.dataset.prod,prod=P[pid];
-  row.querySelectorAll('.size-btn').forEach(btn=>{
-    const sz=+btn.dataset.sz,rem=prod.stock[sz]||0;
-    if(!rem){btn.disabled=true;return}
-    btn.addEventListener('click',()=>{
-      row.querySelectorAll('.size-btn').forEach(b=>b.classList.remove('active'));
-      btn.classList.add('active');
-      selSz[pid]=sz;
-      document.getElementById('stk-'+pid).textContent=rem<=2?'Only '+rem+' left in this size':'Available';
-      const rb=row.parentElement.querySelector('.btn-reserve');
-      if(rb)rb.disabled=false;
+/* ═══════════════════════════════════════
+   Vault products — fetched live from
+   Supabase, filtered to badge = "vault"
+   (set from the admin Add/Edit dropdown)
+   ═══════════════════════════════════════ */
+async function loadVaultProducts(){
+  const host=document.getElementById('vault-products');
+  try{
+    const res=await fetch(SB+'/rest/v1/products?select=*',{headers:{apikey:SK,Authorization:'Bearer '+SK}});
+    const rows=await res.json();
+    vaultProducts=(rows||[]).filter(p=>Array.isArray(p.badges)&&p.badges.includes('vault'));
+  }catch(e){ vaultProducts=[]; }
+
+  if(!vaultProducts.length){
+    host.innerHTML='<div style="max-width:600px;margin:60px auto;text-align:center;padding:60px 32px;color:var(--stone)"><h3 style="font-family:var(--serif);font-size:24px;color:var(--ink);margin-bottom:10px">Nothing in the Vault yet</h3><p>Mark a product "Vault" in the admin panel\'s Add/Edit screen and it appears here automatically.</p></div>';
+    return;
+  }
+
+  const roman=['I','II','III','IV','V','VI'];
+  host.innerHTML=vaultProducts.map((p,i)=>{
+    const imgs=p.images||[];
+    const sizes=p.sizes||[]; const oos=p.oosizes||[];
+    const price=Number(p.offer_price||p.price); const mrp=Number(p.price);
+    P[p.id]={name:p.name,price:price};
+    return `<section class="ledger" id="vp-${p.id}">
+      <div class="ledger-head">
+        <div class="entry-no">Entry ${roman[i]||i+1}</div>
+        <div class="entry-meta">${p.fit||''}${p.fit?' · ':''}Edition</div>
+      </div>
+      <div class="vitrine">
+        <div class="vitrine-main">${p.video_url?`<video autoplay muted loop playsinline src="${p.video_url}"></video>`:(imgs[0]?`<img src="${imgs[0]}" alt="${p.name}">`:'<div class="img-ph">Front — full length</div>')}</div>
+        <div class="vitrine-side">
+          <div class="v-cell">${imgs[1]?`<img src="${imgs[1]}" alt="">`:'<div class="img-ph">Selvedge detail</div>'}</div>
+          <div class="v-cell">${imgs[2]?`<img src="${imgs[2]}" alt="">`:'<div class="img-ph">Studio, on model</div>'}</div>
+        </div>
+      </div>
+      <div class="ledger-body">
+        <div>
+          <div class="entry-name">${p.name}</div>
+          <div class="entry-desc">${p.description||''}</div>
+          <div class="entry-price">₹${price.toLocaleString('en-IN')}${mrp&&mrp!==price?`<span class="mrp">₹${mrp.toLocaleString('en-IN')}</span>`:''}</div>
+          <div class="size-row" data-prod="${p.id}">
+            ${sizes.map(s=>`<button class="size-btn" data-sz="${s}" ${oos.includes(s)?'disabled':''}>${s}</button>`).join('')}
+          </div>
+          <div class="stock-note" id="stk-${p.id}"></div>
+          <button class="btn-reserve" data-prod="${p.id}" disabled data-label="Reserve this pair">Unlocks at go-live</button>
+          <div class="ship-note">Free shipping, pan-India · 3–5 days · dispatched from Delhi</div>
+        </div>
+        <div>
+          <div class="provenance">
+            <div class="provenance-h">Provenance</div>
+            <dl>
+              ${p.description_long?`<div class="prov-row"><dt>Detail</dt><dd>${p.description_long}</dd></div>`:''}
+              ${p.fit?`<div class="prov-row"><dt>Fit</dt><dd>${p.fit}</dd></div>`:''}
+              <div class="prov-row"><dt>Origin</dt><dd>Cut, sewn, and inspected in our Delhi studio.</dd></div>
+            </dl>
+          </div>
+        </div>
+      </div>
+    </section>`;
+  }).join('');
+
+  wireSizeButtons();
+  wireReserveButtons();
+  tickStatus();
+}
+
+function wireSizeButtons(){
+  document.querySelectorAll('.size-row').forEach(row=>{
+    const pid=row.dataset.prod;
+    row.querySelectorAll('.size-btn').forEach(btn=>{
+      if(btn.disabled)return;
+      btn.addEventListener('click',()=>{
+        row.querySelectorAll('.size-btn').forEach(b=>b.classList.remove('active'));
+        btn.classList.add('active');
+        selSz[pid]=btn.dataset.sz;
+        const stk=document.getElementById('stk-'+pid);
+        if(stk)stk.textContent='Selected: '+btn.dataset.sz;
+        const rb=row.parentElement.querySelector('.btn-reserve');
+        if(rb){ rb.dataset.hasSize='1'; if(isLive) rb.disabled=false; }
+      });
     });
   });
-});
-
-document.querySelectorAll('.btn-reserve').forEach(btn=>{
-  btn.addEventListener('click',()=>{
-    const pid=btn.dataset.prod,sz=selSz[pid];
-    if(!sz)return;
-    if(cart.find(c=>c.id===pid&&c.size===sz)){openDrawer();return}
-    const p=P[pid];
-    cart.push({id:pid,size:sz,name:p.name,sub:p.sub,price:p.price});
-    renderCart();openDrawer();
+}
+function wireReserveButtons(){
+  document.querySelectorAll('.btn-reserve').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      if(btn.disabled)return;
+      const pid=btn.dataset.prod, sz=selSz[pid];
+      if(!sz)return;
+      if(cart.find(c=>c.id===pid&&c.size===sz)){openDrawer();return}
+      const p=P[pid];
+      cart.push({id:pid,size:sz,name:p.name,price:p.price});
+      renderCart();openDrawer();
+    });
   });
-});
+}
 
+/* ═══════════════════════════════════════
+   Cart + checkout
+   ═══════════════════════════════════════ */
 function renderCart(){
   document.getElementById('bag-ct').textContent=cart.length;
-  const items=document.getElementById('drawer-items'),
-        empty=document.getElementById('drawer-empty'),
-        fw=document.getElementById('drawer-form-w'),
-        tot=document.getElementById('drawer-total'),
-        pay=document.getElementById('btn-pay');
-
+  const items=document.getElementById('drawer-items'), empty=document.getElementById('drawer-empty'),
+        fw=document.getElementById('drawer-form-w'), tot=document.getElementById('drawer-total'), pay=document.getElementById('btn-pay');
   if(!cart.length){empty.style.display='block';fw.style.display='none';items.innerHTML='';return}
   empty.style.display='none';fw.style.display='block';
-
   let h='',total=0;
   cart.forEach((c,i)=>{
     total+=c.price;
-    h+=`<div class="di">
-      <div class="di-img"></div>
-      <div style="flex:1">
-        <div class="di-name">${c.name}</div>
-        <div class="di-meta">Size ${c.size} · ${c.sub}</div>
-        <div class="di-price">₹${c.price.toLocaleString('en-IN')}</div>
-        <div class="di-rm" onclick="rmCart(${i})">Remove</div>
-      </div>
-    </div>`;
+    h+=`<div class="di"><div class="di-img"></div><div style="flex:1"><div class="di-name">${c.name}</div><div class="di-meta">Size ${c.size}</div><div class="di-price">₹${c.price.toLocaleString('en-IN')}</div><div class="di-rm" onclick="rmCart(${i})">Remove</div></div></div>`;
   });
   items.innerHTML=h;
-  tot.innerHTML=`
-    <div class="dt-row"><span>Subtotal</span><span>₹${total.toLocaleString('en-IN')}</span></div>
-    <div class="dt-row"><span>Shipping</span><span>Free</span></div>
-    <div class="dt-row grand"><span>Total</span><span>₹${total.toLocaleString('en-IN')}</span></div>`;
+  tot.innerHTML=`<div class="dt-row"><span>Subtotal</span><span>₹${total.toLocaleString('en-IN')}</span></div><div class="dt-row"><span>Shipping</span><span>Free</span></div><div class="dt-row grand"><span>Total</span><span>₹${total.toLocaleString('en-IN')}</span></div>`;
   pay.textContent='Pay securely — ₹'+total.toLocaleString('en-IN');
   valForm();
 }
 function rmCart(i){cart.splice(i,1);renderCart()}
-
-function openDrawer(){
-  document.getElementById('drawer-bg').classList.add('open');
-  document.getElementById('drawer').classList.add('open');
-  document.body.style.overflow='hidden';
-}
-function closeDrawer(){
-  document.getElementById('drawer-bg').classList.remove('open');
-  document.getElementById('drawer').classList.remove('open');
-  document.body.style.overflow='';
-}
+function openDrawer(){document.getElementById('drawer-bg').classList.add('open');document.getElementById('drawer').classList.add('open');document.body.style.overflow='hidden';}
+function closeDrawer(){document.getElementById('drawer-bg').classList.remove('open');document.getElementById('drawer').classList.remove('open');document.body.style.overflow='';}
 document.getElementById('bag-btn').addEventListener('click',openDrawer);
 document.getElementById('drawer-x').addEventListener('click',closeDrawer);
 document.getElementById('drawer-bg').addEventListener('click',closeDrawer);
@@ -592,99 +559,60 @@ document.getElementById('drawer-bg').addEventListener('click',closeDrawer);
 const fIds=['cf-n','cf-p','cf-z','cf-a','cf-e'];
 fIds.forEach(id=>document.getElementById(id).addEventListener('input',valForm));
 function valForm(){
-  const n=document.getElementById('cf-n').value.trim(),
-        p=document.getElementById('cf-p').value.trim(),
-        z=document.getElementById('cf-z').value.trim(),
-        a=document.getElementById('cf-a').value.trim(),
-        e=document.getElementById('cf-e').value.trim();
-  document.getElementById('btn-pay').disabled=
-    !(n.length>1&&/^\d{10}$/.test(p)&&/^\d{6}$/.test(z)&&a.length>5&&/\S+@\S+\.\S+/.test(e)&&cart.length);
+  const n=document.getElementById('cf-n').value.trim(),p=document.getElementById('cf-p').value.trim(),
+        z=document.getElementById('cf-z').value.trim(),a=document.getElementById('cf-a').value.trim(),e=document.getElementById('cf-e').value.trim();
+  document.getElementById('btn-pay').disabled=!(n.length>1&&/^\d{10}$/.test(p)&&/^\d{6}$/.test(z)&&a.length>5&&/\S+@\S+\.\S+/.test(e)&&cart.length);
 }
-
 document.getElementById('btn-pay').addEventListener('click',async()=>{
-  const btn=document.getElementById('btn-pay');
-  btn.disabled=true;btn.textContent='Creating order...';
-
-  const cust={
-    name:document.getElementById('cf-n').value.trim(),
-    phone:document.getElementById('cf-p').value.trim(),
-    pincode:document.getElementById('cf-z').value.trim(),
-    address:document.getElementById('cf-a').value.trim(),
-    email:document.getElementById('cf-e').value.trim()
-  };
+  const btn=document.getElementById('btn-pay'); btn.disabled=true; btn.textContent='Creating order...';
+  const cust={name:document.getElementById('cf-n').value.trim(),phone:document.getElementById('cf-p').value.trim(),pincode:document.getElementById('cf-z').value.trim(),address:document.getElementById('cf-a').value.trim(),email:document.getElementById('cf-e').value.trim()};
   const total=cart.reduce((s,c)=>s+c.price,0);
   const items=cart.map(c=>({id:c.id,size:c.size,name:c.name,price:c.price}));
   const oid='VLT-'+Date.now().toString(36).toUpperCase();
-
   try{
-    const res=await fetch(SB+'/functions/v1/razorpay-order',{
-      method:'POST',
-      headers:{'Content-Type':'application/json','apikey':SK,'Authorization':'Bearer '+SK},
-      body:JSON.stringify({amount:total*100,receipt:oid,notes:{customer:JSON.stringify(cust),items:JSON.stringify(items),source:'vault'}})
-    });
+    const res=await fetch(SB+'/functions/v1/razorpay-order',{method:'POST',headers:{'Content-Type':'application/json','apikey':SK,'Authorization':'Bearer '+SK},body:JSON.stringify({amount:total*100,receipt:oid,notes:{customer:JSON.stringify(cust),items:JSON.stringify(items),source:'vault'}})});
     if(!res.ok)throw new Error('Order failed');
     const od=await res.json();
-
-    const rzp=new Razorpay({
-      key:od.key_id,amount:total*100,currency:'INR',
-      name:'365 Drop Store',description:'The Vault — '+items.map(i=>i.name).join(', '),
-      order_id:od.id,
-      prefill:{name:cust.name,email:cust.email,contact:cust.phone},
-      notes:{order_id:oid,source:'vault'},
-      theme:{color:'#1B1512'},
+    const rzp=new Razorpay({key:od.key_id,amount:total*100,currency:'INR',name:'365 Drop Store',description:'The Vault — '+items.map(i=>i.name).join(', '),order_id:od.id,prefill:{name:cust.name,email:cust.email,contact:cust.phone},notes:{order_id:oid,source:'vault'},theme:{color:'#1B1512'},
       handler:async function(r){
         btn.textContent='Verifying...';
         try{
-          await fetch(SB+'/functions/v1/razorpay-verify',{
-            method:'POST',
-            headers:{'Content-Type':'application/json','apikey':SK,'Authorization':'Bearer '+SK},
-            body:JSON.stringify({razorpay_order_id:r.razorpay_order_id,razorpay_payment_id:r.razorpay_payment_id,razorpay_signature:r.razorpay_signature})
-          });
-          await fetch(SB+'/functions/v1/order-mark-paid',{
-            method:'POST',
-            headers:{'Content-Type':'application/json','apikey':SK,'Authorization':'Bearer '+SK},
-            body:JSON.stringify({order_id:oid,razorpay_payment_id:r.razorpay_payment_id,razorpay_order_id:r.razorpay_order_id,razorpay_signature:r.razorpay_signature,customer:cust,items:items,total:total})
-          });
+          await fetch(SB+'/functions/v1/razorpay-verify',{method:'POST',headers:{'Content-Type':'application/json','apikey':SK,'Authorization':'Bearer '+SK},body:JSON.stringify({razorpay_order_id:r.razorpay_order_id,razorpay_payment_id:r.razorpay_payment_id,razorpay_signature:r.razorpay_signature})});
+          await fetch(SB+'/functions/v1/order-mark-paid',{method:'POST',headers:{'Content-Type':'application/json','apikey':SK,'Authorization':'Bearer '+SK},body:JSON.stringify({order_id:oid,razorpay_payment_id:r.razorpay_payment_id,razorpay_order_id:r.razorpay_order_id,razorpay_signature:r.razorpay_signature,customer:cust,items:items,total:total})});
         }catch(e){console.error(e)}
         showOk(oid);
       },
       modal:{ondismiss:()=>{btn.disabled=false;btn.textContent='Pay securely — ₹'+total.toLocaleString('en-IN')}}
     });
     rzp.open();
-  }catch(e){
-    console.error(e);btn.disabled=false;
-    btn.textContent='Pay securely — ₹'+total.toLocaleString('en-IN');
-    alert('Something went wrong. Please try again.');
-  }
+  }catch(e){ console.error(e); btn.disabled=false; btn.textContent='Pay securely — ₹'+total.toLocaleString('en-IN'); alert('Something went wrong. Please try again.'); }
 });
+function showOk(oid){ document.getElementById('drawer-body').style.display='none'; document.getElementById('drawer-ok').classList.add('show'); document.getElementById('ok-id').textContent='Order '+oid; }
 
-function showOk(oid){
-  document.getElementById('drawer-body').style.display='none';
-  document.getElementById('drawer-ok').classList.add('show');
-  document.getElementById('ok-id').textContent='Order '+oid;
-}
-
-const mobBar=document.getElementById('mob-bar');
-let curProd='obsidian';
+/* Mobile buy bar */
 window.addEventListener('scroll',()=>{
-  let vis=false;
+  const bar=document.getElementById('mob-bar');
+  if(!bar)return;
+  let vis=false,activeBtn=null;
   document.querySelectorAll('.ledger').forEach(sec=>{
     const r=sec.getBoundingClientRect();
-    if(r.top<innerHeight*0.7&&r.bottom>100){
-      vis=true;curProd=sec.id;
-      if(P[curProd])document.getElementById('mob-price').textContent='₹'+P[curProd].price.toLocaleString('en-IN');
-    }
+    if(r.top<innerHeight*0.7&&r.bottom>100){ vis=true; activeBtn=sec.querySelector('.btn-reserve'); }
   });
-  if(vis&&innerWidth<=640)mobBar.classList.add('vis');else mobBar.classList.remove('vis');
+  if(vis&&innerWidth<=640&&activeBtn){
+    bar.classList.add('vis');
+    const pid=activeBtn.dataset.prod;
+    document.getElementById('mob-price').textContent=P[pid]?'₹'+P[pid].price.toLocaleString('en-IN'):'';
+    document.getElementById('mob-add').onclick=()=>activeBtn.click();
+  }else bar.classList.remove('vis');
 });
-document.getElementById('mob-add').addEventListener('click',()=>{
-  const sz=selSz[curProd];
-  if(!sz){document.querySelector(`.size-row[data-prod="${curProd}"]`)?.scrollIntoView({behavior:'smooth',block:'center'});return}
-  if(!cart.find(c=>c.id===curProd&&c.size===sz)){
-    const p=P[curProd];cart.push({id:curProd,size:sz,name:p.name,sub:p.sub,price:p.price});renderCart();
-  }
-  openDrawer();
-});
+
+/* ═══════════════════════════════════════ INIT ═══════════════════════════════════════ */
+(async function init(){
+  liveTarget=await getLiveTarget();
+  setInterval(tickStatus,1000);
+  await loadVaultProducts();
+})();
+
 </script>
 </body>
 </html>
