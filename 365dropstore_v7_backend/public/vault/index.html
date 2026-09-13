@@ -64,7 +64,7 @@ body::before{
 
 .hero{max-width:none;width:100%;margin:0;padding:0;text-align:center;position:relative;z-index:1;overflow:hidden;min-height:88vh;display:flex;align-items:center;justify-content:center}
 .hero-video-wrap{position:absolute;inset:0;z-index:0;background:#0A0806}
-.hero-video-wrap video,.hero-video-wrap img{width:100%;height:100%;object-fit:contain;display:none;position:absolute;inset:0}
+.hero-video-wrap video,.hero-video-wrap img{width:100%;height:100%;object-fit:cover;display:none;position:absolute;inset:0}
 .hero-video-wrap video.ready,.hero-video-wrap img.ready{display:block}
 .hero-video-wrap::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,8,6,0.35) 0%,rgba(10,8,6,0.55) 55%,var(--paper) 96%)}
 .hero-inner{position:relative;z-index:1;max-width:640px;padding:140px 32px 90px}
@@ -129,16 +129,26 @@ body::before{
 
 .cert{background:var(--paper-deep);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
 .cert-inner{max-width:1000px;margin:0 auto;padding:90px 32px;display:grid;grid-template-columns:0.8fr 1.2fr;gap:64px;align-items:center}
-.cert-img{aspect-ratio:1/1;border:1px solid var(--brass-dim);position:relative}
-.cert-img::before{content:'';position:absolute;inset:8px;border:1px solid var(--line)}
-.cert-img img,.cert-img .img-ph{width:100%;height:100%;object-fit:cover}
+.cert-card{aspect-ratio:1/1.2;border:1px solid var(--brass-dim);position:relative;background:radial-gradient(circle at 35% 30%,#241d16,#100d0a 75%);padding:32px;display:flex;flex-direction:column;justify-content:space-between}
+.cert-card::before{content:'';position:absolute;inset:8px;border:1px solid var(--line);pointer-events:none}
+.cert-card-top{text-align:center}
+.cert-card-mark{font-family:var(--serif);font-style:italic;font-size:22px;color:var(--brass);margin-bottom:6px}
+.cert-card-brand{font-family:var(--serif);font-size:13px;color:var(--stone);letter-spacing:0.08em;text-transform:uppercase}
+.cert-card-title{font-family:var(--serif);font-style:italic;font-size:19px;color:var(--ink);margin-top:22px;letter-spacing:0.02em}
+.cert-card-mid{text-align:center;padding:18px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.cert-card-no{font-family:var(--serif);font-size:44px;color:var(--ink)}
+.cert-card-no span{color:var(--brass)}
+.cert-card-sub{font-size:11px;color:var(--stone);letter-spacing:0.05em;margin-top:4px;text-transform:uppercase}
+.cert-card-bot{display:flex;justify-content:space-between;align-items:flex-end}
+.cert-card-sig{font-family:var(--serif);font-style:italic;font-size:16px;color:var(--stone);border-bottom:1px solid var(--line);padding-bottom:4px}
+.cert-card-loc{font-size:10.5px;color:var(--stone);text-align:right;line-height:1.5}
 .cert-copy .kicker{font-size:13px;color:var(--stone);margin-bottom:18px}
 .cert-copy h2{font-family:var(--serif);font-size:38px;line-height:1.1;color:var(--ink);margin-bottom:20px}
 .cert-copy h2 em{font-style:italic;color:var(--ox)}
 .cert-copy p{font-size:14px;color:var(--stone);line-height:1.75;margin-bottom:16px;max-width:420px}
 .cert-mark{display:inline-flex;align-items:center;gap:10px;font-size:12.5px;color:var(--ink);border:1px solid var(--brass-dim);padding:12px 18px;border-radius:2px;margin-top:8px}
 .cert-mark::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--ox)}
-@media(max-width:860px){.cert-inner{grid-template-columns:1fr;gap:32px;padding:56px 24px}}
+@media(max-width:860px){.cert-inner{grid-template-columns:1fr;gap:32px;padding:56px 24px}.cert-card{aspect-ratio:1/1.1;max-width:340px;margin:0 auto}}
 
 .ftr{padding:48px 32px;text-align:center}
 .ftr-logo{font-family:var(--serif);font-size:16px;color:var(--ink);margin-bottom:8px}
@@ -324,7 +334,21 @@ body::before{
 
 <section class="cert">
   <div class="cert-inner">
-    <div class="cert-img"><div class="img-ph ph-brass">Certificate card, close</div></div>
+    <div class="cert-card">
+      <div class="cert-card-top">
+        <div class="cert-card-mark">∞</div>
+        <div class="cert-card-brand">365 Drop Store</div>
+        <div class="cert-card-title">Certificate of Authenticity</div>
+      </div>
+      <div class="cert-card-mid">
+        <div class="cert-card-no">04<span>/12</span></div>
+        <div class="cert-card-sub">Edition Number</div>
+      </div>
+      <div class="cert-card-bot">
+        <div class="cert-card-sig">Wasi</div>
+        <div class="cert-card-loc">Delhi Studio<br>Est. 2025</div>
+      </div>
+    </div>
     <div class="cert-copy">
       <div class="kicker" id="cert-kicker">Authenticity</div>
       <h2><span id="cert-h1a">Every pair,</span><br><em id="cert-h1b">numbered by hand.</em></h2>
