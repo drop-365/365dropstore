@@ -919,6 +919,11 @@ footer{background:#141312;border-top:none;padding:56px 0 28px}
 .ckfield{display:flex;flex-direction:column;gap:6px;font-size:12.5px;font-weight:600;color:#141312}
 .ckfield input,.ckfield textarea{font-size:14px;font-weight:400;padding:11px 12px;border:1px solid rgba(0,0,0,.12);border-radius:8px;font-family:var(--bod);background:#FFFFFF;resize:vertical}
 .ckfield input:focus,.ckfield textarea:focus{outline:none;border-color:#C0392B}
+.ck-wall-optin{display:flex;gap:10px;align-items:flex-start;padding:12px 13px;border:1px solid rgba(0,0,0,.1);border-radius:8px;background:#FFFFFF;cursor:pointer;transition:border-color .15s}
+.ck-wall-optin:hover{border-color:rgba(0,0,0,.24)}
+.ck-wall-optin input{margin-top:2px;width:15px;height:15px;accent-color:#C0392B;flex-shrink:0;cursor:pointer}
+.ck-wall-optin b{display:block;font-size:12.5px;font-weight:600;color:#141312}
+.ck-wall-optin em{display:block;font-style:normal;font-size:11.5px;color:var(--off);line-height:1.5;margin-top:3px}
 .cdrow{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
 .cdtot{font-family:var(--dsp);font-size:22px;color:var(--white)}
 .wabtn{width:100%;background:#25D366;color:#0a2e16;font-weight:700;padding:15px;font-size:15px;border-radius:10px;display:flex;align-items:center;justify-content:center;gap:9px;margin-top:9px;cursor:pointer;border:none;transition:.2s}
@@ -1646,6 +1651,31 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
      with existing site classes.
      ═══════════════════════════════════════ -->
 <style>
+/* ── Star Wall strip — short band, not a hero ── */
+.cst-strip{padding:26px 0}
+.cst-inner{position:relative;display:grid;grid-template-columns:230px 1fr auto;align-items:center;gap:24px;background:#080C18;border-radius:10px;overflow:hidden;min-height:150px;padding-right:26px}
+.cst-sky{position:relative;align-self:stretch;min-height:150px}
+#cstCanvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.cst-sky::after{content:'';position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,transparent 40%,#080C18 100%)}
+.cst-copy{padding:18px 0}
+.cst-kicker{font-family:ui-monospace,monospace;font-size:9px;letter-spacing:.24em;color:#4FD1E8;margin-bottom:8px}
+.cst-copy h2{font-family:var(--dsp);font-size:clamp(22px,3vw,32px);line-height:.96;color:#EDE9E3;margin:0 0 6px}
+.cst-copy h2 span{color:#E74C3C}
+.cst-copy p{font-size:12.5px;color:rgba(237,233,227,.56);margin:0;line-height:1.5;max-width:330px}
+.cst-act{text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:2px;padding:18px 0}
+.cst-count{font-family:var(--dsp);font-size:34px;line-height:.85;color:#EDE9E3}
+.cst-count-lbl{font-family:ui-monospace,monospace;font-size:8px;letter-spacing:.16em;color:rgba(237,233,227,.4);margin-bottom:12px}
+.cst-btn{display:inline-block;padding:11px 20px;background:#C0392B;color:#fff;font-family:var(--dsp);font-size:15px;letter-spacing:.07em;border-radius:4px;text-decoration:none;transition:background .2s,transform .2s;white-space:nowrap}
+.cst-btn:hover{background:#E74C3C;transform:translateX(3px)}
+@media(max-width:860px){
+  .cst-inner{grid-template-columns:1fr;gap:0;padding:0 0 20px;min-height:0}
+  .cst-sky{min-height:120px}
+  .cst-sky::after{background:linear-gradient(180deg,transparent 40%,#080C18 100%)}
+  .cst-copy{padding:0 20px}
+  .cst-act{align-items:flex-start;text-align:left;padding:14px 20px 0;flex-direction:row;align-items:center;gap:14px}
+  .cst-count-lbl{display:none}
+}
+
 .vault-door{background:#0E0E0C;border-top:1px solid #222;border-bottom:1px solid #222;margin:0;position:relative;overflow:hidden}
 .vault-door-inner{max-width:1280px;margin:0 auto;display:grid;grid-template-columns:1.2fr 0.8fr;min-height:400px;position:relative;z-index:1}
 .vault-door-img{position:relative;overflow:hidden;min-height:400px;background:linear-gradient(160deg,#161614,#0E0E0C 60%)}
@@ -1716,6 +1746,29 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
 <!-- new arrivals: placed right after the hero, ahead of the main grid --
      this is deliberately one of the first things a visitor sees, not a
      buried section near returning-visitor content. -->
+<!-- ═══════════════════════════════════════
+     STAR WALL STRIP — links to /wall/
+     Deliberately short (150px) so it reads as a band between
+     sections, not a second hero. All CSS scoped to .cst-*.
+     ═══════════════════════════════════════ -->
+<section class="cst-strip" id="cst-strip" style="display:none">
+  <div class="w">
+    <div class="cst-inner">
+      <div class="cst-sky"><canvas id="cstCanvas"></canvas></div>
+      <div class="cst-copy">
+        <div class="cst-kicker">THE STAR WALL</div>
+        <h2>EVERY BUYER GETS A <span>STAR</span>.</h2>
+        <p>Yours is already up there, with a number that never changes.</p>
+      </div>
+      <div class="cst-act">
+        <div class="cst-count" id="cst-count">—</div>
+        <div class="cst-count-lbl">STARS SO FAR</div>
+        <a href="/wall/" class="cst-btn">FIND YOURS →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
 <section class="sec" id="new-arrivals" style="padding:32px 0;display:none"><div class="w"><h2 style="font-family:var(--dsp);font-size:clamp(22px,4vw,30px);margin-bottom:16px">NEW ARRIVALS</h2><div class="rv-strip" id="na-strip"></div></div></section>
 
 <script>
@@ -1782,6 +1835,113 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
     if(vaultItems[1]&&vaultItems[1].images&&vaultItems[1].images[0]&&img2) img2.src=vaultItems[1].images[0];
     else if(img2) img2.style.display='none';
   }catch(e){ console.error('Vault teaser images failed to load:',e); }
+})();
+
+/* ── Star Wall strip ──────────────────────────────────────────
+   Pulls the live star count from the same Edge Function the full
+   wall uses. The strip stays hidden until that call succeeds and
+   returns at least one star, so an empty or broken wall never
+   leaves a dead band sitting on the homepage. */
+(function(){
+  const strip=document.getElementById('cst-strip');
+  const cv=document.getElementById('cstCanvas');
+  if(!strip||!cv)return;
+
+  const SBu='https://fhiivshoikcnanbvdtxm.supabase.co',
+        SKu='sb_publishable_LPwVp36pEOfQIEchjefMfw_SmGNcxUt';
+
+  fetch(SBu+'/functions/v1/customer-wall',{headers:{apikey:SKu,Authorization:'Bearer '+SKu}})
+    .then(r=>r.ok?r.json():Promise.reject(r.status))
+    .then(d=>{
+      if(d.enabled===false||!d.total)return;
+      document.getElementById('cst-count').textContent=String(d.total).padStart(3,'0');
+      strip.style.display='block';
+      startSky();
+    })
+    .catch(e=>console.warn('Star Wall strip skipped:',e));
+
+  function startSky(){
+    const ctx=cv.getContext('2d');
+    let W=0,H=0,DPR=1,stars=[],dust=[];
+    const GOLDEN=Math.PI*(3-Math.sqrt(5));
+    const sd=(n,s)=>{const x=Math.sin(n*127.1+s*311.7)*43758.5453;return x-Math.floor(x);};
+
+    function build(){
+      stars=[];
+      const N=46, C=Math.min(W,H)*0.09;
+      for(let i=1;i<=N;i++){
+        const a=sd(i,1),b=sd(i,2),c=sd(i,3);
+        const ang=i*GOLDEN, rad=C*Math.sqrt(i);
+        stars.push({x:W*0.42+Math.cos(ang)*rad+(a-.5)*8,
+                    y:H*0.5+Math.sin(ang)*rad*0.7+(b-.5)*6,
+                    r:0.9+c*1.3,tw:a*Math.PI*2,tws:0.5+b*0.9,
+                    fresh:i>N-3,repeat:i%9===0});
+      }
+      dust=[];
+      for(let i=0;i<90;i++)
+        dust.push({x:sd(i,7)*W,y:sd(i,8)*H,r:sd(i,9)*0.7+0.2,
+                   a:sd(i,10)*0.4+0.08,tw:sd(i,11)*Math.PI*2,tws:0.3+sd(i,12)*0.6});
+    }
+    function resize(){
+      const r=cv.getBoundingClientRect();
+      if(r.width<2||r.height<2)return;
+      W=r.width;H=r.height;DPR=Math.min(window.devicePixelRatio||1,2);
+      cv.width=Math.round(W*DPR);cv.height=Math.round(H*DPR);
+      ctx.setTransform(DPR,0,0,DPR,0,0);
+      build();
+    }
+    window.addEventListener('resize',resize);
+
+    const t0=performance.now();
+    function draw(now){
+      const r=cv.getBoundingClientRect();
+      if(Math.abs(r.width-W)>1||Math.abs(r.height-H)>1)resize();
+      if(!W||!H){requestAnimationFrame(draw);return;}
+      const t=(now-t0)/1000;
+
+      ctx.clearRect(0,0,W,H);
+      const g=ctx.createRadialGradient(W*0.42,H*0.5,0,W*0.42,H*0.5,Math.max(W,H)*0.7);
+      g.addColorStop(0,'#0C1228');g.addColorStop(1,'#080C18');
+      ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+
+      const ng=ctx.createRadialGradient(W*0.38,H*0.45,0,W*0.38,H*0.45,W*0.5);
+      ng.addColorStop(0,'rgba(79,209,232,0.07)');ng.addColorStop(1,'rgba(0,0,0,0)');
+      ctx.fillStyle=ng;ctx.beginPath();ctx.arc(W*0.38,H*0.45,W*0.5,0,7);ctx.fill();
+
+      dust.forEach(d=>{
+        const tw=0.65+Math.sin(t*d.tws+d.tw)*0.35;
+        ctx.beginPath();ctx.arc(d.x,d.y,d.r,0,7);
+        ctx.fillStyle='rgba(205,220,250,'+(d.a*tw)+')';ctx.fill();
+      });
+
+      const linkMax=Math.min(W,H)*0.2;
+      ctx.lineWidth=1;
+      for(let i=0;i<stars.length;i++)for(let j=i+1;j<stars.length;j++){
+        const a=stars[i],b=stars[j];
+        const d=Math.hypot(a.x-b.x,a.y-b.y);
+        if(d<linkMax){
+          ctx.strokeStyle='rgba(140,190,240,'+(0.1*(1-d/linkMax))+')';
+          ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();
+        }
+      }
+
+      stars.forEach(s=>{
+        const tw=0.65+Math.sin(t*s.tws+s.tw)*0.35;
+        const base=s.fresh?'231,76,60':(s.repeat?'232,199,122':'228,238,255');
+        const gr=s.r*5;
+        const sg=ctx.createRadialGradient(s.x,s.y,0,s.x,s.y,gr);
+        sg.addColorStop(0,'rgba('+base+','+(tw*0.5)+')');
+        sg.addColorStop(1,'rgba('+base+',0)');
+        ctx.fillStyle=sg;ctx.beginPath();ctx.arc(s.x,s.y,gr,0,7);ctx.fill();
+        ctx.beginPath();ctx.arc(s.x,s.y,Math.max(0.7,s.r),0,7);
+        ctx.fillStyle='rgba('+base+','+tw+')';ctx.fill();
+      });
+
+      requestAnimationFrame(draw);
+    }
+    resize();
+    requestAnimationFrame(draw);
+  }
 })();
 </script>
 
@@ -1935,6 +2095,13 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
     <label class="ckfield">Email <span style="color:var(--off);font-size:11px">(for order confirmation)</span><input type="email" id="ck-email" placeholder="you@example.com"/></label>
     <label class="ckfield">Delivery Address<textarea id="ck-addr" placeholder="House/flat, street, locality, city, state" rows="3"></textarea></label>
     <label class="ckfield">Pincode<input type="text" id="ck-pin" placeholder="6-digit pincode" maxlength="6"/></label>
+    <label class="ck-wall-optin" for="ck-wall">
+      <input type="checkbox" id="ck-wall" checked>
+      <span>
+        <b>Put my name on the Star Wall</b>
+        <em>We show your first name only — never your number, email or address. Untick if you'd rather stay off it.</em>
+      </span>
+    </label>
     <p class="ckform-err" id="ck-err" style="display:none;color:#C0392B;font-size:12.5px"></p>
     <button class="wabtn" onclick="submitCheckoutDetails()">Continue to Review →</button>
   </div>
@@ -1972,6 +2139,7 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
   <button class="atab" onclick="apTab('site')">Edit Site</button>
   <button class="atab" onclick="apTab('banner')">Live Banner</button>
   <button class="atab" onclick="apTab('vault')">Vault Content</button>
+  <button class="atab" onclick="apTab('wall')">Star Wall</button>
   <button class="atab" onclick="apTab('fits')">Fits Manager</button>
   <button class="atab" onclick="apTab('reviews')">Reviews</button>
   <button class="atab" onclick="apTab('stories')">Story Updates</button>
@@ -2370,6 +2538,39 @@ Origin|Delhi studio..."></textarea>
 
       <div class="pff full" style="display:flex;gap:12px;margin-top:8px"><button class="btn btn-w" onclick="saveVaultContent()">Save Vault Content</button></div>
       <div id="vc-msg" class="pff full" style="display:none;padding:10px;border-radius:9px"></div>
+    </div>
+  </div>
+
+  <!-- star wall tab -->
+  <div id="tab-wall" class="apsec" style="display:none"><h3>STAR WALL</h3>
+    <p style="color:var(--off);font-size:14px;margin-bottom:20px">The star map at 365dropstore.com/wall/. Every paid order adds one star automatically — there is nothing to add by hand. Only the buyer's <b>first name</b> is ever shown; phone, email and address never leave the server.</p>
+    <div class="pfgrid">
+      <div class="pff full">
+        <label style="display:flex;align-items:center;gap:10px;cursor:pointer">
+          <input type="checkbox" id="wl-enabled" style="width:16px;height:16px;accent-color:#C0392B"/>
+          <span>Star Wall is live</span>
+        </label>
+        <small style="color:var(--off);display:block;margin-top:5px">Untick to take the page down without deleting anything. The homepage strip disappears too.</small>
+      </div>
+
+      <div class="pff full"><label>Hide these names</label>
+        <textarea id="wl-hidden" rows="3" placeholder="One name per line"></textarea>
+        <small style="color:var(--off)">Anyone listed here is pulled off the map. Use it if a buyer asks to be removed, or if a junk name slips through. Matching ignores case and spacing.</small>
+      </div>
+
+      <div class="pff full"><label>Extra blocked words</label>
+        <textarea id="wl-blocked" rows="3" placeholder="One word per line"></textarea>
+        <small style="color:var(--off)">Added on top of the built-in abuse list. Names containing these never reach the page. Leetspeak (f0ck, ch00t) and repeated letters are already handled automatically.</small>
+      </div>
+
+      <div class="pff full" style="border:1px solid var(--line);border-radius:10px;padding:14px;background:rgba(0,0,0,.02)">
+        <label style="font-size:13px">LIVE STATUS</label>
+        <div id="wl-status" style="font-size:13px;color:var(--off);margin-top:8px">Not checked yet.</div>
+        <button class="btn btn-g" style="font-size:12px;padding:6px 12px;margin-top:10px" onclick="checkWallStatus()">↻ Check now</button>
+      </div>
+
+      <div class="pff full" style="display:flex;gap:12px;margin-top:8px"><button class="btn btn-w" onclick="saveWallSettings()">Save Star Wall Settings</button></div>
+      <div id="wl-msg" class="pff full" style="display:none;padding:10px;border-radius:9px"></div>
     </div>
   </div>
 
@@ -4397,7 +4598,12 @@ function _submitCheckoutDetailsInner(){
   // build the order object and show review screen before payment
   const orderId="DS-"+uid().toUpperCase();
   const sub=cart.reduce((s,i)=>s+i.price*i.qty,0);
-  window._pendingOrder={orderId,name,phone,email,addr,pin,items:cart.map(i=>({name:i.name,size:i.size,color:i.color,qty:i.qty,price:i.price})),total:sub,status:"pending",placedAt:Date.now()};
+  const _wallEl=document.getElementById("ck-wall");
+  // Sent through to razorpay-order so it can be written to orders.wall_optin.
+  // The column already defaults to true, so an un-patched backend simply
+  // keeps everyone on the wall rather than breaking the order.
+  const wallOptin=_wallEl?!!_wallEl.checked:true;
+  window._pendingOrder={orderId,name,phone,email,addr,pin,items:cart.map(i=>({name:i.name,size:i.size,color:i.color,qty:i.qty,price:i.price})),total:sub,status:"pending",placedAt:Date.now(),wallOptin};
   // populate the review screen
   document.getElementById("ck-review-items").innerHTML=cart.map(i=>`<div style="display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)"><img src="${i.image}" style="width:50px;height:65px;object-fit:cover;border-radius:6px"/><div style="flex:1"><div style="font-weight:700;font-size:13px">${i.name}</div><div style="font-size:12px;color:var(--off)">${i.size} · ${i.color} · x${i.qty}</div></div><div style="font-weight:700;font-size:13px">${inr(i.price*i.qty)}</div></div>`).join("");
   document.getElementById("ck-review-info").innerHTML=`<b>${name}</b><br/>${phone}${email?'<br/>'+email:''}<br/>${addr} — ${pin}`;
@@ -4714,7 +4920,7 @@ function setAdminTheme(t){
   try{saved=localStorage.getItem("ds_admin_theme")||"scifi";}catch(e){}
   document.addEventListener("DOMContentLoaded",function(){setAdminTheme(saved);});
 })();
-function apTab(t){const all=["products","dashboard","sequence","orders","add","site","banner","vault","fits","reviews","stories","instagrid","faq","sizeguide","payment","settings"];all.forEach(id=>{const e=document.getElementById("tab-"+id);if(e)e.style.display=id===t?"block":"none";});document.querySelectorAll(".atab").forEach((b,i)=>b.classList.toggle("act",all[i]===t));if(t==="products"){ldProds();apSts();}if(t==="payment"){loadPaySettings();}if(t==="dashboard"){renderDashboard();}if(t==="sequence"){renderSequenceList();}if(t==="sizeguide"){renderSizeModelsList();}if(t==="vault"){loadVaultAdmin();}
+function apTab(t){const all=["products","dashboard","sequence","orders","add","site","banner","vault","wall","fits","reviews","stories","instagrid","faq","sizeguide","payment","settings"];all.forEach(id=>{const e=document.getElementById("tab-"+id);if(e)e.style.display=id===t?"block":"none";});document.querySelectorAll(".atab").forEach((b,i)=>b.classList.toggle("act",all[i]===t));if(t==="products"){ldProds();apSts();}if(t==="payment"){loadPaySettings();}if(t==="dashboard"){renderDashboard();}if(t==="sequence"){renderSequenceList();}if(t==="sizeguide"){renderSizeModelsList();}if(t==="vault"){loadVaultAdmin();}if(t==="wall"){loadWallAdmin();}
   if(t==="dashboard"){loadOrdersFromSupabase().then(()=>renderDashboard());}
   if(t==="orders"){rnAdmOrders();loadOrdersFromSupabase().then(ok=>{if(ok)rnAdmOrders();});loadAbandonedCount();_woHook("orders");}if(t==="reviews")rnAdmRev();if(t==="site")loadSiteEd();if(t==="fits")loadFitsAdmin();if(t==="settings"){loadPaletteAdmin();loadGlobalScAdmin();rnStorageView();}if(t==="banner")loadBannerAdmin();if(t==="stories")renderStoryAdmin();if(t==="instagrid")renderHeroGridAdmin();if(t==="faq")renderFaqAdmin();if(t==="sizeguide")renderSizeGuideAdmin();}
 function apSts(){const tot=products.length,sold=products.filter(p=>p.badges&&p.badges.includes("sold")).length,cats=[...new Set(products.map(p=>p.category))].length;document.getElementById("apstats").innerHTML=`<div class="apstat"><div class="v">${tot}</div><div class="k">Total</div></div><div class="apstat"><div class="v">${tot-sold}</div><div class="k">Active</div></div><div class="apstat"><div class="v">${sold}</div><div class="k">Sold Out</div></div><div class="apstat"><div class="v">${cats}</div><div class="k">Categories</div></div>`;}
@@ -5023,6 +5229,57 @@ function loadVaultAdmin(){
   sv("vc-t-file",t.fileTag);sv("vc-t-enc",t.encTag);sv("vc-t-lock",t.lockLabel);
   sv("vc-t-locksub",t.lockSub);sv("vc-t-res",t.resTag);sv("vc-t-ed",t.edTag);
 }
+/* ===== STAR WALL (added 2026-09-14) =====
+   Stored inside siteContent.wall, so it rides the same admin-site
+   Edge Function every other piece of site copy already uses. The
+   customer-wall function reads this same row to decide what to show. */
+function loadWallAdmin(){
+  const w=(siteContent&&siteContent.wall)||{};
+  const en=document.getElementById("wl-enabled");
+  if(en) en.checked = w.enabled!==false;   // default on
+  const hid=document.getElementById("wl-hidden");
+  if(hid) hid.value=Array.isArray(w.hidden)?w.hidden.join("\n"):"";
+  const blk=document.getElementById("wl-blocked");
+  if(blk) blk.value=Array.isArray(w.blocked)?w.blocked.join("\n"):"";
+  checkWallStatus();
+}
+function saveWallSettings(){
+  const lines=id=>{
+    const el=document.getElementById(id);
+    if(!el)return [];
+    return el.value.split("\n").map(s=>s.trim()).filter(Boolean);
+  };
+  const en=document.getElementById("wl-enabled");
+  siteContent.wall={
+    enabled: en?!!en.checked:true,
+    hidden: lines("wl-hidden"),
+    blocked: lines("wl-blocked")
+  };
+  lsSafeSet("ds_site",siteContent);
+  const m=document.getElementById("wl-msg");
+  if(m){m.textContent="Saved ✓ — the page picks this up within a minute (it caches for 60s).";m.style.color="#4ade80";m.style.background="rgba(74,222,128,.08)";m.style.display="block";setTimeout(()=>m.style.display="none",4000);}
+  showToast("Star Wall settings saved ✓",true);
+  syncSiteToSupabase();
+}
+async function checkWallStatus(){
+  const el=document.getElementById("wl-status");
+  if(!el)return;
+  el.textContent="Checking…";
+  try{
+    const r=await fetch(SUPABASE_URL+"/functions/v1/customer-wall",{
+      headers:{apikey:SUPABASE_ANON_KEY,Authorization:"Bearer "+SUPABASE_ANON_KEY}
+    });
+    if(!r.ok)throw new Error("HTTP "+r.status);
+    const d=await r.json();
+    if(d.enabled===false){ el.innerHTML="<b>Currently switched off.</b> Nothing is showing publicly."; return; }
+    el.innerHTML="<b>"+d.total+" stars live</b>"
+      +(d.since?" · growing since "+d.since:"")
+      +(d.held?"<br>"+d.held+" name"+(d.held>1?"s":"")+" held back by the filter or your hide list.":"<br>Nothing held back.");
+  }catch(e){
+    el.innerHTML="<b style='color:#C0392B'>Couldn't reach the Star Wall function.</b><br>If you haven't deployed <code>customer-wall</code> yet, that's why.";
+  }
+}
+
 function saveVaultContent(){
   const g=id=>{const el=document.getElementById(id);return el?el.value.trim():"";};
   siteContent.vault={
