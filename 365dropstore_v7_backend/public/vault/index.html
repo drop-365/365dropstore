@@ -388,7 +388,7 @@ body::before{
         </label>
         <label class="pm-opt" data-pm="partial_cod">
           <input type="radio" name="pm" value="partial_cod">
-          <div><div class="pm-title">Partial COD</div><div class="pm-sub" id="pm-cod-sub">Pay ₹499 now, rest at delivery (incl. ₹50 COD charge)</div></div>
+          <div><div class="pm-title">Partial COD</div><div class="pm-sub" id="pm-cod-sub">Pay part now, rest at delivery</div></div>
         </label>
       </div>
       <button class="btn-pay" id="btn-pay" disabled>Pay securely — ₹0</button>
@@ -477,23 +477,67 @@ async function hydrateVaultContent(){
 hydrateVaultContent();
 
 /* ═══════════════════════════════════════
-   Countdown / lock status
+   Countdown / lock status + payment settings
+
+   One fetch, two jobs: the drop date and the payment config both live
+   in site_content, so there's no reason to hit it twice.
+
+   The lock now needs an EXPLICIT future date. Previously a missing
+   vaultDropDate fell back to "9 PM today", which meant the Vault
+   silently locked itself whenever that field wasn't set — and the
+   admin panel writes the whole site_content object from its
+   localStorage working copy, so any value set outside the browser
+   gets dropped the next time anything is saved. Defaulting to OPEN
+   means a config wipe can cost a countdown, never a day of sales.
    ═══════════════════════════════════════ */
-async function getLiveTarget(){
+let payCfg={prepaid:true,cod:false,codCharge:50,partialCod:true,
+            partialCodAdvance:199,partialCodMode:'flat',partialCodPercent:20,partialCodMin:99};
+
+async function loadVaultConfig(){
   try{
     const res=await fetch(SB+'/rest/v1/site_content?select=content&id=eq.1',{headers:{apikey:SK,Authorization:'Bearer '+SK}});
     const rows=await res.json();
-    const vdd=rows&&rows[0]&&rows[0].content&&rows[0].content.vaultDropDate;
-    if(vdd){ const d=new Date(vdd); if(!isNaN(d)) return d; }
-  }catch(e){}
-  const now=new Date(); const t=new Date(); t.setHours(21,0,0,0);
-  if(t<=now) t.setDate(t.getDate()+1);
-  return t;
+    const c=(rows&&rows[0]&&rows[0].content)||{};
+
+    // Same paymentConfig the rest of the store uses — Admin → Payments
+    // now controls the Vault too, instead of the Vault carrying its own
+    // hardcoded ₹499 that nobody could find or change.
+    if(c.paymentConfig) payCfg=Object.assign({},payCfg,c.paymentConfig);
+
+    if(c.vaultDropDate){
+      const d=new Date(c.vaultDropDate);
+      if(!isNaN(d)) return d;
+    }
+  }catch(e){ console.warn('Vault config failed to load, opening by default:',e); }
+  return null;   // null = no countdown = open for business
+}
+
+/* Mirrors computePartialAdvance() on the main site so both checkouts
+   work out the same deposit from the same settings. */
+function vaultAdvance(total){
+  if(payCfg.partialCodMode==='percent'){
+    const pct=Math.max(1,Math.min(100,payCfg.partialCodPercent||20));
+    const raw=Math.round(total*pct/100);
+    const floor=Math.min(payCfg.partialCodMin||99,total);
+    return Math.max(floor,Math.min(raw,total));
+  }
+  return Math.min(payCfg.partialCodAdvance||199,total);
 }
 function tickStatus(){
   const bar=document.getElementById('status-bar');
   if(!bar)return;
   const dot=document.getElementById('status-dot'), txt=document.getElementById('status-text');
+
+  // No drop date set at all — the Vault is simply open. Hide the bar
+  // rather than showing a meaningless "Live now" strip forever.
+  if(!liveTarget){
+    isLive=true;
+    bar.style.display='none';
+    document.querySelectorAll('.btn-reserve').forEach(b=>{ if(b.dataset.hasSize==='1') b.disabled=false; b.textContent=b.dataset.label||'Reserve this pair'; });
+    return;
+  }
+
+  bar.style.display='';
   const diff=liveTarget-new Date();
   if(diff<=0){
     isLive=true;
@@ -607,8 +651,9 @@ function wireReserveButtons(){
 
 /* ═══════════════════════════════════════
    Cart + checkout
+   Advance and COD charge come from payCfg (Admin → Payments), the
+   same settings the main storefront uses. Nothing is hardcoded here.
    ═══════════════════════════════════════ */
-const COD_ADVANCE=499, COD_CHARGE=50;
 let payMethod='prepaid';
 
 function currentTotal(){ return cart.reduce((s,c)=>s+c.price,0); }
@@ -626,9 +671,33 @@ function renderCart(){
   });
   items.innerHTML=h;
 
+  // Honour the Admin → Payments toggles. If Partial COD is switched off
+  // for the store, the Vault must not quietly keep offering it.
+  const codOpt=document.querySelector('.pm-opt[data-pm="partial_cod"]');
+  if(codOpt){
+    if(payCfg.partialCod===false){
+      codOpt.style.display='none';
+      if(payMethod==='partial_cod'){
+        payMethod='prepaid';
+        document.querySelectorAll('.pm-opt').forEach(o=>o.classList.toggle('active',o.dataset.pm==='prepaid'));
+        const pre=document.querySelector('.pm-opt[data-pm="prepaid"] input');
+        if(pre)pre.checked=true;
+      }
+    }else{
+      codOpt.style.display='';
+      const sub=document.getElementById('pm-cod-sub');
+      if(sub){
+        const adv=vaultAdvance(total), cc=payCfg.codCharge||0;
+        sub.textContent='Pay ₹'+adv.toLocaleString('en-IN')+' now, rest at delivery'
+          +(cc?' (incl. ₹'+cc+' COD charge)':'');
+      }
+    }
+  }
+
   if(payMethod==='partial_cod'){
-    const advance=Math.min(COD_ADVANCE,total);
-    const due=Math.max(0,total-advance)+COD_CHARGE;
+    const advance=vaultAdvance(total);
+    const codCharge=payCfg.codCharge||0;
+    const due=Math.max(0,total-advance)+codCharge;
     tot.innerHTML=`<div class="dt-row"><span>Order value</span><span>₹${total.toLocaleString('en-IN')}</span></div><div class="dt-row"><span>Pay now (online)</span><span>₹${advance.toLocaleString('en-IN')}</span></div><div class="dt-row grand"><span>Due at delivery</span><span>₹${due.toLocaleString('en-IN')}</span></div>`;
     pay.textContent='Pay ₹'+advance.toLocaleString('en-IN')+' now';
   }else{
@@ -666,7 +735,7 @@ document.getElementById('btn-pay').addEventListener('click',async()=>{
   const btn=document.getElementById('btn-pay'); btn.disabled=true; const originalLabel=btn.textContent; btn.textContent='Creating order...';
 
   const total=currentTotal();
-  const advance=payMethod==='partial_cod'?Math.min(COD_ADVANCE,total):total;
+  const advance=payMethod==='partial_cod'?vaultAdvance(total):total;
 
   // orderId MUST match ^DS-[A-Z0-9]{6,20}$ — the backend rejects anything else
   const oid='DS-'+Date.now().toString(36).toUpperCase()+Math.random().toString(36).slice(2,5).toUpperCase();
@@ -684,7 +753,7 @@ document.getElementById('btn-pay').addEventListener('click',async()=>{
   };
   if(payMethod==='partial_cod'){
     orderPayload.chargeAmount=advance;
-    orderPayload._codCharge=COD_CHARGE;
+    orderPayload._codCharge=payCfg.codCharge||0;
   }
 
   try{
@@ -757,7 +826,7 @@ window.addEventListener('scroll',()=>{
 })();
 
 (async function init(){
-  liveTarget=await getLiveTarget();
+  liveTarget=await loadVaultConfig();
   setInterval(tickStatus,1000);
   await loadVaultProducts();
 })();
