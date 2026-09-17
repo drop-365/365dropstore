@@ -2654,6 +2654,31 @@ Origin|Delhi studio..."></textarea>
         <small style="display:block;margin-top:4px;color:var(--off)">Scales with cart size &mdash; a 5-item order asks for 5&times; the deposit of a 1-item order, same risk protection either way.</small>
       </div>
       <div class="pff" id="pay-partial-min-wrap" style="display:none"><label>Minimum Advance (&#8377;)</label><input type="number" id="pay-partial-min" min="0" placeholder="99"/></div>
+
+      <div class="pff full" style="border:1px solid rgba(192,57,43,.25);border-radius:10px;padding:16px;margin-top:6px">
+        <label style="font-size:15px">VAULT &mdash; SEPARATE COD RULES</label>
+        <p style="color:var(--off);font-size:12.5px;margin:6px 0 14px">Vault pieces cost far more than the regular drop, so the same small deposit leaves a much bigger amount riding on delivery. Turn this on to ask Vault buyers for a different advance. Leave it off and the Vault simply uses the settings above.</p>
+        <div class="pfgrid">
+          <div class="pff full"><label>Use different COD rules for the Vault</label>
+            <select id="pay-vault-on" onchange="toggleVaultPayFields()"><option value="0">No &mdash; same as the rest of the store</option><option value="1">Yes &mdash; Vault has its own rules</option></select>
+          </div>
+          <div class="pff vault-pay-field" style="display:none"><label>Partial COD on Vault</label>
+            <select id="pay-vault-partial" onchange="toggleVaultPayFields()"><option value="1">Enabled</option><option value="0">Disabled &mdash; prepaid only</option></select>
+            <small style="display:block;margin-top:4px;color:var(--off)">Disabling it makes the Vault fully prepaid, which removes the risk entirely.</small>
+          </div>
+          <div class="pff vault-pay-field" style="display:none"><label>Vault COD Charge (&#8377;)</label><input type="number" id="pay-vault-cod-charge" oninput="updateVaultPayPreview()" min="0" placeholder="50"/></div>
+          <div class="pff vault-pay-field" style="display:none"><label>Vault Advance Type</label>
+            <select id="pay-vault-mode" onchange="toggleVaultPayFields()"><option value="flat">Flat amount</option><option value="percent">Percentage of order</option></select>
+          </div>
+          <div class="pff vault-pay-field" id="pay-vault-flat-wrap" style="display:none"><label>Vault Flat Advance (&#8377;)</label><input type="number" id="pay-vault-adv" oninput="updateVaultPayPreview()" min="0" placeholder="999"/></div>
+          <div class="pff vault-pay-field" id="pay-vault-pct-wrap" style="display:none"><label>Vault Advance Percentage (%)</label><input type="number" id="pay-vault-pct" oninput="updateVaultPayPreview()" min="1" max="100" placeholder="50"/></div>
+          <div class="pff vault-pay-field" id="pay-vault-min-wrap" style="display:none"><label>Vault Minimum Advance (&#8377;)</label><input type="number" id="pay-vault-min" oninput="updateVaultPayPreview()" min="0" placeholder="499"/></div>
+          <div class="pff full vault-pay-field" style="display:none">
+            <div id="pay-vault-preview" style="font-size:12.5px;color:var(--off);background:rgba(0,0,0,.04);border-radius:8px;padding:10px 12px">&nbsp;</div>
+          </div>
+        </div>
+      </div>
+
       <div class="pff full"><button class="btn btn-w" onclick="savePaySettings()" style="width:100%;justify-content:center">Save Payment Settings</button></div>
     </div>
   </div>
@@ -6011,7 +6036,54 @@ function loadPaySettings(){
   document.getElementById("pay-partial-adv").value=cfg.partialCodAdvance||199;
   document.getElementById("pay-partial-pct").value=cfg.partialCodPercent||20;
   document.getElementById("pay-partial-min").value=cfg.partialCodMin||99;
+
+  // Vault override lives inside paymentConfig so it saves and syncs with
+  // everything else, and the Vault page reads the same object.
+  const v=cfg.vault||{};
+  document.getElementById("pay-vault-on").value=v.enabled?"1":"0";
+  document.getElementById("pay-vault-partial").value=(v.partialCod===false)?"0":"1";
+  document.getElementById("pay-vault-cod-charge").value=(v.codCharge!=null?v.codCharge:(cfg.codCharge||0));
+  document.getElementById("pay-vault-mode").value=v.partialCodMode||"flat";
+  document.getElementById("pay-vault-adv").value=v.partialCodAdvance||999;
+  document.getElementById("pay-vault-pct").value=v.partialCodPercent||50;
+  document.getElementById("pay-vault-min").value=v.partialCodMin||499;
+
   togglePartialModeFields();
+  toggleVaultPayFields();
+}
+
+function toggleVaultPayFields(){
+  const on=document.getElementById("pay-vault-on").value==="1";
+  document.querySelectorAll(".vault-pay-field").forEach(el=>el.style.display=on?"":"none");
+  if(!on)return;
+  const mode=document.getElementById("pay-vault-mode").value;
+  document.getElementById("pay-vault-flat-wrap").style.display=mode==="flat"?"":"none";
+  document.getElementById("pay-vault-pct-wrap").style.display=mode==="percent"?"":"none";
+  document.getElementById("pay-vault-min-wrap").style.display=mode==="percent"?"":"none";
+  updateVaultPayPreview();
+}
+
+// Shows what a real Vault order would actually charge, so the numbers
+// aren't abstract while you're setting them.
+function updateVaultPayPreview(){
+  const box=document.getElementById("pay-vault-preview");
+  if(!box)return;
+  if(document.getElementById("pay-vault-partial").value==="0"){
+    box.innerHTML="Vault is <b>prepaid only</b> \u2014 the full amount is collected online, nothing rides on delivery.";
+    return;
+  }
+  const mode=document.getElementById("pay-vault-mode").value;
+  const flat=parseInt(document.getElementById("pay-vault-adv").value,10)||0;
+  const pct=Math.max(1,Math.min(100,parseInt(document.getElementById("pay-vault-pct").value,10)||50));
+  const min=parseInt(document.getElementById("pay-vault-min").value,10)||0;
+  const cc=parseInt(document.getElementById("pay-vault-cod-charge").value,10)||0;
+  const advOf=t=>mode==="percent"
+    ? Math.max(Math.min(min,t),Math.min(Math.round(t*pct/100),t))
+    : Math.min(flat,t);
+  box.innerHTML=[1899,5999].map(t=>{
+    const a=advOf(t), due=Math.max(0,t-a)+cc;
+    return "On a \u20B9"+t.toLocaleString("en-IN")+" piece: customer pays <b>\u20B9"+a.toLocaleString("en-IN")+"</b> online, <b>\u20B9"+due.toLocaleString("en-IN")+"</b> on delivery.";
+  }).join("<br>");
 }
 function savePaySettings(){
   siteContent.paymentConfig={
@@ -6022,7 +6094,16 @@ function savePaySettings(){
     partialCodMode:document.getElementById("pay-partial-mode").value,
     partialCodAdvance:parseInt(document.getElementById("pay-partial-adv").value,10)||0,
     partialCodPercent:Math.max(1,Math.min(100,parseInt(document.getElementById("pay-partial-pct").value,10)||20)),
-    partialCodMin:parseInt(document.getElementById("pay-partial-min").value,10)||0
+    partialCodMin:parseInt(document.getElementById("pay-partial-min").value,10)||0,
+    vault:{
+      enabled:document.getElementById("pay-vault-on").value==="1",
+      partialCod:document.getElementById("pay-vault-partial").value==="1",
+      codCharge:parseInt(document.getElementById("pay-vault-cod-charge").value,10)||0,
+      partialCodMode:document.getElementById("pay-vault-mode").value,
+      partialCodAdvance:parseInt(document.getElementById("pay-vault-adv").value,10)||0,
+      partialCodPercent:Math.max(1,Math.min(100,parseInt(document.getElementById("pay-vault-pct").value,10)||50)),
+      partialCodMin:parseInt(document.getElementById("pay-vault-min").value,10)||0
+    }
   };
   lsSafeSet("ds_site",siteContent);
   syncSiteToSupabase();

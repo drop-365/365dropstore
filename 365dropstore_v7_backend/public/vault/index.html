@@ -502,7 +502,23 @@ async function loadVaultConfig(){
     // Same paymentConfig the rest of the store uses — Admin → Payments
     // now controls the Vault too, instead of the Vault carrying its own
     // hardcoded ₹499 that nobody could find or change.
-    if(c.paymentConfig) payCfg=Object.assign({},payCfg,c.paymentConfig);
+    if(c.paymentConfig){
+      payCfg=Object.assign({},payCfg,c.paymentConfig);
+      // Vault pieces cost several times a regular drop item, so the store
+      // can set a heavier deposit just for here. Off by default, in which
+      // case the Vault behaves exactly like the rest of the store.
+      const v=c.paymentConfig.vault;
+      if(v&&v.enabled){
+        payCfg=Object.assign({},payCfg,{
+          partialCod: v.partialCod!==false,
+          codCharge: v.codCharge!=null?v.codCharge:payCfg.codCharge,
+          partialCodMode: v.partialCodMode||payCfg.partialCodMode,
+          partialCodAdvance: v.partialCodAdvance!=null?v.partialCodAdvance:payCfg.partialCodAdvance,
+          partialCodPercent: v.partialCodPercent!=null?v.partialCodPercent:payCfg.partialCodPercent,
+          partialCodMin: v.partialCodMin!=null?v.partialCodMin:payCfg.partialCodMin
+        });
+      }
+    }
 
     if(c.vaultDropDate){
       const d=new Date(c.vaultDropDate);
