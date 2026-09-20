@@ -25,3 +25,112 @@
   from = "/p/*"
   to = "/index.html"
   status = 200
+
+# ─────────────────────────────────────────────────────────────────────
+#  Bot traps
+#
+#  Automated scanners hammer every public site looking for an
+#  exploitable WordPress install. We don't run WordPress, so there is
+#  nothing for them to find — but each probe still costs bandwidth on
+#  a credit-based plan, and this site has already been taken down once
+#  by exhausting its monthly allotment.
+#
+#  410 Gone (not 404) tells a well-behaved crawler the path will never
+#  exist, so it stops asking. These rules are matched at the edge before
+#  anything else runs, so a probe costs almost nothing.
+#
+#  Keep these ABOVE the catch-all below.
+# ─────────────────────────────────────────────────────────────────────
+[[redirects]]
+  from = "/wp-admin/*"
+  to = "/410.html"
+  status = 410
+  force = true
+
+[[redirects]]
+  from = "/wp-includes/*"
+  to = "/410.html"
+  status = 410
+  force = true
+
+[[redirects]]
+  from = "/wp-content/*"
+  to = "/410.html"
+  status = 410
+  force = true
+
+[[redirects]]
+  from = "/wp-login.php"
+  to = "/410.html"
+  status = 410
+  force = true
+
+[[redirects]]
+  from = "/xmlrpc.php"
+  to = "/410.html"
+  status = 410
+  force = true
+
+# The scanner also walks common sub-folder guesses —
+# /blog/wp-includes/..., /shop/wp-includes/..., /2020/wp-includes/...
+# This one rule covers every prefix it tries.
+[[redirects]]
+  from = "/*/wp-includes/*"
+  to = "/410.html"
+  status = 410
+  force = true
+
+[[redirects]]
+  from = "/*/wp-admin/*"
+  to = "/410.html"
+  status = 410
+  force = true
+
+[[redirects]]
+  from = "/*/xmlrpc.php"
+  to = "/410.html"
+  status = 410
+  force = true
+
+# Other tools that get probed constantly and that we don't run
+[[redirects]]
+  from = "/.env"
+  to = "/410.html"
+  status = 410
+  force = true
+
+[[redirects]]
+  from = "/.git/*"
+  to = "/410.html"
+  status = 410
+  force = true
+
+[[redirects]]
+  from = "/phpmyadmin/*"
+  to = "/410.html"
+  status = 410
+  force = true
+
+# ─────────────────────────────────────────────────────────────────────
+#  Icons — these change almost never, so let browsers and the CDN hold
+#  onto them for a year instead of re-requesting on every visit.
+# ─────────────────────────────────────────────────────────────────────
+[[headers]]
+  for = "/favicon.ico"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/apple-touch-icon.png"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/icon-192.png"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/icon-512.png"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
