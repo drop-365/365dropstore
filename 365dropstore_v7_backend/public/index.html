@@ -5635,8 +5635,19 @@ function renderAbandonedList(){
   if(!abandonedOrders.length){el.innerHTML='<p style="color:var(--off);font-size:13px;padding-top:10px">No abandoned checkouts right now — nice.</p>';return;}
   el.innerHTML=abandonedOrders.map(o=>{
     const itemsHtml=(o.items||[]).map(i=>`${i.name||"Item"} (${i.size||""}${i.color?", "+i.color:""}) x${i.qty||1}`).join(", ");
-    const mins=o.minutes_ago||0;
-    const ago=mins<60?`${mins}m ago`:mins<1440?`${Math.floor(mins/60)}h ago`:`${Math.floor(mins/1440)}d ago`;
+    // Prefer the server-computed age; fall back to deriving it from
+    // placed_at. Relying on minutes_ago alone is what made every row
+    // read "0m ago" when the backend wasn't sending that field.
+    let mins=o.minutes_ago;
+    if(mins==null||!isFinite(mins)){
+      const t=o.placed_at?new Date(o.placed_at).getTime():NaN;
+      mins=isFinite(t)?Math.max(0,Math.floor((Date.now()-t)/60000)):null;
+    }
+    const ago = mins==null ? "—"
+      : mins<1 ? "just now"
+      : mins<60 ? `${mins}m ago`
+      : mins<1440 ? `${Math.floor(mins/60)}h ago`
+      : `${Math.floor(mins/1440)}d ago`;
     const nudgeMsg=encodeURIComponent(`Hi ${o.customer_name||"there"}, this is 365 Drop Store — noticed your order didn't go through. Want a hand completing it? Happy to help 🙂`);
     const waLink=o.phone?`https://wa.me/91${o.phone}?text=${nudgeMsg}`:"";
     return`<div style="border-top:1px solid var(--line);padding:12px 0;font-size:13px">
