@@ -2645,6 +2645,15 @@ Origin|Delhi studio..."></textarea>
         <small style="color:var(--off)">Anyone listed here is pulled off the map. Use it if a buyer asks to be removed, or if a junk name slips through. Matching ignores case and spacing.</small>
       </div>
 
+      <div class="pff full"><label>Offline buyers without recorded names</label>
+        <input type="number" id="wl-offline" min="0" max="5000" step="1" placeholder="0"/>
+        <small style="color:var(--off)">Real past buyers whose names weren't recorded. Each shows as an unnamed star, placed before the named stars. Raise it as you learn more; never use it for people who didn't buy.</small>
+      </div>
+      <div class="pff full"><label>Label on those stars</label>
+        <input type="text" id="wl-offline-label" maxlength="22" placeholder="OG"/>
+        <small style="color:var(--off)">What an unnamed star shows instead of a name. Default: OG.</small>
+      </div>
+
       <div class="pff full"><label>Extra blocked words</label>
         <textarea id="wl-blocked" rows="3" placeholder="One word per line"></textarea>
         <small style="color:var(--off)">Added on top of the built-in abuse list. Names containing these never reach the page. Leetspeak (f0ck, ch00t) and repeated letters are already handled automatically.</small>
@@ -4210,7 +4219,7 @@ function renderFooterFits(){
 
 // ONE place to change the trust claim — hero, shop grid and product page all read this.
 // Keep it TRUE: it's a public claim to customers (Consumer Protection / CCPA dark-pattern rules).
-var TRUST_LINE={big:"250+",text:"pieces delivered",sub:"Zero returns on quality"};  // ledger: 279 pieces as of 22 Sep 2026
+var TRUST_LINE={big:"1,000+",text:"happy customers",sub:"Zero returns on quality"};  // owner-stated total incl. unrecorded offline sales
 function trustLineHtml(){return '<span class="tl-ico">✓</span><span><b>'+TRUST_LINE.big+'</b> '+TRUST_LINE.text+'</span><span class="tl-sep">·</span><span class="tl-sub">'+TRUST_LINE.sub+'</span>';}
 function applyTrustLines(){document.querySelectorAll(".js-trust").forEach(el=>{el.innerHTML=trustLineHtml();});}
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",applyTrustLines);else applyTrustLines();
@@ -5474,6 +5483,10 @@ function loadWallAdmin(){
   if(hid) hid.value=Array.isArray(w.hidden)?w.hidden.join("\n"):"";
   const blk=document.getElementById("wl-blocked");
   if(blk) blk.value=Array.isArray(w.blocked)?w.blocked.join("\n"):"";
+  const off=document.getElementById("wl-offline");
+  if(off) off.value=Number(w.offlineCount)||0;
+  const offL=document.getElementById("wl-offline-label");
+  if(offL) offL.value=w.offlineLabel||"OG";
   checkWallStatus();
 }
 function saveWallSettings(){
@@ -5483,7 +5496,11 @@ function saveWallSettings(){
     return el.value.split("\n").map(s=>s.trim()).filter(Boolean);
   };
   const en=document.getElementById("wl-enabled");
+  const offEl=document.getElementById("wl-offline");
+  const offN=Math.max(0,Math.min(5000,parseInt(offEl&&offEl.value,10)||0));
   siteContent.wall={
+    offlineCount: offN,
+    offlineLabel: ((document.getElementById("wl-offline-label")||{}).value||"").trim().slice(0,22)||"OG",
     enabled: en?!!en.checked:true,
     hidden: lines("wl-hidden"),
     blocked: lines("wl-blocked")

@@ -292,11 +292,17 @@ function layout(rows){
   stars.forEach(s=>{s.fresh=s.num>stars.length-FRESH;});
 
   links=[];
-  stars.forEach((s,i)=>{
-    stars.map((o,j)=>({j,d:(o.x-s.x)**2+(o.y-s.y)**2}))
-      .filter(o=>o.j!==i).sort((a,b)=>a.d-b.d).slice(0,2)
-      .forEach(o=>{if(i<o.j)links.push([i,o.j,seeded(i*7+o.j,5)]);});
-  });
+  // Two nearest neighbours per star by a single linear scan. The old
+  // map+sort per star was fine at 100 stars but stalls phones at 1,000+.
+  for(let i=0;i<stars.length;i++){
+    const s=stars[i];let b1=-1,d1=Infinity,b2=-1,d2=Infinity;
+    for(let j=0;j<stars.length;j++){
+      if(j===i)continue;const o=stars[j];const d=(o.x-s.x)*(o.x-s.x)+(o.y-s.y)*(o.y-s.y);
+      if(d<d1){b2=b1;d2=d1;b1=j;d1=d;}else if(d<d2){b2=j;d2=d;}
+    }
+    if(b1>i)links.push([i,b1,seeded(i*7+b1,5)]);
+    if(b2>i)links.push([i,b2,seeded(i*7+b2,5)]);
+  }
 
   field=[];
   for(let i=0;i<900;i++){
