@@ -219,6 +219,8 @@ header{position:sticky;top:0;z-index:100;background:rgba(20,19,18,.95);-webkit-b
 .btn-loadmore:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(20,19,18,.2)}
 /* FAQ cards */
 .mo-sold-count{font-size:12px;color:var(--glow,#C0392B);font-weight:600;margin:6px 0 2px;font-family:var(--mono,monospace);letter-spacing:.02em}
+.mo-trust{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--off);margin:10px 0 2px;text-align:center;justify-content:center}
+.mo-trust b{color:var(--white)}
 /* size recommendation in modal */
 .mo-size-rec{margin-top:8px}
 .size-rec-card{padding:14px 18px;border-radius:12px;background:#141312;border:1px solid rgba(255,255,255,.1);color:#F8F7F4}
@@ -1190,6 +1192,13 @@ main,header,footer,.sec,.trust,.mq{position:relative;z-index:2}
 .revcard.imgrev .rev-zoom{position:absolute;top:10px;right:10px;width:30px;height:30px;border-radius:50%;background:rgba(20,19,18,.7);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);color:#fff;display:flex;align-items:center;justify-content:center;font-size:15px;opacity:0;transition:.3s;z-index:2}
 .revcard.imgrev:hover .rev-zoom{opacity:1}
 @media(max-width:640px){.revcard.imgrev{aspect-ratio:9/16}}
+.revcard.revcombo{padding:0;cursor:zoom-in}
+.revcard.revcombo .rc-photo{position:relative;aspect-ratio:4/3;overflow:hidden;background:#0c0c0c}
+.revcard.revcombo .rc-photo img{width:100%;height:100%;object-fit:cover;display:block;transition:.5s var(--ease2)}
+.revcard.revcombo:hover .rc-photo img{transform:scale(1.06)}
+.revcard.revcombo .rc-photo .rev-zoom{position:absolute;top:10px;right:10px;width:30px;height:30px;border-radius:50%;background:rgba(20,19,18,.7);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);color:#fff;display:flex;align-items:center;justify-content:center;font-size:15px;opacity:0;transition:.3s;z-index:2}
+.revcard.revcombo:hover .rc-photo .rev-zoom{opacity:1}
+.revcard.revcombo .rc-body{padding:20px 22px 22px}
 
 /* ===== ADMIN multi-image gallery manager ===== */
 .gmgr{display:flex;flex-wrap:wrap;gap:9px;margin-top:10px}
@@ -4191,7 +4200,11 @@ function renderRevs(){
       +avail.map(o=>'<button class="rth'+(revTheme===o.t.k?" on":"")+'" onclick="pickRevTheme(\''+o.t.k+'\')">'
         +_revEsc(o.t.n)+' <b>'+o.n+'</b></button>').join("")):"";
   }
-  document.getElementById("revg").innerHTML=_shown.map(r=>r.type==="img"?`<div class="revcard imgrev" onclick="openImgReview('${r.id}')"><div class="rev-zoom">&#9906;</div><img src="${r.img}" alt="Customer review"/></div>`:`<div class="revcard"><div class="revstars">${"★".repeat(r.stars||5)}</div><p class="revtext">"${_revEsc(r.text)}"</p><div class="revwho">${_revEsc(r.who)}</div><div class="revloc">${_revEsc(r.where)}</div></div>`).join("");
+  document.getElementById("revg").innerHTML=_shown.map(r=>{
+    if(r.img&&r.text)return `<div class="revcard revcombo" onclick="openImgReview('${r.id}')"><div class="rc-photo"><div class="rev-zoom">&#9906;</div><img src="${r.img}" alt="Customer review photo"/></div><div class="rc-body"><div class="revstars">${"★".repeat(r.stars||5)}</div><p class="revtext">"${_revEsc(r.text)}"</p><div class="revwho">${_revEsc(r.who)}</div><div class="revloc">${_revEsc(r.where)}</div></div></div>`;
+    if(r.img)return `<div class="revcard imgrev" onclick="openImgReview('${r.id}')"><div class="rev-zoom">&#9906;</div><img src="${r.img}" alt="Customer review"/></div>`;
+    return `<div class="revcard"><div class="revstars">${"★".repeat(r.stars||5)}</div><p class="revtext">"${_revEsc(r.text)}"</p><div class="revwho">${_revEsc(r.who)}</div><div class="revloc">${_revEsc(r.where)}</div></div>`;
+  }).join("");
   const _mr=document.getElementById("revmore");
   if(_mr){
     const left=_all.length-_shown.length;
@@ -4213,7 +4226,7 @@ function renderRevs(){
     }
   }
 }
-function openImgReview(id){const imgs=reviews.filter(r=>r.type==="img").map(r=>r.img);const idx=reviews.filter(r=>r.type==="img").findIndex(r=>r.id===id);openLB(imgs,Math.max(0,idx));}
+function openImgReview(id){const withPhoto=reviews.filter(r=>r.img);const imgs=withPhoto.map(r=>r.img);const idx=withPhoto.findIndex(r=>r.id===id);openLB(imgs,Math.max(0,idx));}
 
 // MODAL — with full description, shipping info, share, size chart image
 
@@ -4576,6 +4589,7 @@ function openMo(id){
       ${scHtml}
       <div class="qrow"><span class="mol" style="margin:0">Qty</span><div class="stepper"><button onclick="stp(-1)">−</button><span id="mqty">1</span><button onclick="stp(1)">+</button></div></div>
       <button class="moadd btn ${sold?'btn-g':'btn-w'}" onclick="addCart()" ${sold?'disabled':''}>${sold?'Sold Out':'Add to Bag · '+inr(eff(p))}</button>
+      <div class="mo-trust">✓ Delivered to <b>1,000+ customers</b></div>
       ${descFull}${shipHtml}
     </div>`;
   document.getElementById("ov").classList.add("op");lockScroll();
@@ -6170,7 +6184,13 @@ function setOrderStatus(orderId,status){
     }).catch(()=>showToast("⚠️ Status saved locally but live sync failed (network).",false));
   }
 }
-function rnAdmRev(){document.getElementById("rev-adm").innerHTML=reviews.length?reviews.map(r=>r.type==="img"?`<div style="display:flex;gap:12px;padding:11px 0;border-bottom:1px solid var(--line);align-items:center"><img src="${r.img}" style="width:44px;height:60px;object-fit:cover;border-radius:6px" alt="Review photo"/><div style="flex:1;color:var(--off);font-size:13px">Image review</div><button class="tb tb-del" onclick="delRev('${r.id}')">Del</button></div>`:`<div style="display:flex;gap:12px;padding:11px 0;border-bottom:1px solid var(--line);align-items:flex-start"><div style="flex:1"><b style="color:var(--white)">${r.who||""}</b> · ${r.where||""} · ${"★".repeat(r.stars||5)}<br><span style="color:var(--off);font-size:13px">"${r.text}"</span></div><button class="tb tb-del" onclick="delRev('${r.id}')">Del</button></div>`).join(""):'<p style="color:var(--off);font-size:13px">No reviews yet.</p>';}
+function rnAdmRev(){document.getElementById("rev-adm").innerHTML=reviews.length?reviews.map(r=>{
+  if(r.type==="img"&&!r.text)return `<div style="display:flex;gap:12px;padding:11px 0;border-bottom:1px solid var(--line);align-items:center"><img src="${r.img}" style="width:44px;height:60px;object-fit:cover;border-radius:6px" alt="Review photo"/><div style="flex:1;color:var(--off);font-size:13px">Image review</div><button class="tb tb-del" onclick="delRev('${r.id}')">Del</button></div>`;
+  const photoBit=r.img
+    ?`<img src="${r.img}" style="width:44px;height:60px;object-fit:cover;border-radius:6px" alt="Attached photo"/><button class="tb" style="font-size:11px" onclick="revRemovePhoto('${r.id}')">Remove photo</button>`
+    :`<label class="tb" style="font-size:11px;cursor:pointer">+ Attach photo<input type="file" accept="image/*,.heic,.heif" style="display:none" onchange="revAttachPhoto(this,'${r.id}')"/></label>`;
+  return `<div style="display:flex;gap:12px;padding:11px 0;border-bottom:1px solid var(--line);align-items:flex-start"><div style="flex:1"><b style="color:var(--white)">${r.who||""}</b> · ${r.where||""} · ${"★".repeat(r.stars||5)}<br><span style="color:var(--off);font-size:13px">"${r.text}"</span></div><div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end">${photoBit}<button class="tb tb-del" onclick="delRev('${r.id}')">Del</button></div></div>`;
+}).join(""):'<p style="color:var(--off);font-size:13px">No reviews yet.</p>';}
 
 // SETTINGS
 async function chgPwd(){const p1=document.getElementById("st0").value;const p2=document.getElementById("st1").value;if(!p1||p1!==p2){alert("Passwords don't match.");return;}if(p1.length<8){alert("Min 8 chars.");return;}const h=await sha256(p1);
@@ -6464,6 +6484,25 @@ function populateStoryProductSelect(){const sel=document.getElementById('sty-pro
 function renderStoryAdmin(){populateStoryProductSelect();const el=document.getElementById('sty-adm');if(!el)return;el.innerHTML=stories.length?stories.map(s=>`<div style="display:flex;gap:12px;padding:11px 0;border-bottom:1px solid var(--line);align-items:center"><img src="${s.img}" style="width:46px;height:62px;object-fit:cover;border-radius:6px" alt="Story photo"/><div style="flex:1"><div style="color:var(--w2);font-weight:600;font-size:14px">${(s.label||'').replace(/</g,'&lt;')}</div><div style="color:var(--off);font-size:12px">${(s.caption||'').replace(/</g,'&lt;')} · ${s.date||''}${s.productId?' · 🛒 linked':''}</div></div><button class="btn btn-g" style="padding:6px 12px" onclick="delStory('${s.id}')">Delete</button></div>`).join(''):'<p style="color:var(--off);font-size:13px">No stories yet.</p>';}
 
 // ===== IMAGE REVIEWS =====
+// Attach a photo to an EXISTING text review (combined card), or remove one
+// already attached. Reuses the same admin-reviews "save" upsert the
+// text-only and image-only flows already use — no backend change needed,
+// since reviews.img and reviews.text_content are independent columns.
+async function revAttachPhoto(inp,id){
+  if(!inp.files||!inp.files[0])return;
+  const rev=reviews.find(r=>r.id===id);if(!rev)return;
+  try{
+    const bf=await toBrowserFile(inp.files[0]);
+    const compressed=await compressImg(bf,700,0.75);
+    const d=await uploadToR2(compressed,"reviews");
+    rev.img=d;
+    if(!lsSafeSet('ds_r',reviews))return;
+    renderRevs();rnAdmRev();
+    showToast('✓ Photo attached',true);
+    syncReviewToSupabase("save",rev).then(res=>{if(res&&res.imgUrl){rev.img=res.imgUrl;lsSafeSet('ds_r',reviews);renderRevs();rnAdmRev();}});
+  }catch(e){showToast("Couldn't read that image — try JPEG/PNG.",false);}
+}
+function revRemovePhoto(id){const rev=reviews.find(r=>r.id===id);if(!rev)return;rev.img=null;lsSafeSet('ds_r',reviews);renderRevs();rnAdmRev();syncReviewToSupabase("save",rev);}
 async function revImgUp(inp){if(!inp.files||!inp.files.length)return;let added=0;const newRevs=[];for(const f of inp.files){try{const bf=await toBrowserFile(f);const compressed=await compressImg(bf,700,0.75);const d=await uploadToR2(compressed,"reviews");const newRev={id:'R'+uid(),type:'img',img:d};reviews.unshift(newRev);newRevs.push(newRev);added++;}catch(e){}}if(!added){showToast("Couldn't read those images — try JPEG/PNG.",false);return;}if(!lsSafeSet('ds_r',reviews))return;renderRevs();rnAdmRev();inp.value='';showToast('✓ '+added+' image review(s) added.',true);for(const r of newRevs){syncReviewToSupabase("save",r).then(res=>{if(res&&res.imgUrl){r.img=res.imgUrl;lsSafeSet('ds_r',reviews);renderRevs();rnAdmRev();}});}}
 
 
