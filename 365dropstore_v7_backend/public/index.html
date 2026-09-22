@@ -221,6 +221,27 @@ header{position:sticky;top:0;z-index:100;background:rgba(20,19,18,.95);-webkit-b
 .mo-sold-count{font-size:12px;color:var(--glow,#C0392B);font-weight:600;margin:6px 0 2px;font-family:var(--mono,monospace);letter-spacing:.02em}
 .mo-trust{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--off);margin:10px 0 2px;text-align:center;justify-content:center}
 .mo-trust b{color:var(--white)}
+/* Trust line — one wording everywhere, set from TRUST_LINE in JS */
+.trust-line{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--off);letter-spacing:.01em}
+.trust-line .tl-ico{width:18px;height:18px;border-radius:50%;background:var(--red);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex:none}
+.trust-line b{color:var(--white);font-weight:700}
+.trust-line .tl-sep{opacity:.4}
+.hero-trust{margin:14px 0 4px}
+.shop-trust{display:flex;justify-content:center;padding:12px 16px;margin:0 0 14px;border:1px solid var(--line);border-radius:12px;background:var(--glass,rgba(0,0,0,.02))}
+@media(max-width:560px){.trust-line{font-size:12px;flex-wrap:wrap;justify-content:center;text-align:center}.trust-line .tl-sep{display:none}.trust-line .tl-sub{flex-basis:100%}}
+/* Customer photo wall (reviews rows with type="ugc") */
+.ugc{margin:6px 0 30px}
+.ugc-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:14px}
+.ugc-head b{font-family:var(--dsp);font-size:22px;letter-spacing:.03em;color:var(--white)}
+.ugc-head span{font-size:12.5px;color:var(--off)}
+.ugc-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+@media(max-width:900px){.ugc-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:560px){.ugc-grid{grid-template-columns:repeat(2,1fr);gap:8px}}
+.ugc-tile{position:relative;aspect-ratio:3/4;border-radius:12px;overflow:hidden;cursor:zoom-in;background:#0c0c0c;border:1px solid rgba(192,57,43,.12)}
+.ugc-tile img{width:100%;height:100%;object-fit:cover;display:block;transition:.5s var(--ease2)}
+.ugc-tile:hover img{transform:scale(1.06)}
+.ugc-tile .ugc-cap{position:absolute;left:0;right:0;bottom:0;padding:22px 10px 9px;background:linear-gradient(transparent,rgba(0,0,0,.75));color:#fff;font-size:12px;font-weight:600}
+.ugc-more{display:flex;justify-content:center;margin-top:14px}
 /* size recommendation in modal */
 .mo-size-rec{margin-top:8px}
 .size-rec-card{padding:14px 18px;border-radius:12px;background:#141312;border:1px solid rgba(255,255,255,.1);color:#F8F7F4}
@@ -1589,6 +1610,7 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
     </div>
     <h1 class="hh1 rvh hd3" id="hero-h1"><span class="hero-gradient">365 DROP</span><span>STORE</span></h1>
     <p class="hsub rvh hd4" id="hero-sub">Premium denim built from zero in Delhi — wide-leg, baggy, straight. Dropped limited, worn everywhere.</p>
+    <div class="hero-trust"><span class="trust-line js-trust"></span></div>
     <div id="termstrip" class="termstrip rvh hd4" aria-hidden="true">
       <span class="ts-row"><i class="ts-dot"></i> DROP_001 // <b id="ts-units">—</b> UNITS LIVE</span>
       <span class="ts-sep">·</span>
@@ -1961,6 +1983,7 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
 <!-- shop -->
 <section class="sec" id="shop" style="padding-top:32px"><div class="w">
 <div id="shadebar" class="shadebar"></div>
+  <div class="shop-trust"><span class="trust-line js-trust"></span></div>
   <div class="rev-trust-strip" id="revTrustStrip" onclick="goTo('#reviews')" style="display:none">
     <span class="rts-score">5.0</span>
     <span class="rts-stars">★★★★★</span>
@@ -2025,6 +2048,11 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
 <!-- reviews -->
 <section class="sec" id="reviews"><div class="w">
   <div class="sh sr"><div><h2 data-dec>WORD ON THE STREET</h2><p class="shs">Tag <b style="color:var(--white)">@365dropstore</b> on Instagram to get featured.</p></div></div>
+  <div class="ugc" id="ugcWrap" style="display:none">
+    <div class="ugc-head"><b>WORN BY THE SQUAD</b><span id="ugcCount"></span></div>
+    <div class="ugc-grid" id="ugcGrid"></div>
+    <div class="ugc-more" id="ugcMore"></div>
+  </div>
   <div class="revsum" id="revsum"></div>
   <div class="revthemes" id="revthemes"></div>
   <div class="revgrid" id="revg"></div>
@@ -2619,7 +2647,7 @@ Origin|Delhi studio..."></textarea>
   </div>
 
   <!-- reviews tab -->
-  <div id="tab-reviews" class="apsec" style="display:none"><h3>REVIEWS <button class="btn btn-g" style="font-size:11px;padding:4px 10px;margin-left:8px" onclick="refreshSectionFromSupabase('reviews')">↻ Refresh</button></h3><div class="pfgrid"><div class="pff"><label>Customer Name</label><input type="text" id="rv0" placeholder="Aryan M."/></div><div class="pff"><label>City</label><input type="text" id="rv1" placeholder="Delhi"/></div><div class="pff"><label>Stars (1–5)</label><input type="number" id="rv2" min="1" max="5" value="5"/></div><div class="pff full"><label>Review Text</label><textarea id="rv3" rows="3" placeholder="What they said…"></textarea></div><div class="pff full"><button class="btn btn-w" onclick="saveRev()">Add Text Review</button></div><div class="pff full" style="border-top:1px solid var(--line);padding-top:16px;margin-top:6px"><label>OR ADD IMAGE REVIEWS — buyer screenshots (Insta story / WhatsApp chat)</label><input type="file" accept="image/*,.heic,.heif" multiple onchange="revImgUp(this)"/><small>Upload buyer screenshots. Each becomes a tap-to-zoom card in the reviews grid. Multiple allowed.</small></div></div><div style="margin-top:22px" id="rev-adm"></div></div>
+  <div id="tab-reviews" class="apsec" style="display:none"><h3>REVIEWS <button class="btn btn-g" style="font-size:11px;padding:4px 10px;margin-left:8px" onclick="refreshSectionFromSupabase('reviews')">↻ Refresh</button></h3><div class="pfgrid"><div class="pff"><label>Customer Name</label><input type="text" id="rv0" placeholder="Aryan M."/></div><div class="pff"><label>City</label><input type="text" id="rv1" placeholder="Delhi"/></div><div class="pff"><label>Stars (1–5)</label><input type="number" id="rv2" min="1" max="5" value="5"/></div><div class="pff full"><label>Review Text</label><textarea id="rv3" rows="3" placeholder="What they said…"></textarea></div><div class="pff full"><button class="btn btn-w" onclick="saveRev()">Add Text Review</button></div><div class="pff full" style="border-top:1px solid var(--line);padding-top:16px;margin-top:6px"><label>OR ADD IMAGE REVIEWS — buyer screenshots (Insta story / WhatsApp chat)</label><input type="file" accept="image/*,.heic,.heif" multiple onchange="revImgUp(this)"/><small>Upload buyer screenshots. Each becomes a tap-to-zoom card in the reviews grid. Multiple allowed.</small></div></div><div style="margin-top:22px" id="rev-adm"></div><div style="border-top:1px solid var(--line);margin-top:26px;padding-top:18px"><h3>CUSTOMER PHOTO WALL</h3><p style="color:var(--off);font-size:12.5px;margin:6px 0 12px">Photos customers send you on WhatsApp / Instagram after delivery. Shows on the site as "WORN BY THE SQUAD" above the reviews. Only upload photos the customer is OK with you posting.</p><div class="pfgrid"><div class="pff"><label>Customer first name (optional, shown on photo)</label><input type="text" id="ugc-name" placeholder="Fazal"/></div><div class="pff full"><input type="file" accept="image/*,.heic,.heif" multiple onchange="ugcUp(this)"/><small>Multiple allowed. Each photo becomes one tile.</small></div></div><div style="margin-top:14px;display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:10px" id="ugc-adm"></div></div></div>
 
   <!-- story updates tab -->
   <div id="tab-stories" class="apsec" style="display:none"><h3>STORY UPDATES <button class="btn btn-g" style="font-size:11px;padding:4px 10px;margin-left:8px" onclick="refreshSectionFromSupabase('stories')">↻ Refresh</button></h3>
@@ -4150,11 +4178,20 @@ function renderFooterFits(){
 }
 
 
+// ONE place to change the trust claim — hero, shop grid and product page all read this.
+// Keep it TRUE: it's a public claim to customers (Consumer Protection / CCPA dark-pattern rules).
+var TRUST_LINE={big:"1,000+",text:"orders delivered",sub:"Zero returns on quality"};
+function trustLineHtml(){return '<span class="tl-ico">✓</span><span><b>'+TRUST_LINE.big+'</b> '+TRUST_LINE.text+'</span><span class="tl-sep">·</span><span class="tl-sub">'+TRUST_LINE.sub+'</span>';}
+function applyTrustLines(){document.querySelectorAll(".js-trust").forEach(el=>{el.innerHTML=trustLineHtml();});}
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",applyTrustLines);else applyTrustLines();
+// Customer photo wall rows live in the reviews table with type "ugc"
+function isUgc(r){return !!r&&r.type==="ugc";}
 function _revEsc(s){return String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
 // 2026-09-02: sizing/fit reviews answer the #1 pre-purchase objection from ads.
 // Surface them first instead of leaving them 6 rows deep.
 const _REV_PRIORITY=/\b(size|sizing|fit|fitted|fitting|waist|length|measurement)/i;
 function _revRank(r){
+  if(r.img&&r.text)return -1;                       // photo + words = strongest proof, lead with it
   if(r.type==="img")return 1;                       // leave image reviews where they were
   return _REV_PRIORITY.test(r.text||"")?0:1;
 }
@@ -4164,18 +4201,20 @@ const REV_THEMES=[
   {k:"fit",   n:"Fit & sizing", re:/\b(siz|fit|fitt|waist|length|tall|height|wide[- ]?leg|loose)/i},
   {k:"qual",  n:"Quality",      re:/\b(qualit|fabric|denim|material|stitch|premium|heavyweight|finish|durab)/i},
   {k:"deliv", n:"Delivery",     re:/\b(deliver|shipp|arriv|fast|days|packag|quick)/i},
-  {k:"supp",  n:"Support",      re:/\b(support|owner|founder|whatsapp|repl|respons|servic|brother|help)/i}
+  {k:"supp",  n:"Support",      re:/\b(support|owner|founder|whatsapp|repl|respons|servic|brother|help)/i},
+  {k:"photo", n:"📷 With photos", re:null}
 ];
 function revMatches(r,k){
   if(!k)return true;
+  if(k==="photo")return !!r.img;
   const t=REV_THEMES.find(x=>x.k===k);
-  return !!(t&&r.text&&t.re.test(r.text));
+  return !!(t&&t.re&&r.text&&t.re.test(r.text));
 }
 function pickRevTheme(k){revTheme=(revTheme===k)?"":k;revExpanded=false;renderRevs();}
 function expandRevs(){revExpanded=true;renderRevs();
   const g=document.getElementById("revg");if(g)g.focus&&g.focus();}
 function renderRevs(){
-  const _revs=(Array.isArray(reviews)?reviews:[]).slice()
+  const _revs=(Array.isArray(reviews)?reviews:[]).filter(r=>!isUgc(r)).slice()
     .map((r,i)=>({r:r,i:i}))
     .sort((a,b)=>(_revRank(a.r)-_revRank(b.r))||(a.i-b.i))
     .map(x=>x.r);
@@ -4183,14 +4222,14 @@ function renderRevs(){
   const REV_STEP=6;
   const _shown=revExpanded?_all:_all.slice(0,REV_STEP);
   // summary strip
-  const _txt=(Array.isArray(reviews)?reviews:[]).filter(r=>r.type!=="img"&&r.stars);
+  const _txt=(Array.isArray(reviews)?reviews:[]).filter(r=>r.type!=="img"&&!isUgc(r)&&r.stars);
   const _sumEl=document.getElementById("revsum");
   if(_sumEl){
     const avg=_txt.length?(_txt.reduce((a,r)=>a+(r.stars||5),0)/_txt.length).toFixed(1):"5.0";
     _sumEl.innerHTML='<div class="rs-score"><b>'+avg+'</b><span class="rs-stars">'
       +'&#9733;&#9733;&#9733;&#9733;&#9733;</span></div>'
       +'<div class="rs-meta"><b>'+_txt.length+' verified reviews</b>'
-      +'<span>Real Google reviews from real orders. Nothing written by us.</span></div>';
+      +'<span>Real Google reviews from real orders. Nothing written by us.'+(_revs.filter(r=>r.img).length?' · '+_revs.filter(r=>r.img).length+' with customer photos':'')+'</span></div>';
   }
   // theme chips
   const _th=document.getElementById("revthemes");
@@ -4225,8 +4264,24 @@ function renderRevs(){
       const qt=_txt[0].text;rtsQ.textContent='"'+(qt.length>80?qt.slice(0,77)+'…':qt)+'"';
     }
   }
+  renderUgc();
 }
-function openImgReview(id){const withPhoto=reviews.filter(r=>r.img);const imgs=withPhoto.map(r=>r.img);const idx=withPhoto.findIndex(r=>r.id===id);openLB(imgs,Math.max(0,idx));}
+let ugcExpanded=false;
+function renderUgc(){
+  const wrap=document.getElementById("ugcWrap");if(!wrap)return;
+  const all=(Array.isArray(reviews)?reviews:[]).filter(r=>isUgc(r)&&r.img);
+  if(!all.length){wrap.style.display="none";return;}
+  wrap.style.display="block";
+  const STEP=8, shown=ugcExpanded?all:all.slice(0,STEP);
+  document.getElementById("ugcCount").textContent=all.length+" real customer photo"+(all.length>1?"s":"");
+  document.getElementById("ugcGrid").innerHTML=shown.map((r,i)=>`<div class="ugc-tile" onclick="openUgc(${i})"><img src="${r.img}" alt="${_revEsc(r.who||"Customer")} wearing 365 Drop Store" loading="lazy"/>${r.who?`<div class="ugc-cap">${_revEsc(r.who)}</div>`:""}</div>`).join("");
+  const left=all.length-shown.length;
+  document.getElementById("ugcMore").innerHTML=left>0
+    ?`<button class="btn-revmore" onclick="ugcExpanded=true;renderUgc()">See all ${all.length} photos &darr;</button>`
+    :(ugcExpanded&&all.length>STEP?`<button class="btn-revmore ghost" onclick="ugcExpanded=false;renderUgc()">Show fewer &uarr;</button>`:"");
+}
+function openUgc(i){const all=reviews.filter(r=>isUgc(r)&&r.img);openLB(all.map(r=>r.img),Math.max(0,i));}
+function openImgReview(id){const withPhoto=reviews.filter(r=>r.img&&!isUgc(r));const imgs=withPhoto.map(r=>r.img);const idx=withPhoto.findIndex(r=>r.id===id);openLB(imgs,Math.max(0,idx));}
 
 // MODAL — with full description, shipping info, share, size chart image
 
@@ -4589,7 +4644,7 @@ function openMo(id){
       ${scHtml}
       <div class="qrow"><span class="mol" style="margin:0">Qty</span><div class="stepper"><button onclick="stp(-1)">−</button><span id="mqty">1</span><button onclick="stp(1)">+</button></div></div>
       <button class="moadd btn ${sold?'btn-g':'btn-w'}" onclick="addCart()" ${sold?'disabled':''}>${sold?'Sold Out':'Add to Bag · '+inr(eff(p))}</button>
-      <div class="mo-trust">✓ Delivered to <b>1,000+ customers</b></div>
+      <div class="mo-trust"><span class="trust-line">${trustLineHtml()}</span></div>
       ${descFull}${shipHtml}
     </div>`;
   document.getElementById("ov").classList.add("op");lockScroll();
@@ -6184,7 +6239,7 @@ function setOrderStatus(orderId,status){
     }).catch(()=>showToast("⚠️ Status saved locally but live sync failed (network).",false));
   }
 }
-function rnAdmRev(){document.getElementById("rev-adm").innerHTML=reviews.length?reviews.map(r=>{
+function rnAdmRev(){rnAdmUgc();const _rv=reviews.filter(r=>!isUgc(r));document.getElementById("rev-adm").innerHTML=_rv.length?_rv.map(r=>{
   if(r.type==="img"&&!r.text)return `<div style="display:flex;gap:12px;padding:11px 0;border-bottom:1px solid var(--line);align-items:center"><img src="${r.img}" style="width:44px;height:60px;object-fit:cover;border-radius:6px" alt="Review photo"/><div style="flex:1;color:var(--off);font-size:13px">Image review</div><button class="tb tb-del" onclick="delRev('${r.id}')">Del</button></div>`;
   const photoBit=r.img
     ?`<img src="${r.img}" style="width:44px;height:60px;object-fit:cover;border-radius:6px" alt="Attached photo"/><button class="tb" style="font-size:11px" onclick="revRemovePhoto('${r.id}')">Remove photo</button>`
@@ -6503,6 +6558,8 @@ async function revAttachPhoto(inp,id){
   }catch(e){showToast("Couldn't read that image — try JPEG/PNG.",false);}
 }
 function revRemovePhoto(id){const rev=reviews.find(r=>r.id===id);if(!rev)return;rev.img=null;lsSafeSet('ds_r',reviews);renderRevs();rnAdmRev();syncReviewToSupabase("save",rev);}
+function rnAdmUgc(){const el=document.getElementById("ugc-adm");if(!el)return;const u=reviews.filter(isUgc);el.innerHTML=u.length?u.map(r=>`<div style="position:relative"><img src="${r.img}" style="width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:8px" alt="Customer photo"/><div style="font-size:11px;color:var(--off);margin:4px 0">${_revEsc(r.who||"—")}</div><button class="tb tb-del" style="font-size:11px" onclick="delRev('${r.id}')">Del</button></div>`).join(""):'<p style="color:var(--off);font-size:13px;grid-column:1/-1">No customer photos yet.</p>';}
+async function ugcUp(inp){if(!inp.files||!inp.files.length)return;const nameEl=document.getElementById("ugc-name");const who=(nameEl&&nameEl.value.trim())||"";let added=0;const newRows=[];for(const f of inp.files){try{const bf=await toBrowserFile(f);const c=await compressImg(bf,900,0.8);const d=await uploadToR2(c,"reviews");const row={id:"U"+uid(),type:"ugc",img:d,who:who||null,where:"Customer photo"};reviews.unshift(row);newRows.push(row);added++;}catch(e){}}if(!added){showToast("Couldn't read those images — try JPEG/PNG.",false);return;}if(!lsSafeSet("ds_r",reviews))return;renderRevs();rnAdmRev();inp.value="";if(nameEl)nameEl.value="";showToast("✓ "+added+" customer photo(s) added to the wall.",true);for(const r of newRows){syncReviewToSupabase("save",r).then(res=>{if(res&&res.imgUrl){r.img=res.imgUrl;lsSafeSet("ds_r",reviews);renderRevs();rnAdmRev();}});}}
 async function revImgUp(inp){if(!inp.files||!inp.files.length)return;let added=0;const newRevs=[];for(const f of inp.files){try{const bf=await toBrowserFile(f);const compressed=await compressImg(bf,700,0.75);const d=await uploadToR2(compressed,"reviews");const newRev={id:'R'+uid(),type:'img',img:d};reviews.unshift(newRev);newRevs.push(newRev);added++;}catch(e){}}if(!added){showToast("Couldn't read those images — try JPEG/PNG.",false);return;}if(!lsSafeSet('ds_r',reviews))return;renderRevs();rnAdmRev();inp.value='';showToast('✓ '+added+' image review(s) added.',true);for(const r of newRevs){syncReviewToSupabase("save",r).then(res=>{if(res&&res.imgUrl){r.img=res.imgUrl;lsSafeSet('ds_r',reviews);renderRevs();rnAdmRev();}});}}
 
 
@@ -7312,7 +7369,7 @@ function closeReviewForm(){
     return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
   function pool(){
     var rr=(typeof reviews!=="undefined"&&Array.isArray(reviews))?reviews:[];
-    return rr.filter(function(r){return r.type!=="img"&&r.text&&r.who;});
+    return rr.filter(function(r){return r.type!=="img"&&r.type!=="ugc"&&r.text&&r.who;});
   }
   function showSP(){
     var rr=pool();
