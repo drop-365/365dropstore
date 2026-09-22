@@ -2228,10 +2228,14 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
         <div class="pff"><label>Customer Name</label><input type="text" id="wo-name" placeholder="Aryan M."/></div>
         <div class="pff"><label>Phone</label><input type="text" id="wo-phone" placeholder="9xxxxxxxxx"/></div>
         <div class="pff"><label>Pincode <span style="text-transform:none;font-weight:400">(leave blank for a walk-in)</span></label><input type="text" id="wo-pin" inputmode="numeric" maxlength="6" placeholder="110001"/></div>
-        <div class="pff"><label>Amount Paid (₹)</label><input type="number" id="wo-total" placeholder="1099"/></div>
-        <div class="pff full"><label>Product</label><select id="wo-prod"></select></div>
-        <div class="pff"><label>Size</label><input type="text" id="wo-size" placeholder="32"/></div>
-        <div class="pff"><label>Qty</label><input type="number" id="wo-qty" value="1" min="1"/></div>
+        <div class="pff full" style="border-top:1px solid var(--line);padding-top:14px;margin-top:2px">
+          <label>Articles in this order <span style="text-transform:none;font-weight:400;color:var(--off)">— one customer, add as many as they bought</span></label>
+          <div id="wo-lines"></div>
+          <button class="tb" style="margin-top:8px" onclick="woAddLine()">+ Add another article</button>
+        </div>
+        <div class="pff full" style="display:flex;justify-content:space-between;align-items:center;padding:10px 2px;font-size:13px;color:var(--off)">
+          <span>Order total</span><b id="wo-grandtotal" style="color:var(--white);font-size:16px">₹0</b>
+        </div>
         <div class="pff full"><button class="btn btn-w" onclick="saveWhatsappOrder()" style="width:100%;justify-content:center">Log Order</button><small id="wo-msg" style="display:block;margin-top:8px;color:var(--off)"></small></div>
       </div>
     </div>
@@ -2266,6 +2270,18 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
       </div>
       <div id="abandoned-list" style="display:none;padding:0 16px 16px"></div>
     </div>
+
+    <div style="margin-top:16px;border:1px solid rgba(41,128,185,.35);background:rgba(41,128,185,.06);border-radius:10px;padding:16px">
+      <h4 style="margin-bottom:4px">LOOK UP A CUSTOMER</h4>
+      <p style="color:var(--off);font-size:12px;margin-bottom:12px">See everything one person has ever bought — across the website, WhatsApp, Instagram and walk-ins — by phone (exact) or name (partial match).</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <input type="text" id="ch-phone" placeholder="Phone number" style="flex:1;min-width:140px"/>
+        <input type="text" id="ch-name" placeholder="or a name" style="flex:1;min-width:140px"/>
+        <button class="btn btn-g" onclick="lookupCustomer()">Search</button>
+      </div>
+      <div id="ch-result" style="margin-top:14px"></div>
+    </div>
+
     <div id="ord-list" style="margin-top:18px"></div>
   </div>
 
@@ -3895,43 +3911,92 @@ function _sb(){
    were invisible to sold counts and to the dispatch map. This writes a real
    row with source='whatsapp' and status='fulfilled'. */
 function fillWoProducts(){
-  const sel=document.getElementById("wo-prod");if(!sel)return;
-  sel.innerHTML=[...products].sort((a,b)=>(a.name||"").localeCompare(b.name||""))
+  // Was a single global <select id="wo-prod">; now each article line has
+  // its own dropdown built from this same sorted list. Kept as a function
+  // in case a call site still expects it, but the real population happens
+  // per-line in woLineHTML().
+  woProdOptions=[...products].sort((a,b)=>(a.name||"").localeCompare(b.name||""))
     .map(p=>'<option value="'+String(p.id).replace(/"/g,"")+'">'+_dspEsc(p.name)+'</option>').join("");
+  if(!document.getElementById("wo-lines").children.length)woAddLine();
+}
+let woProdOptions="";
+let woLineSeq=0;
+/* One offline sale can be several different articles for the same
+   customer (e.g. 4 different jeans in one WhatsApp order) — previously
+   that meant 4 separate "orders" that couldn't be tracked or looked up
+   together. Each line below becomes one item in ONE order. */
+function woLineHTML(id){
+  return `<div class="wo-line" data-id="${id}" style="display:grid;grid-template-columns:1fr 70px 55px 90px 30px;gap:8px;align-items:end;margin-bottom:8px">
+    <div><label style="font-size:10px;color:var(--off);display:block;margin-bottom:3px">Product</label><select id="wo-prod-${id}">${woProdOptions}</select></div>
+    <div><label style="font-size:10px;color:var(--off);display:block;margin-bottom:3px">Size</label><input type="text" id="wo-size-${id}" placeholder="32"/></div>
+    <div><label style="font-size:10px;color:var(--off);display:block;margin-bottom:3px">Qty</label><input type="number" id="wo-qty-${id}" value="1" min="1" oninput="woRecalcTotal()"/></div>
+    <div><label style="font-size:10px;color:var(--off);display:block;margin-bottom:3px">Amount (₹)</label><input type="number" id="wo-lt-${id}" placeholder="1099" oninput="woRecalcTotal()"/></div>
+    <button class="tb tb-del" style="padding:9px 6px" onclick="woRemoveLine(${id})" title="Remove">×</button>
+  </div>`;
+}
+function woAddLine(){
+  const wrap=document.getElementById("wo-lines");if(!wrap)return;
+  woLineSeq++;
+  wrap.insertAdjacentHTML("beforeend",woLineHTML(woLineSeq));
+  woRecalcTotal();
+}
+function woRemoveLine(id){
+  const wrap=document.getElementById("wo-lines");
+  const el=wrap&&wrap.querySelector(`.wo-line[data-id="${id}"]`);
+  if(el)el.remove();
+  // Never leave zero lines — a form with nothing to log invites confusion
+  // about whether the last item silently vanished.
+  if(wrap&&!wrap.children.length)woAddLine();
+  woRecalcTotal();
+}
+function woRecalcTotal(){
+  const wrap=document.getElementById("wo-lines");if(!wrap)return;
+  let total=0;
+  wrap.querySelectorAll(".wo-line").forEach(line=>{
+    const id=line.dataset.id;
+    total+=Number((document.getElementById("wo-lt-"+id)||{}).value)||0;
+  });
+  const el=document.getElementById("wo-grandtotal");
+  if(el)el.textContent=inr(total);
 }
 async function saveWhatsappOrder(){
   const msg=document.getElementById("wo-msg");
   const g=id=>(document.getElementById(id)||{}).value||"";
   const name=g("wo-name").trim(), phone=g("wo-phone").trim(), pin=g("wo-pin").trim();
-  const total=parseFloat(g("wo-total"))||0, pid=g("wo-prod"), size=g("wo-size").trim();
-  const qty=Math.max(1,parseInt(g("wo-qty"),10)||1);
   const channel=g("wo-channel")||"whatsapp", paymentMode=g("wo-paymode")||"cash";
-  const p=products.find(x=>x.id===pid);
   function fail(t){if(msg){msg.textContent="\u2717 "+t;msg.style.color="#C0392B";}}
   if(!name)return fail("Customer name is required.");
-  // Pincode is optional for a genuine walk-in (nothing was shipped), but
-  // still validated as a real 6-digit pin whenever one IS given.
   if(pin&&!/^[1-9][0-9]{5}$/.test(pin))return fail("Pincode must be 6 digits and not start with 0.");
-  if(!p)return fail("Pick a product.");
-  if(total<=0)return fail("Enter the amount actually paid.");
   if(!_adminPw)return fail("Admin session expired — refresh and log in again.");
+
+  const wrap=document.getElementById("wo-lines");
+  const lineEls=wrap?[...wrap.querySelectorAll(".wo-line")]:[];
+  if(!lineEls.length)return fail("Add at least one article.");
+  const items=[];
+  for(const line of lineEls){
+    const id=line.dataset.id;
+    const pid=g("wo-prod-"+id), size=g("wo-size-"+id).trim();
+    const qty=Math.max(1,parseInt(g("wo-qty-"+id),10)||1);
+    const total=parseFloat(g("wo-lt-"+id))||0;
+    const p=products.find(x=>x.id===pid);
+    if(!p)return fail("Pick a product for every article line.");
+    if(total<=0)return fail(`Enter the amount paid for ${p.name}.`);
+    items.push({productId:p.id,size,qty,total});
+  }
+
   if(msg){msg.textContent="Saving\u2026";msg.style.color="";}
-  // Routes through the log-sale Edge Function, which writes with the
-  // service-role key server-side. The orders table's RLS has no insert
-  // policy for the browser's own key by design -- this form previously
-  // tried to insert directly and could never succeed (confirmed: "new row
-  // violates row-level security policy for table orders" on every attempt).
   try{
     const res=await fetch(SB_FN_BASE+"log-sale",{
       method:"POST",headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({action:"log",password:_adminPw,productId:p.id,size,qty,total,
+      body:JSON.stringify({action:"log",password:_adminPw,items,
         channel,paymentMode,customerName:name,phone,pincode:pin})
     });
     const data=await res.json();
     if(data.error)throw new Error(data.error);
-    if(msg){msg.textContent="\u2713 Logged "+data.order_id+" \u2014 sold count and dispatch map will update on next load.";msg.style.color="#2ecc71";}
-    ["wo-name","wo-phone","wo-pin","wo-total","wo-size"].forEach(i=>{const e=document.getElementById(i);if(e)e.value="";});
-    const q=document.getElementById("wo-qty");if(q)q.value="1";
+    const n=data.items_logged||items.length;
+    if(msg){msg.textContent="\u2713 Logged "+data.order_id+" \u2014 "+n+" article"+(n>1?"s":"")+" on one order, "+inr(data.total)+" total. Sold count and dispatch map will update on next load.";msg.style.color="#2ecc71";}
+    ["wo-name","wo-phone","wo-pin"].forEach(i=>{const e=document.getElementById(i);if(e)e.value="";});
+    wrap.innerHTML="";woAddLine();
     if(typeof loadDispatchStats==="function")loadDispatchStats();
     if(typeof loadOrdersFromSupabase==="function")loadOrdersFromSupabase();
   }catch(e){fail(e.message||"Could not reach the logging service. Try again.");}
@@ -5599,7 +5664,10 @@ async function loadOrdersFromSupabase(){
       total:o.total,status:o.status,placedAt:new Date(o.placed_at).getTime(),
       paymentMode:o.payment_mode||"prepaid",
       amountPaidOnline:o.amount_paid_online,
-      codDue:o.cod_due
+      codDue:o.cod_due,
+      trackingId:o.tracking_id||"",
+      courierPartner:o.courier_partner||"",
+      channel:o.channel
     }));
     try{localStorage.setItem("ds_orders",JSON.stringify(orders));}catch(e){}
     return true;
@@ -5964,12 +6032,28 @@ function rnAdmOrders(){
           <option value="fulfilled" ${o.status==="fulfilled"?"selected":""}>Fulfilled</option>
           <option value="cancelled" ${o.status==="cancelled"?"selected":""}>Cancelled</option>
         </select>
+        <button class="tb" onclick="toggleTrackingEditor('${o.orderId}')" title="Add or edit courier tracking">${o.trackingId?"✎ Tracking":"+ Tracking"}</button>
         <button class="tb tb-del" onclick="deleteOrder('${o.orderId}')" title="Delete this order permanently" style="margin-left:6px">Delete</button>
       </div>
       <div style="margin-top:10px;font-size:13.5px;color:var(--white)"><b>${o.name}</b> · <a href="${waLink}" target="_blank" rel="noopener" style="color:#2980B9">${o.phone}</a></div>
       <div style="font-size:13px;color:var(--off);margin-top:2px">${o.addr} — ${o.pin}</div>
       <div style="font-size:13px;color:var(--off);margin-top:8px;line-height:1.6">${itemsHtml}</div>
       <div style="margin-top:8px;font-weight:700;color:var(--white)">Total: ${inr(o.total)}</div>
+      ${o.trackingId?`<div style="margin-top:6px;font-size:12.5px;color:#2980B9">📦 ${o.courierPartner} · ${o.trackingId}</div>`:""}
+      <div id="trk-editor-${o.orderId}" style="display:none;margin-top:10px;padding:12px;background:var(--bg2,rgba(0,0,0,.03));border-radius:8px;border:1px solid var(--line)">
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <select id="trk-courier-${o.orderId}" style="flex:1;min-width:130px">
+            <option value="">Courier…</option>
+            ${["Delhivery","Shiprocket","Blue Dart","DTDC","Ecom Express","Xpressbees","Borzo","India Post","Other"].map(c=>`<option value="${c}" ${o.courierPartner===c?"selected":""}>${c}</option>`).join("")}
+          </select>
+          <input type="text" id="trk-awb-${o.orderId}" placeholder="AWB / tracking number" value="${(o.trackingId||"").replace(/"/g,"&quot;")}" style="flex:1;min-width:150px"/>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <button class="btn btn-w" style="font-size:12px;padding:8px 14px" onclick="saveTracking('${o.orderId}')">Save</button>
+          ${o.trackingId?`<button class="tb tb-del" style="font-size:12px" onclick="saveTracking('${o.orderId}',true)">Clear tracking</button>`:""}
+        </div>
+        <small id="trk-msg-${o.orderId}" style="display:block;margin-top:6px;color:var(--off)"></small>
+      </div>
       ${(()=>{
         const mode=o.paymentMode||"prepaid";
         const codDue=Number(o.codDue||0);
@@ -5987,6 +6071,74 @@ function rnAdmOrders(){
       })()}
     </div>`;
   }).join("");
+}
+function toggleTrackingEditor(orderId){
+  const el=document.getElementById("trk-editor-"+orderId);
+  if(el)el.style.display=el.style.display==="none"?"block":"none";
+}
+async function saveTracking(orderId,clear){
+  const msg=document.getElementById("trk-msg-"+orderId);
+  const courier=clear?"":(document.getElementById("trk-courier-"+orderId)||{}).value||"";
+  const trackingId=clear?"":((document.getElementById("trk-awb-"+orderId)||{}).value||"").trim();
+  if(!clear&&(!courier||!trackingId)){
+    if(msg){msg.textContent="Pick a courier and enter the tracking number.";msg.style.color="#C0392B";}
+    return;
+  }
+  if(!_adminPw){showToast("Admin session expired — refresh and log in again.",false);return;}
+  if(msg){msg.textContent="Saving…";msg.style.color="";}
+  try{
+    const res=await fetch(SB_FN_BASE+"admin-orders",{
+      method:"POST",headers:{"Content-Type":"application/json","apikey":SB_APIKEY},
+      body:JSON.stringify({password:_adminPw,action:"setTracking",orderId,trackingId,courierPartner:courier})
+    });
+    const data=await res.json();
+    if(data.error)throw new Error(data.error);
+    const o=orders.find(x=>x.orderId===orderId);
+    if(o){o.trackingId=trackingId;o.courierPartner=courier;}
+    showToast(clear?"Tracking cleared":"Tracking saved — the customer can now see it on Track My Order",true);
+    rnAdmOrders();
+  }catch(e){
+    if(msg){msg.textContent="Couldn't save: "+e.message;msg.style.color="#C0392B";}
+  }
+}
+async function lookupCustomer(){
+  const phone=(document.getElementById("ch-phone")||{}).value||"";
+  const name=(document.getElementById("ch-name")||{}).value||"";
+  const resultEl=document.getElementById("ch-result");
+  if(!phone.trim()&&!name.trim()){resultEl.innerHTML='<p style="color:#C0392B;font-size:13px">Enter a phone number or a name.</p>';return;}
+  if(!_adminPw){resultEl.innerHTML='<p style="color:#C0392B;font-size:13px">Admin session expired — refresh and log in again.</p>';return;}
+  resultEl.innerHTML='<p style="color:var(--off);font-size:13px">Searching…</p>';
+  try{
+    const res=await fetch(SB_FN_BASE+"admin-orders",{
+      method:"POST",headers:{"Content-Type":"application/json","apikey":SB_APIKEY},
+      body:JSON.stringify({password:_adminPw,action:"customerHistory",phone:phone.trim(),name:name.trim()})
+    });
+    const data=await res.json();
+    if(data.error)throw new Error(data.error);
+    if(!data.orders.length){resultEl.innerHTML='<p style="color:var(--off);font-size:13px">No orders found for that phone/name.</p>';return;}
+    const s=data.summary;
+    const chanStr=Object.entries(s.channels).map(([c,n])=>`${c}: ${n}`).join(" · ");
+    const rowsHtml=data.orders.map(o=>{
+      const when=new Date(o.placed_at).toLocaleDateString("en-IN",{day:"numeric",month:"short",year:"numeric"});
+      const items=(o.items||[]).map(i=>`${i.name}${i.size?" ("+i.size+")":""} x${i.qty}`).join(", ");
+      return `<div style="padding:8px 0;border-top:1px solid var(--line);font-size:12.5px">
+        <div style="display:flex;justify-content:space-between"><b>${o.order_id}</b><span style="color:var(--off)">${when}</span></div>
+        <div style="color:var(--off);margin-top:2px">${items||"—"}</div>
+        <div style="margin-top:2px"><b>${inr(o.total)}</b> · ${o.status}${o.tracking_id?` · 📦 ${o.tracking_id}`:""}</div>
+      </div>`;
+    }).join("");
+    resultEl.innerHTML=`<div style="padding:12px;background:var(--bg2,rgba(0,0,0,.03));border-radius:8px">
+      <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:6px">
+        <div><b style="font-size:20px">${s.totalOrders}</b><br><span style="color:var(--off);font-size:11px">Total orders</span></div>
+        <div><b style="font-size:20px">${inr(s.lifetimeSpend)}</b><br><span style="color:var(--off);font-size:11px">Lifetime spend</span></div>
+        <div><b style="font-size:20px">${s.paidOrders}</b><br><span style="color:var(--off);font-size:11px">Paid</span></div>
+      </div>
+      <div style="color:var(--off);font-size:11.5px;margin-bottom:8px">Channels — ${chanStr}</div>
+      ${rowsHtml}
+    </div>`;
+  }catch(e){
+    resultEl.innerHTML=`<p style="color:#C0392B;font-size:13px">${e.message}</p>`;
+  }
 }
 function deleteOrder(orderId){
   if(!confirm("Delete order "+orderId+" permanently? This cannot be undone."))return;
@@ -6976,6 +7128,16 @@ window.lookupOrderStatus=async function(){
     if(data.error){resultEl.innerHTML=`<p style="color:#E74C3C;font-size:13px">${data.error}</p>`;return;}
     const sc=STATUS_COPY[data.status]||{label:data.status,color:"#141312",note:""};
     const dateStr=data.placedAt?new Date(data.placedAt).toLocaleDateString("en-IN",{day:"numeric",month:"short",year:"numeric"}):"";
+    const itemsHtml=(data.items||[]).map(i=>{
+      const attrs=[i.size,i.color].filter(Boolean).join(", ");
+      return `<div style="display:flex;justify-content:space-between;padding:5px 0;font-size:12.5px;color:var(--w2,#333)"><span>${i.name}${attrs?" ("+attrs+")":""} × ${i.qty}</span><span>${inr(i.price*i.qty)}</span></div>`;
+    }).join("");
+    // Tracking only ever appears when the admin has actually set it —
+    // every order placed before this shipped simply has nothing here.
+    const trackHtml=data.trackingId?`
+        <div style="margin-top:12px;padding:10px 12px;background:rgba(41,128,185,.08);border:1px solid rgba(41,128,185,.25);border-radius:8px;font-size:12.5px">
+          📦 Shipped via <b>${data.courierPartner}</b><br>Tracking number: <b>${data.trackingId}</b>
+        </div>`:"";
     resultEl.innerHTML=`
       <div style="border:1px solid var(--line);border-radius:12px;padding:16px">
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
@@ -6983,7 +7145,9 @@ window.lookupOrderStatus=async function(){
           <b style="font-family:var(--dsp);font-size:18px">${sc.label}</b>
         </div>
         <p style="font-size:13px;color:var(--off);margin-bottom:8px">${sc.note}</p>
-        <p style="font-size:12px;color:var(--off)">Placed ${dateStr} · ${inr(data.total)}</p>
+        ${itemsHtml?`<div style="border-top:1px solid var(--line);padding-top:8px;margin-top:4px">${itemsHtml}</div>`:""}
+        <p style="font-size:12px;color:var(--off);margin-top:6px">Placed ${dateStr} · Total ${inr(data.total)}</p>
+        ${trackHtml}
       </div>`;
   }catch(e){
     resultEl.innerHTML='<p style="color:#E74C3C;font-size:13px">Could not check right now — try again in a moment.</p>';
@@ -7016,11 +7180,14 @@ window.lookupAllOrders=async function(){
     resultEl.innerHTML=data.orders.map(o=>{
       const dateStr=o.placedAt?new Date(o.placedAt).toLocaleDateString("en-IN",{day:"numeric",month:"short",year:"numeric"}):"";
       const sc=(STATUS_COPY[o.status]||{label:o.status,color:"#141312"});
+      const itemsLine=(o.items||[]).map(i=>i.name+(i.size?" ("+i.size+")":"")).join(", ");
       return `<div onclick="document.getElementById('ot-orderid').value='${o.orderId}';document.getElementById('ot-phone').value='${phone}';toggleAllOrdersLookup();lookupOrderStatus();"
         style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:8px;margin-bottom:8px;cursor:pointer">
         <div>
           <div style="font-size:13px;font-weight:700">${o.orderId}</div>
           <div style="font-size:11.5px;color:var(--off)">${dateStr}</div>
+          ${itemsLine?`<div style="font-size:11px;color:var(--off);margin-top:2px;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${itemsLine}</div>`:""}
+          ${o.trackingId?`<div style="font-size:10.5px;color:#2980B9;margin-top:2px">📦 ${o.courierPartner}</div>`:""}
         </div>
         <div style="text-align:right">
           <div style="font-size:12px;font-weight:700;color:${sc.color}">${sc.label}</div>
