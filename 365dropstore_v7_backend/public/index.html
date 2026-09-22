@@ -236,7 +236,7 @@ header{position:sticky;top:0;z-index:100;background:rgba(20,19,18,.95);-webkit-b
 .ugc-head span{font-size:12.5px;color:var(--off)}
 .ugc-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
 @media(max-width:900px){.ugc-grid{grid-template-columns:repeat(3,1fr)}}
-@media(max-width:560px){.ugc-grid{grid-template-columns:repeat(2,1fr);gap:8px}}
+@media(max-width:560px){.ugc-grid{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:10px;margin:0 -20px;padding:0 20px 6px;-webkit-overflow-scrolling:touch;scrollbar-width:none}.ugc-grid::-webkit-scrollbar{display:none}.ugc-tile{flex:0 0 62%;scroll-snap-align:start}.ugc-more{display:none}}
 .ugc-tile{position:relative;aspect-ratio:3/4;border-radius:12px;overflow:hidden;cursor:zoom-in;background:#0c0c0c;border:1px solid rgba(192,57,43,.12)}
 .ugc-tile img{width:100%;height:100%;object-fit:cover;display:block;transition:.5s var(--ease2)}
 .ugc-tile:hover img{transform:scale(1.06)}
@@ -738,6 +738,28 @@ button,a,.btn,[onclick]{-webkit-tap-highlight-color:transparent}
 /* PRODUCT MODAL */
 .ov{position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.5);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);display:none;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto}
 .ov.op{display:flex}
+/* ── Product as a full page (Admin → Edit Site → Product view) ── */
+.ov.as-page{background:var(--bg);-webkit-backdrop-filter:none;backdrop-filter:none;padding:0;display:none}
+.ov.as-page.op{display:block}
+.ov.as-page .mo{max-width:1200px;border:0;border-radius:0;margin:0 auto;min-height:100vh;grid-template-columns:1.1fr .9fr;overflow:visible;background:var(--bg);box-shadow:none;animation:none}
+.ov.as-page .mocar{position:sticky;top:64px;align-self:start;margin:0 0 0 24px;border-radius:14px;overflow:hidden}
+.ov.as-page .mobody{max-height:none;overflow:visible;padding:28px 28px 40px}
+.ov.as-page .moclose{display:none}
+.mo-pagebar,.mo-related{display:none}
+.ov.as-page .mo-pagebar{display:flex;grid-column:1/-1;align-items:center;justify-content:space-between;gap:12px;position:sticky;top:0;z-index:8;height:56px;padding:0 20px;background:rgba(244,241,236,.92);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);margin-bottom:8px}
+.mpb-back,.mpb-bag{background:none;border:1px solid var(--line);border-radius:20px;padding:7px 14px;font-size:13px;font-weight:600;color:var(--white);cursor:pointer;font-family:inherit}
+.mpb-back:hover,.mpb-bag:hover{border-color:var(--red);color:var(--red)}
+.mpb-brand{font-family:var(--dsp);font-size:18px;letter-spacing:.05em;color:var(--white)}
+.ov.as-page .mo-related{display:block;grid-column:1/-1;padding:28px 24px 64px;border-top:1px solid var(--line);margin-top:8px}
+.mo-related h3{font-family:var(--dsp);font-size:24px;letter-spacing:.03em;margin-bottom:14px;color:var(--white)}
+.mo-rel-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.mo-rel-card{cursor:pointer}
+.mo-rel-card .mri{aspect-ratio:3/4;border-radius:12px;overflow:hidden;background:var(--bg3)}
+.mo-rel-card img{width:100%;height:100%;object-fit:cover;display:block;transition:.45s var(--ease2)}
+.mo-rel-card:hover img{transform:scale(1.05)}
+.mo-rel-card .mrn{font-size:13px;font-weight:600;margin-top:8px;color:var(--white);line-height:1.3}
+.mo-rel-card .mrp{font-size:13px;color:var(--off);margin-top:2px}
+@media(max-width:900px){.ov.as-page .mo{grid-template-columns:1fr}.ov.as-page .mocar{position:relative;top:0;margin:0;border-radius:0}.ov.as-page .mobody{padding:22px 18px 30px}.mo-rel-grid{grid-template-columns:repeat(2,1fr)}.mpb-brand{display:none}}
 .mo{background:var(--bg2);border:1px solid rgba(20,19,18,.06);border-radius:16px;max-width:960px;width:100%;margin:auto;display:grid;grid-template-columns:1.1fr .9fr;overflow:hidden}
 @keyframes mopop{from{transform:scale(.97);opacity:0}to{transform:scale(1);opacity:1}}
 .mo::after{content:"";position:absolute;left:0;right:0;height:2px;top:0;background:linear-gradient(90deg,transparent,var(--glow,#C0392B),transparent);box-shadow:0 0 12px 2px var(--glow,#C0392B);opacity:0;z-index:6;pointer-events:none}
@@ -1159,6 +1181,12 @@ main,header,footer,.sec,.trust,.mq{position:relative;z-index:2}
 .lb-zoom{position:absolute;bottom:24px;left:50%;transform:translateX(-50%);display:flex;gap:8px;z-index:6;background:rgba(0,0,0,.4);padding:7px 9px;border-radius:30px;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
 .lb-zb{width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.14);border:none;color:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.2s}
 .lb-zb:hover{background:rgba(255,255,255,.3)}
+.lb-cap{position:absolute;left:50%;bottom:76px;transform:translateX(-50%);width:min(560px,calc(100% - 32px));background:rgba(20,19,18,.82);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:14px 18px;color:#fff;z-index:6;display:none;pointer-events:none}
+.lb-cap.on{display:block}
+.lb-cap .lc-stars{color:#E8C77A;font-size:12px;letter-spacing:2px}
+.lb-cap .lc-text{font-size:14px;line-height:1.55;margin:6px 0 8px;font-style:italic;max-height:30vh;overflow:hidden}
+.lb-cap .lc-who{font-size:12.5px;font-weight:700;opacity:.9}
+.lb.has-cap .lb-hint{display:none}
 .lb-hint{position:absolute;bottom:78px;left:50%;transform:translateX(-50%);color:rgba(255,255,255,.5);font-size:11px;letter-spacing:.05em;font-family:var(--ui);text-align:center;pointer-events:none;z-index:5}
 @media(max-width:640px){.lb-zoom{bottom:18px}.lb-nav{width:40px;height:40px;font-size:24px}.lb-hint{display:none}}
 .zoomable{cursor:zoom-in}
@@ -1214,7 +1242,8 @@ main,header,footer,.sec,.trust,.mq{position:relative;z-index:2}
 .revcard.imgrev:hover .rev-zoom{opacity:1}
 @media(max-width:640px){.revcard.imgrev{aspect-ratio:9/16}}
 .revcard.revcombo{padding:0;cursor:zoom-in}
-.revcard.revcombo .rc-photo{position:relative;aspect-ratio:4/3;overflow:hidden;background:#0c0c0c}
+.revcard.revcombo .rc-photo{position:relative;aspect-ratio:4/5;overflow:hidden;background:#0c0c0c}
+.rc-badge{position:absolute;left:10px;top:10px;z-index:2;background:rgba(20,19,18,.72);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);color:#fff;font-size:10.5px;font-weight:700;letter-spacing:.06em;padding:5px 9px;border-radius:20px}
 .revcard.revcombo .rc-photo img{width:100%;height:100%;object-fit:cover;display:block;transition:.5s var(--ease2)}
 .revcard.revcombo:hover .rc-photo img{transform:scale(1.06)}
 .revcard.revcombo .rc-photo .rev-zoom{position:absolute;top:10px;right:10px;width:30px;height:30px;border-radius:50%;background:rgba(20,19,18,.7);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);color:#fff;display:flex;align-items:center;justify-content:center;font-size:15px;opacity:0;transition:.3s;z-index:2}
@@ -2002,6 +2031,20 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
   <div class="afs" id="active-filters-bottom" style="justify-content:center;margin-top:24px"></div>
 </div></section>
 
+<!-- reviews -->
+<section class="sec" id="reviews"><div class="w">
+  <div class="sh sr"><div><h2 data-dec>WORD ON THE STREET</h2><p class="shs">Tag <b style="color:var(--white)">@365dropstore</b> on Instagram to get featured.</p></div></div>
+  <div class="ugc" id="ugcWrap" style="display:none">
+    <div class="ugc-head"><b>WORN BY THE SQUAD</b><span id="ugcCount"></span></div>
+    <div class="ugc-grid" id="ugcGrid"></div>
+    <div class="ugc-more" id="ugcMore"></div>
+  </div>
+  <div class="revsum" id="revsum"></div>
+  <div class="revthemes" id="revthemes"></div>
+  <div class="revgrid" id="revg"></div>
+  <div class="revmore" id="revmore"></div>
+</div></section>
+
 <!-- editorial -->
 <section class="sec dispatch-sec" id="dispatch" style="display:none"><div class="w">
   <div class="dsp-head">
@@ -2045,20 +2088,6 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
 </div></section>
 
 <div class="circuit-div sr"><svg viewBox="0 0 900 48" preserveAspectRatio="none"><line class="circuit-line" x1="0" y1="24" x2="350" y2="24"/><line class="circuit-line" x1="350" y1="24" x2="370" y2="8"/><line class="circuit-line" x1="370" y1="8" x2="530" y2="8"/><line class="circuit-line" x1="530" y1="8" x2="550" y2="24"/><line class="circuit-line" x1="550" y1="24" x2="900" y2="24"/><circle class="circuit-dot" cx="350" cy="24"/><circle class="circuit-dot" cx="450" cy="8"/><circle class="circuit-dot" cx="550" cy="24"/></svg></div>
-<!-- reviews -->
-<section class="sec" id="reviews"><div class="w">
-  <div class="sh sr"><div><h2 data-dec>WORD ON THE STREET</h2><p class="shs">Tag <b style="color:var(--white)">@365dropstore</b> on Instagram to get featured.</p></div></div>
-  <div class="ugc" id="ugcWrap" style="display:none">
-    <div class="ugc-head"><b>WORN BY THE SQUAD</b><span id="ugcCount"></span></div>
-    <div class="ugc-grid" id="ugcGrid"></div>
-    <div class="ugc-more" id="ugcMore"></div>
-  </div>
-  <div class="revsum" id="revsum"></div>
-  <div class="revthemes" id="revthemes"></div>
-  <div class="revgrid" id="revg"></div>
-  <div class="revmore" id="revmore"></div>
-</div></section>
-
 <!-- newsletter -->
 <section class="sec nlsec" id="nl"><div class="w">
   <p style="font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:var(--off);text-align:center;margin-bottom:8px" class="sr">NEVER MISS A DROP</p>
@@ -2103,6 +2132,7 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
   <div class="lb-stage" id="lb-stage"><img class="lb-img" id="lb-img" src="" alt="" draggable="false"/></div>
   <button class="lb-nav lb-prev" id="lb-prev" onclick="lbNav(-1)">&lsaquo;</button>
   <button class="lb-nav lb-next" id="lb-next" onclick="lbNav(1)">&rsaquo;</button>
+  <div class="lb-cap" id="lb-cap"></div>
   <div class="lb-hint">Scroll / pinch to zoom &middot; drag to pan &middot; double-click to reset</div>
   <div class="lb-zoom"><button class="lb-zb" onclick="lbZoom(-1)">&minus;</button><button class="lb-zb" onclick="lbZoomReset()">&#10227;</button><button class="lb-zb" onclick="lbZoom(1)">+</button></div>
 </div>
@@ -2413,7 +2443,7 @@ https://raw.githubusercontent.com/drop-365/365dropstore/main/images/jean2.jpg" s
   <div id="tab-site" class="apsec" style="display:none"><h3>EDIT SITE CONTENT <button class="btn btn-g" style="font-size:11px;padding:4px 10px;margin-left:8px" onclick="refreshSectionFromSupabase('site')">↻ Refresh</button></h3><div class="pfgrid">
     <div class="pff full" style="padding-bottom:14px;border-bottom:1px solid var(--line)"><label>ANNOUNCEMENT BAR (small text below nav)</label><input type="text" id="site-ann" placeholder="Drop 001 · Delhi · WhatsApp-only checkout · Pan India shipping"/></div>
     <div class="pff full" style="border-top:0"><label>HERO HEADLINE (line 1 | line 2 | line 3 — pipe separated)</label><input type="text" id="site-hero-h1" placeholder="365|DROPS|DAILY"/><small>3 words, one per line. First and third go white, middle goes muted.</small></div>
-    <div class="pff full"><label>HERO SUBTITLE</label><textarea id="site-hero-sub" rows="2"></textarea></div>
+    <div class="pff full"><label>PRODUCT VIEW — what happens when a customer taps a product</label><select id="site-product-view"><option value="page">Full page — own link, Back button works, related products (recommended)</option><option value="modal">Pop-up over the shop (old behaviour)</option></select></div><div class="pff full"><label>HERO SUBTITLE</label><textarea id="site-hero-sub" rows="2"></textarea></div>
     <div class="pff full" style="border-bottom:1px solid var(--line);padding-bottom:14px;margin-bottom:4px">
       <label>HERO PRODUCT — clicking the hero image/price opens this product</label>
       <select id="site-hero-product"><option value="">— Auto (bestseller / first live product) —</option></select>
@@ -4180,7 +4210,7 @@ function renderFooterFits(){
 
 // ONE place to change the trust claim — hero, shop grid and product page all read this.
 // Keep it TRUE: it's a public claim to customers (Consumer Protection / CCPA dark-pattern rules).
-var TRUST_LINE={big:"1,000+",text:"orders delivered",sub:"Zero returns on quality"};
+var TRUST_LINE={big:"250+",text:"pieces delivered",sub:"Zero returns on quality"};  // ledger: 279 pieces as of 22 Sep 2026
 function trustLineHtml(){return '<span class="tl-ico">✓</span><span><b>'+TRUST_LINE.big+'</b> '+TRUST_LINE.text+'</span><span class="tl-sep">·</span><span class="tl-sub">'+TRUST_LINE.sub+'</span>';}
 function applyTrustLines(){document.querySelectorAll(".js-trust").forEach(el=>{el.innerHTML=trustLineHtml();});}
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",applyTrustLines);else applyTrustLines();
@@ -4240,7 +4270,7 @@ function renderRevs(){
         +_revEsc(o.t.n)+' <b>'+o.n+'</b></button>').join("")):"";
   }
   document.getElementById("revg").innerHTML=_shown.map(r=>{
-    if(r.img&&r.text)return `<div class="revcard revcombo" onclick="openImgReview('${r.id}')"><div class="rc-photo"><div class="rev-zoom">&#9906;</div><img src="${r.img}" alt="Customer review photo"/></div><div class="rc-body"><div class="revstars">${"★".repeat(r.stars||5)}</div><p class="revtext">"${_revEsc(r.text)}"</p><div class="revwho">${_revEsc(r.who)}</div><div class="revloc">${_revEsc(r.where)}</div></div></div>`;
+    if(r.img&&r.text)return `<div class="revcard revcombo" onclick="openImgReview('${r.id}')"><div class="rc-photo"><span class="rc-badge">📷 CUSTOMER PHOTO</span><div class="rev-zoom">&#9906;</div><img src="${r.img}" alt="Customer review photo"/></div><div class="rc-body"><div class="revstars">${"★".repeat(r.stars||5)}</div><p class="revtext">"${_revEsc(r.text)}"</p><div class="revwho">${_revEsc(r.who)}</div><div class="revloc">${_revEsc(r.where)}</div></div></div>`;
     if(r.img)return `<div class="revcard imgrev" onclick="openImgReview('${r.id}')"><div class="rev-zoom">&#9906;</div><img src="${r.img}" alt="Customer review"/></div>`;
     return `<div class="revcard"><div class="revstars">${"★".repeat(r.stars||5)}</div><p class="revtext">"${_revEsc(r.text)}"</p><div class="revwho">${_revEsc(r.who)}</div><div class="revloc">${_revEsc(r.where)}</div></div>`;
   }).join("");
@@ -4280,8 +4310,8 @@ function renderUgc(){
     ?`<button class="btn-revmore" onclick="ugcExpanded=true;renderUgc()">See all ${all.length} photos &darr;</button>`
     :(ugcExpanded&&all.length>STEP?`<button class="btn-revmore ghost" onclick="ugcExpanded=false;renderUgc()">Show fewer &uarr;</button>`:"");
 }
-function openUgc(i){const all=reviews.filter(r=>isUgc(r)&&r.img);openLB(all.map(r=>r.img),Math.max(0,i));}
-function openImgReview(id){const withPhoto=reviews.filter(r=>r.img&&!isUgc(r));const imgs=withPhoto.map(r=>r.img);const idx=withPhoto.findIndex(r=>r.id===id);openLB(imgs,Math.max(0,idx));}
+function openUgc(i){const all=reviews.filter(r=>isUgc(r)&&r.img);openLB(all.map(r=>r.img),Math.max(0,i),all.map(r=>({stars:0,text:"",who:r.who?r.who+" · wearing 365":""})));}
+function openImgReview(id){const withPhoto=reviews.filter(r=>r.img&&!isUgc(r));const imgs=withPhoto.map(r=>r.img);const idx=withPhoto.findIndex(r=>r.id===id);openLB(imgs,Math.max(0,idx),withPhoto.map(r=>({stars:r.text?(r.stars||5):0,text:r.text||"",who:r.who||""})));}
 
 // MODAL — with full description, shipping info, share, size chart image
 
@@ -4604,7 +4634,7 @@ function renderNewArrivals(){
   strip.innerHTML=items.map(p=>`<div class="rv-item" onclick="openMo('${p.id}')"><img src="${(p.images||[])[0]||''}" alt="" loading="lazy"/><div class="rv-name">${p.name}</div><div class="rv-price">${inr(eff(p))}</div></div>`).join("");
 }
 function renderRecentlyViewed(){var sec=document.getElementById("recently-viewed");var strip=document.getElementById("rv-strip");if(!sec||!strip)return;var items=recentlyViewed.map(function(pid){return products.find(function(p){return p.id===pid})}).filter(Boolean).slice(0,6);if(items.length<2){sec.style.display="none";return;}sec.style.display="block";strip.innerHTML=items.map(function(p){return '<div class="rv-item" onclick="openMo(\''+p.id+'\')"><img src="'+(p.images&&p.images[0]||'')+'" alt="" loading="lazy"/><div class="rv-name">'+p.name+'</div><div class="rv-price">'+inr(eff(p))+'</div></div>'}).join("");}
-function openMo(id){
+function openMo(id,noPush){
   const p=products.find(x=>x.id===id);if(!p)return;
   trackRecentView(id);
   if(typeof fbq==="function")fbq("track","ViewContent",{content_name:p.name,content_ids:[p.id],content_type:"product",value:eff(p),currency:"INR"});
@@ -4626,6 +4656,7 @@ function openMo(id){
   const descFull=p.desc2?`<div class="mo-expander"><div class="mo-exp-row" onclick="toggleExp(this)"><span>Description</span><span class="arr">+</span></div><div class="mo-exp-body"><p>${p.desc2}</p></div></div>`:'';
   const shipHtml=p.shippingInfo?`<div class="mo-expander"><div class="mo-exp-row" onclick="toggleExp(this)"><span>Shipping & Returns</span><span class="arr">+</span></div><div class="mo-exp-body"><ul>${p.shippingInfo.split('·').map(s=>s.trim()).filter(Boolean).map(s=>`<li>${s}</li>`).join('')}</ul></div></div>`:'';
   document.getElementById("mo").innerHTML=`
+    <div class="mo-pagebar"><button class="mpb-back" onclick="closeMo()">&larr; Back to shop</button><span class="mpb-brand">365 DROP STORE</span><button class="mpb-bag" onclick="closeMo();openCart()">🛍 Bag</button></div>
     <button class="moclose" onclick="closeMo()">×</button>
     <div class="mocar">
       <div class="mocar-imgs zoomable" id="mocarimgs" onclick="if(event.target.tagName==='IMG')openLB((ms.p.images||[]),ms.idx)">${carImgs}${arrows}${dots}</div>
@@ -4646,7 +4677,8 @@ function openMo(id){
       <button class="moadd btn ${sold?'btn-g':'btn-w'}" onclick="addCart()" ${sold?'disabled':''}>${sold?'Sold Out':'Add to Bag · '+inr(eff(p))}</button>
       <div class="mo-trust"><span class="trust-line">${trustLineHtml()}</span></div>
       ${descFull}${shipHtml}
-    </div>`;
+    </div>
+    ${moRelatedHtml(p)}`;
   document.getElementById("ov").classList.add("op");lockScroll();
   const moEl=document.getElementById("mo");
   moEl.classList.remove("modopen");
@@ -4663,6 +4695,7 @@ function openMo(id){
   if(ms.size)setTimeout(()=>showSizeRec(p,ms.size,!!(p.oosizes||[]).includes(ms.size)),100);
   // sticky mobile buy bar
   showStickyBuy(p);
+  moApplyView(p,noPush);
 }
 function openSizeChart(id){const p=products.find(x=>x.id===id);if(!p)return;const scSrc=p.sizeChartImg||globalSc;if(!scSrc)return;const d=document.createElement('div');d.style.cssText='position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.9);display:flex;align-items:center;justify-content:center;padding:20px;cursor:pointer;z-index:9999';d.onclick=()=>d.remove();d.innerHTML=`<div style="background:var(--bg2);border-radius:12px;padding:16px;max-width:700px;width:100%;max-height:90vh;overflow-y:auto"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><h3 style="font-family:var(--dsp);font-size:20px;color:var(--white)">SIZE CHART</h3><button onclick="this.closest('[style]').remove()" style="background:var(--glass);border:1px solid var(--line);color:var(--white);width:34px;height:34px;border-radius:8px;font-size:20px;cursor:pointer">×</button></div><img src="${scSrc}" style="width:100%;border-radius:8px;image-rendering:crisp-edges" alt="Size chart" onclick="event.stopPropagation();window.open(this.src,'_blank')" title="Tap to open full size"/><p style="text-align:center;font-size:12px;color:var(--off);margin-top:8px">Tap the chart to open it full size</p></div>`;document.body.appendChild(d);}
 function toggleExp(row){row.classList.toggle("open");row.nextElementSibling.classList.toggle("open");}
@@ -4673,7 +4706,44 @@ function toggleImgZoom(e){var w=e.target.closest(".mocar-imgs");if(!w)return;if(
 function slideDir(d){const n=(ms.p.images||[]).length;if(n<2)return;ms.idx=(ms.idx+d+n)%n;goSlide(ms.idx);}
 function pick(k,v,el){ms[k]=v;[...el.parentElement.children].forEach(c=>c.classList.remove("sel"));el.classList.add("sel");}
 function stp(d){ms.qty=Math.max(1,ms.qty+d);const e=document.getElementById("mqty");if(e)e.textContent=ms.qty;}
-function closeMo(){document.getElementById("ov").classList.remove("op");unlockScroll();const sbb=document.getElementById("stickyBuyBar");if(sbb)sbb.classList.remove("visible");}
+function _moHide(){const ov=document.getElementById("ov");ov.classList.remove("op","as-page");unlockScroll();const sbb=document.getElementById("stickyBuyBar");if(sbb)sbb.classList.remove("visible");if(_moBaseTitle)document.title=_moBaseTitle;}
+function closeMo(){
+  const ov=document.getElementById("ov");const wasPage=ov.classList.contains("as-page");
+  _moHide();
+  if(!wasPage)return;
+  // Page mode: leave the /p/ URL. If we pushed history entries, walk back
+  // through them so the browser Back button stays in sync; if the visitor
+  // landed straight on /p/<id> from a shared link, just rewrite the URL.
+  if(_moDepth>0){const d=_moDepth;_moDepth=0;history.go(-d);}
+  else if((location.pathname||"").indexOf("/p/")===0){history.replaceState(null,"","/");}
+}
+// ── Product view: full page (default) or pop-up ─────────────────────
+// Page mode = own URL (/p/<id>), full screen, browser Back works,
+// related products underneath. Switch in Admin → Edit Site → Product view.
+var _moDepth=0; var _moBaseTitle=document.title;
+function productViewMode(){return (typeof siteContent!=="undefined"&&siteContent&&siteContent.productView==="modal")?"modal":"page";}
+function moApplyView(p,noPush){
+  const ov=document.getElementById("ov");
+  if(productViewMode()!=="page"){ov.classList.remove("as-page");return;}
+  ov.classList.add("as-page");ov.scrollTop=0;
+  document.title=p.name+" — 365 Drop Store";
+  const target="/p/"+encodeURIComponent(p.id);
+  if(!noPush&&location.pathname!==target){history.pushState({pid:p.id},"",target);_moDepth++;}
+}
+function moRelatedHtml(p){
+  const pool=(products||[]).filter(x=>x.id!==p.id&&!(x.badges||[]).includes("sold")&&(x.images||[]).length);
+  const same=pool.filter(x=>x.fit&&x.fit===p.fit), rest=pool.filter(x=>!(x.fit&&x.fit===p.fit));
+  const pick=same.concat(rest).slice(0,4);
+  if(!pick.length)return "";
+  return `<div class="mo-related"><h3>YOU MAY ALSO LIKE</h3><div class="mo-rel-grid">${pick.map(x=>`<div class="mo-rel-card" onclick="openMo('${String(x.id).replace(/'/g,"")}')"><div class="mri"><img src="${x.images[0]}" alt="${_revEsc(x.name)}" loading="lazy"/></div><div class="mrn">${_revEsc(x.name)}</div><div class="mrp">${inr(eff(x))}</div></div>`).join("")}</div></div>`;
+}
+window.addEventListener("popstate",function(){
+  const pn=location.pathname||"";const ov=document.getElementById("ov");
+  if(pn.indexOf("/p/")===0&&pn.length>3){
+    const pid=decodeURIComponent(pn.slice(3).replace(/\/$/,""));
+    if(typeof products!=="undefined"&&products.some(x=>String(x.id)===pid)){_moDepth=Math.max(0,_moDepth-1);openMo(pid,true);}
+  }else if(ov&&ov.classList.contains("op")&&ov.classList.contains("as-page")){_moDepth=0;_moHide();}
+});
 function showStickyBuy(p){const sbb=document.getElementById("stickyBuyBar");if(!sbb||window.innerWidth>768)return;const sold=p.badges&&p.badges.includes("sold");if(sold){sbb.classList.remove("visible");return;}document.getElementById("sbbName").textContent=p.name;document.getElementById("sbbPrice").textContent=inr(eff(p));sbb.dataset.pid=p.id;sbb.classList.add("visible");}
 function addFromStickyBar(){const sbb=document.getElementById("stickyBuyBar");if(!sbb)return;const pid=sbb.dataset.pid;if(pid&&ms&&ms.p&&ms.p.id===pid)addCart();}
 
@@ -5341,13 +5411,13 @@ function togOOS(pid,size){const p=products.find(x=>x.id===pid);if(!p)return;if(!
 
 // SITE EDITOR
 function populateFitSelect(){const sel=document.getElementById("pf-fit");if(!sel)return;sel.innerHTML=fits.map(f=>`<option value="${f}">${f}</option>`).join("");}
-function loadSiteEd(){const s=siteContent;const sv=(id,v)=>{const el=document.getElementById(id);if(el)el.value=v||"";};sv("site-ann",s.ann);sv("site-hero-h1",s.heroH1);sv("site-hero-sub",s.heroSub);sv("site-ed-h2",s.edH2);sv("site-ed-p",s.edP);sv("site-story-h2",s.storyH2);sv("site-story-p1",s.storyP1);sv("site-story-p2",s.storyP2);sv("site-trust",s.trust);sv("site-shipping",s.shipping);sv("site-marquee",s.marquee);sv("site-stats",s.stats);sv("site-phone",s.phone);sv("site-email",s.email);sv("site-address",s.address);sv("site-insta",s.insta);sv("site-fb",s.fb);sv("site-hero-img",s.heroImg);sv("site-hero-thumb1",s.heroThumb1);sv("site-hero-thumb2",s.heroThumb2);populateHeroProductSelect();const hpSel=document.getElementById("site-hero-product");if(hpSel)hpSel.value=s.heroP1||"";const ddEl=document.getElementById("site-drop-date");if(ddEl){if(s.dropDate){try{const d=new Date(s.dropDate);if(!isNaN(d))ddEl.value=new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,16);}catch(e){}}else{ddEl.value="";}}const vddEl=document.getElementById("site-vault-drop-date");if(vddEl){if(s.vaultDropDate){try{const d=new Date(s.vaultDropDate);if(!isNaN(d))vddEl.value=new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,16);}catch(e){}}else{vddEl.value="";}}if(s.edImg&&!(s.edImgs&&s.edImgs.length))s.edImgs=[s.edImg];if(s.stImg&&!(s.stImgs&&s.stImgs.length))s.stImgs=[s.stImg];renderGmgr("ed");renderGmgr("st");}
+function loadSiteEd(){const s=siteContent;const sv=(id,v)=>{const el=document.getElementById(id);if(el)el.value=v||"";};sv("site-ann",s.ann);sv("site-hero-h1",s.heroH1);sv("site-hero-sub",s.heroSub);{const pv=document.getElementById("site-product-view");if(pv)pv.value=s.productView==="modal"?"modal":"page";}sv("site-ed-h2",s.edH2);sv("site-ed-p",s.edP);sv("site-story-h2",s.storyH2);sv("site-story-p1",s.storyP1);sv("site-story-p2",s.storyP2);sv("site-trust",s.trust);sv("site-shipping",s.shipping);sv("site-marquee",s.marquee);sv("site-stats",s.stats);sv("site-phone",s.phone);sv("site-email",s.email);sv("site-address",s.address);sv("site-insta",s.insta);sv("site-fb",s.fb);sv("site-hero-img",s.heroImg);sv("site-hero-thumb1",s.heroThumb1);sv("site-hero-thumb2",s.heroThumb2);populateHeroProductSelect();const hpSel=document.getElementById("site-hero-product");if(hpSel)hpSel.value=s.heroP1||"";const ddEl=document.getElementById("site-drop-date");if(ddEl){if(s.dropDate){try{const d=new Date(s.dropDate);if(!isNaN(d))ddEl.value=new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,16);}catch(e){}}else{ddEl.value="";}}const vddEl=document.getElementById("site-vault-drop-date");if(vddEl){if(s.vaultDropDate){try{const d=new Date(s.vaultDropDate);if(!isNaN(d))vddEl.value=new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,16);}catch(e){}}else{vddEl.value="";}}if(s.edImg&&!(s.edImgs&&s.edImgs.length))s.edImgs=[s.edImg];if(s.stImg&&!(s.stImgs&&s.stImgs.length))s.stImgs=[s.stImg];renderGmgr("ed");renderGmgr("st");}
 function populateHeroProductSelect(){const sel=document.getElementById("site-hero-product");if(!sel)return;const cur=sel.value;sel.innerHTML='<option value="">— Auto (bestseller / first live product) —</option>'+products.map(p=>`<option value="${p.id}">${(p.name||'').replace(/</g,'&lt;')}</option>`).join('');sel.value=cur;}
 async function siteImgUp(k,inp){if(!inp.files||!inp.files[0])return;try{const bf=await toBrowserFile(inp.files[0]);let d=await compressImg(bf,800,0.75);document.getElementById('site-'+k+'-prv').innerHTML=`<img src="${d}" style="width:110px;border-radius:7px" alt="Uploading..."/>`;d=await uploadToR2(d,"site");document.getElementById('site-'+k+'-imgdata').value=d;document.getElementById('site-'+k+'-prv').innerHTML=`<img src="${d}" style="width:110px;border-radius:7px" alt="Uploaded preview"/>`;}catch(e){alert("Couldn't read that image — try a JPEG/PNG.");}}
 function saveSite(){const _edI=siteContent.edImgs||[];const _stI=siteContent.stImgs||[];const _edS=siteContent.edImg||"";const _stS=siteContent.stImg||"";
   const prevSite=LS.get("ds_site",{});
   if((!_edI.length&&!_edS)&&((prevSite.edImgs||[]).length||(prevSite.edImg||""))){if(!confirm("Founder's Note image is empty. Save anyway? Re-upload in gallery if unintended."))return;}
-  if((!_stI.length&&!_stS)&&((prevSite.stImgs||[]).length||(prevSite.stImg||""))){if(!confirm("Story image is empty. Save anyway? Re-upload in gallery if unintended."))return;}const g=id=>{const el=document.getElementById(id);return el?el.value:"";};const ddRaw=g("site-drop-date");let ddIso="";if(ddRaw){const d=new Date(ddRaw);if(!isNaN(d))ddIso=d.toISOString();}const vddRaw=g("site-vault-drop-date");let vddIso="";if(vddRaw){const d2=new Date(vddRaw);if(!isNaN(d2))vddIso=d2.toISOString();}siteContent={faq:(siteContent.faq||faqItems),paymentConfig:(siteContent.paymentConfig||DEFAULT_PAY_CFG),sizeGuide:(siteContent.sizeGuide||sizeGuide),sizeModels:(siteContent.sizeModels||sizeModels),ann:g("site-ann"),heroH1:g("site-hero-h1"),heroSub:g("site-hero-sub"),heroP1:g("site-hero-product"),dropDate:ddIso,vaultDropDate:vddIso,trust:g("site-trust"),edH2:g("site-ed-h2"),edP:g("site-ed-p"),edImgs:_edI,stImgs:_stI,edImg:_edS,stImg:_stS,storyH2:g("site-story-h2"),storyP1:g("site-story-p1"),storyP2:g("site-story-p2"),shipping:g("site-shipping"),marquee:g("site-marquee"),stats:g("site-stats"),phone:g("site-phone"),email:g("site-email"),address:g("site-address"),insta:g("site-insta"),fb:g("site-fb"),heroImg:g("site-hero-img"),heroThumb1:g("site-hero-thumb1"),heroThumb2:g("site-hero-thumb2")};lsSafeSet("ds_site",siteContent);applySiteContent();if(typeof window.rebuildHeroShowcase==="function")window.rebuildHeroShowcase();if(typeof window.rebuildDropCountdown==="function")window.rebuildDropCountdown();if(typeof window.rebuildVaultCountdown==="function")window.rebuildVaultCountdown();const m=document.getElementById("site-msg");if(m){m.textContent="Saved ✓";m.style.color="#4ade80";m.style.background="rgba(74,222,128,.08)";m.style.display="block";setTimeout(()=>m.style.display="none",2000);}showToast("Site content saved ✓ — syncing live...",true);syncSiteToSupabase();}
+  if((!_stI.length&&!_stS)&&((prevSite.stImgs||[]).length||(prevSite.stImg||""))){if(!confirm("Story image is empty. Save anyway? Re-upload in gallery if unintended."))return;}const g=id=>{const el=document.getElementById(id);return el?el.value:"";};const ddRaw=g("site-drop-date");let ddIso="";if(ddRaw){const d=new Date(ddRaw);if(!isNaN(d))ddIso=d.toISOString();}const vddRaw=g("site-vault-drop-date");let vddIso="";if(vddRaw){const d2=new Date(vddRaw);if(!isNaN(d2))vddIso=d2.toISOString();}siteContent=Object.assign({},siteContent,{productView:(g("site-product-view")==="modal"?"modal":"page"),faq:(siteContent.faq||faqItems),paymentConfig:(siteContent.paymentConfig||DEFAULT_PAY_CFG),sizeGuide:(siteContent.sizeGuide||sizeGuide),sizeModels:(siteContent.sizeModels||sizeModels),ann:g("site-ann"),heroH1:g("site-hero-h1"),heroSub:g("site-hero-sub"),heroP1:g("site-hero-product"),dropDate:ddIso,vaultDropDate:vddIso,trust:g("site-trust"),edH2:g("site-ed-h2"),edP:g("site-ed-p"),edImgs:_edI,stImgs:_stI,edImg:_edS,stImg:_stS,storyH2:g("site-story-h2"),storyP1:g("site-story-p1"),storyP2:g("site-story-p2"),shipping:g("site-shipping"),marquee:g("site-marquee"),stats:g("site-stats"),phone:g("site-phone"),email:g("site-email"),address:g("site-address"),insta:g("site-insta"),fb:g("site-fb"),heroImg:g("site-hero-img"),heroThumb1:g("site-hero-thumb1"),heroThumb2:g("site-hero-thumb2")});lsSafeSet("ds_site",siteContent);applySiteContent();if(typeof window.rebuildHeroShowcase==="function")window.rebuildHeroShowcase();if(typeof window.rebuildDropCountdown==="function")window.rebuildDropCountdown();if(typeof window.rebuildVaultCountdown==="function")window.rebuildVaultCountdown();const m=document.getElementById("site-msg");if(m){m.textContent="Saved ✓";m.style.color="#4ade80";m.style.background="rgba(74,222,128,.08)";m.style.display="block";setTimeout(()=>m.style.display="none",2000);}showToast("Site content saved ✓ — syncing live...",true);syncSiteToSupabase();}
 
 // BANNER ADMIN
 function loadBannerAdmin(){document.getElementById("ban-text").value=banner.text||"";document.getElementById("ban-show").checked=banner.show||false;}
@@ -6480,8 +6550,9 @@ function lsSafeSet(k,v){try{localStorage.setItem(k,JSON.stringify(v));return tru
 
 // ===== UNIVERSAL LIGHTBOX (Amazon-style zoom/pan) =====
 let _lb={imgs:[],i:0,scale:1,tx:0,ty:0,pointers:new Map(),startDist:0,startScale:1,lastX:0,lastY:0,dragging:false};
-function openLB(imgs,start){if(!imgs||!imgs.length)return;_lb.imgs=imgs;_lb.i=start||0;_lb.scale=1;_lb.tx=0;_lb.ty=0;document.getElementById('lb').classList.add('op');lockScroll();lbRender();}
-function lbRender(){const im=document.getElementById('lb-img');im.src=_lb.imgs[_lb.i];_lb.scale=1;_lb.tx=0;_lb.ty=0;lbApply();const multi=_lb.imgs.length>1;document.getElementById('lb-prev').style.display=multi?'flex':'none';document.getElementById('lb-next').style.display=multi?'flex':'none';document.getElementById('lb-counter').textContent=multi?`${_lb.i+1} / ${_lb.imgs.length}`:'';}
+function openLB(imgs,start,caps){if(!imgs||!imgs.length)return;_lb.caps=Array.isArray(caps)?caps:null;_lb.imgs=imgs;_lb.i=start||0;_lb.scale=1;_lb.tx=0;_lb.ty=0;document.getElementById('lb').classList.add('op');lockScroll();lbRender();}
+function lbRender(){const im=document.getElementById('lb-img');im.src=_lb.imgs[_lb.i];_lb.scale=1;_lb.tx=0;_lb.ty=0;lbApply();const multi=_lb.imgs.length>1;document.getElementById('lb-prev').style.display=multi?'flex':'none';document.getElementById('lb-next').style.display=multi?'flex':'none';document.getElementById('lb-counter').textContent=multi?`${_lb.i+1} / ${_lb.imgs.length}`:'';lbRenderCap();}
+function lbRenderCap(){const el=document.getElementById('lb-cap'),lb=document.getElementById('lb');if(!el||!lb)return;const c=_lb.caps&&_lb.caps[_lb.i];const has=!!(c&&(c.text||c.who));el.classList.toggle('on',has);lb.classList.toggle('has-cap',has);if(!has){el.innerHTML='';return;}el.innerHTML=(c.stars?'<div class="lc-stars">'+'★'.repeat(c.stars)+'</div>':'')+(c.text?'<div class="lc-text">"'+_revEsc(c.text)+'"</div>':'')+(c.who?'<div class="lc-who">— '+_revEsc(c.who)+'</div>':'');}
 function lbApply(){const im=document.getElementById('lb-img');im.style.transform=`translate(${_lb.tx}px,${_lb.ty}px) scale(${_lb.scale})`;document.getElementById('lb-stage').classList.toggle('zoomed',_lb.scale>1);}
 function lbClampPan(){const st=document.getElementById('lb-stage');const im=document.getElementById('lb-img');const sr=st.getBoundingClientRect();const iw=im.clientWidth*_lb.scale,ih=im.clientHeight*_lb.scale;const mx=Math.max(0,(iw-sr.width)/2),my=Math.max(0,(ih-sr.height)/2);_lb.tx=Math.max(-mx,Math.min(mx,_lb.tx));_lb.ty=Math.max(-my,Math.min(my,_lb.ty));}
 function lbZoom(d){_lb.scale=Math.max(1,Math.min(5,_lb.scale+d*0.5));if(_lb.scale===1){_lb.tx=0;_lb.ty=0;}else lbClampPan();lbApply();}
@@ -7447,8 +7518,8 @@ function closeReviewForm(){
     var pn=location.pathname||"";
     if(pn.indexOf("/p/")!==0||pn.length<=3)return;
     // Check if modal is already visible
-    var mo=document.getElementById("mo");
-    if(mo&&mo.style.display==="block")return;
+    var ovEl=document.getElementById("ov");
+    if(ovEl&&ovEl.classList.contains("op"))return;
     var pid=decodeURIComponent(pn.replace("/p/","").replace(/\/$/,"").trim());
     if(pid&&typeof openMo==="function"&&typeof products!=="undefined"&&products.length>0){
       var found=products.find(function(x){return String(x.id)===pid;})||products.find(function(x){return String(x.id).toLowerCase()===pid.toLowerCase();});
