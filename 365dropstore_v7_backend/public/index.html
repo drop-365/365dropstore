@@ -241,6 +241,16 @@ header{position:sticky;top:0;z-index:100;background:rgba(20,19,18,.95);-webkit-b
 .ot-copy{font-size:11px;font-weight:700;padding:3px 9px;border-radius:12px;border:1px solid rgba(41,128,185,.4);background:#fff;color:#2980B9;cursor:pointer}
 .ot-trk-go{display:inline-block;margin-top:10px;background:#141312;color:#fff!important;padding:9px 14px;border-radius:8px;font-weight:700;font-size:12.5px;text-decoration:none}
 .ot-trk-note{margin-top:6px;font-size:11.5px;color:var(--off)}
+.ig-chip{position:fixed;left:16px;bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:450;background:#141312;color:#fff;border:0;border-radius:24px;padding:11px 16px;font:600 13px/1 inherit;font-family:inherit;box-shadow:0 8px 24px rgba(0,0,0,.25);cursor:pointer}
+.ig-chip b{background:var(--red);border-radius:10px;padding:2px 7px;margin-left:6px}
+.ig-sheet{position:fixed;left:16px;bottom:calc(136px + env(safe-area-inset-bottom,0px));z-index:451;width:min(360px,calc(100vw - 32px));max-height:55vh;overflow:auto;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 16px 40px rgba(0,0,0,.2);padding:12px}
+.ig-sh-h{display:flex;justify-content:space-between;align-items:center;font-size:12.5px;font-weight:700;color:#141312;margin-bottom:8px}
+.ig-sh-h button{background:none;border:0;font-size:20px;cursor:pointer;color:#141312}
+.ig-sh-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line)}
+.ig-sh-row img{width:44px;height:58px;object-fit:cover;border-radius:6px;flex:none}
+.ig-sh-row div{flex:1;min-width:0;font-size:12.5px;color:#141312}.ig-sh-row b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ig-sh-row span{color:var(--off);font-size:11.5px}
+.ig-sh-row button{background:#141312;color:#fff;border:0;border-radius:8px;padding:8px 10px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;flex:none}
 /* Trust line — one wording everywhere, set from TRUST_LINE in JS */
 .trust-line{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--off);letter-spacing:.01em}
 .trust-line .tl-ico{width:18px;height:18px;border-radius:50%;background:var(--red);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex:none}
@@ -4786,6 +4796,7 @@ function renderCart(){
   if(!cart.length){box.innerHTML=`<div class="cdempty"><span>🛍️</span>Your bag is empty.<br>Pick a fit from the drop.</div>`;}
   else box.innerHTML=cart.map(i=>`<div class="cdit"><img src="${i.image}" alt="${i.name}"/><div class="cin"><div class="cinm">${i.name}</div><div class="ciop">${i.size} · ${i.color} · x${i.qty}</div><div class="cipr">${inr(i.price*i.qty)}</div></div><button class="cirm" onclick="rmItem('${i.key}')">Remove</button></div>`).join("");
   document.getElementById("ctot").textContent=inr(cart.reduce((s,i)=>s+i.price*i.qty,0));
+  if(typeof renderIgPicks==="function"&&window._igPicks)renderIgPicks();
 }
 function showCkStep(step){
   ckStep=step;
@@ -5149,7 +5160,65 @@ function openMob(){document.getElementById("mbnav").classList.add("op");document
 function closeMob(){document.getElementById("mbnav").classList.remove("op");document.getElementById("mob-scm").classList.remove("op");}
 
 // ADMIN
+
+// ── Meta Shop checkout URL ───────────────────────────────────────────
+// Commerce Manager → Shop → "Add checkout URL" = https://365dropstore.com/checkout
+// Meta sends buyers to /checkout?products=<contentId>:<qty>,<contentId>:<qty>[&coupon=..]
+// Our catalog has no size variants, so Meta can't tell us a size: each pick
+// opens its product page with the quantity pre-set, and a floating chip keeps
+// the remaining picks one tap away until they're in the bag.
+function parseMetaCheckout(){
+  if(window._igParsed)return;window._igParsed=true;
+  const pn=(location.pathname||"").replace(/\/+$/,"");
+  if(pn!=="/checkout")return;
+  const q=new URLSearchParams(location.search);
+  window._igPicks=String(q.get("products")||"").split(",").map(s=>{
+    const i=s.lastIndexOf(":");const id=(i>0?s.slice(0,i):s).trim();
+    const qty=Math.max(1,Math.min(10,parseInt(i>0?s.slice(i+1):"1",10)||1));
+    return {id,qty};
+  }).filter(x=>x.id);
+  window._igCoupon=String(q.get("coupon")||"").slice(0,40);
+  history.replaceState(null,"","/");
+}
+function igRemaining(){
+  const picks=window._igPicks||[];
+  return picks.filter(x=>x.p&&!(cart||[]).some(c=>String(c.id)===String(x.id)));
+}
+function renderIgPicks(){
+  let chip=document.getElementById("igChip");
+  const left=igRemaining();
+  if(!window._igPicks||!window._igPicks.length||!left.length){if(chip)chip.remove();const sh=document.getElementById("igSheet");if(sh)sh.remove();return;}
+  if(!chip){chip=document.createElement("button");chip.id="igChip";chip.className="ig-chip";chip.onclick=toggleIgSheet;document.body.appendChild(chip);}
+  chip.innerHTML=`📸 Your Instagram picks <b>${left.length}</b>`;
+  const sh=document.getElementById("igSheet");if(sh)fillIgSheet(sh);
+}
+function toggleIgSheet(){
+  let sh=document.getElementById("igSheet");
+  if(sh){sh.remove();return;}
+  sh=document.createElement("div");sh.id="igSheet";sh.className="ig-sheet";document.body.appendChild(sh);fillIgSheet(sh);
+}
+function fillIgSheet(sh){
+  const left=igRemaining();
+  sh.innerHTML=`<div class="ig-sh-h">From Instagram — pick a size for each<button onclick="toggleIgSheet()" aria-label="Close">×</button></div>`+
+    left.map(x=>`<div class="ig-sh-row"><img src="${(x.p.images||[])[0]||""}" alt=""/><div><b>${_revEsc(x.p.name)}</b><span>${inr(eff(x.p))} · Qty ${x.qty}</span></div><button onclick="openIgPick('${String(x.id).replace(/'/g,"")}')">Choose size</button></div>`).join("");
+}
+function openIgPick(id){
+  const pk=(window._igPicks||[]).find(x=>String(x.id)===String(id));if(!pk||!pk.p)return;
+  const sh=document.getElementById("igSheet");if(sh)sh.remove();
+  openMo(pk.p.id);
+  ms.qty=pk.qty;const q=document.getElementById("mqty");if(q)q.textContent=pk.qty;
+  showToast("Picked on Instagram — choose your size, then Add to Bag",true);
+}
+function runMetaCheckout(){
+  if(window._igDone||!window._igPicks||!products||!products.length)return;
+  window._igDone=true;
+  window._igPicks=window._igPicks.map(x=>({...x,p:products.find(pp=>String(pp.id)===x.id)||products.find(pp=>String(pp.id).toLowerCase()===x.id.toLowerCase())})).filter(x=>x.p);
+  if(!window._igPicks.length){showToast("That item from Instagram isn't available right now — here's the full drop.",false);return;}
+  renderIgPicks();
+  openIgPick(window._igPicks[0].id);
+}
 function chkRoute(){
+  parseMetaCheckout();
   const h=location.hash.replace("#","");
   if(h===AP){document.getElementById("ag").style.display="block";lockScroll();return;}
   // Fallback: if boot script didn't catch the clean URL, detect it here
@@ -5164,6 +5233,7 @@ function chkRoute(){
   }
   const rid=window._pendingReviewId;
   if(rid&&products&&products.length){openReviewForm(rid);window._pendingReviewId=null;}
+  runMetaCheckout();
 }
 async function admLogin(){if(locked){shAErr("Locked. Run: localStorage.removeItem('adm_lk') in console.");return;}const e=document.getElementById("age").value.trim();const pw=document.getElementById("agp").value;const h=await sha256(pw);if(e===AE&&h===AH){_adminPw=pw;document.getElementById("ag").style.display="none";document.getElementById("ap").style.display="block";attCnt=0;LS.set("adm_att",0);LS.set("adm_lk",false);
     await loadFromSupabaseIfAvailable();

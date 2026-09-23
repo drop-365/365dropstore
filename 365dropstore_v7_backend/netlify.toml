@@ -26,6 +26,18 @@
   to = "/index.html"
   status = 200
 
+# Meta Shop checkout URL (Commerce Manager → Shop → Add checkout URL).
+# Meta sends buyers to /checkout?products=<id>:<qty>,...  — the JS app reads it.
+[[redirects]]
+  from = "/checkout"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/checkout/*"
+  to = "/index.html"
+  status = 200
+
 # ─────────────────────────────────────────────────────────────────────
 #  Bot traps
 #
