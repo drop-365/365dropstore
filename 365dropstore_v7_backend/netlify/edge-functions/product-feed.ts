@@ -32,6 +32,37 @@ function xmlEscape(s: string): string {
     .replace(/'/g, "&apos;");
 }
 
+// Meta's commerce catalog treats clothing as "apparel": gender, age_group and
+// color are expected on every apparel item. Items missing them can load fine
+// yet be marked ineligible for Instagram product tagging ("Add products").
+const COLOR_WORDS: Array<[RegExp, string]> = [
+  [/jet\s*black|black|obsidian|charcoal|onyx/i, "Black"],
+  [/indigo/i, "Indigo"],
+  [/navy/i, "Navy"],
+  [/\bic[ey]\b|\bicy\b|\bsky\b|light\s*blue|powder/i, "Light Blue"],
+  [/blue|denim|atlantic|whisker/i, "Blue"],
+  [/olive|green/i, "Green"],
+  [/grey|gray|\bash\b|smoke|concrete|stone|sunbleach|sunbleed/i, "Grey"],
+  [/white|cream|ecru|off-?white/i, "White"],
+  [/khaki|beige|sand|\btan\b/i, "Beige"],
+  [/brown|coffee|mocha|rust/i, "Brown"],
+  [/tint/i, "Tinted"],
+];
+function colorOf(p: Record<string, unknown>): string {
+  const listed = Array.isArray(p.colors) ? (p.colors as unknown[]).map(String).filter(Boolean) : [];
+  if (listed.length) return listed.slice(0, 3).join("/").slice(0, 100);
+  const name = String(p.name || "");
+  for (const [re, c] of COLOR_WORDS) if (re.test(name)) return c;
+  return "Denim";
+}
+// Google taxonomy ids Meta accepts: 204 = Clothing > Pants (jeans), 212 = Shirts & Tops
+function taxonomyOf(category: unknown): string {
+  const c = String(category || "").toLowerCase();
+  if (c.includes("t-shirt") || c.includes("tshirt") || c.includes("shirt")) return "212";
+  if (c.includes("jean") || c.includes("pant") || c.includes("trouser")) return "204";
+  return "1604";
+}
+
 function cdata(s: string): string {
   // CDATA is safer than escaping for free-text fields (titles/descriptions
   // can contain quotes, ampersands, etc. from admin-entered copy) -- avoids
@@ -42,7 +73,7 @@ function cdata(s: string): string {
 export default async (): Promise<Response> => {
   try {
     const res = await fetch(
-      `${SUPABASE_URL}/rest/v1/products?select=id,name,description,price,offer_price,category,fit,sizes,oosizes,images`,
+      `${SUPABASE_URL}/rest/v1/products?select=id,name,description,price,offer_price,category,fit,sizes,oosizes,images,colors`,
       { headers: { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}` } }
     );
     if (!res.ok) {
@@ -54,7 +85,10 @@ export default async (): Promise<Response> => {
       const id = String(p.id);
       const name = String(p.name || "");
       const desc = String(p.description || name);
-      const price = Number(p.offer_price || p.price || 0);
+      const mrp = Number(p.price || 0);
+      const offer = Number(p.offer_price || 0);
+      const price = offer > 0 ? offer : mrp;            // what the customer pays (matches og:price on the page)
+      const onSale = offer > 0 && mrp > offer;          // show the strike-through MRP on Instagram
       const link = `${SITE_URL}/p/${id}`;
       const images = Array.isArray(p.images) ? (p.images as string[]) : [];
       const mainImage = images[0] || "";
@@ -74,11 +108,15 @@ export default async (): Promise<Response> => {
       <g:image_link>${xmlEscape(mainImage)}</g:image_link>
       ${extraImages.map((img) => `<g:additional_image_link>${xmlEscape(img)}</g:additional_image_link>`).join("\n      ")}
       <g:availability>${inStock ? "in stock" : "out of stock"}</g:availability>
-      <g:price>${price.toFixed(2)} INR</g:price>
+      <g:price>${(onSale ? mrp : price).toFixed(2)} INR</g:price>
+      ${onSale ? `<g:sale_price>${price.toFixed(2)} INR</g:sale_price>` : ""}
+      <g:gender>male</g:gender>
+      <g:age_group>adult</g:age_group>
+      <g:color>${xmlEscape(colorOf(p))}</g:color>
       <g:brand>365 Drop Store</g:brand>
       <g:condition>new</g:condition>
       <g:product_type>${xmlEscape(`${p.category || "Apparel"} > ${p.fit || ""}`)}</g:product_type>
-      <g:google_product_category>1604</g:google_product_category>
+      <g:google_product_category>${taxonomyOf(p.category)}</g:google_product_category>
     </item>`;
     }).filter(Boolean).join("\n");
 
@@ -95,7 +133,7 @@ export default async (): Promise<Response> => {
       status: 200,
       headers: {
         "content-type": "application/xml; charset=utf-8",
-        "cache-control": "public, max-age=3600", // feed crawlers re-fetch periodically; an hour is plenty fresh without hammering Supabase
+        "cache-control": "public, max-age=900", // feed crawlers re-fetch periodically; an hour is plenty fresh without hammering Supabase
       },
     });
   } catch (e) {

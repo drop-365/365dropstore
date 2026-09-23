@@ -221,6 +221,26 @@ header{position:sticky;top:0;z-index:100;background:rgba(20,19,18,.95);-webkit-b
 .mo-sold-count{font-size:12px;color:var(--glow,#C0392B);font-weight:600;margin:6px 0 2px;font-family:var(--mono,monospace);letter-spacing:.02em}
 .mo-trust{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--off);margin:10px 0 2px;text-align:center;justify-content:center}
 .mo-trust b{color:var(--white)}
+/* Order tracker cards */
+.ot-card{border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:12px;background:#fff}
+.ot-id{font-size:13px;font-weight:800;letter-spacing:.02em;margin-bottom:6px;color:#141312}
+.ot-st{display:flex;align-items:center;gap:8px}.ot-st b{font-family:var(--dsp);font-size:19px;letter-spacing:.02em}
+.ot-dot{width:10px;height:10px;border-radius:50%;flex:none}
+.ot-note{font-size:13px;color:var(--off);margin:6px 0 10px;line-height:1.5}
+.otl{display:grid;grid-template-columns:repeat(4,1fr);margin:4px 0 12px;position:relative}
+.otl-s{display:flex;flex-direction:column;align-items:center;gap:5px;position:relative;font-size:10.5px;color:#aaa;font-weight:600;letter-spacing:.03em}
+.otl-s i{width:12px;height:12px;border-radius:50%;background:#ddd;position:relative;z-index:1}
+.otl-s:not(:first-child)::before{content:"";position:absolute;top:5px;right:50%;width:100%;height:2px;background:#e5e5e5}
+.otl-s.on{color:#141312}.otl-s.on i{background:#1E9E5A}.otl-s.on:not(:first-child)::before{background:#1E9E5A}
+.otl-s.cur i{box-shadow:0 0 0 4px rgba(30,158,90,.18)}
+.ot-items{border-top:1px solid var(--line);padding-top:8px}
+.ot-item{display:flex;justify-content:space-between;gap:10px;padding:4px 0;font-size:12.5px;color:#333}
+.ot-meta{font-size:12px;color:var(--off);margin-top:6px}
+.ot-trk{margin-top:12px;padding:12px;background:rgba(41,128,185,.07);border:1px solid rgba(41,128,185,.25);border-radius:10px;font-size:13px}
+.ot-trk-awb{margin-top:4px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.ot-copy{font-size:11px;font-weight:700;padding:3px 9px;border-radius:12px;border:1px solid rgba(41,128,185,.4);background:#fff;color:#2980B9;cursor:pointer}
+.ot-trk-go{display:inline-block;margin-top:10px;background:#141312;color:#fff!important;padding:9px 14px;border-radius:8px;font-weight:700;font-size:12.5px;text-decoration:none}
+.ot-trk-note{margin-top:6px;font-size:11.5px;color:var(--off)}
 /* Trust line — one wording everywhere, set from TRUST_LINE in JS */
 .trust-line{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--off);letter-spacing:.01em}
 .trust-line .tl-ico{width:18px;height:18px;border-radius:50%;background:var(--red);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex:none}
@@ -1800,7 +1820,7 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
       <h2><span id="vd-h1a">Two forms.</span><br><em id="vd-h1b">Dropping tonight.</em></h2>
       <p id="vd-body">Okayama 18oz selvedge. Hand-forged in Delhi studio — not a warehouse. Numbered, certificate enclosed.</p>
       <div class="vault-door-cd" id="vd-countdown" style="display:block">
-        <div class="vd-live-msg" id="vd-live-msg">LIVE NOW — GO GRAB IT!!! LFG~~₹</div>
+        <div class="vd-live-msg" id="vd-live-msg">THE VAULT IS OPEN. NO RESTOCK. NO SECOND DROP.</div>
       </div>
       <a href="/vault/" class="vault-door-cta" id="vd-cta">SHOP THE VAULT →</a>
     </div>
@@ -2650,8 +2670,8 @@ Origin|Delhi studio..."></textarea>
         <small style="color:var(--off)">Real past buyers whose names weren't recorded. Each shows as an unnamed star, placed before the named stars. Raise it as you learn more; never use it for people who didn't buy.</small>
       </div>
       <div class="pff full"><label>Label on those stars</label>
-        <input type="text" id="wl-offline-label" maxlength="22" placeholder="OG"/>
-        <small style="color:var(--off)">What an unnamed star shows instead of a name. Default: OG.</small>
+        <input type="text" id="wl-offline-label" maxlength="22" placeholder="Early Buyer"/>
+        <small style="color:var(--off)">Shown with each star's own number, e.g. "Early Buyer #247". Default: Early Buyer.</small>
       </div>
 
       <div class="pff full"><label>Extra blocked words</label>
@@ -5486,7 +5506,7 @@ function loadWallAdmin(){
   const off=document.getElementById("wl-offline");
   if(off) off.value=Number(w.offlineCount)||0;
   const offL=document.getElementById("wl-offline-label");
-  if(offL) offL.value=w.offlineLabel||"OG";
+  if(offL) offL.value=(w.offlineLabel&&w.offlineLabel!=="OG")?w.offlineLabel:"Early Buyer";
   checkWallStatus();
 }
 function saveWallSettings(){
@@ -5500,7 +5520,7 @@ function saveWallSettings(){
   const offN=Math.max(0,Math.min(5000,parseInt(offEl&&offEl.value,10)||0));
   siteContent.wall={
     offlineCount: offN,
-    offlineLabel: ((document.getElementById("wl-offline-label")||{}).value||"").trim().slice(0,22)||"OG",
+    offlineLabel: ((document.getElementById("wl-offline-label")||{}).value||"").trim().slice(0,16)||"Early Buyer",
     enabled: en?!!en.checked:true,
     hidden: lines("wl-hidden"),
     blocked: lines("wl-blocked")
@@ -5823,6 +5843,7 @@ async function loadOrdersFromSupabase(){
       codDue:o.cod_due,
       trackingId:o.tracking_id||"",
       courierPartner:o.courier_partner||"",
+      courierOrderId:o.courier_order_id||"",
       channel:o.channel
     }));
     try{localStorage.setItem("ds_orders",JSON.stringify(orders));}catch(e){}
@@ -6184,8 +6205,8 @@ function rnAdmOrders(){
         </div>
         <select onchange="setOrderStatus('${o.orderId}',this.value)" style="font-size:12.5px;padding:5px 8px;border-radius:6px;border:1px solid var(--line);background:#fff;color:${statusColor[o.status]||'#141312'};font-weight:700">
           <option value="pending" ${o.status==="pending"?"selected":""}>Pending</option>
-          <option value="confirmed" ${o.status==="confirmed"?"selected":""}>Confirmed</option>
-          <option value="fulfilled" ${o.status==="fulfilled"?"selected":""}>Fulfilled</option>
+          <option value="confirmed" ${o.status==="confirmed"?"selected":""}>${o.trackingId?"Confirmed · Shipped":"Confirmed · Packing"}</option>
+          <option value="fulfilled" ${o.status==="fulfilled"?"selected":""}>Delivered</option>
           <option value="cancelled" ${o.status==="cancelled"?"selected":""}>Cancelled</option>
         </select>
         <button class="tb" onclick="toggleTrackingEditor('${o.orderId}')" title="Add or edit courier tracking">${o.trackingId?"✎ Tracking":"+ Tracking"}</button>
@@ -6195,15 +6216,17 @@ function rnAdmOrders(){
       <div style="font-size:13px;color:var(--off);margin-top:2px">${o.addr} — ${o.pin}</div>
       <div style="font-size:13px;color:var(--off);margin-top:8px;line-height:1.6">${itemsHtml}</div>
       <div style="margin-top:8px;font-weight:700;color:var(--white)">Total: ${inr(o.total)}</div>
-      ${o.trackingId?`<div style="margin-top:6px;font-size:12.5px;color:#2980B9">📦 ${o.courierPartner} · ${o.trackingId}</div>`:""}
+      ${o.trackingId?`<div style="margin-top:6px;font-size:12.5px;color:#2980B9">📦 ${o.courierPartner} · AWB ${o.trackingId}</div>`:""}${o.courierOrderId?`<div style="margin-top:3px;font-size:11.5px;color:var(--off)">🔒 Courier order ID (internal): <b>${o.courierOrderId}</b></div>`:""}
       <div id="trk-editor-${o.orderId}" style="display:none;margin-top:10px;padding:12px;background:var(--bg2,rgba(0,0,0,.03));border-radius:8px;border:1px solid var(--line)">
         <div style="display:flex;gap:8px;flex-wrap:wrap">
           <select id="trk-courier-${o.orderId}" style="flex:1;min-width:130px">
             <option value="">Courier…</option>
             ${["Delhivery","Shiprocket","Blue Dart","DTDC","Ecom Express","Xpressbees","Borzo","India Post","Other"].map(c=>`<option value="${c}" ${o.courierPartner===c?"selected":""}>${c}</option>`).join("")}
           </select>
-          <input type="text" id="trk-awb-${o.orderId}" placeholder="AWB / tracking number" value="${(o.trackingId||"").replace(/"/g,"&quot;")}" style="flex:1;min-width:150px"/>
+          <input type="text" id="trk-awb-${o.orderId}" placeholder="AWB — customer sees this" value="${(o.trackingId||"").replace(/"/g,"&quot;")}" style="flex:1;min-width:150px"/>
         </div>
+        <input type="text" id="trk-coid-${o.orderId}" placeholder="Courier order ID — internal only, customer never sees it" value="${(o.courierOrderId||"").replace(/"/g,"&quot;")}" style="width:100%;margin-top:8px"/>
+        <small style="display:block;margin-top:4px;color:var(--off)">Adding an AWB shows the customer "Shipped". Set the status to Delivered once it lands.</small>
         <div style="display:flex;gap:8px;margin-top:8px">
           <button class="btn btn-w" style="font-size:12px;padding:8px 14px" onclick="saveTracking('${o.orderId}')">Save</button>
           ${o.trackingId?`<button class="tb tb-del" style="font-size:12px" onclick="saveTracking('${o.orderId}',true)">Clear tracking</button>`:""}
@@ -6235,9 +6258,12 @@ function toggleTrackingEditor(orderId){
 async function saveTracking(orderId,clear){
   const msg=document.getElementById("trk-msg-"+orderId);
   const courier=clear?"":(document.getElementById("trk-courier-"+orderId)||{}).value||"";
-  const trackingId=clear?"":((document.getElementById("trk-awb-"+orderId)||{}).value||"").trim();
-  if(!clear&&(!courier||!trackingId)){
-    if(msg){msg.textContent="Pick a courier and enter the tracking number.";msg.style.color="#C0392B";}
+  let trackingId=clear?"":((document.getElementById("trk-awb-"+orderId)||{}).value||"").trim();
+  const courierOrderId=clear?"":((document.getElementById("trk-coid-"+orderId)||{}).value||"").trim();
+  let courierOut=courier;
+  if(!clear&&!trackingId&&courierOrderId){courierOut="";}          // internal id saved on its own, before an AWB exists
+  else if(!clear&&(!courier||!trackingId)){
+    if(msg){msg.textContent="Pick a courier and enter the AWB (or just the internal courier order ID).";msg.style.color="#C0392B";}
     return;
   }
   if(!_adminPw){showToast("Admin session expired — refresh and log in again.",false);return;}
@@ -6245,12 +6271,12 @@ async function saveTracking(orderId,clear){
   try{
     const res=await fetch(SB_FN_BASE+"admin-orders",{
       method:"POST",headers:{"Content-Type":"application/json","apikey":SB_APIKEY},
-      body:JSON.stringify({password:_adminPw,action:"setTracking",orderId,trackingId,courierPartner:courier})
+      body:JSON.stringify({password:_adminPw,action:"setTracking",orderId,trackingId,courierPartner:courierOut,courierOrderId})
     });
     const data=await res.json();
     if(data.error)throw new Error(data.error);
     const o=orders.find(x=>x.orderId===orderId);
-    if(o){o.trackingId=trackingId;o.courierPartner=courier;}
+    if(o){o.trackingId=trackingId;o.courierPartner=courierOut;o.courierOrderId=courierOrderId;}
     showToast(clear?"Tracking cleared":"Tracking saved — the customer can now see it on Track My Order",true);
     rnAdmOrders();
   }catch(e){
@@ -7291,12 +7317,59 @@ window.closeOrderTracker=function(){
   if(overlay)overlay.style.display="none";
   unlockScroll();
 };
-const STATUS_COPY={
-  pending:{label:"Payment Processing",color:"#F5A623",note:"We're confirming your payment. This usually takes a few minutes."},
-  confirmed:{label:"Confirmed — Packing Soon",color:"#4ade80",note:"Your order is confirmed and will be packed within 24 hours."},
-  fulfilled:{label:"Shipped",color:"#3498db",note:"Your order is on its way. Delivery in 3–5 days from dispatch."},
-  cancelled:{label:"Cancelled",color:"#E74C3C",note:"This order was cancelled. Message us on WhatsApp if this looks wrong."}
+// ── Order tracking: one renderer for "Track My Order" and "Find My Orders" ──
+// No new DB status: shipping is "confirmed + an AWB added", delivered is
+// "fulfilled". Revenue, dashboard and Star Wall keep counting confirmed+fulfilled.
+const COURIER_TRACK={
+  "Blue Dart":a=>"https://www.bluedart.com/web/guest/trackdartresultthirdparty?trackFor=0&trackNo="+encodeURIComponent(a),
+  "Delhivery":a=>"https://www.delhivery.com/track-v2/package/"+encodeURIComponent(a),
+  "Xpressbees":a=>"https://www.xpressbees.com/shipment/tracking?awbNo="+encodeURIComponent(a),
+  "Ecom Express":a=>"https://www.ecomexpress.in/tracking/?awb_field="+encodeURIComponent(a),
+  "Shiprocket":a=>"https://shiprocket.co/tracking/"+encodeURIComponent(a),
+  "DTDC":()=>"https://www.dtdc.com/track-your-shipment/",
+  "India Post":()=>"https://www.indiapost.gov.in/"
 };
+function courierTrackUrl(courier,awb){const f=COURIER_TRACK[courier];return (f&&awb)?f(awb):"";}
+function orderStage(o){
+  const walkin=String(o.orderId||"").indexOf("ST-")===0;
+  if(o.status==="cancelled")return {key:"cancelled",step:-1,label:"Cancelled",color:"#E74C3C",note:"This order was cancelled. Message us on WhatsApp if this looks wrong."};
+  if(o.status==="failed")return {key:"failed",step:-1,label:"Payment didn't go through",color:"#E74C3C",note:"No money was taken for this order. Try again, or WhatsApp us and we'll sort it."};
+  if(o.status==="fulfilled")return walkin
+    ?{key:"delivered",step:3,label:"Picked up in store 🖤",color:"#1E9E5A",note:"Handed over at the studio. Wear it loud — tag @365dropstore."}
+    :{key:"delivered",step:3,label:"Happily delivered 🖤",color:"#1E9E5A",note:"It reached you. Wear it loud — tag @365dropstore and you might end up on our wall."};
+  if(o.status==="confirmed"&&o.trackingId)return {key:"shipped",step:2,label:"Shipped — on the way",color:"#2980B9",note:"Your fit has left the studio. Delivery usually takes 3–5 days from dispatch."};
+  if(o.status==="confirmed")return {key:"packing",step:1,label:"Confirmed — packing now",color:"#1E9E5A",note:"Payment received. We're packing your order — it ships within 24 hours."};
+  return {key:"pending",step:0,label:"Payment processing",color:"#F5A623",note:"We're confirming your payment. This usually takes a few minutes."};
+}
+function copyAwb(btn,awb){
+  const done=()=>{const t=btn.textContent;btn.textContent="Copied ✓";setTimeout(()=>{btn.textContent=t;},1500);};
+  try{navigator.clipboard.writeText(awb).then(done,()=>{window.prompt("Copy your tracking number:",awb);});}catch(e){window.prompt("Copy your tracking number:",awb);}
+}
+function renderOrderDetail(o,showId){
+  const st=orderStage(o);const esc=_revEsc;
+  const dateStr=o.placedAt?new Date(o.placedAt).toLocaleDateString("en-IN",{day:"numeric",month:"short",year:"numeric"}):"";
+  const steps=["Placed","Packed","Shipped","Delivered"];
+  const bar=st.step<0?"":`<div class="otl">${steps.map((s,i)=>`<div class="otl-s${i<=st.step?" on":""}${i===st.step?" cur":""}"><i></i><span>${s}</span></div>`).join("")}</div>`;
+  const items=(o.items||[]).map(i=>{const attrs=[i.size,i.color].filter(Boolean).join(", ");return `<div class="ot-item"><span>${esc(i.name)}${attrs?" ("+esc(attrs)+")":""} × ${i.qty||1}</span><span>${inr((Number(i.price)||0)*(i.qty||1))}</span></div>`;}).join("");
+  let trk="";
+  if(o.trackingId){
+    const url=courierTrackUrl(o.courierPartner,o.trackingId);
+    const awbJs=String(o.trackingId).replace(/\\/g,"").replace(/'/g,"");
+    trk=`<div class="ot-trk"><div class="ot-trk-h">📦 Shipped via <b>${esc(o.courierPartner||"courier")}</b></div>
+      <div class="ot-trk-awb">AWB <b>${esc(o.trackingId)}</b> <button class="ot-copy" onclick="event.stopPropagation();copyAwb(this,'${awbJs}')">Copy</button></div>
+      ${url?`<a class="ot-trk-go" href="${url}" target="_blank" rel="noopener">Track live on ${esc(o.courierPartner)} →</a>`:`<div class="ot-trk-note">Use this number on the courier's website to track it live.</div>`}</div>`;
+  }
+  return `<div class="ot-card">
+    ${showId?`<div class="ot-id">${esc(o.orderId||"")}</div>`:""}
+    <div class="ot-st"><span class="ot-dot" style="background:${st.color}"></span><b style="color:${st.color}">${st.label}</b></div>
+    <p class="ot-note">${st.note}</p>
+    ${bar}
+    ${items?`<div class="ot-items">${items}</div>`:""}
+    <p class="ot-meta">Placed ${dateStr} · Total ${inr(o.total)}</p>
+    ${trk}
+  </div>`;
+}
+
 window.lookupOrderStatus=async function(){
   const orderId=(document.getElementById("ot-orderid").value||"").trim();
   const phone=(document.getElementById("ot-phone").value||"").trim();
@@ -7310,29 +7383,7 @@ window.lookupOrderStatus=async function(){
     });
     const data=await res.json();
     if(data.error){resultEl.innerHTML=`<p style="color:#E74C3C;font-size:13px">${data.error}</p>`;return;}
-    const sc=STATUS_COPY[data.status]||{label:data.status,color:"#141312",note:""};
-    const dateStr=data.placedAt?new Date(data.placedAt).toLocaleDateString("en-IN",{day:"numeric",month:"short",year:"numeric"}):"";
-    const itemsHtml=(data.items||[]).map(i=>{
-      const attrs=[i.size,i.color].filter(Boolean).join(", ");
-      return `<div style="display:flex;justify-content:space-between;padding:5px 0;font-size:12.5px;color:var(--w2,#333)"><span>${i.name}${attrs?" ("+attrs+")":""} × ${i.qty}</span><span>${inr(i.price*i.qty)}</span></div>`;
-    }).join("");
-    // Tracking only ever appears when the admin has actually set it —
-    // every order placed before this shipped simply has nothing here.
-    const trackHtml=data.trackingId?`
-        <div style="margin-top:12px;padding:10px 12px;background:rgba(41,128,185,.08);border:1px solid rgba(41,128,185,.25);border-radius:8px;font-size:12.5px">
-          📦 Shipped via <b>${data.courierPartner}</b><br>Tracking number: <b>${data.trackingId}</b>
-        </div>`:"";
-    resultEl.innerHTML=`
-      <div style="border:1px solid var(--line);border-radius:12px;padding:16px">
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
-          <span style="width:10px;height:10px;border-radius:50%;background:${sc.color}"></span>
-          <b style="font-family:var(--dsp);font-size:18px">${sc.label}</b>
-        </div>
-        <p style="font-size:13px;color:var(--off);margin-bottom:8px">${sc.note}</p>
-        ${itemsHtml?`<div style="border-top:1px solid var(--line);padding-top:8px;margin-top:4px">${itemsHtml}</div>`:""}
-        <p style="font-size:12px;color:var(--off);margin-top:6px">Placed ${dateStr} · Total ${inr(data.total)}</p>
-        ${trackHtml}
-      </div>`;
+    resultEl.innerHTML=renderOrderDetail(data,false);
   }catch(e){
     resultEl.innerHTML='<p style="color:#E74C3C;font-size:13px">Could not check right now — try again in a moment.</p>';
   }
@@ -7361,24 +7412,7 @@ window.lookupAllOrders=async function(){
       resultEl.innerHTML='<p style="color:var(--off);font-size:13px">No orders found with this number.</p>';
       return;
     }
-    resultEl.innerHTML=data.orders.map(o=>{
-      const dateStr=o.placedAt?new Date(o.placedAt).toLocaleDateString("en-IN",{day:"numeric",month:"short",year:"numeric"}):"";
-      const sc=(STATUS_COPY[o.status]||{label:o.status,color:"#141312"});
-      const itemsLine=(o.items||[]).map(i=>i.name+(i.size?" ("+i.size+")":"")).join(", ");
-      return `<div onclick="document.getElementById('ot-orderid').value='${o.orderId}';document.getElementById('ot-phone').value='${phone}';toggleAllOrdersLookup();lookupOrderStatus();"
-        style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:8px;margin-bottom:8px;cursor:pointer">
-        <div>
-          <div style="font-size:13px;font-weight:700">${o.orderId}</div>
-          <div style="font-size:11.5px;color:var(--off)">${dateStr}</div>
-          ${itemsLine?`<div style="font-size:11px;color:var(--off);margin-top:2px;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${itemsLine}</div>`:""}
-          ${o.trackingId?`<div style="font-size:10.5px;color:#2980B9;margin-top:2px">📦 ${o.courierPartner}</div>`:""}
-        </div>
-        <div style="text-align:right">
-          <div style="font-size:12px;font-weight:700;color:${sc.color}">${sc.label}</div>
-          <div style="font-size:12.5px">${inr(o.total)}</div>
-        </div>
-      </div>`;
-    }).join("");
+    resultEl.innerHTML=`<p style="font-size:12px;color:var(--off);margin:4px 0 10px">${data.orders.length} order${data.orders.length>1?"s":""} on this number</p>`+data.orders.map(o=>renderOrderDetail(o,true)).join("");
   }catch(e){
     resultEl.innerHTML='<p style="color:#E74C3C;font-size:13px">Could not look up orders right now — try again in a moment.</p>';
   }

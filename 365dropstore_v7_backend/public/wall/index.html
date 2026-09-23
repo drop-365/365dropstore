@@ -496,7 +496,7 @@ function draw(now){
 
 /* Fingers are blunter than a cursor, so give touch a much wider catch. */
 function starAt(mx,my){
-  const hitR=isTouch?44:28;
+  const hitR=isTouch?(cam.zoom<0.6?22:40):28;
   let best=null,bd=1e9;
   stars.forEach((s,i)=>{
     const p=worldToScreen(s.x,s.y);
@@ -511,6 +511,7 @@ function starAt(mx,my){
    two-finger branch for pinch. */
 let dragging=false, dragMoved=false, lastX=0, lastY=0;
 let pinching=false, pinchDist=0, pinchMidX=0, pinchMidY=0;
+let multiTouch=false;   // any gesture that ever had 2 fingers can never end as a "tap"
 let lastTapT=0, lastTapX=0, lastTapY=0;
 
 function beginDrag(x,y){
@@ -559,8 +560,8 @@ canvas.addEventListener('wheel',e=>{
 
 canvas.addEventListener('touchstart',e=>{
   isTouch=true; hovered=null;
-  if(e.touches.length===2){
-    dragging=false; pinching=true;
+  if(e.touches.length>=2){
+    dragging=false; pinching=true; multiTouch=true;
     const a=e.touches[0], b=e.touches[1];
     pinchDist=Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY);
     pinchMidX=(a.clientX+b.clientX)/2; pinchMidY=(a.clientY+b.clientY)/2;
@@ -594,14 +595,21 @@ canvas.addEventListener('touchend',e=>{
       // second finger lifted — hand back to a clean single-finger drag
       pinching=false; pinchDist=0;
       beginDrag(e.touches[0].clientX,e.touches[0].clientY);
+      dragMoved=true;                 // leftover finger = pan only, never select
     }
+    return;
+  }
+  if(e.touches.length===0&&multiTouch){
+    // FIX: the last finger lifting after a pinch used to count as a tap and
+    // pop open whichever star was nearest — i.e. a random name every pinch.
+    multiTouch=false; dragging=false; canvas.classList.remove('dragging');
     return;
   }
   if(e.changedTouches.length)
     endDrag(e.changedTouches[0].clientX,e.changedTouches[0].clientY,true);
 },{passive:true});
 
-canvas.addEventListener('touchcancel',()=>{dragging=false;pinching=false;pinchDist=0;},{passive:true});
+canvas.addEventListener('touchcancel',()=>{dragging=false;pinching=false;pinchDist=0;multiTouch=false;},{passive:true});
 
 document.getElementById('zoom-in').onclick=()=>{hideTitle();zoomAt(W/2,H/2,1.45);};
 document.getElementById('zoom-out').onclick=()=>{zoomAt(W/2,H/2,0.69);};
