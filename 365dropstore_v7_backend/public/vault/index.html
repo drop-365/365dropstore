@@ -265,6 +265,20 @@ body::before{
 .mob-bar .ma{padding:13px 22px;background:var(--ink);color:var(--paper);font-size:12px;border-radius:2px}
 @media(max-width:640px){.mob-bar.vis{display:flex}}
 </style>
+<!-- Meta Pixel — 365DropStore dataset 2018974752158259 (same pixel as the main store) -->
+<script>
+!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window,document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init','2018974752158259');
+fbq('track','PageView');
+</script>
+<noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=2018974752158259&ev=PageView&noscript=1"/></noscript>
+<!-- End Meta Pixel -->
 </head>
 <body>
 
@@ -660,6 +674,7 @@ function wireReserveButtons(){
       if(cart.find(c=>c.id===pid&&c.size===sz)){openDrawer();return}
       const p=P[pid];
       cart.push({id:pid,size:sz,name:p.name,price:p.price});
+      vPix('AddToCart',[{id:pid,price:p.price}],p.price);
       renderCart();openDrawer();
     });
   });
@@ -763,7 +778,7 @@ document.getElementById('btn-pay').addEventListener('click',async()=>{
     email: document.getElementById('cf-e').value.trim(),
     addr: document.getElementById('cf-a').value.trim(),
     pin: document.getElementById('cf-z').value.trim(),
-    items: cart.map(c=>({name:c.name,qty:1,price:c.price,size:c.size,color:''})),
+    items: cart.map(c=>({id:c.id,name:c.name,qty:1,price:c.price,size:c.size,color:''})),
     total: total,
     paymentMethod: payMethod
   };
@@ -772,13 +787,14 @@ document.getElementById('btn-pay').addEventListener('click',async()=>{
     orderPayload._codCharge=payCfg.codCharge||0;
   }
 
+  vPix('InitiateCheckout',cart,total);
   try{
     const res=await fetch(SB+'/functions/v1/razorpay-order',{method:'POST',headers:{'Content-Type':'application/json','apikey':SK,'Authorization':'Bearer '+SK},body:JSON.stringify({order:orderPayload})});
     const od=await res.json();
     if(!res.ok||od.error) throw new Error(od.error||'Order creation failed');
 
     // Full COD: nothing to pay online, order is already confirmed by the backend.
-    if(od.cod){ showOk(oid); return; }
+    if(od.cod){ vPix('Purchase',cart,total); showOk(oid); return; }
 
     const rzp=new Razorpay({
       key:od.keyId, amount:od.amount, currency:od.currency,
@@ -792,6 +808,7 @@ document.getElementById('btn-pay').addEventListener('click',async()=>{
           const vr=await fetch(SB+'/functions/v1/razorpay-verify',{method:'POST',headers:{'Content-Type':'application/json','apikey':SK,'Authorization':'Bearer '+SK},body:JSON.stringify({razorpay_order_id:r.razorpay_order_id,razorpay_payment_id:r.razorpay_payment_id,razorpay_signature:r.razorpay_signature})});
           const vd=await vr.json();
           if(!vr.ok||vd.error) throw new Error(vd.error||'Verification failed');
+          vPix('Purchase',cart,total);
           await fetch(SB+'/functions/v1/order-mark-paid',{method:'POST',headers:{'Content-Type':'application/json','apikey':SK,'Authorization':'Bearer '+SK},body:JSON.stringify({orderId:oid,razorpay_order_id:r.razorpay_order_id,razorpay_payment_id:r.razorpay_payment_id,razorpay_signature:r.razorpay_signature})});
         }catch(e){ console.error('Post-payment step failed:',e); }
         showOk(oid);
@@ -805,6 +822,17 @@ document.getElementById('btn-pay').addEventListener('click',async()=>{
     alert('Something went wrong: '+e.message+'. Please try again or WhatsApp us if it persists.');
   }
 });
+// Meta pixel helper — sends catalog content IDs (must match feed g:id). Never throws.
+function vPix(ev,items,value){
+  try{
+    if(typeof fbq!=='function')return;
+    const list=(items||[]).filter(i=>i&&i.id);
+    fbq('track',ev,{value:Number(value)||0,currency:'INR',content_type:'product',
+      content_ids:[...new Set(list.map(i=>String(i.id)))],
+      contents:list.map(i=>({id:String(i.id),quantity:1,item_price:Number(i.price)||0})),
+      num_items:list.length});
+  }catch(e){}
+}
 function showOk(oid){ document.getElementById('drawer-body').style.display='none'; document.getElementById('drawer-ok').classList.add('show'); document.getElementById('ok-id').textContent='Order '+oid; }
 
 /* Mobile buy bar */
