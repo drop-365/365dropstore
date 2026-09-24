@@ -1792,6 +1792,18 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
   .cst-count-lbl{display:none}
 }
 
+.vd-pane{position:relative;flex:1;width:50%;height:100%;display:block;overflow:hidden}
+.vd-pane .vd-real-img{width:100%;transition:transform .6s ease}
+.vd-pane:hover .vd-real-img{transform:scale(1.04)}
+.vd-chip{position:absolute;left:12px;right:12px;bottom:12px;display:none;justify-content:space-between;align-items:center;gap:8px;background:rgba(14,14,12,.82);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:9px 12px;color:#F6F3EE;font:600 12px/1.2 ui-monospace,monospace;letter-spacing:.03em}
+.vd-chip.on{display:flex}.vd-chip b{color:#E85D45;font-size:13px;white-space:nowrap}.vd-chip span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.vd-buy{margin:18px 0 6px}
+.vd-price{display:flex;align-items:baseline;gap:10px}.vd-price b{font-family:'Bebas Neue',ui-sans-serif,sans-serif;font-size:40px;color:#F6F3EE;letter-spacing:.02em;line-height:1}.vd-price span{font:12px ui-monospace,monospace;color:#8A8783;letter-spacing:.06em;text-transform:uppercase}
+.vd-sizes{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0 10px}.vd-sizes span{font:600 11px ui-monospace,monospace;color:#F6F3EE;border:1px solid #3a3a36;border-radius:4px;padding:5px 8px}.vd-sizes span.out{color:#55534f;text-decoration:line-through;border-color:#252523}
+.vd-trust{font:11px ui-monospace,monospace;color:#8A8783;letter-spacing:.05em}
+.vault-door-cta.vd-cta-solid{background:#C0392B;border-color:#C0392B;color:#fff;font-size:12px;padding:15px 24px;margin-top:14px}
+.vault-door-cta.vd-cta-solid:hover{background:#E85D45;border-color:#E85D45}
+@media(max-width:960px){.vd-price b{font-size:34px}.vault-door-cta.vd-cta-solid{width:100%;justify-content:center}}
 .vault-door{background:#0E0E0C;border-top:1px solid #222;border-bottom:1px solid #222;margin:0;position:relative;overflow:hidden}
 .vault-door-inner{max-width:1280px;margin:0 auto;display:grid;grid-template-columns:1.2fr 0.8fr;min-height:400px;position:relative;z-index:1}
 .vault-door-img{position:relative;overflow:hidden;min-height:400px;background:linear-gradient(160deg,#161614,#0E0E0C 60%)}
@@ -1837,24 +1849,24 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
     <div class="vault-door-img">
       <div class="vd-locked">
         <div class="vd-real-imgs">
-          <img id="vd-img-1" class="vd-real-img" alt="">
-          <img id="vd-img-2" class="vd-real-img" alt="">
+          <a class="vd-pane" id="vd-pane-1" href="/vault/"><img id="vd-img-1" class="vd-real-img" alt="Vault edition 1"><span class="vd-chip" id="vd-chip-1"></span></a>
+          <a class="vd-pane" id="vd-pane-2" href="/vault/"><img id="vd-img-2" class="vd-real-img" alt="Vault edition 2"><span class="vd-chip" id="vd-chip-2"></span></a>
         </div>
-        <div class="vd-locked-grid"></div>
-        <div class="vd-locked-hud vd-locked-hud--tl" id="vd-file-tag">FILE // 365-BLK-001</div>
-        <div class="vd-locked-hud vd-locked-hud--tr" id="vd-enc-tag">ENCRYPTED</div>
-        <div class="vd-locked-hud vd-locked-hud--bl" id="vd-res-tag">RES: CLASSIFIED</div>
-        <div class="vd-locked-hud vd-locked-hud--br" id="vd-ed-tag">ED. 04/12</div>
       </div>
     </div>
     <div class="vault-door-copy">
       <div class="vd-tag"><span id="vd-kicker-1">VAULT 000 — ATELIER EDITION</span><br><span id="vd-kicker-2">12 UNITS WORLDWIDE · DELHI STUDIO</span></div>
-      <h2><span id="vd-h1a">Two forms.</span><br><em id="vd-h1b">Dropping tonight.</em></h2>
+      <h2><span id="vd-h1a">Two forms.</span><br><em id="vd-h1b">Open now.</em></h2>
       <p id="vd-body">Okayama 18oz selvedge. Hand-forged in Delhi studio — not a warehouse. Numbered, certificate enclosed.</p>
       <div class="vault-door-cd" id="vd-countdown" style="display:block">
         <div class="vd-live-msg" id="vd-live-msg">THE VAULT IS OPEN. NO RESTOCK. NO SECOND DROP.</div>
       </div>
-      <a href="/vault/" class="vault-door-cta" id="vd-cta">SHOP THE VAULT →</a>
+      <div class="vd-buy" id="vd-buy" style="display:none">
+        <div class="vd-price"><b id="vd-price">₹1,899</b><span id="vd-price-note">each · 2 designs</span></div>
+        <div class="vd-sizes" id="vd-sizes"></div>
+        <div class="vd-trust">Free shipping · 7-day exchange · Numbered pair</div>
+      </div>
+      <a href="/vault/" class="vault-door-cta vd-cta-solid" id="vd-cta">SHOP THE VAULT →</a>
     </div>
   </div>
 </section>
@@ -1943,13 +1955,32 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
   try{
     const SBu='https://fhiivshoikcnanbvdtxm.supabase.co',
           SKu='sb_publishable_LPwVp36pEOfQIEchjefMfw_SmGNcxUt';
-    const res=await fetch(SBu+'/rest/v1/products?select=images,badges',{headers:{apikey:SKu,Authorization:'Bearer '+SKu}});
+    const res=await fetch(SBu+'/rest/v1/products?select=id,name,images,badges,price,offer_price,sizes,oosizes',{headers:{apikey:SKu,Authorization:'Bearer '+SKu}});
     const rows=await res.json();
-    const vaultItems=(rows||[]).filter(p=>Array.isArray(p.badges)&&p.badges.includes('vault'));
-    const img1=document.getElementById('vd-img-1'), img2=document.getElementById('vd-img-2');
-    if(vaultItems[0]&&vaultItems[0].images&&vaultItems[0].images[0]&&img1) img1.src=vaultItems[0].images[0];
-    if(vaultItems[1]&&vaultItems[1].images&&vaultItems[1].images[0]&&img2) img2.src=vaultItems[1].images[0];
-    else if(img2) img2.style.display='none';
+    const vaultItems=(rows||[]).filter(p=>Array.isArray(p.badges)&&p.badges.includes('vault')).slice(0,2);
+    const inr=n=>'₹'+Number(n).toLocaleString('en-IN');
+    const priceOf=p=>Number(p.offer_price||p.price||0);
+    const clean=n=>String(n||'').replace(/^365-?\s*WD[- ]?/i,'').replace(/-/g,' ').trim();
+    vaultItems.forEach((p,i)=>{
+      const img=document.getElementById('vd-img-'+(i+1)), pane=document.getElementById('vd-pane-'+(i+1)), chip=document.getElementById('vd-chip-'+(i+1));
+      if(img&&p.images&&p.images[0]) img.src=p.images[0];
+      if(img) img.alt=p.name||'Vault edition';
+      if(pane) pane.href='/vault/#vp-'+encodeURIComponent(p.id);
+      if(chip&&priceOf(p)){chip.innerHTML='<span>'+clean(p.name)+'</span><b>'+inr(priceOf(p))+'</b>';chip.classList.add('on');}
+    });
+    const p2=document.getElementById('vd-pane-2'); if(!vaultItems[1]&&p2) p2.style.display='none';
+    if(vaultItems.length){
+      const prices=vaultItems.map(priceOf).filter(Boolean);
+      const lo=Math.min(...prices), hi=Math.max(...prices);
+      document.getElementById('vd-price').textContent=lo===hi?inr(lo):inr(lo)+'–'+inr(hi);
+      document.getElementById('vd-price-note').textContent=(lo===hi?'each · ':'')+vaultItems.length+' design'+(vaultItems.length>1?'s':'');
+      // sizes: a size counts as available if at least one design has it in stock
+      const all=[...new Set(vaultItems.flatMap(p=>p.sizes||[]))].sort((a,b)=>parseFloat(a)-parseFloat(b));
+      const inStock=sz=>vaultItems.some(p=>(p.sizes||[]).includes(sz)&&!(p.oosizes||[]).includes(sz));
+      document.getElementById('vd-sizes').innerHTML=all.map(sz=>'<span class="'+(inStock(sz)?'':'out')+'">'+sz+'</span>').join('');
+      document.getElementById('vd-buy').style.display='';
+      const cta=document.getElementById('vd-cta'); if(cta&&!(siteContent&&siteContent.vault&&siteContent.vault.teaser&&siteContent.vault.teaser.cta)) cta.textContent='SHOP THE VAULT · '+inr(lo)+' →';
+    }
   }catch(e){ console.error('Vault teaser images failed to load:',e); }
 })();
 

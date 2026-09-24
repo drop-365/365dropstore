@@ -642,6 +642,8 @@ async function loadVaultProducts(){
       </div>
     </section>`;
   }).join('');
+  // Homepage Vault photos link to /vault/#vp-<id>; sections are built after load, so scroll there ourselves.
+  if(location.hash&&location.hash.indexOf('#vp-')===0){const t=document.getElementById(decodeURIComponent(location.hash.slice(1)));if(t)setTimeout(()=>t.scrollIntoView({behavior:'smooth',block:'start'}),120);}
 
   wireSizeButtons();
   wireReserveButtons();
