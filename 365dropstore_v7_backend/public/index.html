@@ -241,6 +241,28 @@ header{position:sticky;top:0;z-index:100;background:rgba(20,19,18,.95);-webkit-b
 .ot-copy{font-size:11px;font-weight:700;padding:3px 9px;border-radius:12px;border:1px solid rgba(41,128,185,.4);background:#fff;color:#2980B9;cursor:pointer}
 .ot-trk-go{display:inline-block;margin-top:10px;background:#141312;color:#fff!important;padding:9px 14px;border-radius:8px;font-weight:700;font-size:12.5px;text-decoration:none}
 .ot-trk-note{margin-top:6px;font-size:11.5px;color:var(--off)}
+/* Admin reviews manager */
+.seq-head{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:baseline;margin:4px 0 10px}.seq-head b{font-size:12px;letter-spacing:.08em;color:var(--white)}.seq-head span{font-size:12px;color:var(--off)}
+.seq-bar{position:sticky;top:8px;z-index:5;display:flex;gap:12px;align-items:center;justify-content:space-between;background:#141312;color:#fff;border-radius:10px;padding:10px 12px;margin:0 0 10px;font-size:12.5px}
+.seq-bar .btn{padding:8px 14px;font-size:12.5px}
+.rv-row{display:flex;gap:12px;align-items:center;padding:10px;border:1px solid var(--line);border-radius:12px;margin-bottom:8px;background:var(--bg,#fff);transition:box-shadow .15s,border-color .15s}
+.rv-row.dragging{opacity:.45}.rv-row.drop-on,.ug-tile.drop-on{border-color:var(--red);box-shadow:0 0 0 2px rgba(192,57,43,.25)}
+.rv-grip{cursor:grab;font-size:18px;color:var(--off);user-select:none;padding:0 2px}
+.rv-pos{font:700 12px/1 var(--mono,monospace);color:var(--white);background:rgba(0,0,0,.06);border-radius:6px;padding:5px 6px;min-width:30px;text-align:center}
+.rv-slot{flex:none;width:72px;height:96px;border-radius:8px;overflow:hidden;position:relative}
+.rv-slot.empty{border:2px dashed var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;color:var(--off)}
+.rv-slot.empty:hover{border-color:var(--red);color:var(--red)}.rv-slot.empty span{font-size:22px;line-height:1}.rv-slot.empty small{font-size:10.5px;margin-top:4px}
+.rv-slot.has img{width:100%;height:100%;object-fit:cover;cursor:zoom-in;display:block}
+.rv-slot-act{position:absolute;left:0;right:0;bottom:0;display:flex;background:rgba(0,0,0,.65)}
+.rv-slot-act label,.rv-slot-act button{flex:1;font-size:10px;color:#fff;background:none;border:0;padding:4px 0;cursor:pointer;text-align:center;font-family:inherit}
+.rv-body{flex:1;min-width:0}.rv-who{display:flex;gap:8px;flex-wrap:wrap;align-items:baseline}.rv-who b{color:var(--white);font-size:13.5px}.rv-who span{color:var(--off);font-size:12px}
+.rv-text{color:var(--off);font-size:12.5px;line-height:1.45;margin-top:4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.rv-ctl{display:flex;gap:4px;flex:none}.rv-ctl button,.ug-ctl button{border:1px solid var(--line);background:none;color:var(--white);border-radius:6px;width:30px;height:30px;cursor:pointer;font-size:13px;font-family:inherit}
+.rv-ctl button:disabled,.ug-ctl button:disabled{opacity:.3;cursor:default}.rv-ctl .tb-del,.ug-ctl .tb-del{width:auto;padding:0 8px;color:#C0392B;border-color:rgba(192,57,43,.35)}
+.ug-tile{position:relative;border:1px solid var(--line);border-radius:10px;padding:6px;cursor:grab;background:var(--bg,#fff)}
+.ug-tile img{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:6px;display:block}.ug-tile .rv-pos.ug{position:absolute;top:10px;left:10px;background:rgba(0,0,0,.65);color:#fff}
+.ug-name{font-size:11px;color:var(--off);margin:5px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ug-ctl{display:flex;gap:4px}.ug-ctl button{width:auto;flex:1;height:26px;font-size:12px}
+@media(max-width:600px){.rv-row{flex-wrap:wrap}.rv-body{flex-basis:calc(100% - 140px)}.rv-ctl{width:100%;justify-content:flex-end}.rv-grip{display:none}}
 .ig-chip{position:fixed;left:16px;bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:450;background:#141312;color:#fff;border:0;border-radius:24px;padding:11px 16px;font:600 13px/1 inherit;font-family:inherit;box-shadow:0 8px 24px rgba(0,0,0,.25);cursor:pointer}
 .ig-chip b{background:var(--red);border-radius:10px;padding:2px 7px;margin-left:6px}
 .ig-sheet{position:fixed;left:16px;bottom:calc(136px + env(safe-area-inset-bottom,0px));z-index:451;width:min(360px,calc(100vw - 32px));max-height:55vh;overflow:auto;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 16px 40px rgba(0,0,0,.2);padding:12px}
@@ -4259,6 +4281,10 @@ function _revEsc(s){return String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&am
 // 2026-09-02: sizing/fit reviews answer the #1 pre-purchase objection from ads.
 // Surface them first instead of leaving them 6 rows deep.
 const _REV_PRIORITY=/\b(size|sizing|fit|fitted|fitting|waist|length|measurement)/i;
+// Admin-set sequence (Admin → Reviews, drag to reorder). Reviews without a
+// position yet (just added) come first, matching the top of the admin list.
+function _seqKey(r){return Number.isFinite(r&&r.sortOrder)?r.sortOrder:-1e9;}
+function sortBySeq(list){return list.map((r,i)=>({r,i})).sort((a,b)=>(_seqKey(a.r)-_seqKey(b.r))||(a.i-b.i)).map(x=>x.r);}
 function _revRank(r){
   if(r.img&&r.text)return -1;                       // photo + words = strongest proof, lead with it
   if(r.type==="img")return 1;                       // leave image reviews where they were
@@ -4285,7 +4311,7 @@ function expandRevs(){revExpanded=true;renderRevs();
 function renderRevs(){
   const _revs=(Array.isArray(reviews)?reviews:[]).filter(r=>!isUgc(r)).slice()
     .map((r,i)=>({r:r,i:i}))
-    .sort((a,b)=>(_revRank(a.r)-_revRank(b.r))||(a.i-b.i))
+    .sort((a,b)=>(_seqKey(a.r)-_seqKey(b.r))||(_revRank(a.r)-_revRank(b.r))||(a.i-b.i))
     .map(x=>x.r);
   const _all=_revs.filter(r=>revMatches(r,revTheme));
   const REV_STEP=6;
@@ -4338,7 +4364,7 @@ function renderRevs(){
 let ugcExpanded=false;
 function renderUgc(){
   const wrap=document.getElementById("ugcWrap");if(!wrap)return;
-  const all=(Array.isArray(reviews)?reviews:[]).filter(r=>isUgc(r)&&r.img);
+  const all=sortBySeq((Array.isArray(reviews)?reviews:[]).filter(r=>isUgc(r)&&r.img));
   if(!all.length){wrap.style.display="none";return;}
   wrap.style.display="block";
   const STEP=8, shown=ugcExpanded?all:all.slice(0,STEP);
@@ -4349,7 +4375,7 @@ function renderUgc(){
     ?`<button class="btn-revmore" onclick="ugcExpanded=true;renderUgc()">See all ${all.length} photos &darr;</button>`
     :(ugcExpanded&&all.length>STEP?`<button class="btn-revmore ghost" onclick="ugcExpanded=false;renderUgc()">Show fewer &uarr;</button>`:"");
 }
-function openUgc(i){const all=reviews.filter(r=>isUgc(r)&&r.img);openLB(all.map(r=>r.img),Math.max(0,i),all.map(r=>({stars:0,text:"",who:r.who?r.who+" · wearing 365":""})));}
+function openUgc(i){const all=sortBySeq(reviews.filter(r=>isUgc(r)&&r.img));openLB(all.map(r=>r.img),Math.max(0,i),all.map(r=>({stars:0,text:"",who:r.who?r.who+" · wearing 365":""})));}
 function openImgReview(id){const withPhoto=reviews.filter(r=>r.img&&!isUgc(r));const imgs=withPhoto.map(r=>r.img);const idx=withPhoto.findIndex(r=>r.id===id);openLB(imgs,Math.max(0,idx),withPhoto.map(r=>({stars:r.text?(r.stars||5):0,text:r.text||"",who:r.who||""})));}
 
 // MODAL — with full description, shipping info, share, size chart image
@@ -6425,13 +6451,67 @@ function setOrderStatus(orderId,status){
     }).catch(()=>showToast("⚠️ Status saved locally but live sync failed (network).",false));
   }
 }
-function rnAdmRev(){rnAdmUgc();const _rv=reviews.filter(r=>!isUgc(r));document.getElementById("rev-adm").innerHTML=_rv.length?_rv.map(r=>{
-  if(r.type==="img"&&!r.text)return `<div style="display:flex;gap:12px;padding:11px 0;border-bottom:1px solid var(--line);align-items:center"><img src="${r.img}" style="width:44px;height:60px;object-fit:cover;border-radius:6px" alt="Review photo"/><div style="flex:1;color:var(--off);font-size:13px">Image review</div><button class="tb tb-del" onclick="delRev('${r.id}')">Del</button></div>`;
-  const photoBit=r.img
-    ?`<img src="${r.img}" style="width:44px;height:60px;object-fit:cover;border-radius:6px" alt="Attached photo"/><button class="tb" style="font-size:11px" onclick="revRemovePhoto('${r.id}')">Remove photo</button>`
-    :`<label class="tb" style="font-size:11px;cursor:pointer">+ Attach photo<input type="file" accept="image/*,.heic,.heif" style="display:none" onchange="revAttachPhoto(this,'${r.id}')"/></label>`;
-  return `<div style="display:flex;gap:12px;padding:11px 0;border-bottom:1px solid var(--line);align-items:flex-start"><div style="flex:1"><b style="color:var(--white)">${r.who||""}</b> · ${r.where||""} · ${"★".repeat(r.stars||5)}<br><span style="color:var(--off);font-size:13px">"${r.text}"</span></div><div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end">${photoBit}<button class="tb tb-del" onclick="delRev('${r.id}')">Del</button></div></div>`;
-}).join(""):'<p style="color:var(--off);font-size:13px">No reviews yet.</p>';}
+// ── Admin reviews manager: sequence (drag / ↑↓ / top) + photo slot ─────
+// The list order here IS the order customers see (after "Save order").
+let _seqDirty={rev:false,ugc:false}, _dragId=null, _dragList=null;
+function _admList(kind){return sortBySeq(reviews.filter(r=>kind==="ugc"?isUgc(r):!isUgc(r)));}
+function _applyOrder(kind,ids){
+  // rebuild the reviews array: this kind in the new order, the other kind untouched
+  const other=reviews.filter(r=>kind==="ugc"?!isUgc(r):isUgc(r));
+  const byId=Object.fromEntries(reviews.map(r=>[r.id,r]));
+  const mine=ids.map((id,i)=>{const r=byId[id];r.sortOrder=i+1;return r;});
+  reviews=kind==="ugc"?other.concat(mine):mine.concat(other);
+  _seqDirty[kind]=true; lsSafeSet("ds_r",reviews); renderRevs(); rnAdmRev();
+}
+function revSeqMove(kind,id,to){ // to: "up" | "down" | "top" | index
+  const ids=_admList(kind).map(r=>r.id); const i=ids.indexOf(id); if(i<0)return;
+  let j=to==="up"?i-1:to==="down"?i+1:to==="top"?0:to;
+  j=Math.max(0,Math.min(ids.length-1,j)); if(j===i)return;
+  ids.splice(i,1); ids.splice(j,0,id); _applyOrder(kind,ids);
+}
+async function saveSeq(){
+  const btn=document.getElementById("seq-save"); if(btn){btn.disabled=true;btn.textContent="Saving…";}
+  let ok=true;
+  for(const kind of ["rev","ugc"]){
+    if(!_seqDirty[kind])continue;
+    const res=await _callAdminFn("admin-reviews",{action:"reorder",ids:_admList(kind).map(r=>r.id)});
+    if(res&&res.success)_seqDirty[kind]=false; else ok=false;
+  }
+  rnAdmRev(); if(ok)showToast("✓ Order saved — the site shows reviews in this sequence now.",true);
+}
+function _seqBar(){
+  const dirty=_seqDirty.rev||_seqDirty.ugc;
+  return dirty?`<div class="seq-bar"><span>Order changed — customers still see the old order until you save.</span><button id="seq-save" class="btn btn-w" onclick="saveSeq()">Save order</button></div>`:"";
+}
+function _dragAttrs(kind,id){return `draggable="true" ondragstart="_dragId='${id}';_dragList='${kind}';this.classList.add('dragging')" ondragend="this.classList.remove('dragging')" ondragover="event.preventDefault();this.classList.add('drop-on')" ondragleave="this.classList.remove('drop-on')" ondrop="event.preventDefault();this.classList.remove('drop-on');_dropOn('${kind}','${id}',event)"`;}
+function _dropOn(kind,id,ev){
+  const f=ev.dataTransfer&&ev.dataTransfer.files&&ev.dataTransfer.files[0];
+  if(f&&kind==="rev"&&!_dragId){revAttachPhoto({files:[f]},id);return;}   // image dropped on a review = attach it
+  if(!_dragId||_dragList!==kind)return;
+  const ids=_admList(kind).map(r=>r.id); const to=ids.indexOf(id); const from=ids.indexOf(_dragId);
+  _dragId=null; if(to<0||from<0||to===from)return;
+  ids.splice(from,1); ids.splice(to,0,_admList(kind)[from].id); _applyOrder(kind,ids);
+}
+function rnAdmRev(){
+  rnAdmUgc();
+  const list=_admList("rev"), el=document.getElementById("rev-adm");
+  if(!list.length){el.innerHTML='<p style="color:var(--off);font-size:13px">No reviews yet.</p>';return;}
+  el.innerHTML=`<div class="seq-head"><b>SEQUENCE ON SITE</b><span>Drag ⠿ or use ↑ ↓ ⤒. #1 shows first. New reviews start at the top.</span></div>`+_seqBar()+
+  list.map((r,i)=>{
+    const star="★".repeat(r.stars||5);
+    const slot=r.img
+      ?`<div class="rv-slot has"><img src="${r.img}" alt="Review photo" onclick="openImgReview('${r.id}')"/><div class="rv-slot-act"><label>Replace<input type="file" accept="image/*,.heic,.heif" hidden onchange="revAttachPhoto(this,'${r.id}')"/></label>${r.text?`<button onclick="revRemovePhoto('${r.id}')">Remove</button>`:""}</div></div>`
+      :`<label class="rv-slot empty" title="Click or drop a photo here"><span>＋</span><small>Add photo</small><input type="file" accept="image/*,.heic,.heif" hidden onchange="revAttachPhoto(this,'${r.id}')"/></label>`;
+    const body=r.text
+      ?`<div class="rv-who"><b>${_revEsc(r.who||"")}</b><span>${_revEsc(r.where||"")} · ${star}</span></div><div class="rv-text">"${_revEsc(r.text)}"</div>`
+      :`<div class="rv-who"><b>Photo review</b><span>screenshot / image only</span></div>`;
+    return `<div class="rv-row" ${_dragAttrs("rev",r.id)}>
+      <div class="rv-grip" title="Drag to reorder">⠿</div><div class="rv-pos">#${i+1}</div>${slot}
+      <div class="rv-body">${body}</div>
+      <div class="rv-ctl"><button onclick="revSeqMove('rev','${r.id}','top')" title="Move to top" ${i===0?"disabled":""}>⤒</button><button onclick="revSeqMove('rev','${r.id}','up')" ${i===0?"disabled":""}>↑</button><button onclick="revSeqMove('rev','${r.id}','down')" ${i===list.length-1?"disabled":""}>↓</button><button class="tb-del" onclick="if(confirm('Delete this review?'))delRev('${r.id}')">Del</button></div>
+    </div>`;}).join("");
+}
+
 
 // SETTINGS
 async function chgPwd(){const p1=document.getElementById("st0").value;const p2=document.getElementById("st1").value;if(!p1||p1!==p2){alert("Passwords don't match.");return;}if(p1.length<8){alert("Min 8 chars.");return;}const h=await sha256(p1);
@@ -6745,7 +6825,8 @@ async function revAttachPhoto(inp,id){
   }catch(e){showToast("Couldn't read that image — try JPEG/PNG.",false);}
 }
 function revRemovePhoto(id){const rev=reviews.find(r=>r.id===id);if(!rev)return;rev.img=null;lsSafeSet('ds_r',reviews);renderRevs();rnAdmRev();syncReviewToSupabase("save",rev);}
-function rnAdmUgc(){const el=document.getElementById("ugc-adm");if(!el)return;const u=reviews.filter(isUgc);el.innerHTML=u.length?u.map(r=>`<div style="position:relative"><img src="${r.img}" style="width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:8px" alt="Customer photo"/><div style="font-size:11px;color:var(--off);margin:4px 0">${_revEsc(r.who||"—")}</div><button class="tb tb-del" style="font-size:11px" onclick="delRev('${r.id}')">Del</button></div>`).join(""):'<p style="color:var(--off);font-size:13px;grid-column:1/-1">No customer photos yet.</p>';}
+function rnAdmUgc(){const el=document.getElementById("ugc-adm");if(!el)return;const u=_admList("ugc");
+el.innerHTML=u.length?u.map((r,i)=>`<div class="ug-tile" ${_dragAttrs("ugc",r.id)}><div class="rv-pos ug">#${i+1}</div><img src="${r.img}" alt="Customer photo" draggable="false"/><div class="ug-name">${_revEsc(r.who||"—")}</div><div class="ug-ctl"><button onclick="revSeqMove('ugc','${r.id}','up')" ${i===0?"disabled":""} title="Earlier">←</button><button onclick="revSeqMove('ugc','${r.id}','down')" ${i===u.length-1?"disabled":""} title="Later">→</button><button class="tb-del" onclick="if(confirm('Remove this photo?'))delRev('${r.id}')">✕</button></div></div>`).join(""):'<p style="color:var(--off);font-size:13px;grid-column:1/-1">No customer photos yet.</p>';}
 async function ugcUp(inp){if(!inp.files||!inp.files.length)return;const nameEl=document.getElementById("ugc-name");const who=(nameEl&&nameEl.value.trim())||"";let added=0;const newRows=[];for(const f of inp.files){try{const bf=await toBrowserFile(f);const c=await compressImg(bf,900,0.8);const d=await uploadToR2(c,"reviews");const row={id:"U"+uid(),type:"ugc",img:d,who:who||null,where:"Customer photo"};reviews.unshift(row);newRows.push(row);added++;}catch(e){}}if(!added){showToast("Couldn't read those images — try JPEG/PNG.",false);return;}if(!lsSafeSet("ds_r",reviews))return;renderRevs();rnAdmRev();inp.value="";if(nameEl)nameEl.value="";showToast("✓ "+added+" customer photo(s) added to the wall.",true);for(const r of newRows){syncReviewToSupabase("save",r).then(res=>{if(res&&res.imgUrl){r.img=res.imgUrl;lsSafeSet("ds_r",reviews);renderRevs();rnAdmRev();}});}}
 async function revImgUp(inp){if(!inp.files||!inp.files.length)return;let added=0;const newRevs=[];for(const f of inp.files){try{const bf=await toBrowserFile(f);const compressed=await compressImg(bf,700,0.75);const d=await uploadToR2(compressed,"reviews");const newRev={id:'R'+uid(),type:'img',img:d};reviews.unshift(newRev);newRevs.push(newRev);added++;}catch(e){}}if(!added){showToast("Couldn't read those images — try JPEG/PNG.",false);return;}if(!lsSafeSet('ds_r',reviews))return;renderRevs();rnAdmRev();inp.value='';showToast('✓ '+added+' image review(s) added.',true);for(const r of newRevs){syncReviewToSupabase("save",r).then(res=>{if(res&&res.imgUrl){r.img=res.imgUrl;lsSafeSet('ds_r',reviews);renderRevs();rnAdmRev();}});}}
 
@@ -7143,7 +7224,7 @@ async function refreshSectionFromSupabase(section){
     if(section==="reviews"){
       const {data,error}=await sbClient.from('reviews').select('*');
       if(error)throw new Error(error.message);
-      reviews=(data||[]).map(r=>({id:r.id,type:r.type,stars:r.stars,text:r.text_content,who:r.who,where:r.where_loc,img:r.img}));
+      reviews=sortBySeq((data||[]).map(r=>({id:r.id,type:r.type,stars:r.stars,text:r.text_content,who:r.who,where:r.where_loc,img:r.img,sortOrder:r.sort_order??null})));
       LS.set("ds_r",reviews);rnAdmRev();
     }else if(section==="site"){
       const {data,error}=await sbClient.from('site_content').select('content').eq('id',1).single();
@@ -7241,10 +7322,10 @@ async function loadFromSupabaseIfAvailable(){
       sizeRestockDates:p.size_restock_dates||{}
     }));
     if(!revRes.error && revRes.data && revRes.data.length){
-      reviews = revRes.data.map(r=>({
+      reviews = sortBySeq(revRes.data.map(r=>({
         id:r.id, type:r.type, stars:r.stars, text:r.text_content,
-        who:r.who, where:r.where_loc, img:r.img
-      }));
+        who:r.who, where:r.where_loc, img:r.img, sortOrder:r.sort_order??null
+      })));
     }
     if(!siteRes.error && siteRes.data && siteRes.data.content && Object.keys(siteRes.data.content).length){
       siteContent = Object.assign({}, siteContent, siteRes.data.content);
