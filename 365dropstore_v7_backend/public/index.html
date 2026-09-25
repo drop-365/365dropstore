@@ -4283,6 +4283,7 @@ async function saveWhatsappOrder(){
     if(msg){msg.textContent="\u2713 Logged "+data.order_id+" \u2014 "+n+" article"+(n>1?"s":"")+" on one order, "+inr(data.total)+" total."+(prev?" Added to "+name+"'s history (order "+(prev+1)+").":" New customer saved.");msg.style.color="#2ecc71";}
     ["wo-name","wo-phone","wo-pin","wo-addr"].forEach(i=>{const e=document.getElementById(i);if(e)e.value="";});
     _woCust=null;const wc=document.getElementById("wo-cust");if(wc)wc.innerHTML="";
+    delete _woCache[_normPhone(phone)];   // this sale changes their history — never answer this phone from the pre-sale cache again
     wrap.innerHTML="";woAddLine();
     if(typeof loadDispatchStats==="function")loadDispatchStats();
     if(typeof loadOrdersFromSupabase==="function")loadOrdersFromSupabase();
