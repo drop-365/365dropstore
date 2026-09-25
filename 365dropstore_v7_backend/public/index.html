@@ -271,6 +271,21 @@ header{position:sticky;top:0;z-index:100;background:rgba(20,19,18,.95);-webkit-b
 .ug-tile img{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:6px;display:block}.ug-tile .rv-pos.ug{position:absolute;top:10px;left:10px;background:rgba(0,0,0,.65);color:#fff}
 .ug-name{font-size:11px;color:var(--off);margin:5px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ug-ctl{display:flex;gap:4px}.ug-ctl button{width:auto;flex:1;height:26px;font-size:12px}
 @media(max-width:600px){.rv-row{flex-wrap:wrap}.rv-body{flex-basis:calc(100% - 140px)}.rv-ctl{width:100%;justify-content:flex-end}.rv-grip{display:none}}
+/* Admin: returning customers, repeat badges, order editor */
+.wc-card{margin-top:8px;padding:10px 12px;border-radius:10px;font-size:12.5px;line-height:1.45}
+.wc-load{color:var(--off);border:1px dashed var(--line)}
+.wc-new{background:rgba(46,204,113,.08);border:1px solid rgba(46,204,113,.35);color:#1E9E5A}
+.wc-ret{background:rgba(41,128,185,.08);border:1px solid rgba(41,128,185,.35)}
+.wc-h{color:var(--white);font-weight:600}.wc-s{color:var(--off);margin-top:2px}.wc-a{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.rep-badge{margin-left:6px;font:700 11px/1 inherit;font-family:inherit;color:#2980B9;background:rgba(41,128,185,.1);border:1px solid rgba(41,128,185,.35);border-radius:20px;padding:4px 9px;cursor:pointer;vertical-align:middle}
+.oe-box{margin-top:10px;padding:14px;border:1px solid var(--line);border-radius:10px;background:var(--bg2,rgba(0,0,0,.03))}
+.oe-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.oe-grid label{font-size:11px;color:var(--off);display:flex;flex-direction:column;gap:4px}
+.oe-grid .oe-wide{grid-column:1/-1}.oe-grid input,.oe-grid select,.oe-grid textarea{font-size:13px}
+.oe-h{margin:12px 0 6px;font-size:12px;font-weight:700;color:var(--white)}.oe-h span{font-weight:400;color:var(--off);margin-left:6px}
+.oe-line{display:grid;grid-template-columns:1fr 64px 56px 88px 32px;gap:6px;margin-bottom:6px}
+.oe-hint{margin-top:8px;font-size:12px;color:var(--off)}.oe-hint a{cursor:pointer;text-decoration:underline;color:#2980B9}
+.oe-act{display:flex;gap:8px;align-items:center;margin-top:12px;flex-wrap:wrap}.oe-act small{font-size:12px}
+@media(max-width:640px){.oe-grid{grid-template-columns:1fr 1fr}.oe-line{grid-template-columns:1fr 54px 48px 70px 30px}}
 .ig-chip{position:fixed;left:16px;bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:450;background:#141312;color:#fff;border:0;border-radius:24px;padding:11px 16px;font:600 13px/1 inherit;font-family:inherit;box-shadow:0 8px 24px rgba(0,0,0,.25);cursor:pointer}
 .ig-chip b{background:var(--red);border-radius:10px;padding:2px 7px;margin-left:6px}
 .ig-sheet{position:fixed;left:16px;bottom:calc(136px + env(safe-area-inset-bottom,0px));z-index:451;width:min(360px,calc(100vw - 32px));max-height:55vh;overflow:auto;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 16px 40px rgba(0,0,0,.2);padding:12px}
@@ -2410,8 +2425,9 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
           <select id="wo-paymode"><option value="cash">Cash</option><option value="upi">UPI</option><option value="cod">COD</option><option value="card">Card</option><option value="bank">Bank Transfer</option></select>
         </div>
         <div class="pff"><label>Customer Name</label><input type="text" id="wo-name" placeholder="Aryan M."/></div>
-        <div class="pff"><label>Phone</label><input type="text" id="wo-phone" placeholder="9xxxxxxxxx"/></div>
+        <div class="pff"><label>Phone</label><input type="text" id="wo-phone" placeholder="9xxxxxxxxx" inputmode="tel" oninput="woPhoneLookup()"/><div id="wo-cust"></div></div>
         <div class="pff"><label>Pincode <span style="text-transform:none;font-weight:400">(leave blank for a walk-in)</span></label><input type="text" id="wo-pin" inputmode="numeric" maxlength="6" placeholder="110001"/></div>
+        <div class="pff full"><label>Delivery address <span style="text-transform:none;font-weight:400">(optional — saved for their next order)</span></label><textarea id="wo-addr" rows="2" placeholder="House / street, area, city"></textarea></div>
         <div class="pff full" style="border-top:1px solid var(--line);padding-top:14px;margin-top:2px">
           <label>Articles in this order <span style="text-transform:none;font-weight:400;color:var(--off)">— one customer, add as many as they bought</span></label>
           <div id="wo-lines"></div>
@@ -4099,6 +4115,51 @@ function _sb(){
   catch(e){ return null; }
 }
 
+
+/* ===== Returning customers (Log a sale) =====
+   Type a phone number → we look up every past order on it (all channels),
+   show who they are, and pre-fill name / pincode / address from their last
+   order. The new sale then joins the same history, keyed by the phone. */
+let _woCust=null,_woLookupT=null,_woCache={};
+function _normPhone(raw){let p=String(raw||"").replace(/[^\d]/g,"");if(p.length===12&&p.startsWith("91"))p=p.slice(2);if(p.length===11&&p.startsWith("0"))p=p.slice(1);return p;}
+function _realAddr(a){a=String(a||"").trim();return a&&!/^(logged manually|collected at store)$/i.test(a)?a:"";}
+function woPhoneLookup(){
+  clearTimeout(_woLookupT);
+  const box=document.getElementById("wo-cust"); const p=_normPhone((document.getElementById("wo-phone")||{}).value);
+  if(!/^[6-9]\d{9}$/.test(p)){_woCust=null;if(box)box.innerHTML="";return;}
+  _woLookupT=setTimeout(async()=>{
+    if(!_adminPw){if(box)box.innerHTML="";return;}
+    let data=_woCache[p];
+    if(!data){
+      if(box)box.innerHTML='<div class="wc-card wc-load">Checking this number…</div>';
+      try{const r=await fetch(SB_FN_BASE+"admin-orders",{method:"POST",headers:{"Content-Type":"application/json","apikey":SB_APIKEY},body:JSON.stringify({password:_adminPw,action:"customerHistory",phone:p})});data=await r.json();if(data.error)throw new Error(data.error);_woCache[p]=data;}
+      catch(e){if(box)box.innerHTML="";return;}
+    }
+    if(_normPhone((document.getElementById("wo-phone")||{}).value)!==p)return;   // number changed while we waited
+    const list=data.orders||[];
+    if(!list.length){_woCust={phone:p,count:0};box.innerHTML='<div class="wc-card wc-new">🆕 New customer — this will be their first order</div>';return;}
+    const last=list[0]; const addrOrder=list.find(o=>_realAddr(o.address))||{};
+    const sizes={};list.forEach(o=>(o.items||[]).forEach(i=>{if(i.size)sizes[i.size]=(sizes[i.size]||0)+(i.qty||1);}));
+    const usual=Object.entries(sizes).sort((a,b)=>b[1]-a[1])[0];
+    const nameNow=(last.customer_name||"").trim();
+    _woCust={phone:p,count:list.length,name:nameNow,pin:last.pincode||addrOrder.pincode||"",addr:_realAddr(addrOrder.address)};
+    const when=new Date(last.placed_at).toLocaleDateString("en-IN",{day:"numeric",month:"short"});
+    box.innerHTML=`<div class="wc-card wc-ret"><div class="wc-h">↩ Returning customer${nameNow?": <b>"+_dspEsc(nameNow)+"</b>":""}</div>
+      <div class="wc-s">${list.length} order${list.length>1?"s":""} · ${inr((data.summary||{}).lifetimeSpend||0)} spent · last ${when} (${_dspEsc(last.channel||"website")})${usual?" · usually size <b>"+_dspEsc(usual[0])+"</b>":""}</div>
+      <div class="wc-a"><button class="tb" onclick="woUseSaved(true)">Use saved details</button><button class="tb" onclick="showCustomerHistory('${p}')">Full history</button></div></div>`;
+    woUseSaved(false);   // fill any EMPTY fields straight away; never overwrite what you typed
+  },350);
+}
+function woUseSaved(overwrite){
+  if(!_woCust)return;
+  const set=(id,v)=>{const e=document.getElementById(id);if(e&&v&&(overwrite||!e.value.trim()))e.value=v;};
+  set("wo-name",_woCust.name);set("wo-pin",_woCust.pin);set("wo-addr",_woCust.addr);
+}
+function showCustomerHistory(phone){
+  const i=document.getElementById("ch-phone"),n=document.getElementById("ch-name");
+  if(!i)return; i.value=phone; if(n)n.value=""; lookupCustomer();
+  const r=document.getElementById("ch-result"); if(r)r.scrollIntoView({behavior:"smooth",block:"center"});
+}
 /* ===== ADMIN: LOG A WHATSAPP ORDER (added 2026-09-03) =====
    The orders table only ever received Razorpay checkouts, so WhatsApp sales
    were invisible to sold counts and to the dispatch map. This writes a real
@@ -4155,7 +4216,7 @@ function woRecalcTotal(){
 async function saveWhatsappOrder(){
   const msg=document.getElementById("wo-msg");
   const g=id=>(document.getElementById(id)||{}).value||"";
-  const name=g("wo-name").trim(), phone=g("wo-phone").trim(), pin=g("wo-pin").trim();
+  const name=g("wo-name").trim(), phone=g("wo-phone").trim(), pin=g("wo-pin").trim(), address=g("wo-addr").trim();
   const channel=g("wo-channel")||"whatsapp", paymentMode=g("wo-paymode")||"cash";
   function fail(t){if(msg){msg.textContent="\u2717 "+t;msg.style.color="#C0392B";}}
   if(!name)return fail("Customer name is required.");
@@ -4182,13 +4243,15 @@ async function saveWhatsappOrder(){
     const res=await fetch(SB_FN_BASE+"log-sale",{
       method:"POST",headers:{"Content-Type":"application/json"},
       body:JSON.stringify({action:"log",password:_adminPw,items,
-        channel,paymentMode,customerName:name,phone,pincode:pin})
+        channel,paymentMode,customerName:name,phone,pincode:pin,address})
     });
     const data=await res.json();
     if(data.error)throw new Error(data.error);
     const n=data.items_logged||items.length;
-    if(msg){msg.textContent="\u2713 Logged "+data.order_id+" \u2014 "+n+" article"+(n>1?"s":"")+" on one order, "+inr(data.total)+" total. Sold count and dispatch map will update on next load.";msg.style.color="#2ecc71";}
-    ["wo-name","wo-phone","wo-pin"].forEach(i=>{const e=document.getElementById(i);if(e)e.value="";});
+    const prev=_woCust&&_woCust.phone===_normPhone(phone)?_woCust.count:0;
+    if(msg){msg.textContent="\u2713 Logged "+data.order_id+" \u2014 "+n+" article"+(n>1?"s":"")+" on one order, "+inr(data.total)+" total."+(prev?" Added to "+name+"'s history (order "+(prev+1)+").":" New customer saved.");msg.style.color="#2ecc71";}
+    ["wo-name","wo-phone","wo-pin","wo-addr"].forEach(i=>{const e=document.getElementById(i);if(e)e.value="";});
+    _woCust=null;const wc=document.getElementById("wo-cust");if(wc)wc.innerHTML="";
     wrap.innerHTML="";woAddLine();
     if(typeof loadDispatchStats==="function")loadDispatchStats();
     if(typeof loadOrdersFromSupabase==="function")loadOrdersFromSupabase();
@@ -6355,7 +6418,12 @@ function rnAdmOrders(){
   if(!filtered.length){list.innerHTML='<p style="color:var(--off);font-size:13px">No orders match these filters.</p>';return;}
   const orders_=filtered;
   const statusColor={pending:"#C0392B",confirmed:"#2980B9",fulfilled:"#27AE60",cancelled:"#7A756E"};
+  // Repeat-customer map across ALL orders (not just the filtered view)
+  const byPhone={};orders.forEach(x=>{const k=_normPhone(x.phone);if(/^[6-9]\d{9}$/.test(k))(byPhone[k]=byPhone[k]||[]).push(x);});
+  Object.values(byPhone).forEach(a=>a.sort((a,b)=>a.placedAt-b.placedAt));
   list.innerHTML=orders_.map(o=>{
+    const hist=byPhone[_normPhone(o.phone)]||[]; const nth=hist.indexOf(o)+1;
+    const repeatBadge=hist.length>1?`<button class="rep-badge" onclick="showCustomerHistory('${_normPhone(o.phone)}')" title="See this customer's full history">↩ Order ${nth} of ${hist.length}</button>`:"";
     const itemsHtml=(o.items||[]).map(i=>{
       const attrs=[i.size,i.color].filter(Boolean).join(", ");
       return `${i.name}${attrs?" ("+attrs+")":""} x${i.qty} — ${inr(i.price*i.qty)}`;
@@ -6375,9 +6443,11 @@ function rnAdmOrders(){
           <option value="cancelled" ${o.status==="cancelled"?"selected":""}>Cancelled</option>
         </select>
         <button class="tb" onclick="toggleTrackingEditor('${o.orderId}')" title="Add or edit courier tracking">${o.trackingId?"✎ Tracking":"+ Tracking"}</button>
+        <button class="tb" onclick="toggleOrderEditor('${o.orderId}')" title="Edit customer, items or amounts">✎ Edit</button>
         <button class="tb tb-del" onclick="deleteOrder('${o.orderId}')" title="Delete this order permanently" style="margin-left:6px">Delete</button>
       </div>
-      <div style="margin-top:10px;font-size:13.5px;color:var(--white)"><b>${o.name}</b> · <a href="${waLink}" target="_blank" rel="noopener" style="color:#2980B9">${o.phone}</a></div>
+      <div style="margin-top:10px;font-size:13.5px;color:var(--white)"><b>${o.name}</b> · <a href="${waLink}" target="_blank" rel="noopener" style="color:#2980B9">${o.phone}</a> ${repeatBadge}</div>
+      <div id="ord-edit-${o.orderId}" class="oe-box" style="display:none"></div>
       <div style="font-size:13px;color:var(--off);margin-top:2px">${o.addr} — ${o.pin}</div>
       <div style="font-size:13px;color:var(--off);margin-top:8px;line-height:1.6">${itemsHtml}</div>
       <div style="margin-top:8px;font-weight:700;color:var(--white)">Total: ${inr(o.total)}</div>
@@ -6447,6 +6517,95 @@ async function saveTracking(orderId,clear){
   }catch(e){
     if(msg){msg.textContent="Couldn't save: "+e.message;msg.style.color="#C0392B";}
   }
+}
+
+/* ===== ADMIN: EDIT AN ORDER ===== */
+const _OE_CH=[["website","Website"],["whatsapp","WhatsApp"],["instagram","Instagram DM"],["walkin","Walk-in / Store"]];
+const _OE_PAY=[["prepaid","Prepaid (online)"],["partial_cod","Partial COD"],["cod","Full COD"],["cash","Cash"],["upi","UPI"],["card","Card"],["bank","Bank transfer"]];
+let _oeSeq=0;
+function _oeOpts(list,cur){return list.map(([v,l])=>`<option value="${v}" ${v===cur?"selected":""}>${l}</option>`).join("");}
+function _oeProdOpts(it){
+  const byId=products.find(p=>p.id===it.id)||products.find(p=>(p.name||"").toLowerCase()===(it.name||"").toLowerCase());
+  const keep=byId?"":`<option value="__keep" selected>${_dspEsc(it.name||"—")} (as logged)</option>`;
+  return keep+[...products].sort((a,b)=>(a.name||"").localeCompare(b.name||"")).map(p=>`<option value="${_dspEsc(p.id)}" ${byId&&byId.id===p.id?"selected":""}>${_dspEsc(p.name)}</option>`).join("");
+}
+function _oeLine(oid,it){
+  const k=++_oeSeq;
+  return `<div class="oe-line" data-k="${k}" data-name="${_dspEsc(it.name||"")}" data-id="${_dspEsc(it.id||"")}" data-color="${_dspEsc(it.color||"")}">
+    <select class="oe-prod" onchange="oeProdChange(this,'${oid}')">${_oeProdOpts(it)}</select>
+    <input class="oe-size" placeholder="Size" value="${_dspEsc(it.size||"")}"/>
+    <input class="oe-qty" type="number" min="1" value="${it.qty||1}" oninput="oeRecalc('${oid}')"/>
+    <input class="oe-price" type="number" min="0" placeholder="₹ each" value="${it.price!=null?it.price:""}" oninput="oeRecalc('${oid}')"/>
+    <button class="tb tb-del" onclick="this.parentNode.remove();oeRecalc('${oid}')" title="Remove item">×</button></div>`;
+}
+function toggleOrderEditor(oid){
+  const box=document.getElementById("ord-edit-"+oid); if(!box)return;
+  if(box.style.display!=="none"){box.style.display="none";box.innerHTML="";return;}
+  const o=orders.find(x=>x.orderId===oid); if(!o)return;
+  const v=x=>_dspEsc(x==null?"":x);
+  box.innerHTML=`<div class="oe-grid">
+      <label>Name<input id="oe-name-${oid}" value="${v(o.name)}"/></label>
+      <label>Phone<input id="oe-phone-${oid}" value="${v(o.phone)}" inputmode="tel"/></label>
+      <label class="oe-wide">Address<textarea id="oe-addr-${oid}" rows="2">${v(o.addr)}</textarea></label>
+      <label>Pincode<input id="oe-pin-${oid}" value="${v(o.pin)}" inputmode="numeric" maxlength="6"/></label>
+      <label>Channel<select id="oe-ch-${oid}">${_oeOpts(_OE_CH,o.channel||"website")}</select></label>
+      <label>Payment<select id="oe-pay-${oid}" onchange="oeRecalc('${oid}')">${_oeOpts(_OE_PAY,o.paymentMode||"prepaid")}</select></label>
+    </div>
+    <div class="oe-h">Items <span>product · size · qty · price each</span></div>
+    <div id="oe-lines-${oid}">${(o.items||[]).map(it=>_oeLine(oid,it)).join("")}</div>
+    <button class="tb" onclick="document.getElementById('oe-lines-${oid}').insertAdjacentHTML('beforeend',_oeLine('${oid}',{qty:1}));oeRecalc('${oid}')">+ Add item</button>
+    <div class="oe-grid" style="margin-top:10px">
+      <label>Paid online (₹)<input id="oe-paid-${oid}" type="number" min="0" value="${o.amountPaidOnline!=null?o.amountPaidOnline:""}" oninput="oeRecalc('${oid}')"/></label>
+      <label>Collect at delivery (₹)<input id="oe-due-${oid}" type="number" min="0" value="${o.codDue!=null?o.codDue:""}" oninput="oeRecalc('${oid}')"/></label>
+      <label>Order total (₹)<input id="oe-total-${oid}" type="number" min="0" value="${o.total||0}" oninput="this.dataset.manual='1';oeRecalc('${oid}')"/></label>
+    </div>
+    <div class="oe-hint" id="oe-hint-${oid}"></div>
+    <div class="oe-act"><button class="btn btn-w" onclick="saveOrderEdit('${oid}')">Save changes</button><button class="tb" onclick="toggleOrderEditor('${oid}')">Cancel</button><small id="oe-msg-${oid}"></small></div>`;
+  box.style.display="block"; oeRecalc(oid);
+}
+function oeProdChange(sel,oid){
+  const line=sel.closest(".oe-line"); const p=products.find(x=>x.id===sel.value);
+  if(p){line.dataset.id=p.id;line.dataset.name=p.name;const pr=line.querySelector(".oe-price");if(pr&&!pr.value)pr.value=Number(p.offerPrice||p.price||0)||"";}
+  oeRecalc(oid);
+}
+function _oeItems(oid){
+  return [...document.querySelectorAll(`#oe-lines-${oid} .oe-line`)].map(l=>({
+    id:l.dataset.id||"",name:l.dataset.name||"",color:l.dataset.color||"",
+    size:l.querySelector(".oe-size").value.trim(),qty:parseInt(l.querySelector(".oe-qty").value,10)||0,
+    price:Number(l.querySelector(".oe-price").value)}));
+}
+function oeRecalc(oid){
+  const items=_oeItems(oid); const sum=items.reduce((s,i)=>s+(Number(i.price)||0)*(i.qty||0),0);
+  const pay=(document.getElementById("oe-pay-"+oid)||{}).value;
+  const paid=Number((document.getElementById("oe-paid-"+oid)||{}).value)||0, due=Number((document.getElementById("oe-due-"+oid)||{}).value)||0;
+  const tot=document.getElementById("oe-total-"+oid); const hint=document.getElementById("oe-hint-"+oid);
+  // Total follows the items (or paid+due for COD orders) until you type your own
+  const auto=(pay==="partial_cod"||pay==="cod")&&(paid||due)?paid+due:sum;
+  if(tot&&!tot.dataset.manual)tot.value=Math.round(auto);
+  if(hint){const t=Number(tot&&tot.value)||0;let m=`Items add up to ${inr(sum)}.`;
+    if(pay==="partial_cod"||pay==="cod")m+=` Paid ${inr(paid)} + collect ${inr(due)} = ${inr(paid+due)}.`;
+    if(t!==Math.round(auto))m+=` <b>Total is set by hand to ${inr(t)}.</b> <a onclick="const e=document.getElementById('oe-total-${oid}');delete e.dataset.manual;oeRecalc('${oid}')">Reset</a>`;
+    hint.innerHTML=m;}
+}
+async function saveOrderEdit(oid){
+  const msg=document.getElementById("oe-msg-"+oid); const g=id=>(document.getElementById(id+"-"+oid)||{}).value;
+  const fail=t=>{if(msg){msg.textContent="✗ "+t;msg.style.color="#C0392B";}};
+  const items=_oeItems(oid);
+  if(!items.length)return fail("An order needs at least one item.");
+  for(const i of items){if(!i.name)return fail("Pick a product for every item line.");if(!(i.qty>=1))return fail(`Quantity for ${i.name} must be at least 1.`);if(!(i.price>=0))return fail(`Enter a price for ${i.name}.`);}
+  if(!_adminPw)return fail("Admin session expired — refresh and log in again.");
+  const updates={name:g("oe-name").trim(),phone:g("oe-phone").trim(),address:g("oe-addr").trim(),pincode:g("oe-pin").trim(),
+    channel:g("oe-ch"),paymentMode:g("oe-pay"),items,amountPaidOnline:g("oe-paid"),codDue:g("oe-due"),total:Number(g("oe-total"))||0};
+  if(msg){msg.textContent="Saving…";msg.style.color="";}
+  try{
+    const r=await fetch(SB_FN_BASE+"admin-orders",{method:"POST",headers:{"Content-Type":"application/json","apikey":SB_APIKEY},body:JSON.stringify({password:_adminPw,action:"update",orderId:oid,updates})});
+    const d=await r.json(); if(d.error)throw new Error(d.error);
+    const x=d.order, o=orders.find(q=>q.orderId===oid);
+    if(o&&x)Object.assign(o,{name:x.customer_name,phone:x.phone,addr:x.address,pin:x.pincode,items:x.items||[],total:x.total,paymentMode:x.payment_mode||"prepaid",amountPaidOnline:x.amount_paid_online,codDue:x.cod_due,channel:x.channel});
+    _woCache={};   // customer summaries may have changed
+    try{localStorage.setItem("ds_orders",JSON.stringify(orders));}catch(e){}
+    rnAdmOrders(); showToast("✓ Order "+oid+" updated",true);
+  }catch(e){fail(e.message||"Could not save. Try again.");}
 }
 async function lookupCustomer(){
   const phone=(document.getElementById("ch-phone")||{}).value||"";
