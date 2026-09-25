@@ -3959,7 +3959,10 @@ function renderGrid(){
   let list=[...products].filter(p=>fCat==="All"||p.category===fCat);
   // Exclude designer products from the regular grid — they have their own section
   list=list.filter(p=>!(p.badges||[]).includes("designer")&&!(p.badges||[]).includes("vault"));
-  if(fSizes.length)list=list.filter(p=>(p.sizes||[]).some(s=>fSizes.includes(s)));
+  // A size filter means "show me what I can actually buy in this size" —
+  // must also exclude sizes that are listed but sold out (oosizes), same rule
+  // the filter chip's own count already uses.
+  if(fSizes.length)list=list.filter(p=>(p.sizes||[]).some(s=>fSizes.includes(s)&&!(p.oosizes||[]).includes(s)));
   if(fFits.length)list=list.filter(p=>fFits.includes(p.fit));
   if(fShade)list=list.filter(p=>{const s=shadeOf(p);return s&&s.k===fShade;});
   list=list.filter(p=>eff(p)<=fMaxPrice);
@@ -4266,12 +4269,15 @@ async function saveWhatsappOrder(){
   if(msg){msg.textContent="Saving\u2026";msg.style.color="";}
   try{
     const res=await fetch(SB_FN_BASE+"log-sale",{
-      method:"POST",headers:{"Content-Type":"application/json"},
+      method:"POST",headers:{"Content-Type":"application/json","apikey":SB_APIKEY,"Authorization":"Bearer "+SB_APIKEY},
       body:JSON.stringify({action:"log",password:_adminPw,items,
         channel,paymentMode,customerName:name,phone,pincode:pin,address})
     });
     const data=await res.json();
     if(data.error)throw new Error(data.error);
+    // A gateway-level rejection (missing/bad auth) comes back as {code,message},
+    // not {error} -- never treat that shape as a successful save.
+    if(!res.ok||!data.order_id)throw new Error(data.message||("Server did not confirm the save (HTTP "+res.status+"). Nothing was logged -- please retry."));
     const n=data.items_logged||items.length;
     const prev=_woCust&&_woCust.phone===_normPhone(phone)?_woCust.count:0;
     if(msg){msg.textContent="\u2713 Logged "+data.order_id+" \u2014 "+n+" article"+(n>1?"s":"")+" on one order, "+inr(data.total)+" total."+(prev?" Added to "+name+"'s history (order "+(prev+1)+").":" New customer saved.");msg.style.color="#2ecc71";}
