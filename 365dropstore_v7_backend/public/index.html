@@ -83,6 +83,14 @@ header{position:sticky;top:0;z-index:100;background:rgba(20,19,18,.95);-webkit-b
 .nbag:hover{background:#EDECE8}
 .nbadge{background:#141312;color:#F8F7F4;font-size:10px;font-weight:700;min-width:17px;height:17px;border-radius:99px;display:grid;place-content:center;padding:0 3px}
 .burger{display:none;flex-direction:column;gap:4px;padding:4px;cursor:pointer}
+/* Header icon buttons — SVG line icons so they look the same on every phone
+   (emoji render differently on Samsung / Pixel / iPhone). All four share one
+   size, one style; only the bag carries a small count badge. */
+.hbtn{position:relative;width:44px;height:44px;display:grid;place-items:center;border:0;border-radius:12px;background:transparent;color:#F8F7F4;cursor:pointer;padding:0;-webkit-tap-highlight-color:transparent;transition:background .15s,transform .1s}
+.hbtn:hover{background:rgba(255,255,255,.08)}.hbtn:active{background:rgba(255,255,255,.14);transform:scale(.94)}
+.hbtn:focus-visible{outline:2px solid #C0392B;outline-offset:2px}
+.hbtn-bag .nbadge{position:absolute;top:4px;right:3px;min-width:17px;height:17px;padding:0 4px;border-radius:99px;background:#C0392B;color:#fff;font:700 10px/17px var(--mono,ui-monospace,monospace);text-align:center;display:block;box-shadow:0 0 0 2px #141312}
+.hbtn-track,.hbtn-menu{display:none}
 .burger span{width:20px;height:2px;background:#F8F7F4;border-radius:2px}
 
 /* ANNOUNCEMENT */
@@ -301,7 +309,11 @@ header{position:sticky;top:0;z-index:100;background:rgba(20,19,18,.95);-webkit-b
 .trust-line .tl-ico{width:18px;height:18px;border-radius:50%;background:var(--red);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex:none}
 .trust-line b{color:var(--white);font-weight:700}
 .trust-line .tl-sep{opacity:.4}
-.hero-trust{margin:14px 0 4px}
+.hero-trust{margin:18px 0 6px}
+.hero-trust .trust-line{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-start;text-align:left}
+.hero-trust .tc{display:inline-flex;align-items:center;gap:7px;padding:7px 12px 7px 8px;border:1px solid var(--line);border-radius:99px;background:rgba(255,255,255,.55);font-size:12.5px;color:var(--off);white-space:nowrap;line-height:1}
+.hero-trust .tc i{font-style:normal;width:16px;height:16px;border-radius:50%;background:#1E9E5A;color:#fff;display:inline-grid;place-items:center;font-size:9.5px;font-weight:800}
+.hero-trust .tc b{color:var(--white);font-weight:700}
 .shop-trust{display:flex;justify-content:center;padding:12px 16px;margin:0 0 14px;border:1px solid var(--line);border-radius:12px;background:var(--glass,rgba(0,0,0,.02))}
 @media(max-width:560px){.trust-line{font-size:12px;flex-wrap:wrap;justify-content:center;text-align:center}.trust-line .tl-sep{display:none}.trust-line .tl-sub{flex-basis:100%}}
 /* Customer photo wall (reviews rows with type="ugc") */
@@ -1210,7 +1222,15 @@ main,header,footer,.sec,.trust,.mq{position:relative;z-index:2}
 .mbclose{color:#888!important;border:1px solid rgba(255,255,255,.1)!important}
 .ntrack{display:none;background:transparent;color:inherit;padding:0;font-family:inherit}
 @media(max-width:640px){.ntrack{display:grid}}
-@media(max-width:420px){.nbag .nbag-t{display:none}.nbag{padding:10px 12px}}
+@media(max-width:640px){
+  .hbtn-track,.hbtn-menu{display:grid}
+  #nav .nav{height:60px;gap:8px}
+  #nav .w{padding-left:max(14px,env(safe-area-inset-left));padding-right:max(8px,env(safe-area-inset-right))}
+  .nright{gap:0;margin-left:auto}
+  .nbrand img{height:34px;width:34px}
+  .nbrand span{font-size:19px}
+}
+@media(max-width:340px){.nbrand span{display:none}}
 .mbnav{overflow-y:auto;padding-top:64px!important}
 .mb-track{background:#1f1e1c;border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:14px;margin:0 0 12px}
 .mb-track-h{font-family:var(--dsp);font-size:20px;color:#F8F7F4;letter-spacing:.02em}
@@ -1724,7 +1744,12 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
 <header id="nav"><div class="w nav">
   <div class="nbrand"><img src="" alt="365"/><span>365<svg class="inf-ico" viewBox="0 0 24 12" aria-hidden="true" focusable="false"><path fill="currentColor" d="M6 1.5C3.5 1.5 1.5 3.5 1.5 6S3.5 10.5 6 10.5c1.7 0 3.2-.9 4.1-2.3l.4-.6.4.6c.9 1.4 2.4 2.3 4.1 2.3 2.5 0 4.5-2 4.5-4.5S20.5 1.5 18 1.5c-1.7 0-3.2.9-4.1 2.3l-.4.6-.4-.6C12.2 2.4 10.7 1.5 9 1.5H6zm0 1.5c1.1 0 2.1.6 2.7 1.5L10.1 6 8.7 8c-.6.9-1.6 1.5-2.7 1.5C4.3 9.5 3 8.2 3 6.5S4.3 3 6 3zm12 0c1.7 0 3 1.3 3 3s-1.3 3-3 3c-1.1 0-2.1-.6-2.7-1.5L13.9 6l1.4-2c.6-.9 1.6-1.5 2.7-1.5z"/></svg>DROP</span></div>
   <div class="nlinks"><a onclick="goTo('#shop')">Shop</a><a onclick="goTo('#story')">Our Story</a><a onclick="goTo('#reviews')">Reviews</a><a onclick="openOrderTracker()">Track Order</a><a onclick="goTo('#nl')">Early Access</a><a href="/vault/" style="border:1px solid #C0392B;color:#C0392B;border-radius:20px;padding:6px 12px">Vault 001</a></div>
-  <div class="nright"><div class="nicon" onclick="openSrch()" title="Search">🔍</div><button class="nicon ntrack" onclick="openOrderTracker()" title="Track your order" aria-label="Track your order">📦</button><button class="nbag" onclick="openCart()">🛍 <span class="nbag-t">Bag</span> <span class="nbadge" id="ccount">0</span></button><div class="burger" onclick="openMob()"><span></span><span></span><span></span></div></div>
+  <div class="nright">
+    <button class="hbtn" onclick="openSrch()" aria-label="Search" title="Search"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg></button>
+    <button class="hbtn hbtn-track" onclick="openOrderTracker()" aria-label="Track your order" title="Track your order"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7.5 12 3l9 4.5v9L12 21l-9-4.5z"/><path d="M3 7.5 12 12l9-4.5M12 12v9"/></svg></button>
+    <button class="hbtn hbtn-bag" onclick="openCart()" aria-label="Open bag" title="Bag"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 8h14l-1.2 12.2a1 1 0 0 1-1 .8H7.2a1 1 0 0 1-1-.8z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></svg><span class="nbadge" id="ccount" style="display:none">0</span></button>
+    <button class="hbtn hbtn-menu" onclick="openMob()" aria-label="Open menu" title="Menu"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+  </div>
 </div></header>
 
 <!-- HERO — split with product showcase -->
@@ -4401,7 +4426,8 @@ function renderFooterFits(){
 // Keep it TRUE: it's a public claim to customers (Consumer Protection / CCPA dark-pattern rules).
 var TRUST_LINE={big:"1,000+",text:"happy customers",sub:"Zero returns on quality"};  // owner-stated total incl. unrecorded offline sales
 function trustLineHtml(){return '<span class="tl-ico">✓</span><span><b>'+TRUST_LINE.big+'</b> '+TRUST_LINE.text+'</span><span class="tl-sep">·</span><span class="tl-sub">'+TRUST_LINE.sub+'</span>';}
-function applyTrustLines(){document.querySelectorAll(".js-trust").forEach(el=>{el.innerHTML=trustLineHtml();});}
+function trustChipsHtml(){return '<span class="tc"><i>✓</i><b>'+TRUST_LINE.big+'</b>&nbsp;'+TRUST_LINE.text+'</span><span class="tc"><i>✓</i>'+TRUST_LINE.sub+'</span>';}
+function applyTrustLines(){document.querySelectorAll(".js-trust").forEach(el=>{el.innerHTML=el.closest(".hero-trust")?trustChipsHtml():trustLineHtml();});}
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",applyTrustLines);else applyTrustLines();
 // Customer photo wall rows live in the reviews table with type "ugc"
 function isUgc(r){return !!r&&r.type==="ugc";}
@@ -4946,7 +4972,7 @@ function addCart(){const{p,size,color,qty}=ms;
   if(typeof fbq==="function")fbq("track","AddToCart",{content_name:p.name,content_ids:[p.id],content_type:"product",value:eff(p),currency:"INR"});const key=p.id+size+color;const ex=cart.find(i=>i.key===key);if(ex)ex.qty+=qty;else cart.push({key,id:p.id,name:p.name,price:eff(p),image:(p.images||[])[0]||"",size,color,qty,link:"https://365dropstore.com/p/"+p.id});LS.set("ds_cart",cart);closeMo();renderCart();openCart();}
 function rmItem(key){cart=cart.filter(i=>i.key!==key);LS.set("ds_cart",cart);renderCart();}
 function renderCart(){
-  document.getElementById("ccount").textContent=cart.reduce((s,i)=>s+i.qty,0);
+  {const _n=cart.reduce((s,i)=>s+i.qty,0),_c=document.getElementById("ccount");_c.textContent=_n>99?"99+":_n;_c.style.display=_n?"":"none";}
   const box=document.getElementById("cditems");
   if(!cart.length){box.innerHTML=`<div class="cdempty"><span>🛍️</span>Your bag is empty.<br>Pick a fit from the drop.</div>`;}
   else box.innerHTML=cart.map(i=>`<div class="cdit"><img src="${i.image}" alt="${i.name}"/><div class="cin"><div class="cinm">${i.name}</div><div class="ciop">${i.size} · ${i.color} · x${i.qty}</div><div class="cipr">${inr(i.price*i.qty)}</div></div><button class="cirm" onclick="rmItem('${i.key}')">Remove</button></div>`).join("");
