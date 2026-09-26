@@ -95,6 +95,41 @@ header{position:sticky;top:0;z-index:100;background:rgba(20,19,18,.95);-webkit-b
 
 /* ANNOUNCEMENT */
 .ann{background:#141312;color:#AAA5A0;text-align:center;padding:9px 14px;font-size:12px;letter-spacing:.07em;border-bottom:1px solid var(--line)}
+/* The two admin-fed bars stay in the page as data sources only */
+#live-banner,#ann-bar{display:none!important}
+#topbar{position:relative;background:#0E0E0C;color:#E9E6E1;border-bottom:1px solid rgba(255,255,255,.06);height:36px;overflow:hidden}
+#topbar[hidden]{display:none}
+.tb-track{position:relative;height:100%;margin:0 44px}
+.tb-msg{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:8px;text-align:center;font-size:12px;font-weight:600;letter-spacing:.06em;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;opacity:0;transform:translateY(8px);transition:opacity .45s ease,transform .45s ease;pointer-events:none}
+.tb-msg.on{opacity:1;transform:none;pointer-events:auto}
+.tb-msg.out{opacity:0;transform:translateY(-8px)}
+.tb-t{overflow:hidden;text-overflow:ellipsis}
+.tb-msg i{flex:none;width:5px;height:5px;border-radius:50%;background:#C0392B;box-shadow:0 0 0 3px rgba(192,57,43,.22)}
+.tb-x{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:32px;height:32px;border:0;background:transparent;color:#8A8783;font-size:18px;line-height:1;cursor:pointer;border-radius:8px;-webkit-tap-highlight-color:transparent}
+.tb-x:hover{color:#F8F7F4;background:rgba(255,255,255,.06)}
+@media(max-width:640px){
+  #topbar{height:40px}
+  .tb-track{margin:0 36px 0 14px}
+  .tb-msg{white-space:normal;font-size:11px;letter-spacing:.04em}
+  .tb-t{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;text-align:center}
+  .tb-msg i{display:none}
+}
+@media (prefers-reduced-motion:reduce){.tb-msg{transition:none;transform:none}}
+
+/* Desktop nav refinements */
+header{transition:box-shadow .25s ease}
+header.sc{box-shadow:0 1px 0 rgba(255,255,255,.06),0 10px 30px rgba(0,0,0,.35)}
+.nav{transition:height .25s ease}
+header.sc .nav{height:58px}
+.nlinks a{position:relative}
+.nlinks a:not([href="/vault/"])::after{content:"";position:absolute;left:14px;right:14px;bottom:4px;height:1.5px;background:#C0392B;transform:scaleX(0);transform-origin:left;transition:transform .25s ease}
+.nlinks a:not([href="/vault/"]):hover{background:transparent}
+.nlinks a:not([href="/vault/"]):hover::after{transform:scaleX(1)}
+.nlinks a[href="/vault/"]{display:inline-flex;align-items:center;gap:7px;margin-left:6px;font-weight:600}
+.nlinks a[href="/vault/"]::before{content:"";width:6px;height:6px;border-radius:50%;background:#C0392B;animation:vpulse 2s ease-in-out infinite}
+.nlinks a[href="/vault/"]:hover{background:rgba(192,57,43,.12)!important}
+@keyframes vpulse{0%,100%{box-shadow:0 0 0 0 rgba(192,57,43,.55)}50%{box-shadow:0 0 0 5px rgba(192,57,43,0)}}
+@media (prefers-reduced-motion:reduce){.nlinks a[href="/vault/"]::before{animation:none}}
 
 /* HERO — SPLIT LAYOUT */
 #hero{min-height:calc(100svh - 0px);display:flex;align-items:stretch;overflow:hidden;position:relative}
@@ -1724,6 +1759,13 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
 
 <!-- ann -->
 <div class="ann" id="ann-bar">Drop 001 · Delhi · Secure Razorpay Checkout · Pan India Shipping</div>
+
+<!-- top strip: ONE slim bar that rotates through the Live Banner + Announcement
+     messages (both still edited in admin exactly as before). -->
+<div id="topbar" role="region" aria-label="Store announcements" hidden>
+  <div class="tb-track" id="tb-track" aria-live="polite"></div>
+  <button class="tb-x" onclick="dismissTopbar()" aria-label="Hide announcements">×</button>
+</div>
 
 <!-- search -->
 <div class="sov" id="sov"><button class="scls" onclick="closeSrch()">×</button><div class="sbar"><input type="text" id="sin" placeholder="Search products…" oninput="doSrch(this.value)" autocomplete="off"/></div><div id="sres"></div></div>
@@ -3490,6 +3532,7 @@ function goTo(sel){const el=document.querySelector(sel);if(el)el.scrollIntoView(
 function applySiteContent(){
   const s=siteContent;
   const ann=document.getElementById("ann-bar");if(ann)ann.textContent=s.ann||DSite.ann;
+  if(typeof buildTopbar==="function")buildTopbar();
   const h1=document.getElementById("hero-h1");
   if(h1&&s.heroH1){const parts=(s.heroH1||"CLOTHING|OR NOTHING|").split("|");h1.innerHTML=parts.map((p,i)=>i===0?`<span class="hero-gradient">${p}</span>`:`<span>${p}</span>`).join("");}
   const hs=document.getElementById("hero-sub");if(hs)hs.textContent=s.heroSub||DSite.heroSub;
@@ -3563,12 +3606,67 @@ function renderHeroShowcase(){return;
   }).join("<hr style='border:none;border-top:1px solid var(--line);margin:0'/>");
 }
 
+
+/* ===== TOP STRIP =====
+   Reads the Live Banner (only when switched on in admin) + the Announcement
+   text, splits each on "·", and rotates through them one at a time.
+   Pauses while hovered/focused; hidden per-visitor with ×, and comes back
+   automatically when the admin changes the messages. */
+// Declared WITHOUT initial values on purpose: the site loader can call buildTopbar()
+// before this line runs, and "= null" here would wipe the handle of a timer that is
+// already ticking (leaving an orphan timer that double-steps the messages).
+var _tbTimer,_tbIdx,_tbMsgs,_tbPaused;
+function _tbKey(m){return "ds_tbx_"+m.join("|").length+"_"+(m.join("|").split("").reduce((a,c)=>(a*31+c.charCodeAt(0))|0,0));}
+function buildTopbar(){try{_buildTopbar();}catch(e){console.warn("topbar",e);}}
+function _buildTopbar(){
+  if(!Array.isArray(_tbMsgs))_tbMsgs=[];
+  const bar=document.getElementById("topbar"),track=document.getElementById("tb-track"); if(!bar||!track)return;
+  const lb=document.getElementById("live-banner"),lbt=document.getElementById("lb-text"),an=document.getElementById("ann-bar");
+  const parts=[];
+  if(lb&&lb.classList.contains("show")&&lbt)parts.push(lbt.textContent||"");
+  if(an)parts.push(an.textContent||"");
+  const msgs=[...new Set(parts.join(" · ").split("·").map(t=>t.replace(/\s+/g," ").trim()).filter(Boolean))];
+  if(!msgs.length){bar.hidden=true;return;}
+  let dismissed=false;try{dismissed=localStorage.getItem(_tbKey(msgs))==="1";}catch(e){}
+  if(dismissed){bar.hidden=true;return;}
+  if(msgs.join("|")===_tbMsgs.join("|")&&!bar.hidden)return;   // nothing changed
+  _tbMsgs=msgs;_tbIdx=0;
+  track.innerHTML=msgs.map((m,i)=>`<span class="tb-msg${i===0?" on":""}"><i></i><span class="tb-t">${_revEsc(m)}</span></span>`).join("");
+  bar.hidden=false;
+  clearInterval(_tbTimer);
+  if(msgs.length>1){
+    const reduce=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    _tbTimer=setInterval(()=>{if(_tbPaused||document.hidden)return;tbNext();},reduce?6000:3800);
+  }
+}
+function tbNext(){
+  const els=document.querySelectorAll("#tb-track .tb-msg"); if(els.length<2)return;
+  const cur=els[_tbIdx]; _tbIdx=(_tbIdx+1)%els.length; const nx=els[_tbIdx];
+  cur.classList.remove("on");cur.classList.add("out");
+  nx.classList.remove("out");nx.classList.add("on");
+  setTimeout(()=>cur.classList.remove("out"),480);
+}
+function dismissTopbar(){
+  const bar=document.getElementById("topbar"); if(bar)bar.hidden=true; clearInterval(_tbTimer);
+  try{localStorage.setItem(_tbKey(_tbMsgs),"1");}catch(e){}
+}
+(function(){
+  const bar=document.getElementById("topbar"); if(!bar)return;
+  const pause=v=>()=>{_tbPaused=v;};
+  bar.addEventListener("mouseenter",pause(true));bar.addEventListener("mouseleave",pause(false));
+  bar.addEventListener("focusin",pause(true));bar.addEventListener("focusout",pause(false));
+  bar.addEventListener("touchstart",pause(true),{passive:true});bar.addEventListener("touchend",()=>setTimeout(()=>{_tbPaused=false;},2500),{passive:true});
+  // header gets a subtle shadow + slimmer height once the page scrolls
+  const hdr=document.getElementById("nav");
+  if(hdr){const f=()=>hdr.classList.toggle("sc",window.scrollY>12);window.addEventListener("scroll",f,{passive:true});f();}
+})();
 // LIVE BANNER
 function applyBanner(){
   const b=banner;const el=document.getElementById("live-banner");if(!el)return;
   const txt=document.getElementById("lb-text");
   if(txt)txt.innerHTML=b.text||DBanner.text;
   el.className=b.show?"show":"";
+  if(typeof buildTopbar==="function")buildTopbar();
 }
 function closeBanner(){banner.show=false;LS.set("ds_ban",banner);applyBanner();}
 
