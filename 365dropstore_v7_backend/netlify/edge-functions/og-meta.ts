@@ -38,7 +38,7 @@ export default async (request, context) => {
   let product = null;
   try {
     const res = await fetch(
-      `${SB_URL}/rest/v1/products?id=eq.${encodeURIComponent(productId)}&select=id,name,category,price,offer_price,images,description`,
+      `${SB_URL}/rest/v1/products?id=eq.${encodeURIComponent(productId)}&select=id,name,category,fit,price,offer_price,images,description,sizes,oosizes`,
       {
         headers: {
           apikey: SB_APIKEY,
@@ -75,7 +75,7 @@ export default async (request, context) => {
   const desc = escHtml(
     product.description
       ? product.description.substring(0, 160)
-      : `${product.name} — ${product.category} from 365 Drop Store`
+      : `${product.name} — premium ${String(product.fit || "").toLowerCase()} ${String(product.category || "jeans").toLowerCase()} for men, made in Delhi. Free shipping across India.`
   );
   const image =
     product.images && product.images.length > 0
@@ -83,7 +83,10 @@ export default async (request, context) => {
       : "https://pub-439f2b6b71214b70a749ab163b863494.r2.dev/products/1786291109378-f6627082.jpg";
   const productUrl = `https://365dropstore.com/p/${product.id}`;
 
-  const title = `${product.name} — ${price}${originalPrice} | 365 Drop Store`;
+  // e.g. "365-WD JET BLACK WARM Faded — Wide-Leg Jeans for Men · ₹1,099 | 365 Drop Store"
+  const fitLabel = String(product.fit || "").trim();
+  const kind = /t-?shirt/i.test(String(product.category || "")) ? "T-Shirt for Men" : "Jeans for Men";
+  const title = `${product.name} — ${fitLabel ? fitLabel + " " : ""}${kind} · ${price} | 365 Drop Store`;
 
   // Replace the generic meta tags with product-specific ones
   let modified = html;
@@ -150,7 +153,10 @@ export default async (request, context) => {
   // below; Instagram/Facebook's product-tagging crawler reads this
   // og:type=product namespace directly, and it was never being emitted here.
   const priceVal = Number(product.offer_price || product.price || 0).toFixed(2);
-  const inStock = true; // product page only renders for products that exist; size-level stock is handled elsewhere and doesn't block the page itself
+  // In stock if at least one listed size is not marked sold out
+  const sizes: string[] = Array.isArray(product.sizes) ? product.sizes : [];
+  const oos: string[] = Array.isArray(product.oosizes) ? product.oosizes : [];
+  const inStock = sizes.length === 0 || sizes.some((sz) => !oos.includes(sz));
   modified = modified.replace(
     "</head>",
     `<meta property="product:price:amount" content="${priceVal}"/>
@@ -167,15 +173,29 @@ export default async (request, context) => {
     "@context": "https://schema.org",
     "@type": "Product",
     name: product.name,
-    image: [image],
-    description: product.description || "",
+    image: (product.images && product.images.length ? product.images.slice(0, 5) : [image]),
+    description: product.description || `${product.name} — premium ${String(product.fit || "").toLowerCase()} jeans for men, made in Delhi.`,
+    sku: product.id,
+    category: product.category || "Jeans",
     brand: { "@type": "Brand", name: "365 Drop Store" },
     offers: {
       "@type": "Offer",
       price: product.offer_price || product.price,
       priceCurrency: "INR",
-      availability: "https://schema.org/InStock",
+      itemCondition: "https://schema.org/NewCondition",
+      availability: inStock ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
       url: productUrl,
+      seller: { "@type": "Organization", name: "365 Drop Store" },
+      shippingDetails: {
+        "@type": "OfferShippingDetails",
+        shippingRate: { "@type": "MonetaryAmount", value: 0, currency: "INR" },
+        shippingDestination: { "@type": "DefinedRegion", addressCountry: "IN" },
+        deliveryTime: {
+          "@type": "ShippingDeliveryTime",
+          handlingTime: { "@type": "QuantitativeValue", minValue: 0, maxValue: 1, unitCode: "DAY" },
+          transitTime: { "@type": "QuantitativeValue", minValue: 3, maxValue: 5, unitCode: "DAY" },
+        },
+      },
     },
   };
 

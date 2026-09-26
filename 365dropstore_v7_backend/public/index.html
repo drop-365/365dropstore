@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>365 Drop Store — Premium Denim | Clothing or Nothing</title>
-<meta name="description" content="Premium baggy, wide-leg & straight jeans from Delhi. Limited drops. WhatsApp orders."/>
+<title>365 Drop Store — Clothing or Nothing | Wide Leg Jeans Delhi</title>
+<meta name="description" content="Clothing or Nothing. Premium wide-leg, baggy &amp; straight jeans for men, made in Delhi. From ₹1,099, free shipping across India, 7-day exchange, COD."/>
 <meta property="og:type" content="website"/>
 <meta property="og:title" content="365 Drop Store — Premium Denim | Clothing or Nothing"/>
 <meta property="og:description" content="Premium baggy, wide-leg & straight jeans from Delhi. Limited drops. WhatsApp orders."/>
@@ -1099,7 +1099,7 @@ footer{background:#141312;border-top:none;padding:56px 0 28px}
 /* ADMIN PANEL */
 #ap{display:none;position:fixed;inset:0;z-index:9000;background:var(--bg);overflow-y:auto}
 .apbar{background:var(--bg2);border-bottom:1px solid var(--line);padding:0 22px;display:flex;align-items:center;gap:18px;height:58px}
-.apbar h1{font-family:var(--dsp);font-size:20px;flex:1;letter-spacing:.04em;color:var(--white)}
+.apbar h1,.apbar-t{font-family:var(--dsp);font-size:20px;flex:1;letter-spacing:.04em;color:var(--white)}
 .aptabs{display:flex;padding:0 22px;border-bottom:1px solid var(--line);background:var(--bg2);overflow-x:auto}
 .atab{padding:11px 18px;font-size:13px;font-weight:600;cursor:pointer;color:var(--off);border-bottom:2px solid transparent;transition:.2s;white-space:nowrap;background:none;border-top:none;border-left:none;border-right:none}
 .atab.act{color:var(--white);border-bottom-color:var(--white)}
@@ -1253,7 +1253,7 @@ main,header,footer,.sec,.trust,.mq{position:relative;z-index:2}
 #ag .agf input,#ap .pff input,#ap .pff textarea,#ap .pff select{background:var(--glass)!important;border:1px solid var(--line)!important;color:var(--white)!important}
 #ag .agf label,#ap .pff label{color:var(--off)!important}
 #ap .apbar{background:var(--bg2)!important;border-bottom:1px solid var(--line)!important}
-#ap .apbar h1{color:var(--white)!important}
+#ap .apbar h1,#ap .apbar-t{color:var(--white)!important}
 #ap .aptabs{background:var(--bg2)!important;border-bottom:1px solid var(--line)!important}
 #ap .atab{color:var(--off)!important}
 #ap .atab.act{color:var(--white)!important;border-bottom-color:var(--white)!important}
@@ -1681,6 +1681,8 @@ fbq('track','PageView');
 </script>
 <noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=2018974752158259&ev=PageView&noscript=1"/></noscript>
 <!-- End Meta Pixel -->
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "ClothingStore", "name": "365 Drop Store", "alternateName": "365dropstore", "url": "https://365dropstore.com/", "logo": "https://365dropstore.com/favicon.ico", "description": "Premium wide-leg, baggy and straight denim jeans for men, made in Delhi.", "telephone": "+91-9990905969", "priceRange": "₹999 – ₹1,899", "address": {"@type": "PostalAddress", "streetAddress": "E-42/2A Subhash Vihar", "addressLocality": "Delhi", "postalCode": "110053", "addressRegion": "Delhi", "addressCountry": "IN"}, "areaServed": "IN", "sameAs": ["https://instagram.com/365dropstore", "https://www.youtube.com/@365_drop_store"], "slogan": "Clothing or Nothing"}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebSite", "name": "365 Drop Store", "url": "https://365dropstore.com/"}</script>
 </head>
 <body>
 <div class="cursor-glow" id="cursorGlow"></div>
@@ -2357,7 +2359,7 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
 
 <!-- admin panel -->
 <div id="ap">
-<div class="apbar"><h1>365 DROP STORE — ADMIN</h1><button class="btn btn-g" onclick="admOut()" style="padding:8px 16px">Sign out</button></div>
+<div class="apbar"><div class="apbar-t" role="heading" aria-level="2">365 DROP STORE — ADMIN</div><button class="btn btn-g" onclick="admOut()" style="padding:8px 16px">Sign out</button></div>
 <div class="aptabs">
   <button class="atab act" onclick="apTab('products')">Products</button>
   <button class="atab" onclick="apTab('dashboard')">Dashboard</button>
@@ -2792,7 +2794,7 @@ Origin|Delhi studio..."></textarea>
     <div class="pfgrid">
       <div class="pff full">
         <label style="display:flex;align-items:center;gap:10px;cursor:pointer">
-          <input type="checkbox" id="wl-enabled" style="width:16px;height:16px;accent-color:#C0392B"/>
+          <input type="checkbox" id="wl-enabled" checked style="width:16px;height:16px;accent-color:#C0392B"/>
           <span>Star Wall is live</span>
         </label>
         <small style="color:var(--off);display:block;margin-top:5px">Untick to take the page down without deleting anything. The homepage strip disappears too.</small>
