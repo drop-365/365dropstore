@@ -335,6 +335,18 @@ header.sc .nav{height:58px}
 .oe-hint{margin-top:8px;font-size:12px;color:var(--off)}.oe-hint a{cursor:pointer;text-decoration:underline;color:#2980B9}
 .oe-act{display:flex;gap:8px;align-items:center;margin-top:12px;flex-wrap:wrap}.oe-act small{font-size:12px}
 @media(max-width:640px){.oe-grid{grid-template-columns:1fr 1fr}.oe-line{grid-template-columns:1fr 54px 48px 70px 30px}}
+/* Checkout rescue */
+.ck-rescue{margin-top:14px;border:1px solid rgba(192,57,43,.35);background:rgba(192,57,43,.06);border-radius:12px;padding:14px}
+.ck-rescue[hidden]{display:none}
+.ckr-h{font-weight:700;font-size:14.5px;color:#141312}
+.ckr-s{font-size:13px;color:#5b5752;margin:4px 0 12px;line-height:1.45}
+.ckr-b{display:block;width:100%;border-radius:10px;padding:12px;font:700 14px/1.2 inherit;font-family:inherit;cursor:pointer;margin-top:8px;border:1px solid transparent}
+.ckr-main{background:#141312;color:#fff}
+.ckr-alt{background:#fff;color:#141312;border-color:#141312}
+.ckr-wa{background:#25D366;color:#0b2e17}
+.ckr-note{font-size:11.5px;color:#7a756e;margin-top:10px;text-align:center}
+.ab-why{font-size:11px;font-weight:700;border-radius:99px;padding:3px 8px;background:rgba(192,57,43,.12);color:#E85D45}
+.ab-why-closed{background:rgba(255,255,255,.06);color:var(--off)}
 /* Admin: WhatsApp recovery */
 .ab-sum{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0}
 .ab-sum>div{border:1px solid var(--line);border-radius:10px;padding:10px 12px}.ab-sum b{display:block;font-size:17px;color:var(--white)}.ab-sum span{font-size:11px;color:var(--off)}
@@ -2411,6 +2423,7 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
     <button class="wabtn" id="ck-pay-btn-review" onclick="proceedToPayment()">💳  Pay Now</button>
     <button class="btn btn-g" style="width:100%;justify-content:center;margin-top:10px" onclick="askBeforeBuying()">💬  Have a question? Message us first</button>
     <p id="ck-err-review" style="display:none;color:#E74C3C;font-size:13px;margin-top:8px;text-align:center"></p>
+    <div id="ck-rescue" class="ck-rescue" role="alert" hidden></div>
   </div>
   <div id="ckview-placed" class="ckview ckview-placed">
     <div style="font-size:38px">✓</div>
@@ -5283,7 +5296,7 @@ function renderPaySummary(){
   }
   el.innerHTML=rows;
 }
-function pickPayMethod(m){_selectedPayMethod=m;renderPayMethods();}
+function pickPayMethod(m){_selectedPayMethod=m;renderPayMethods();if(typeof hideCkRescue==="function")hideCkRescue();}
 function proceedToPayment(){
   if(!window._pendingOrder){showCkStep("details");return;}
   const cfg=getPayCfg();
@@ -5330,7 +5343,73 @@ async function placeCodOrder(order,cfg){
     if(errEl){errEl.textContent="Couldn't place order: "+e.message;errEl.style.display="block";}
   }
 }
+
+/* ===== CHECKOUT RESCUE =====
+   When the Razorpay sheet is closed or a payment fails, don't leave the
+   customer staring at a form: say what happened in plain words and give
+   one-tap ways to still buy (retry · pay a small advance · order on WhatsApp).
+   _payFailKind() is shared with the admin recovery list so both agree. */
+function _payFailKind(t){
+  t=String(t||"").toLowerCase();
+  if(!t)return "closed";
+  if(/timed?_?out|timeout|not complete it in time|expired/.test(t))return "timeout";
+  if(/not allowed|not supported|account type|invalid vpa|vpa|not registered|unsupported/.test(t))return "unsupported";
+  if(/insufficient|balance|limit/.test(t))return "funds";
+  if(/\bpin\b|mpin/.test(t))return "pin";
+  if(/bank|server|gateway|technical|temporar|unavailable|network/.test(t))return "bank";
+  if(/^unknown/.test(t))return "unknown";
+  return "failed";
+}
+const _PAY_FAIL_COPY={
+  closed:     {h:"Payment not finished — still want it?", s:"Your bag is saved. Pick whatever's easiest:"},
+  timeout:    {h:"The UPI request expired", s:"UPI requests only last a few minutes. Tap Try again and approve it in your UPI app straight away."},
+  unsupported:{h:"This UPI app can't make this payment", s:"Some wallet apps (like FamPay) aren't supported. GPay, PhonePe, Paytm or a card will work."},
+  funds:      {h:"Declined: balance or daily limit", s:"Try another account or card, or pay a smaller amount now and the rest on delivery."},
+  pin:        {h:"Wrong UPI PIN", s:"Nothing was charged. Try again with the right PIN."},
+  bank:       {h:"Your bank didn't respond", s:"Usually temporary. Try again in a minute, or use another UPI app."},
+  failed:     {h:"Payment didn't go through", s:"Try again, or use one of the options below."},
+  unknown:    {h:"Payment didn't go through", s:"Try again, or use one of the options below."}
+};
+const _PAY_FAIL_LABEL={closed:"Closed payment screen",timeout:"UPI timed out",unsupported:"UPI app not supported",funds:"Low balance / limit",pin:"Wrong UPI PIN",bank:"Bank didn't respond",failed:"Payment failed",unknown:"Payment failed"};
+function hideCkRescue(){const r=document.getElementById("ck-rescue");if(r){r.hidden=true;r.innerHTML="";}}
+function showCkRescue(err){
+  const box=document.getElementById("ck-rescue"); if(!box)return;
+  const o=window._pendingOrder; if(!o)return;
+  const raw=err?[(err.reason||""),(err.description||"")].join(" ").trim():"";
+  const kind=_payFailKind(raw);
+  const c=_PAY_FAIL_COPY[kind]||_PAY_FAIL_COPY.failed;
+  const cfg=(typeof getPayCfg==="function")?getPayCfg():{};
+  let partialBtn="";
+  if(cfg.partialCod&&_selectedPayMethod==="prepaid"){
+    let adv=0;try{adv=computePartialAdvance(cfg,o.total);}catch(e){}
+    if(adv&&adv<o.total)partialBtn=`<button class="ckr-b ckr-alt" onclick="rescuePartial()">Pay just ${inr(adv)} now, rest on delivery</button>`;
+  }
+  const refundNote=(kind!=="closed"&&kind!=="pin")?`<div class="ckr-note">If any money was deducted, your bank refunds it automatically.</div>`:"";
+  box.innerHTML=`<div class="ckr-h">${c.h}</div><div class="ckr-s">${c.s}</div>
+    <button class="ckr-b ckr-main" onclick="rescueRetry()">Try again</button>
+    ${partialBtn}
+    <button class="ckr-b ckr-wa" onclick="rescueWhatsApp()">Order on WhatsApp instead</button>
+    ${refundNote}`;
+  box.hidden=false;
+  const errEl=document.getElementById("ck-err-review"); if(errEl){errEl.style.display="none";errEl.textContent="";}
+  try{box.scrollIntoView({behavior:"smooth",block:"nearest"});}catch(e){}
+}
+function rescueRetry(){hideCkRescue();proceedToPayment();}
+function rescuePartial(){hideCkRescue();pickPayMethod("partial");proceedToPayment();}
+function rescueWhatsApp(){
+  const o=window._pendingOrder||{};
+  const lines=(o.items||[]).map(i=>`• ${i.name}${i.size?` (${i.size})`:""} ×${i.qty||1} — ${inr((i.price||0)*(i.qty||1))}`);
+  const msg=[`Hi 365 Drop Store! I tried to order on the website but the payment didn't go through.`,``,
+    `Order: ${o.orderId||"—"}`,...lines,`Total: ${inr(o.total||0)}`,``,
+    `Name: ${o.name||""}`,`Phone: ${o.phone||""}`,`Address: ${o.addr||""}${o.pin?` — ${o.pin}`:""}`,``,
+    `Please help me complete the order 🙏`].join("\n");
+  const url="https://wa.me/919990905969?text="+encodeURIComponent(msg);
+  let w=null;try{w=window.open(url,"_blank","noopener");}catch(e){}
+  if(!w)location.href=url;
+}
 async function startRazorpayPayment(order, chargeAmount){
+  hideCkRescue();
+  let _lastFail=null;
   if(!chargeAmount)chargeAmount=order.total;
   const payBtn=document.getElementById("ck-pay-btn-review");
   const errEl=document.getElementById("ck-err-review")||document.getElementById("ck-err");
@@ -5378,11 +5457,12 @@ async function startRazorpayPayment(order, chargeAmount){
         if(payBtn){payBtn.disabled=false;payBtn.textContent="💳  Pay Now & Place Order";}
       }
     },
-    modal:{ondismiss:function(){if(payBtn){payBtn.disabled=false;payBtn.textContent="💳  Pay Now & Place Order";}}}
+    modal:{ondismiss:function(){if(payBtn){payBtn.disabled=false;payBtn.textContent="💳  Pay Now & Place Order";}showCkRescue(_lastFail);}}
   });
   rzp.on("payment.failed",function(resp){
     if(payBtn){payBtn.disabled=false;payBtn.textContent="💳  Pay Now & Place Order";}
-    errEl.textContent="Payment failed: "+((resp.error&&resp.error.description)||"please try again")+".";errEl.style.display="block";
+    _lastFail=(resp&&resp.error)||{description:"failed"};
+    showCkRescue(_lastFail);   // shown now (behind Razorpay's sheet) and again on close
   });
   rzp.open();
 }
@@ -6327,6 +6407,9 @@ function abMessage(o){
     ``,
     `Your bag is saved, finish in one tap:`,
     abResumeLink(o)];
+  const fk=_payFailKind(o.pay_fail_reason);
+  if(fk==="unsupported")lines.push(``,`(Some wallet apps like FamPay can't pay us. GPay, PhonePe or Paytm work fine.)`);
+  else if(fk==="timeout")lines.push(``,`(UPI requests expire in a few minutes, so approve it in your UPI app right away.)`);
   if(adv&&adv<tot)lines.push(``,`Prefer paying on delivery? Pay just ₹${adv.toLocaleString("en-IN")} now, rest in cash when it arrives.`);
   lines.push(``,`Not sure about the size? Just reply here, we'll help 🙂`);
   return lines.join("\n");
@@ -6376,8 +6459,10 @@ function _abRow(x){
       ${x.state==="sent"?`<span class="ab-sent">Messaged ${_abAgo(x.sent)} · <a onclick="abMark('${_dspEsc(o.order_id)}',false)">undo</a></span>`:""}`;
   }else actions=`<span class="ab-sent">No phone number</span>`;
   const fresh=(Date.now()-new Date(o.placed_at).getTime())<30*60000&&x.state==="todo";
+  const fk=_payFailKind(o.pay_fail_reason);
+  const why=`<span class="ab-why ab-why-${fk}">${_PAY_FAIL_LABEL[fk]||"Payment failed"}${(o.pay_fail_count||0)>1?` ×${o.pay_fail_count}`:""}</span>`;
   return `<div class="ab-row ab-${x.state}">
-    <div class="ab-top"><b>${_dspEsc(o.customer_name||"—")}</b><span>${o.phone?_dspEsc(o.phone):""}</span><span class="ab-ago">${_abAgo(o.placed_at)}${x.attempts>1?` · ${x.attempts} tries`:""}</span></div>
+    <div class="ab-top"><b>${_dspEsc(o.customer_name||"—")}</b><span>${o.phone?_dspEsc(o.phone):""}</span>${why}<span class="ab-ago">${_abAgo(o.placed_at)}${x.attempts>1?` · ${x.attempts} tries`:""}</span></div>
     <div class="ab-mid"><div class="ab-items">${items}</div><div class="ab-val">${o.total?inr(o.total):"—"}<small>${mode}</small></div></div>
     ${fresh?`<div class="ab-note">Just left — they may still be paying. Best to message after 30 min.</div>`:""}
     <div class="ab-act">${actions}</div></div>`;
