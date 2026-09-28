@@ -4,7 +4,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>365 Drop Store — Clothing or Nothing | Wide Leg Jeans Delhi</title>
-<meta name="build" content="2026-09-28 checkout-rescue v2"/>
+<meta name="build" content="2026-09-28 shipping-updates v2"/>
 <meta name="description" content="Clothing or Nothing. Premium wide-leg, baggy &amp; straight jeans for men, made in Delhi. From ₹1,099, free shipping across India, 7-day exchange, COD."/>
 <meta property="og:type" content="website"/>
 <meta property="og:title" content="365 Drop Store — Premium Denim | Clothing or Nothing"/>
@@ -336,6 +336,10 @@ header.sc .nav{height:58px}
 .oe-hint{margin-top:8px;font-size:12px;color:var(--off)}.oe-hint a{cursor:pointer;text-decoration:underline;color:#2980B9}
 .oe-act{display:flex;gap:8px;align-items:center;margin-top:12px;flex-wrap:wrap}.oe-act small{font-size:12px}
 @media(max-width:640px){.oe-grid{grid-template-columns:1fr 1fr}.oe-line{grid-template-columns:1fr 54px 48px 70px 30px}}
+/* Admin: shipping WhatsApp buttons */
+.ship-wa-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.ship-wa{background:rgba(37,211,102,.12);color:#1E9E5A;border:1px solid rgba(37,211,102,.4);border-radius:8px;padding:7px 12px;font:600 12px/1 inherit;font-family:inherit;cursor:pointer}
+.ship-wa:hover{background:rgba(37,211,102,.2)}
 /* Checkout rescue */
 .ck-rescue{margin-top:14px;border:1px solid rgba(192,57,43,.35);background:rgba(192,57,43,.06);border-radius:12px;padding:14px}
 .ck-rescue[hidden]{display:none}
@@ -3705,7 +3709,7 @@ function dismissTopbar(){
   const bar=document.getElementById("topbar"); if(bar)bar.hidden=true; clearInterval(_tbTimer);
   try{localStorage.setItem(_tbKey(_tbMsgs),"1");}catch(e){}
 }
-window.__BUILD="2026-09-28 checkout-rescue v2";
+window.__BUILD="2026-09-28 shipping-updates v2";
 (function(){
   const bar=document.getElementById("topbar"); if(!bar)return;
   const pause=v=>()=>{_tbPaused=v;};
@@ -5684,6 +5688,9 @@ function runMetaCheckout(){
 }
 function chkRoute(){
   parseMetaCheckout();
+  try{const t=new URLSearchParams(location.search).get("track");
+    if(t&&!window._trackLinkDone){window._trackLinkDone=true;history.replaceState(null,"",location.pathname==="/"?"/":location.pathname);
+      setTimeout(()=>{if(typeof openOrderTracker==="function")openOrderTracker(String(t).slice(0,30).toUpperCase());},300);}}catch(e){}
   const h=location.hash.replace("#","");
   if(h===AP){document.getElementById("ag").style.display="block";lockScroll();return;}
   // Fallback: if boot script didn't catch the clean URL, detect it here
@@ -6379,6 +6386,7 @@ async function loadOrdersFromSupabase(){
       trackingId:o.tracking_id||"",
       courierPartner:o.courier_partner||"",
       courierOrderId:o.courier_order_id||"",
+      email:o.email||"",
       channel:o.channel
     }));
     try{localStorage.setItem("ds_orders",JSON.stringify(orders));}catch(e){}
@@ -6840,7 +6848,7 @@ function rnAdmOrders(){
       <div style="font-size:13px;color:var(--off);margin-top:2px">${o.addr} — ${o.pin}</div>
       <div style="font-size:13px;color:var(--off);margin-top:8px;line-height:1.6">${itemsHtml}</div>
       <div style="margin-top:8px;font-weight:700;color:var(--white)">Total: ${inr(o.total)}</div>
-      ${o.trackingId?`<div style="margin-top:6px;font-size:12.5px;color:#2980B9">📦 ${o.courierPartner} · AWB ${o.trackingId}</div>`:""}${o.courierOrderId?`<div style="margin-top:3px;font-size:11.5px;color:var(--off)">🔒 Courier order ID (internal): <b>${o.courierOrderId}</b></div>`:""}
+      ${o.trackingId?`<div style="margin-top:6px;font-size:12.5px;color:#2980B9">📦 ${o.courierPartner} · AWB ${o.trackingId}</div>`:""}${o.courierOrderId?`<div style="margin-top:3px;font-size:11.5px;color:var(--off)">🔒 Courier order ID (internal): <b>${o.courierOrderId}</b></div>`:""}${_shipWaBtns(o)}
       <div id="trk-editor-${o.orderId}" style="display:none;margin-top:10px;padding:12px;background:var(--bg2,rgba(0,0,0,.03));border-radius:8px;border:1px solid var(--line)">
         <div style="display:flex;gap:8px;flex-wrap:wrap">
           <select id="trk-courier-${o.orderId}" style="flex:1;min-width:130px">
@@ -6879,6 +6887,44 @@ function toggleTrackingEditor(orderId){
   const el=document.getElementById("trk-editor-"+orderId);
   if(el)el.style.display=el.style.display==="none"?"block":"none";
 }
+
+/* ===== SHIPPING UPDATES =====
+   Emails go automatically from the server (admin-orders v22) when an AWB is
+   saved / an order is marked delivered. These buttons send the same update on
+   WhatsApp in one tap — for customers who didn't leave an email, or as well. */
+function _shipFirst(n){n=String(n||"").trim().split(/\s+/)[0]||"";return n?n.charAt(0).toUpperCase()+n.slice(1).toLowerCase():"";}
+function shipWaMessage(o,kind){
+  const fn=_shipFirst(o.name);
+  if(kind==="delivered"){
+    return [`Hi${fn?" "+fn:""}, your 365 Drop Store order ${o.orderId} has been delivered 🖤 Hope the fit is perfect!`,``,
+      `If the size isn't right, just reply here and we'll help you out.`,``,
+      `Wear it loud and tag @365dropstore 🙌`].join("\n");
+  }
+  const url=courierTrackUrl(o.courierPartner,o.trackingId)||("https://365dropstore.com/?track="+encodeURIComponent(o.orderId));
+  const cash=(o.paymentMode==="partial_cod"||o.paymentMode==="cod")&&Number(o.codDue||0)>0?[``,`Please keep ${inr(o.codDue)} cash ready to pay the delivery partner.`]:[];
+  return [`Hi${fn?" "+fn:""} 👋 Your 365 Drop Store order ${o.orderId} has shipped!`,``,
+    `📦 ${o.courierPartner} · AWB ${o.trackingId}`,`Track it: ${url}`,...cash,``,
+    `Usually arrives in 3–5 working days. Any questions, just reply here 🙂`].join("\n");
+}
+function _shipWaBtns(o){
+  if(!o||!o.phone||o.channel==="walkin")return "";
+  const b=[];
+  if(o.trackingId&&o.status!=="fulfilled"&&o.status!=="cancelled")b.push(`<button class="ship-wa" onclick="shipWa('${_dspEsc(o.orderId)}','shipped')">💬 Send "shipped" on WhatsApp</button>`);
+  if(o.status==="fulfilled")b.push(`<button class="ship-wa" onclick="shipWa('${_dspEsc(o.orderId)}','delivered')">💬 Send "delivered" on WhatsApp</button>`);
+  return b.length?`<div class="ship-wa-row">${b.join("")}</div>`:"";
+}
+function shipWa(id,kind){
+  const o=orders.find(x=>x.orderId===id); if(!o||!o.phone)return;
+  const url=`https://wa.me/91${o.phone}?text=${encodeURIComponent(shipWaMessage(o,kind))}`;
+  let w=null;try{w=window.open(url,"_blank","noopener");}catch(e){}
+  if(!w)location.href=url;
+}
+function _emailNote(email,what){
+  if(!email)return "";
+  if(email.sent)return ` · ${what} email sent to ${email.to}`;
+  if(email.reason==="no email on this order")return ` · no email on this order, send it on WhatsApp`;
+  return ` · ⚠️ email not sent (${email.reason})`;
+}
 async function saveTracking(orderId,clear){
   const msg=document.getElementById("trk-msg-"+orderId);
   const courier=clear?"":(document.getElementById("trk-courier-"+orderId)||{}).value||"";
@@ -6901,7 +6947,7 @@ async function saveTracking(orderId,clear){
     if(data.error)throw new Error(data.error);
     const o=orders.find(x=>x.orderId===orderId);
     if(o){o.trackingId=trackingId;o.courierPartner=courierOut;o.courierOrderId=courierOrderId;}
-    showToast(clear?"Tracking cleared":"Tracking saved — the customer can now see it on Track My Order",true);
+    showToast(clear?"Tracking cleared":("Tracking saved"+_emailNote(data.email,"Shipped")),!(data.email&&data.email.sent===false&&data.email.reason!=="no email on this order"));
     rnAdmOrders();
   }catch(e){
     if(msg){msg.textContent="Couldn't save: "+e.message;msg.style.color="#C0392B";}
@@ -7061,7 +7107,8 @@ function setOrderStatus(orderId,status){
       headers:{"Content-Type":"application/json","apikey":SB_APIKEY},
       body:JSON.stringify({password:_adminPw,action:"setStatus",orderId,status})
     }).then(r=>r.json()).then(d=>{
-      if(d.error)showToast("⚠️ Status saved locally but live sync failed: "+d.error,false);
+      if(d.error){showToast("⚠️ Status saved locally but live sync failed: "+d.error,false);return;}
+      if(d.email)showToast("Order "+orderId+" marked delivered"+_emailNote(d.email,"Delivered"),!(d.email.sent===false&&d.email.reason!=="no email on this order"));
     }).catch(()=>showToast("⚠️ Status saved locally but live sync failed (network).",false));
   }
 }
