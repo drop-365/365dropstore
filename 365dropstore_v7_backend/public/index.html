@@ -4,6 +4,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>365 Drop Store — Clothing or Nothing | Wide Leg Jeans Delhi</title>
+<meta name="build" content="2026-09-28 checkout-rescue v2"/>
 <meta name="description" content="Clothing or Nothing. Premium wide-leg, baggy &amp; straight jeans for men, made in Delhi. From ₹1,099, free shipping across India, 7-day exchange, COD."/>
 <meta property="og:type" content="website"/>
 <meta property="og:title" content="365 Drop Store — Premium Denim | Clothing or Nothing"/>
@@ -3704,6 +3705,7 @@ function dismissTopbar(){
   const bar=document.getElementById("topbar"); if(bar)bar.hidden=true; clearInterval(_tbTimer);
   try{localStorage.setItem(_tbKey(_tbMsgs),"1");}catch(e){}
 }
+window.__BUILD="2026-09-28 checkout-rescue v2";
 (function(){
   const bar=document.getElementById("topbar"); if(!bar)return;
   const pause=v=>()=>{_tbPaused=v;};
@@ -5407,9 +5409,33 @@ function rescueWhatsApp(){
   let w=null;try{w=window.open(url,"_blank","noopener");}catch(e){}
   if(!w)location.href=url;
 }
+/* Backup close-detector: Razorpay's ondismiss callback doesn't fire in every
+   flow/device. We also watch Razorpay's own overlay: once it has been on
+   screen and then disappears without a successful payment, show the rescue.
+   Whichever signal comes first wins; the rescue only ever shows once per attempt. */
+function _rzpOverlayVisible(){
+  const els=document.querySelectorAll(".razorpay-container, .razorpay-checkout-frame, iframe[src*='razorpay']");
+  for(const el of els){const cs=getComputedStyle(el);const r=el.getBoundingClientRect();
+    if(cs.display!=="none"&&cs.visibility!=="hidden"&&parseFloat(cs.opacity||"1")>0.05&&r.width>40&&r.height>40)return true;}
+  return false;
+}
+function _watchRzpClose(att){
+  let seen=false,ticks=0;
+  const iv=setInterval(()=>{
+    ticks++;
+    if(att.done||att.rescued||ticks>3600){clearInterval(iv);return;}      // paid, already rescued, or 30 min
+    const vis=_rzpOverlayVisible();
+    if(vis){seen=true;return;}
+    if(seen&&!vis){clearInterval(iv);setTimeout(()=>{if(!att.done&&!att.rescued)att.rescue();},350);}
+  },500);
+}
 async function startRazorpayPayment(order, chargeAmount){
   hideCkRescue();
   let _lastFail=null;
+  const _att={done:false,rescued:false,rescue:null};
+  _att.rescue=function(){if(_att.done||_att.rescued)return;_att.rescued=true;
+    const pb=document.getElementById("ck-pay-btn-review");if(pb){pb.disabled=false;pb.textContent="💳  Pay Now & Place Order";}
+    showCkRescue(_lastFail);};
   if(!chargeAmount)chargeAmount=order.total;
   const payBtn=document.getElementById("ck-pay-btn-review");
   const errEl=document.getElementById("ck-err-review")||document.getElementById("ck-err");
@@ -5442,6 +5468,7 @@ async function startRazorpayPayment(order, chargeAmount){
     prefill:{name:order.name,contact:order.phone},
     theme:{color:"#C0392B"},
     handler:async function(response){
+      _att.done=true;
       if(payBtn)payBtn.textContent="Verifying payment...";
       try{
         const vres=await fetch(SB_FN_BASE+"razorpay-verify",{
@@ -5457,14 +5484,15 @@ async function startRazorpayPayment(order, chargeAmount){
         if(payBtn){payBtn.disabled=false;payBtn.textContent="💳  Pay Now & Place Order";}
       }
     },
-    modal:{ondismiss:function(){if(payBtn){payBtn.disabled=false;payBtn.textContent="💳  Pay Now & Place Order";}showCkRescue(_lastFail);}}
+    modal:{ondismiss:function(){if(payBtn){payBtn.disabled=false;payBtn.textContent="💳  Pay Now & Place Order";}if(!_att.done)_att.rescue();}}
   });
   rzp.on("payment.failed",function(resp){
     if(payBtn){payBtn.disabled=false;payBtn.textContent="💳  Pay Now & Place Order";}
     _lastFail=(resp&&resp.error)||{description:"failed"};
-    showCkRescue(_lastFail);   // shown now (behind Razorpay's sheet) and again on close
+    showCkRescue(_lastFail);   // shown now (behind Razorpay's sheet); close keeps the specific reason
   });
   rzp.open();
+  _watchRzpClose(_att);
 }
 async function finalizeOrder(order,paymentId,rzpResponse){
   if(typeof fbq==="function")fbq("track","Purchase",pixelItems(order.items,order.total));
