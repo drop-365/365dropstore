@@ -335,6 +335,21 @@ header.sc .nav{height:58px}
 .oe-hint{margin-top:8px;font-size:12px;color:var(--off)}.oe-hint a{cursor:pointer;text-decoration:underline;color:#2980B9}
 .oe-act{display:flex;gap:8px;align-items:center;margin-top:12px;flex-wrap:wrap}.oe-act small{font-size:12px}
 @media(max-width:640px){.oe-grid{grid-template-columns:1fr 1fr}.oe-line{grid-template-columns:1fr 54px 48px 70px 30px}}
+/* Admin: WhatsApp recovery */
+.ab-sum{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0}
+.ab-sum>div{border:1px solid var(--line);border-radius:10px;padding:10px 12px}.ab-sum b{display:block;font-size:17px;color:var(--white)}.ab-sum span{font-size:11px;color:var(--off)}
+.ab-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px}
+.ab-tab{border:1px solid var(--line);background:none;color:var(--off);border-radius:99px;padding:6px 12px;font:600 12px/1 inherit;font-family:inherit;cursor:pointer}.ab-tab b{color:var(--white);margin-left:3px}.ab-tab.on{background:var(--white);color:var(--bg)}.ab-tab.on b{color:var(--bg)}
+.ab-row{border-top:1px solid var(--line);padding:12px 0;font-size:13px}
+.ab-top{display:flex;gap:10px;flex-wrap:wrap;align-items:baseline}.ab-top b{color:var(--white)}.ab-top span{color:var(--off)}.ab-top .ab-ago{margin-left:auto}
+.ab-mid{display:flex;justify-content:space-between;gap:12px;margin-top:6px}.ab-items{color:var(--off);line-height:1.5}.ab-val{text-align:right;color:var(--white);font-weight:700;white-space:nowrap}.ab-val small{display:block;color:var(--off);font-weight:400;font-size:11px}
+.ab-note{margin-top:6px;font-size:11.5px;color:#C9A227}
+.ab-act{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px}
+.ab-wa{background:#25D366;color:#0b2e17;border:0;border-radius:8px;padding:9px 16px;font:700 13px/1 inherit;font-family:inherit;cursor:pointer}.ab-wa:hover{filter:brightness(1.05)}
+.ab-sent{font-size:12px;color:var(--off)}.ab-sent a{text-decoration:underline;cursor:pointer}
+.ab-won{font-size:12.5px;color:#1E9E5A;font-weight:700}
+.ab-empty{color:var(--off);font-size:13px;padding:12px 0}
+@media(max-width:640px){.ab-sum{grid-template-columns:1fr 1fr}}
 .ig-chip{position:fixed;left:16px;bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:450;background:#141312;color:#fff;border:0;border-radius:24px;padding:11px 16px;font:600 13px/1 inherit;font-family:inherit;box-shadow:0 8px 24px rgba(0,0,0,.25);cursor:pointer}
 .ig-chip b{background:var(--red);border-radius:10px;padding:2px 7px;margin-left:6px}
 .ig-sheet{position:fixed;left:16px;bottom:calc(136px + env(safe-area-inset-bottom,0px));z-index:451;width:min(360px,calc(100vw - 32px));max-height:55vh;overflow:auto;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 16px 40px rgba(0,0,0,.2);padding:12px}
@@ -2544,7 +2559,7 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
     </div>
     <div id="abandoned-box" style="margin-top:16px;border:1px solid var(--line);border-radius:10px;overflow:hidden">
       <div style="padding:12px 16px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;background:rgba(192,57,43,0.08)" onclick="toggleAbandoned()">
-        <span style="font-weight:700;color:var(--white)">⚠ Abandoned Checkouts <span id="ab-cnt" style="color:var(--off);font-weight:400"></span></span>
+        <span style="font-weight:700;color:var(--white)">💬 Win back abandoned checkouts <span id="ab-cnt" style="color:var(--off);font-weight:400"></span></span>
         <span id="ab-arrow" style="color:var(--off)">▾</span>
       </div>
       <div id="abandoned-list" style="display:none;padding:0 16px 16px"></div>
@@ -5495,6 +5510,9 @@ function parseMetaCheckout(){
   // reviewer checking it resolves — just shows the shop, no error toast.
   if(!window._igPicks.length)window._igPicks=null;
   window._igCoupon=String(q.get("coupon")||"").slice(0,40);
+  // WhatsApp recovery link: /checkout?bag=<id>~<size>~<qty>,…  (exact bag, sizes included)
+  const bag=String(q.get("bag")||"");
+  if(bag){window._igPicks=null;window._resumeBag=bag.split(",").map(s=>{const [id,size,qty]=s.split("~").map(x=>{try{return decodeURIComponent(x||"");}catch(e){return x||"";}});return {id:String(id||"").slice(0,120),size:String(size||"").slice(0,10),qty:Math.max(1,Math.min(10,parseInt(qty,10)||1))};}).filter(x=>x.id).slice(0,20);}
   history.replaceState(null,"","/");
 }
 function igRemaining(){
@@ -5526,8 +5544,30 @@ function openIgPick(id){
   ms.qty=pk.qty;const q=document.getElementById("mqty");if(q)q.textContent=pk.qty;
   showToast("Picked on Instagram — choose your size, then Add to Bag",true);
 }
+function runResumeBag(){
+  if(!window._productsReady||window._resumeDone||!window._resumeBag||!products||!products.length)return;
+  window._resumeDone=true;
+  const soldOut=[];let added=0;
+  window._resumeBag.forEach(x=>{
+    const p=x.id.startsWith("name:")
+      ?products.find(pp=>(pp.name||"").toLowerCase()===x.id.slice(5).toLowerCase())
+      :products.find(pp=>String(pp.id)===x.id)||products.find(pp=>String(pp.id).toLowerCase()===x.id.toLowerCase());
+    if(!p)return;
+    if(x.size&&((p.oosizes||[]).includes(x.size)||(Array.isArray(p.sizes)&&p.sizes.length&&!p.sizes.includes(x.size)))){soldOut.push(p);return;}
+    const color=(p.colors&&p.colors[0])||"";const key=p.id+x.size+color;
+    const ex=cart.find(i=>i.key===key);
+    if(ex)ex.qty=Math.max(ex.qty,x.qty);
+    else cart.push({key,id:p.id,name:p.name,price:eff(p),image:(p.images||[])[0]||"",size:x.size,color,qty:x.qty,link:"https://365dropstore.com/p/"+p.id});
+    added++;
+  });
+  if(added){LS.set("ds_cart",cart);renderCart();openCart();
+    showToast(soldOut.length?`Welcome back! Your bag is ready — but ${_abItemName(soldOut[0].name)} just sold out in your size.`:"Welcome back! Your bag is saved — tap Checkout when you're ready.",true);}
+  else if(soldOut.length){openMo(soldOut[0].id);showToast("Your size just sold out — pick another one here.",false);}
+  else showToast("Those pieces aren't available any more — here's the latest drop.",false);
+}
 function runMetaCheckout(){
-  if(window._igDone||!window._igPicks||!products||!products.length)return;
+  runResumeBag();
+  if(!window._productsReady||window._igDone||!window._igPicks||!products||!products.length)return;
   window._igDone=true;
   window._igPicks=window._igPicks.map(x=>({...x,p:products.find(pp=>String(pp.id)===x.id)||products.find(pp=>String(pp.id).toLowerCase()===x.id.toLowerCase())})).filter(x=>x.p);
   if(!window._igPicks.length){showToast("That item from Instagram isn't available right now — here's the full drop.",false);return;}
@@ -6251,7 +6291,7 @@ async function loadAbandonedCount(){
     if(data.error||!data.orders)return;
     abandonedOrders=data.orders;
     const cntEl=document.getElementById("ab-cnt");
-    if(cntEl)cntEl.textContent=`(${abandonedOrders.length})`;
+    if(cntEl)cntEl.textContent=`(${_abGroups().filter(x=>x.state==="todo").length} to message)`;
     if(_abExpanded)renderAbandonedList();
   }catch(e){}
 }
@@ -6262,35 +6302,112 @@ function toggleAbandoned(){
   document.getElementById("ab-arrow").textContent=_abExpanded?"▴":"▾";
   if(_abExpanded)renderAbandonedList();
 }
+/* ===== WHATSAPP RECOVERY (abandoned checkouts) =====
+   One row per PERSON (latest attempt), one tap opens WhatsApp with a ready
+   message + a link that rebuilds their exact bag. Tracks who was messaged
+   and who came back and bought (server matches by phone). */
+let _abTab="todo";
+function _abFirst(n){n=String(n||"").trim().split(/\s+/)[0]||"";return n?n.charAt(0).toUpperCase()+n.slice(1).toLowerCase():"";}
+function _abItemName(n){return String(n||"your pick").replace(/^365-?\s*[A-Z]{2}\s+/i,"").trim();}
+function abResumeLink(o){
+  const parts=(o.items||[]).filter(i=>i&&(i.id||i.name)).map(i=>[i.id||("name:"+i.name),i.size||"",Math.max(1,parseInt(i.qty,10)||1)].map(x=>encodeURIComponent(String(x))).join("~"));
+  return "https://365dropstore.com/checkout?bag="+parts.join(",")+"&utm_source=whatsapp&utm_medium=recovery";
+}
+function abMessage(o){
+  const fn=_abFirst(o.customer_name);
+  const it=(o.items||[]);const first=it[0]||{};
+  let itemTxt=_abItemName(first.name)+(first.size?` in ${first.size}`:"");
+  if(it.length>1)itemTxt+=` (+${it.length-1} more)`;
+  const cfg=(typeof getPayCfg==="function")?getPayCfg():{};
+  const tot=Number(o.total)||0;
+  let adv=0;try{if(cfg.partialCod)adv=computePartialAdvance(cfg,tot);}catch(e){}
+  const lines=[
+    `Hi${fn?" "+fn:""} 👋 365 Drop Store here.`,
+    `You were checking out the ${itemTxt}, looks like the payment didn't go through.`,
+    ``,
+    `Your bag is saved, finish in one tap:`,
+    abResumeLink(o)];
+  if(adv&&adv<tot)lines.push(``,`Prefer paying on delivery? Pay just ₹${adv.toLocaleString("en-IN")} now, rest in cash when it arrives.`);
+  lines.push(``,`Not sure about the size? Just reply here, we'll help 🙂`);
+  return lines.join("\n");
+}
+function _abGroups(){
+  const by={};
+  (abandonedOrders||[]).forEach(o=>{const k=o.phone||("id:"+o.order_id);(by[k]=by[k]||[]).push(o);});
+  return Object.values(by).map(list=>{
+    list.sort((a,b)=>new Date(b.placed_at)-new Date(a.placed_at));
+    const o=list[0];
+    const recovered=list.find(x=>x.recovered_order_id);
+    const sent=list.map(x=>x.recovery_wa_sent_at).filter(Boolean).sort().pop()||null;
+    return {o,attempts:list.length,recovered,sent,state:recovered?"won":sent?"sent":"todo"};
+  }).sort((a,b)=>new Date(b.o.placed_at)-new Date(a.o.placed_at));
+}
+function _abAgo(iso){
+  const t=iso?new Date(iso).getTime():NaN; if(!isFinite(t))return "—";
+  const m=Math.max(0,Math.floor((Date.now()-t)/60000));
+  return m<1?"just now":m<60?`${m}m ago`:m<1440?`${Math.floor(m/60)}h ago`:`${Math.floor(m/1440)}d ago`;
+}
+function setAbTab(t){_abTab=t;renderAbandonedList();}
 function renderAbandonedList(){
-  const el=document.getElementById("abandoned-list");
-  if(!abandonedOrders.length){el.innerHTML='<p style="color:var(--off);font-size:13px;padding-top:10px">No abandoned checkouts right now — nice.</p>';return;}
-  el.innerHTML=abandonedOrders.map(o=>{
-    const itemsHtml=(o.items||[]).map(i=>`${i.name||"Item"} (${i.size||""}${i.color?", "+i.color:""}) x${i.qty||1}`).join(", ");
-    // Prefer the server-computed age; fall back to deriving it from
-    // placed_at. Relying on minutes_ago alone is what made every row
-    // read "0m ago" when the backend wasn't sending that field.
-    let mins=o.minutes_ago;
-    if(mins==null||!isFinite(mins)){
-      const t=o.placed_at?new Date(o.placed_at).getTime():NaN;
-      mins=isFinite(t)?Math.max(0,Math.floor((Date.now()-t)/60000)):null;
-    }
-    const ago = mins==null ? "—"
-      : mins<1 ? "just now"
-      : mins<60 ? `${mins}m ago`
-      : mins<1440 ? `${Math.floor(mins/60)}h ago`
-      : `${Math.floor(mins/1440)}d ago`;
-    const nudgeMsg=encodeURIComponent(`Hi ${o.customer_name||"there"}, this is 365 Drop Store — noticed your order didn't go through. Want a hand completing it? Happy to help 🙂`);
-    const waLink=o.phone?`https://wa.me/91${o.phone}?text=${nudgeMsg}`:"";
-    return`<div style="border-top:1px solid var(--line);padding:12px 0;font-size:13px">
-      <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px">
-        <b style="color:var(--white)">${o.order_id}</b>
-        <span style="color:var(--off)">${ago}</span>
-      </div>
-      <div style="color:var(--white);margin-top:4px">${o.customer_name||"—"} · ${o.email||"—"}${o.phone?` · <a href="${waLink}" target="_blank" rel="noopener" style="color:#2980B9">${o.phone}</a>`:""}</div>
-      <div style="color:var(--off);margin-top:4px">${itemsHtml||"—"} — ${o.total?inr(o.total):"—"}</div>
-    </div>`;
-  }).join("");
+  const el=document.getElementById("abandoned-list"); if(!el)return;
+  const g=_abGroups();
+  const cnt=document.getElementById("ab-cnt");
+  const todo=g.filter(x=>x.state==="todo"),sent=g.filter(x=>x.state==="sent"),won=g.filter(x=>x.state==="won");
+  if(cnt)cnt.textContent=`(${todo.length} to message)`;
+  if(!g.length){el.innerHTML='<p style="color:var(--off);font-size:13px;padding-top:10px">No abandoned checkouts right now — nice.</p>';return;}
+  const left=todo.concat(sent).reduce((s,x)=>s+(Number(x.o.total)||0),0);
+  const wonVal=won.reduce((s,x)=>s+(Number(x.recovered.recovered_total)||0),0);
+  const list=_abTab==="todo"?todo:_abTab==="sent"?sent:_abTab==="won"?won:g;
+  const tab=(k,l,n)=>`<button class="ab-tab${_abTab===k?" on":""}" onclick="setAbTab('${k}')">${l} <b>${n}</b></button>`;
+  el.innerHTML=`<div class="ab-sum"><div><b>${g.length}</b><span>people</span></div><div><b>${inr(left)}</b><span>still waiting</span></div><div><b>${won.length}</b><span>came back &amp; bought${wonVal?` · ${inr(wonVal)}`:""}</span></div><div><b>${sent.length+won.filter(x=>x.sent).length}</b><span>messaged</span></div></div>
+    <div class="ab-tabs">${tab("todo","To message",todo.length)}${tab("sent","Messaged",sent.length)}${tab("won","Bought",won.length)}${tab("all","All",g.length)}</div>
+    ${list.length?list.map(x=>_abRow(x)).join(""):`<p class="ab-empty">${_abTab==="todo"?"Everyone's been messaged. 🙌":"Nothing here yet."}</p>`}`;
+}
+function _abRow(x){
+  const o=x.o;
+  const items=(o.items||[]).map(i=>`${_dspEsc(_abItemName(i.name))}${i.size?` · ${_dspEsc(i.size)}`:""}${(i.qty||1)>1?` ×${i.qty}`:""}`).join("<br>")||"—";
+  const mode=o.payment_mode==="partial_cod"?"Partial COD":o.payment_mode==="cod"?"COD":"Prepaid";
+  let actions="";
+  if(x.state==="won"){
+    actions=`<span class="ab-won">✓ Bought ${_dspEsc(x.recovered.recovered_order_id)}${x.recovered.recovered_total?" · "+inr(x.recovered.recovered_total):""}${x.sent?" after your message":""}</span>`;
+  }else if(o.phone){
+    actions=`<button class="ab-wa" onclick="abSendWa('${_dspEsc(o.order_id)}')">${x.state==="sent"?"Message again":"WhatsApp"}</button>
+      <button class="tb" onclick="abCopyLink('${_dspEsc(o.order_id)}')" title="Copy the bag link">Copy link</button>
+      ${x.state==="sent"?`<span class="ab-sent">Messaged ${_abAgo(x.sent)} · <a onclick="abMark('${_dspEsc(o.order_id)}',false)">undo</a></span>`:""}`;
+  }else actions=`<span class="ab-sent">No phone number</span>`;
+  const fresh=(Date.now()-new Date(o.placed_at).getTime())<30*60000&&x.state==="todo";
+  return `<div class="ab-row ab-${x.state}">
+    <div class="ab-top"><b>${_dspEsc(o.customer_name||"—")}</b><span>${o.phone?_dspEsc(o.phone):""}</span><span class="ab-ago">${_abAgo(o.placed_at)}${x.attempts>1?` · ${x.attempts} tries`:""}</span></div>
+    <div class="ab-mid"><div class="ab-items">${items}</div><div class="ab-val">${o.total?inr(o.total):"—"}<small>${mode}</small></div></div>
+    ${fresh?`<div class="ab-note">Just left — they may still be paying. Best to message after 30 min.</div>`:""}
+    <div class="ab-act">${actions}</div></div>`;
+}
+function _abFind(id){return (abandonedOrders||[]).find(o=>o.order_id===id);}
+function abSendWa(id){
+  const o=_abFind(id); if(!o||!o.phone)return;
+  const url=`https://wa.me/91${o.phone}?text=${encodeURIComponent(abMessage(o))}`;
+  window.open(url,"_blank","noopener");
+  abMark(id,true);
+}
+function abCopyLink(id){
+  const o=_abFind(id); if(!o)return;
+  const t=abResumeLink(o);
+  (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>showToast("Bag link copied",true)).catch(()=>{prompt("Copy this link:",t);});
+}
+async function abMark(id,sent){
+  const o=_abFind(id); if(!o)return;
+  const prev=o.recovery_wa_sent_at;
+  // mark every attempt from this person so the row moves tabs as one
+  const same=(abandonedOrders||[]).filter(x=>(x.phone&&x.phone===o.phone)||x.order_id===id);
+  same.forEach(x=>{x.recovery_wa_sent_at=sent?new Date().toISOString():null;});
+  renderAbandonedList();
+  try{
+    const r=await fetch(SB_FN_BASE+"admin-orders",{method:"POST",headers:{"Content-Type":"application/json","apikey":SB_APIKEY},body:JSON.stringify({password:_adminPw,action:"setRecovery",orderId:id,sent})});
+    const d=await r.json(); if(d.error)throw new Error(d.error);
+  }catch(e){
+    same.forEach(x=>{x.recovery_wa_sent_at=prev;}); renderAbandonedList();
+    showToast("Couldn't save the 'messaged' mark — "+(e.message||"try again"),false);
+  }
 }
 // ===== PRODUCT SEQUENCE =====
 let _seqPending=false;
@@ -7766,6 +7883,7 @@ const _isPreview = sessionStorage.getItem("ds_preview")==="1";
   if(!_isAdminRoute && !_isPreview){
     usedSupabase = await loadFromSupabaseIfAvailable();
   }
+  window._productsReady=true;   // real catalogue is in: deep-link flows (bag restore, Meta checkout) may run now
   buildFilterUI();populateFitSelect();setCat("All");renderGrid();renderCart();renderRevs();renderFaqSection();applyPalette();applyBanner();renderStoriesRail();applySiteContent();chkRoute();
   if(typeof renderNewArrivals==="function")renderNewArrivals();
   if(typeof renderFooterFits==="function")renderFooterFits();
