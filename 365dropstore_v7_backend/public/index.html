@@ -4,7 +4,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>365 Drop Store — Clothing or Nothing | Wide Leg Jeans Delhi</title>
-<meta name="build" content="2026-09-28 tear-off-calendar v2"/>
+<meta name="build" content="2026-09-28 tear-off-calendar v3"/>
 <meta name="description" content="Clothing or Nothing. Premium wide-leg, baggy &amp; straight jeans for men, made in Delhi. From ₹1,099, free shipping across India, 7-day exchange, COD."/>
 <meta property="og:type" content="website"/>
 <meta property="og:title" content="365 Drop Store — Premium Denim | Clothing or Nothing"/>
@@ -1738,8 +1738,12 @@ body:hover .cursor-glow{opacity:1}
 .tc-stack{position:relative;width:var(--tc-w);height:var(--tc-h);margin-top:-3px;transform-origin:50% 0;animation:tcSwing 6s ease-in-out infinite}
 .tc-ghost{position:absolute;inset:0;background:#E6E0D4;border-radius:2px;transform:translate(3px,5px) rotate(1deg)}
 .tc-sheet{position:absolute;inset:0;background:#F8F5EE;border-radius:2px 2px 4px 4px;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 1px 0 rgba(20,19,18,.08)}
-.tc-sheet.tc-today{box-shadow:0 22px 40px -18px rgba(20,19,18,.45);transform-origin:50% 0;animation:tcTear 12s ease-in infinite}
-.tc-sheet.tc-next{animation:tcLift 12s ease-in-out infinite}
+.tc-sheet.tc-top{box-shadow:0 22px 40px -18px rgba(20,19,18,.45)}
+.tc-sheet.tc-yday{z-index:2;transform-origin:50% 0}
+.tc-sheet.tc-yday.tc-tearing{animation:tcTearOnce .95s cubic-bezier(.55,0,.8,.25) forwards;pointer-events:none}
+.tc-sheet.tc-under{transform:scale(.99) translateY(2px);transition:transform .5s ease-out}
+.tc-sheet.tc-under.tc-rev{transform:none}
+@keyframes tcTearOnce{0%{transform:none;opacity:1}22%{transform:rotate(-5deg) translate(-3%,3%);opacity:1}100%{transform:rotate(-22deg) translate(-35%,110%);opacity:0}}
 .tc-perf{height:5%;border-bottom:1px dashed #B8B2A6;display:flex;justify-content:center;align-items:center}
 .tc-perf i{width:6px;height:6px;border-radius:50%;background:var(--ink,#141312)}
 .tc-band{height:14%;background:var(--ink,#141312);color:#F8F5EE;display:flex;align-items:center;justify-content:space-between;padding:0 8%;font-family:var(--dsp);font-size:11px;letter-spacing:.08em;white-space:nowrap}
@@ -1892,16 +1896,16 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
       <span class="tc-string"></span>
       <div class="tc-stack">
         <div class="tc-ghost"></div>
-        <div class="tc-sheet tc-next" aria-hidden="true">
-          <div class="tc-perf"><i></i></div>
-          <div class="tc-band">365 DROP STORE<small data-tc="nextDate"></small></div>
-          <div class="tc-field"><div class="tc-num" data-tc="next"></div><div class="tc-of">Day <span data-tc="next"></span> of <span data-tc="total">365</span></div></div>
-          <div class="tc-tag">CLOTHING OR NOTHING</div>
-        </div>
-        <div class="tc-sheet tc-today">
+        <div class="tc-sheet tc-under" id="tc-today">
           <div class="tc-perf"><i></i></div>
           <div class="tc-band">365 DROP STORE<small data-tc="todayDate"></small></div>
           <div class="tc-field"><div class="tc-num" data-tc="today"></div><div class="tc-of">Day <span data-tc="today"></span> of <span data-tc="total">365</span></div></div>
+          <div class="tc-tag">CLOTHING OR NOTHING</div>
+        </div>
+        <div class="tc-sheet tc-yday tc-top" id="tc-yday" aria-hidden="true">
+          <div class="tc-perf"><i></i></div>
+          <div class="tc-band">365 DROP STORE<small id="tc-y-date"></small></div>
+          <div class="tc-field"><div class="tc-num" id="tc-y-num"></div><div class="tc-of">Day <span id="tc-y-n"></span> of <span id="tc-y-total">365</span></div></div>
           <div class="tc-tag">CLOTHING OR NOTHING</div>
         </div>
       </div>
@@ -3773,7 +3777,7 @@ function dismissTopbar(){
   const bar=document.getElementById("topbar"); if(bar)bar.hidden=true; clearInterval(_tbTimer);
   try{localStorage.setItem(_tbKey(_tbMsgs),"1");}catch(e){}
 }
-window.__BUILD="2026-09-28 tear-off-calendar v2";
+window.__BUILD="2026-09-28 tear-off-calendar v3";
 (function(){
   const bar=document.getElementById("topbar"); if(!bar)return;
   const pause=v=>()=>{_tbPaused=v;};
@@ -8736,13 +8740,63 @@ setTimeout(function(){
     var y=d.getUTCFullYear(), m=d.getUTCMonth(), dd=d.getUTCDate();
     var doy=Math.round((Date.UTC(y,m,dd)-Date.UTC(y,0,1))/DAY)+1;
     var total=((y%4===0&&y%100!==0)||y%400===0)?366:365;
-    var t=new Date(Date.UTC(y,m,dd+1));
     var left=Math.floor((DAY-(ms%DAY))/1000)%86400;
-    set('today',doy); set('next',doy>=total?1:doy+1); set('total',total);
-    set('todayDate',pad(dd)+' '+MON[m]); set('nextDate',pad(t.getUTCDate())+' '+MON[t.getUTCMonth()]);
+    set('today',doy); set('total',total);
+    set('todayDate',pad(dd)+' '+MON[m]);
     set('cd',pad(Math.floor(left/3600))+':'+pad(Math.floor(left%3600/60))+':'+pad(left%60));
   }
   tick(); setInterval(tick,1000);
+
+  /* ── Sequence: count up to YESTERDAY, tear yesterday off once, rest on TODAY.
+     Repeats once at IST midnight (today's sheet tears to reveal the new day). ── */
+  var ySheet=document.getElementById('tc-yday'), tSheet=document.getElementById('tc-today');
+  var yNum=document.getElementById('tc-y-num'), yN=document.getElementById('tc-y-n'),
+      yDate=document.getElementById('tc-y-date'), yTot=document.getElementById('tc-y-total');
+  var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function istParts(){var d=new Date(Date.now()+IST);var y=d.getUTCFullYear();
+    return {y:y,doy:Math.round((Date.UTC(y,d.getUTCMonth(),d.getUTCDate())-Date.UTC(y,0,1))/DAY)+1};}
+  function yearLen(y){return ((y%4===0&&y%100!==0)||y%400===0)?366:365;}
+  function showOnTop(y,n){                      // paint the top sheet as day n of year y
+    var dt=new Date(Date.UTC(y,0,n));
+    yNum.textContent=n; yN.textContent=n; yTot.textContent=yearLen(y);
+    yDate.textContent=pad(dt.getUTCDate())+' '+MON[dt.getUTCMonth()];
+  }
+  function reveal(){ tSheet.classList.add('tc-rev','tc-top'); ySheet.style.display='none'; ySheet.classList.remove('tc-tearing'); }
+  function tear(){
+    ySheet.classList.remove('tc-tearing'); void ySheet.offsetWidth;   // restart the animation cleanly
+    ySheet.classList.add('tc-tearing'); tSheet.classList.add('tc-rev');
+    var done=false,fin=function(){if(!done){done=true;reveal();}};
+    ySheet.addEventListener('animationend',fin,{once:true}); setTimeout(fin,1300);
+  }
+  function prevDay(p){ return p.doy>1?{y:p.y,doy:p.doy-1}:{y:p.y-1,doy:yearLen(p.y-1)}; }
+  function intro(){
+    var t=istParts(), yd=prevDay(t);
+    if(reduce){ reveal(); return; }
+    ySheet.style.display=''; tSheet.classList.remove('tc-rev','tc-top');
+    var start=null, DUR=1500, from=1, to=yd.doy;
+    (function step(ts){
+      if(start===null)start=ts;
+      var k=Math.min(1,(ts-start)/DUR), e=1-Math.pow(1-k,3);          // ease-out: fast, then settles
+      showOnTop(yd.y, Math.max(from,Math.round(from+(to-from)*e)));
+      if(k<1)requestAnimationFrame(step); else setTimeout(tear,450);
+    })(performance.now());
+  }
+  // midnight: tear the old day off once
+  var lastDoy=istParts().doy;
+  setInterval(function(){
+    var t=istParts(); if(t.doy===lastDoy)return;
+    var old=prevDay(t); lastDoy=t.doy;
+    if(reduce)return;
+    tSheet.classList.remove('tc-rev','tc-top'); showOnTop(old.y,old.doy); ySheet.style.display='';
+    setTimeout(tear,250);
+  },1000);
+  // start once the intro splash is gone (so people actually see it)
+  showOnTop(prevDay(istParts()).y, 1);
+  (function waitSplash(){
+    var bi=document.getElementById('bi');
+    if(bi&&!bi.classList.contains('out'))return setTimeout(waitSplash,120);
+    setTimeout(intro,450);
+  })();
 
   /* Desktop: hang the calendar ~56px right of the headline, sheet top just above it,
      string running up to the nav. Re-measured on resize and once fonts load
