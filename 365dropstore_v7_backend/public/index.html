@@ -4,7 +4,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>365 Drop Store — Clothing or Nothing | Wide Leg Jeans Delhi</title>
-<meta name="build" content="2026-09-28 shipping-updates v2"/>
+<meta name="build" content="2026-09-28 tear-off-calendar v2"/>
 <meta name="description" content="Clothing or Nothing. Premium wide-leg, baggy &amp; straight jeans for men, made in Delhi. From ₹1,099, free shipping across India, 7-day exchange, COD."/>
 <meta property="og:type" content="website"/>
 <meta property="og:title" content="365 Drop Store — Premium Denim | Clothing or Nothing"/>
@@ -22,7 +22,7 @@
 <link rel="apple-touch-icon-precomposed" sizes="180x180" href="/apple-touch-icon.png"/>
 <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png"/>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Grotesk:wght@300;400;500;600;700&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Instrument+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{
@@ -33,8 +33,10 @@
   --line:rgba(20,19,18,.08);--line2:rgba(20,19,18,.04);
   --glass:rgba(20,19,18,.05);--glass2:rgba(20,19,18,.08);
   --max:1320px;
-  --dsp:'Bebas Neue','Helvetica Neue',Helvetica,Arial,sans-serif;
-  --bod:'Space Grotesk',system-ui,sans-serif;
+  --dsp:'Anton','Helvetica Neue',Helvetica,Arial,sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  --ink:#141312;
+  --bod:'Instrument Sans',system-ui,sans-serif;
   --ease:cubic-bezier(.4,0,.2,1);--ease2:cubic-bezier(.16,1,.3,1);
 }
 *{box-sizing:border-box;margin:0;padding:0}
@@ -153,7 +155,7 @@ header.sc .nav{height:58px}
 .hey{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono,monospace);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--off);margin-bottom:24px}
 .dot{width:6px;height:6px;background:#4ade80;border-radius:50%;animation:pulse 2.5s ease infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
-.hh1{font-family:var(--dsp);line-height:.82;font-size:clamp(58px,7vw,118px);text-transform:uppercase;margin-bottom:24px;letter-spacing:.006em;color:var(--ink,#141312);position:relative;text-align:left}
+.hh1{font-family:var(--dsp);line-height:.93;font-size:clamp(58px,7vw,118px);text-transform:uppercase;margin-bottom:24px;letter-spacing:-.01em;color:var(--ink,#141312);position:relative;text-align:left}
 .hh1.assembling{color:transparent}
 #assemblefx{display:none}
 .hh1 span{display:block;color:var(--w2)}
@@ -606,6 +608,7 @@ button,a,.btn,[onclick]{-webkit-tap-highlight-color:transparent}
 
 
 .inf-ico{display:inline-block;width:.85em;height:.42em;vertical-align:.1em}
+.hstat .num .inf-ico{width:1.15em;height:.58em;vertical-align:.1em}
 .mocar-imgs img.active{cursor:zoom-in}
 .mocar-imgs.zoomed{overflow:auto;-webkit-overflow-scrolling:touch}
 .mocar-imgs.zoomed img.active{transform-origin:0 0;cursor:zoom-out}
@@ -1589,7 +1592,7 @@ body:hover .cursor-glow{opacity:1}
 .des-eyebrow{text-align:center;font-family:var(--mono,monospace);font-size:10px;letter-spacing:.4em;text-transform:uppercase;color:rgba(184,134,11,.75);margin-bottom:14px;display:flex;align-items:center;justify-content:center;gap:14px;position:relative;z-index:1}
 .des-eyebrow::before,.des-eyebrow::after{content:"";width:44px;height:1px;background:linear-gradient(90deg,transparent,rgba(184,134,11,.5))}
 .des-eyebrow::after{background:linear-gradient(90deg,rgba(184,134,11,.5),transparent)}
-.des-title{text-align:center;font-family:"Cormorant Garamond",var(--dsp);font-weight:500;font-style:italic;font-size:clamp(34px,6vw,58px);color:#F8F7F4;letter-spacing:.01em;margin-bottom:10px;position:relative;z-index:1}
+.des-title{text-align:center;font-family:var(--dsp);font-weight:400;font-style:normal;font-size:clamp(34px,6vw,58px);color:#F8F7F4;letter-spacing:.01em;margin-bottom:10px;position:relative;z-index:1}
 .des-sub{text-align:center;font-size:13.5px;color:rgba(248,247,244,.38);max-width:460px;margin:0 auto 56px;line-height:1.75;letter-spacing:.01em;position:relative;z-index:1}
 .des-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:48px;max-width:1040px;margin:0 auto;position:relative;z-index:1}
 @media(max-width:820px){.des-grid{grid-template-columns:1fr;gap:52px;max-width:460px;padding:0 4px}}
@@ -1631,7 +1634,7 @@ body:hover .cursor-glow{opacity:1}
 
 /* ---- body: name, price, why-this-piece ---- */
 .des-body{padding:22px 24px 26px}
-.des-name{font-family:"Cormorant Garamond",var(--dsp);font-style:italic;font-weight:600;
+.des-name{font-family:var(--dsp);font-weight:400;font-style:normal;
   font-size:clamp(20px,2.8vw,26px);color:#F8F7F4;letter-spacing:.01em;margin-bottom:3px;line-height:1.15}
 .des-fit{font-family:var(--mono,monospace);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:rgba(184,134,11,.65);margin-bottom:14px;display:flex;align-items:center;gap:7px}
 .des-fit::before{content:"";width:5px;height:5px;border-radius:50%;background:rgba(184,134,11,.7);flex-shrink:0}
@@ -1682,7 +1685,7 @@ body:hover .cursor-glow{opacity:1}
 .vault-hero::before{content:"";position:absolute;inset:0;
   background:radial-gradient(ellipse at 50% 0%,rgba(184,134,11,.08) 0%,transparent 60%);pointer-events:none}
 .vault-hero .vh-tag{font-family:var(--mono,monospace);font-size:10px;letter-spacing:.3em;color:rgba(184,134,11,.7);margin-bottom:14px;position:relative}
-.vault-hero h2{font-family:"Cormorant Garamond",var(--dsp);font-style:italic;font-weight:500;
+.vault-hero h2{font-family:var(--dsp);font-weight:400;font-style:normal;
   font-size:clamp(32px,7vw,54px);color:#F8F7F4;line-height:1.08;margin-bottom:10px;position:relative}
 .vault-hero p{font-size:13px;color:rgba(248,247,244,.4);max-width:440px;margin:0 auto;line-height:1.7;position:relative}
 .vault-plates{max-width:1100px;margin:0 auto;padding:0 24px 8px;display:grid;grid-template-columns:1.4fr 1fr;gap:2px}
@@ -1724,6 +1727,47 @@ body:hover .cursor-glow{opacity:1}
 /* ===== HERO HEIGHT REDUCTION — get products visible faster ===== */
 #hero{min-height:calc(85svh - 0px)!important}
 @media(max-width:640px){#hero{min-height:calc(75svh - 0px)!important}}
+
+/* ===== TEAR-OFF CALENDAR MARK (added 2026-09-29) =====
+   Outer box is .tc-cal (not .tc — that class is already used by the hero trust chips).
+   Desktop ≥1100px: hangs on the right of the left column, string from the nav (mock-up).
+   Below 1100px: sits in the flow above the eyebrow; 120×160 under 860px. */
+.tc-cal{--tc-w:150px;--tc-h:200px;--tc-str:22px;position:relative;width:max-content;min-width:var(--tc-w);margin:0 0 22px;display:flex;flex-direction:column;align-items:center;user-select:none;-webkit-user-select:none}
+.tc-nail{width:8px;height:8px;border-radius:50%;background:var(--ink,#141312);position:relative;z-index:4}
+.tc-string{width:1.5px;height:var(--tc-str);background:var(--ink,#141312);margin-top:-1px}
+.tc-stack{position:relative;width:var(--tc-w);height:var(--tc-h);margin-top:-3px;transform-origin:50% 0;animation:tcSwing 6s ease-in-out infinite}
+.tc-ghost{position:absolute;inset:0;background:#E6E0D4;border-radius:2px;transform:translate(3px,5px) rotate(1deg)}
+.tc-sheet{position:absolute;inset:0;background:#F8F5EE;border-radius:2px 2px 4px 4px;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 1px 0 rgba(20,19,18,.08)}
+.tc-sheet.tc-today{box-shadow:0 22px 40px -18px rgba(20,19,18,.45);transform-origin:50% 0;animation:tcTear 12s ease-in infinite}
+.tc-sheet.tc-next{animation:tcLift 12s ease-in-out infinite}
+.tc-perf{height:5%;border-bottom:1px dashed #B8B2A6;display:flex;justify-content:center;align-items:center}
+.tc-perf i{width:6px;height:6px;border-radius:50%;background:var(--ink,#141312)}
+.tc-band{height:14%;background:var(--ink,#141312);color:#F8F5EE;display:flex;align-items:center;justify-content:space-between;padding:0 8%;font-family:var(--dsp);font-size:11px;letter-spacing:.08em;white-space:nowrap}
+.tc-band small{font-family:var(--mono);font-size:7.5px;letter-spacing:.14em;color:#8A8783}
+.tc-field{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1}
+.tc-num{font-family:var(--dsp);font-size:88px;color:var(--red,#C0392B);letter-spacing:-.01em;font-variant-numeric:tabular-nums}
+.tc-of{font-family:var(--mono);font-size:7.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--off,#7A756E);margin-top:6px}
+.tc-tag{height:14%;border-top:1px dashed var(--ink,#141312);display:flex;align-items:center;justify-content:center;font-family:var(--dsp);font-size:10px;letter-spacing:.12em;color:var(--ink,#141312)}
+.tc-cd{margin-top:12px;font-family:var(--mono);font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--off,#7A756E);display:flex;gap:8px;align-items:baseline;white-space:nowrap}
+.tc-cd b{font-family:var(--dsp);font-size:14px;letter-spacing:.06em;color:var(--ink,#141312);font-variant-numeric:tabular-nums;font-weight:400}
+@keyframes tcSwing{0%,100%{transform:rotate(-.7deg)}50%{transform:rotate(.7deg)}}
+@keyframes tcTear{0%,84%{transform:rotate(0) translate(0,0);opacity:1}90%{transform:rotate(-5deg) translate(-3%,3%);opacity:1}100%{transform:rotate(-22deg) translate(-35%,110%);opacity:0}}
+@keyframes tcLift{0%,84%{transform:scale(.99) translateY(2px)}100%{transform:scale(1) translateY(0)}}
+@media(min-width:1100px){
+  /* hang from the nav, to the right of the headline */
+  /* hangs from the nav; left/string length are set by JS from the headline's real position */
+  .tc-cal{position:absolute;top:0;left:var(--tc-left,auto);right:var(--tc-right,clamp(28px,4vw,72px));margin:0;--tc-str:var(--tc-str-js,clamp(70px,11vh,120px));z-index:6}
+  .tc-cal.tc-placed{right:auto}
+  .tc-cal .tc-cd{flex-direction:column;align-items:center;gap:3px;margin-top:14px}
+  .tc-cal .tc-nail{display:none}
+}
+@media(min-width:1280px){.tc-cal{--tc-w:180px;--tc-h:240px}.tc-num{font-size:106px}.tc-band{font-size:13px}.tc-band small{font-size:9px}.tc-of{font-size:9px}.tc-tag{font-size:12px}.tc-cd{font-size:10.5px}.tc-cd b{font-size:16px}}
+@media(min-width:1600px){.tc-cal{--tc-w:200px;--tc-h:266px}.tc-num{font-size:118px}.tc-band{font-size:14px}.tc-band small{font-size:10px}.tc-of{font-size:10px}.tc-tag{font-size:13px}}
+@media(max-width:1099px){.tc-cal{align-self:center;margin:0 auto 22px}}
+@media(max-width:860px){.tc-cal{--tc-w:120px;--tc-h:160px;margin:0 auto 18px}.tc-num{font-size:70px}.tc-band{font-size:9px;letter-spacing:.05em;padding:0 6%}.tc-band small{font-size:6.5px;letter-spacing:.08em}.tc-tag{font-size:8.5px;letter-spacing:.08em}.tc-of{font-size:6.5px;letter-spacing:.18em}}
+@media(prefers-reduced-motion:reduce){.tc-stack,.tc-sheet{animation:none!important}}
+/* the calendar's countdown replaces the old "Next drop in" timer */
+#dropcount{display:none!important}
 </style>
 <script defer data-domain="365dropstore.com" src="https://plausible.io/js/script.js"></script>
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
@@ -1843,6 +1887,26 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
   <canvas id="netfx" aria-hidden="true"></canvas>
   <div class="hud" aria-hidden="true"><span class="htl"></span><span class="htr"></span><span class="hbl"></span><span class="hbr"></span></div>
   <div class="hleft sr">
+    <div class="tc-cal rvh hd1" id="tc" role="img" aria-label="Tear-off calendar: today's day of the year">
+      <span class="tc-nail"></span>
+      <span class="tc-string"></span>
+      <div class="tc-stack">
+        <div class="tc-ghost"></div>
+        <div class="tc-sheet tc-next" aria-hidden="true">
+          <div class="tc-perf"><i></i></div>
+          <div class="tc-band">365 DROP STORE<small data-tc="nextDate"></small></div>
+          <div class="tc-field"><div class="tc-num" data-tc="next"></div><div class="tc-of">Day <span data-tc="next"></span> of <span data-tc="total">365</span></div></div>
+          <div class="tc-tag">CLOTHING OR NOTHING</div>
+        </div>
+        <div class="tc-sheet tc-today">
+          <div class="tc-perf"><i></i></div>
+          <div class="tc-band">365 DROP STORE<small data-tc="todayDate"></small></div>
+          <div class="tc-field"><div class="tc-num" data-tc="today"></div><div class="tc-of">Day <span data-tc="today"></span> of <span data-tc="total">365</span></div></div>
+          <div class="tc-tag">CLOTHING OR NOTHING</div>
+        </div>
+      </div>
+      <div class="tc-cd">Next sheet tears in <b data-tc="cd">00:00:00</b></div>
+    </div>
     <div class="hey rvh hd1"><span class="dot"></span> DROP 001 · DELHI · LIVE NOW</div>
     <div id="dropcount" class="dropcount rvh hd2" aria-hidden="true" style="display:none">
       <span class="dc-label">Next drop in</span>
@@ -1958,7 +2022,7 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
 .vd-chip{position:absolute;left:12px;right:12px;bottom:12px;display:none;justify-content:space-between;align-items:center;gap:8px;background:rgba(14,14,12,.82);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:9px 12px;color:#F6F3EE;font:600 12px/1.2 ui-monospace,monospace;letter-spacing:.03em}
 .vd-chip.on{display:flex}.vd-chip b{color:#E85D45;font-size:13px;white-space:nowrap}.vd-chip span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .vd-buy{margin:18px 0 6px}
-.vd-price{display:flex;align-items:baseline;gap:10px}.vd-price b{font-family:'Bebas Neue',ui-sans-serif,sans-serif;font-size:40px;color:#F6F3EE;letter-spacing:.02em;line-height:1}.vd-price span{font:12px ui-monospace,monospace;color:#8A8783;letter-spacing:.06em;text-transform:uppercase}
+.vd-price{display:flex;align-items:baseline;gap:10px}.vd-price b{font-family:var(--dsp);font-size:40px;color:#F6F3EE;letter-spacing:.02em;line-height:1}.vd-price span{font:12px ui-monospace,monospace;color:#8A8783;letter-spacing:.06em;text-transform:uppercase}
 .vd-sizes{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0 10px}.vd-sizes span{font:600 11px ui-monospace,monospace;color:#F6F3EE;border:1px solid #3a3a36;border-radius:4px;padding:5px 8px}.vd-sizes span.out{color:#55534f;text-decoration:line-through;border-color:#252523}
 .vd-trust{font:11px ui-monospace,monospace;color:#8A8783;letter-spacing:.05em}
 .vault-door-cta.vd-cta-solid{background:#C0392B;border-color:#C0392B;color:#fff;font-size:12px;padding:15px 24px;margin-top:14px}
@@ -1976,7 +2040,7 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
 .vault-door-copy h2 em{font-style:italic}
 .vault-door-copy p{font-size:13px;color:#8A8783;line-height:1.7;max-width:360px}
 .vault-door-cd{display:flex;gap:16px;margin:6px 0 4px;font-family:ui-monospace,monospace}
-.vd-live-msg{font-family:'Bebas Neue',ui-sans-serif,sans-serif;font-size:22px;letter-spacing:0.03em;color:#E85D45;text-shadow:0 0 20px rgba(232,93,69,0.4);animation:vd-live-pulse 1.6s ease-in-out infinite}
+.vd-live-msg{font-family:var(--dsp);font-size:22px;letter-spacing:0.03em;color:#E85D45;text-shadow:0 0 20px rgba(232,93,69,0.4);animation:vd-live-pulse 1.6s ease-in-out infinite}
 @keyframes vd-live-pulse{0%,100%{opacity:1}50%{opacity:0.72}}
 .vd-cd-unit{display:flex;flex-direction:column;align-items:center}
 .vd-cd-num{font-size:22px;font-weight:600;color:#F6F3EE;font-variant-numeric:tabular-nums}
@@ -3709,7 +3773,7 @@ function dismissTopbar(){
   const bar=document.getElementById("topbar"); if(bar)bar.hidden=true; clearInterval(_tbTimer);
   try{localStorage.setItem(_tbKey(_tbMsgs),"1");}catch(e){}
 }
-window.__BUILD="2026-09-28 shipping-updates v2";
+window.__BUILD="2026-09-28 tear-off-calendar v2";
 (function(){
   const bar=document.getElementById("topbar"); if(!bar)return;
   const pause=v=>()=>{_tbPaused=v;};
@@ -8657,4 +8721,55 @@ setTimeout(function(){
   <span class="sbb-price" id="sbbPrice"></span>
   <button class="sbb-btn" id="sbbBtn" onclick="addFromStickyBar()">Add to Bag</button>
 </div>
+<script>
+/* Tear-off calendar: day-of-year in IST, refreshed every second.
+   All maths in UTC (+5:30 offset) — no local-time Date methods, so a visitor in any
+   timezone (incl. daylight-saving zones) sees the same Delhi day. Leap years: "of 366",
+   and on the last day the next sheet reads 1. */
+(function(){
+  var root=document.getElementById('tc'); if(!root) return;
+  var IST=19800000, DAY=86400000, MON=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+  function pad(n){return (n<10?'0':'')+n;}
+  function set(k,v){var l=root.querySelectorAll('[data-tc="'+k+'"]');for(var i=0;i<l.length;i++){if(l[i].textContent!==String(v))l[i].textContent=v;}}
+  function tick(){
+    var ms=Date.now()+IST, d=new Date(ms);
+    var y=d.getUTCFullYear(), m=d.getUTCMonth(), dd=d.getUTCDate();
+    var doy=Math.round((Date.UTC(y,m,dd)-Date.UTC(y,0,1))/DAY)+1;
+    var total=((y%4===0&&y%100!==0)||y%400===0)?366:365;
+    var t=new Date(Date.UTC(y,m,dd+1));
+    var left=Math.floor((DAY-(ms%DAY))/1000)%86400;
+    set('today',doy); set('next',doy>=total?1:doy+1); set('total',total);
+    set('todayDate',pad(dd)+' '+MON[m]); set('nextDate',pad(t.getUTCDate())+' '+MON[t.getUTCMonth()]);
+    set('cd',pad(Math.floor(left/3600))+':'+pad(Math.floor(left%3600/60))+':'+pad(left%60));
+  }
+  tick(); setInterval(tick,1000);
+
+  /* Desktop: hang the calendar ~56px right of the headline, sheet top just above it,
+     string running up to the nav. Re-measured on resize and once fonts load
+     (Anton changes the headline width). Falls back to the CSS right-edge position. */
+  var h1=document.getElementById('hero-h1'), col=root.parentElement;
+  function place(){
+    try{
+      if(window.innerWidth<1100||!h1||!col){root.classList.remove('tc-placed');root.style.removeProperty('--tc-left');root.style.removeProperty('--tc-str-js');return;}
+      var cr=col.getBoundingClientRect(), sp=h1.children, right=0, i, r;
+      for(i=0;i<sp.length;i++){r=document.createRange();r.selectNodeContents(sp[i]);right=Math.max(right,r.getBoundingClientRect().right);}
+      if(!right)return;
+      var stack=root.querySelector('.tc-stack'), w=stack.offsetWidth||150, boxW=Math.max(root.offsetWidth,w);
+      var left=right-cr.left+56-(boxW-w)/2;                  // stack's left edge 56px past the headline
+      var maxLeft=cr.width-boxW-24;                          // never closer than 24px to the video column
+      left=Math.max(0,Math.min(left,maxLeft));
+      var top=h1.getBoundingClientRect().top-cr.top-30;      // sheet starts just above the headline
+      var str=Math.max(40,top);
+      root.style.setProperty('--tc-left',left+'px');
+      root.style.setProperty('--tc-str-js',str+'px');
+      root.classList.add('tc-placed');
+    }catch(e){}
+  }
+  place();
+  window.addEventListener('resize',place,{passive:true});
+  if(document.fonts&&document.fonts.ready)document.fonts.ready.then(place);
+  window.addEventListener('load',place);
+  setTimeout(place,1200);
+})();
+</script>
 </body></html>
