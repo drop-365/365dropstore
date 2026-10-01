@@ -4,7 +4,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>365 Drop Store — Clothing or Nothing | Wide Leg Jeans Delhi</title>
-<meta name="build" content="2026-09-28 logo v2"/>
+<meta name="build" content="2026-09-28 inapp-redirect v1"/>
 <meta name="description" content="Clothing or Nothing. Premium wide-leg, baggy &amp; straight jeans for men, made in Delhi. From ₹1,099, free shipping across India, 7-day exchange, COD."/>
 <meta property="og:type" content="website"/>
 <meta property="og:title" content="365 Drop Store — Premium Denim | Clothing or Nothing"/>
@@ -359,6 +359,15 @@ header.sc .nav{height:58px}
 .ship-wa-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
 .ship-wa{background:rgba(37,211,102,.12);color:#1E9E5A;border:1px solid rgba(37,211,102,.4);border-radius:8px;padding:7px 12px;font:600 12px/1 inherit;font-family:inherit;cursor:pointer}
 .ship-wa:hover{background:rgba(37,211,102,.2)}
+/* In-app browser notice */
+.ck-iab{margin:0 0 12px;border:1px solid #E0A526;background:#FFF8E6;border-radius:12px;padding:12px 14px}
+.ck-iab[hidden]{display:none}
+.ck-iab-in{margin:10px 0 0}
+.iab-h{font-weight:700;font-size:14px;color:#6b4e00}
+.iab-s{font-size:12.5px;color:#7a5a00;margin:4px 0 10px;line-height:1.45}
+.iab-b{display:block;width:100%;border:0;border-radius:10px;padding:11px;background:#141312;color:#fff;font:700 13.5px/1.2 inherit;font-family:inherit;cursor:pointer}
+.iab-steps{font-size:12px;color:#7a5a00;margin-top:8px;line-height:1.45}
+.iab-steps[hidden]{display:none}
 /* Checkout rescue */
 .ck-rescue{margin-top:14px;border:1px solid rgba(192,57,43,.35);background:rgba(192,57,43,.06);border-radius:12px;padding:14px}
 .ck-rescue[hidden]{display:none}
@@ -3800,7 +3809,7 @@ function dismissTopbar(){
   const bar=document.getElementById("topbar"); if(bar)bar.hidden=true; clearInterval(_tbTimer);
   try{localStorage.setItem(_tbKey(_tbMsgs),"1");}catch(e){}
 }
-window.__BUILD="2026-09-28 logo v2";
+window.__BUILD="2026-09-28 inapp-redirect v1";
 (function(){
   const bar=document.getElementById("topbar"); if(!bar)return;
   const pause=v=>()=>{_tbPaused=v;};
@@ -5340,6 +5349,57 @@ function _submitCheckoutDetailsInner(){
   }
 }
 let _selectedPayMethod="prepaid";
+
+/* ===== IN-APP BROWSERS (Instagram / Facebook / Snapchat) =====
+   Their built-in browsers block Razorpay's pop-up from opening UPI apps
+   (payment hangs on "Processing"). For these visitors only, Razorpay runs in
+   redirect mode (Razorpay's documented fix): full-page checkout, then back to
+   us via the razorpay-callback function. No warnings, nothing for the customer
+   to do. Safari / Chrome keep the normal pop-up. */
+function inAppBrowser(){
+  const ua=navigator.userAgent||"";
+  if(/Instagram/i.test(ua))return "Instagram";
+  if(/FBAN|FBAV|FB_IAB|FBIOS|FB4A/i.test(ua))return "Facebook";
+  if(/Snapchat/i.test(ua))return "Snapchat";
+  return null;
+}
+function handlePayReturn(){
+  if(window._payRetDone)return;
+  // wait until the whole page is parsed — helpers it uses (pixelItems, checkout
+  // functions) are defined further down the file
+  if(document.readyState==="loading"){
+    if(!window._payRetWaiting){window._payRetWaiting=true;document.addEventListener("DOMContentLoaded",()=>setTimeout(handlePayReturn,0),{once:true});}
+    return;
+  }
+  const q=new URLSearchParams(location.search);
+  const paid=q.get("paid"), failed=q.has("payfail");
+  if(!paid&&!failed)return;
+  window._payRetDone=true;
+  let pend=null;try{pend=JSON.parse(localStorage.getItem("ds_rzp_redirect")||"null");}catch(e){}
+  history.replaceState(null,"","/");
+  if(paid){
+    try{localStorage.removeItem("ds_rzp_redirect");}catch(e){}
+    if(pend&&pend.order&&pend.order.orderId===paid){
+      openCart();
+      finalizeOrder(pend.order,q.get("pay")||"",null);      // same "order placed" screen as a pop-up payment
+    }else{
+      showToast("Payment received — order "+paid+" is confirmed 🎉",true);
+      if(typeof openOrderTracker==="function")setTimeout(()=>openOrderTracker(paid),400);
+    }
+    return;
+  }
+  // payment failed / cancelled on Razorpay's page: put them back on the review step
+  if(pend&&pend.order&&(cart||[]).length){
+    const o=pend.order,set=(id,v)=>{const e=document.getElementById(id);if(e)e.value=v||"";};
+    set("ck-name",o.name);set("ck-phone",o.phone);set("ck-email",o.email);set("ck-addr",o.addr);set("ck-pin",o.pin);
+    if(pend.method)_selectedPayMethod=pend.method;
+    openCart();
+    try{submitCheckoutDetails();}catch(e){}
+    if(window._pendingOrder)window._pendingOrder.orderId=o.orderId;   // keep the same order, no duplicates
+    if(pend.method){_selectedPayMethod=pend.method;renderPayMethods();}
+    setTimeout(()=>showCkRescue({reason:q.get("reason")||"",description:q.get("desc")||""}),200);
+  }else if((cart||[]).length){openCart();}
+}
 function renderPayMethods(){
   const cfg=getPayCfg();
   const sub=window._pendingOrder?window._pendingOrder.total:cart.reduce((s,i)=>s+i.price*i.qty,0);
@@ -5562,6 +5622,7 @@ async function startRazorpayPayment(order, chargeAmount){
     description:"Order "+order.orderId,
     prefill:{name:order.name,contact:order.phone},
     theme:{color:"#C0392B"},
+    ...(inAppBrowser()?{redirect:true,callback_url:SB_FN_BASE+"razorpay-callback?ds="+encodeURIComponent(order.orderId)}:{}),
     handler:async function(response){
       _att.done=true;
       if(payBtn)payBtn.textContent="Verifying payment...";
@@ -5586,6 +5647,12 @@ async function startRazorpayPayment(order, chargeAmount){
     _lastFail=(resp&&resp.error)||{description:"failed"};
     showCkRescue(_lastFail);   // shown now (behind Razorpay's sheet); close keeps the specific reason
   });
+  if(inAppBrowser()){
+    // remember the order so the return trip can show "order placed" (or restore the bag)
+    try{localStorage.setItem("ds_rzp_redirect",JSON.stringify({order,method:_selectedPayMethod,ts:Date.now()}));}catch(e){}
+    rzp.open();
+    return;                      // the page navigates to Razorpay; no pop-up watcher needed
+  }
   rzp.open();
   _watchRzpClose(_att);
 }
@@ -5779,6 +5846,7 @@ function runMetaCheckout(){
 }
 function chkRoute(){
   parseMetaCheckout();
+  if(window._productsReady)handlePayReturn();
   try{const t=new URLSearchParams(location.search).get("track");
     if(t&&!window._trackLinkDone){window._trackLinkDone=true;history.replaceState(null,"",location.pathname==="/"?"/":location.pathname);
       setTimeout(()=>{if(typeof openOrderTracker==="function")openOrderTracker(String(t).slice(0,30).toUpperCase());},300);}}catch(e){}
