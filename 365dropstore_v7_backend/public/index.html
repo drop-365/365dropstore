@@ -4,7 +4,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>365 Drop Store — Clothing or Nothing | Wide Leg Jeans Delhi</title>
-<meta name="build" content="2026-09-28 admin-lifeline v1"/>
+<meta name="build" content="2026-09-28 admin-lifeline v2"/>
 <meta name="description" content="Clothing or Nothing. Premium wide-leg, baggy &amp; straight jeans for men, made in Delhi. From ₹1,099, free shipping across India, 7-day exchange, COD."/>
 <meta property="og:type" content="website"/>
 <meta property="og:title" content="365 Drop Store — Premium Denim | Clothing or Nothing"/>
@@ -900,6 +900,21 @@ button,a,.btn,[onclick]{-webkit-tap-highlight-color:transparent}
 .lf-wm{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:0;background-image:var(--lf-wm);opacity:.5}
 .lf-wrap{position:relative}.lf-wrap>*{position:relative;z-index:1}
 
+
+/* open-in-Lifeline links */
+.lf-name-link{font-weight:700;cursor:pointer;color:inherit;text-decoration:underline;text-decoration-style:dotted;text-underline-offset:3px}
+.lf-name-link:hover{color:#C0392B}
+#ap .tb.lf-open{padding:4px 9px;font-size:11.5px}
+/* searchable article dropdowns */
+.ps-in{display:block;width:100%;margin:0 0 6px;padding:8px 10px;border-radius:8px;font-size:13px}
+.ps-info{font-size:11px;color:var(--off);margin-top:4px}
+/* rearrange tabs */
+#ap .aptabs.arr{flex-wrap:wrap!important;overflow-x:visible!important;row-gap:6px}
+.aptabs.arr .atab:not(.atab-arr){cursor:grab;outline:1.5px dashed #C0392B;outline-offset:-3px}
+.aptabs .atab.dragging{opacity:.45}
+.tab-mv{display:inline-block;padding:0 5px;margin:0 2px;border-radius:5px;background:rgba(192,57,43,.14);color:inherit;font-size:10px;cursor:pointer;user-select:none}
+.atab-arr{font-weight:700}
+.tab-reset{margin-left:6px;text-decoration:underline;font-weight:500;cursor:pointer}
 /* ===== DARK THEMES — contrast pass (2026-10-02): readable red + placeholders on near-black ===== */
 #ap:not([data-theme="light"]) ::placeholder{color:#9E9991!important;opacity:1}
 #ap:not([data-theme="light"]) h4,#ap:not([data-theme="light"]) table th{color:#EE7363!important}
@@ -2877,7 +2892,7 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         <input type="text" id="ch-phone" placeholder="Phone number" style="flex:1;min-width:140px"/>
         <input type="text" id="ch-name" placeholder="or a name" style="flex:1;min-width:140px"/>
-        <button class="btn btn-g" onclick="lookupCustomer()">Search</button>
+        <button class="btn btn-g" onclick="lfOpen((document.getElementById('ch-phone').value||document.getElementById('ch-name').value).trim())">Open in Lifeline</button>
       </div>
       <div id="ch-result" style="margin-top:14px"></div>
     </div>
@@ -3997,7 +4012,7 @@ function dismissTopbar(){
   const bar=document.getElementById("topbar"); if(bar)bar.hidden=true; clearInterval(_tbTimer);
   try{localStorage.setItem(_tbKey(_tbMsgs),"1");}catch(e){}
 }
-window.__BUILD="2026-09-28 admin-lifeline v1";
+window.__BUILD="2026-09-28 admin-lifeline v2";
 (function(){
   const bar=document.getElementById("topbar"); if(!bar)return;
   const pause=v=>()=>{_tbPaused=v;};
@@ -6770,6 +6785,95 @@ function toggleAbandoned(){
   if(_abExpanded)renderAbandonedList();
 }
 
+
+/* Open any customer straight in the Lifeline (from order cards, abandoned checkouts, look-up box) */
+function lfOpen(q){q=String(q||"").trim();if(!q){showToast("Type a phone number or name first",false);return;}lfGlobalSearch(q);}
+
+/* ===== SEARCHABLE ARTICLE DROPDOWNS =====
+   Adds a type-to-search box above every article <select> (Log a sale lines
+   and the order editor). It rebuilds the option list with only the matches
+   (hiding <option>s doesn't work in Safari). Picks the first match if the
+   current choice gets filtered out, and fires the select's own change handler. */
+function _psNorm(t){return String(t||"").toLowerCase().replace(/^365-?/,"").replace(/[^a-z0-9]+/g," ").trim();}
+function prodSearchify(sel){
+  if(!sel||sel.dataset.ps)return; sel.dataset.ps="1";
+  const all=[...sel.options].map(o=>({v:o.value,t:o.textContent}));
+  const box=document.createElement("input");
+  box.type="search";box.className="ps-in";box.placeholder="🔍 Search article… e.g. midwash, noir";box.setAttribute("aria-label","Search articles");
+  sel.parentNode.insertBefore(box,sel);
+  const info=document.createElement("div");info.className="ps-info";info.hidden=true;sel.parentNode.insertBefore(info,sel.nextSibling);
+  box.addEventListener("input",()=>{
+    const q=_psNorm(box.value).split(" ").filter(Boolean), cur=sel.value;
+    const hits=q.length?all.filter(o=>{const n=_psNorm(o.t),nn=n.replace(/ /g,"");return q.every(w=>n.includes(w)||nn.includes(w));}):all;
+    sel.innerHTML=(hits.length?hits:[{v:"",t:"No article matches"}]).map(o=>`<option value="${String(o.v).replace(/"/g,"&quot;")}">${_dspEsc(o.t)}</option>`).join("");
+    sel.disabled=!hits.length;
+    if(hits.some(o=>o.v===cur))sel.value=cur;
+    else if(hits.length){sel.value=hits[0].v;sel.dispatchEvent(new Event("change",{bubbles:true}));}
+    info.hidden=!q.length;info.textContent=hits.length?`${hits.length} match${hits.length>1?"es":""}`:"No match — clear the search";
+  });
+  box.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();sel.focus();}});
+}
+(function(){
+  const enhance=()=>document.querySelectorAll('#ap select[id^="wo-prod-"], #ap select.oe-prod').forEach(prodSearchify);
+  const ap=document.getElementById("ap"); if(!ap)return;
+  new MutationObserver(()=>enhance()).observe(ap,{childList:true,subtree:true});
+  enhance();
+})();
+
+/* ===== REARRANGE ADMIN TABS =====
+   "⇄ Arrange" → drag tabs (desktop) or use ◀ ▶ (phone), "Done" saves.
+   Order is remembered on this device; "Reset" restores the default. */
+function _tabKey(b){const m=(b.getAttribute("onclick")||"").match(/apTab\('([a-z]+)'\)/);return m?m[1]:null;}
+function _tabsEl(){return document.querySelector("#ap .aptabs");}
+function applyTabOrder(){
+  const bar=_tabsEl();if(!bar)return;
+  let order=[];try{order=JSON.parse(localStorage.getItem("ds_admin_tabs")||"[]");}catch(e){}
+  if(!Array.isArray(order)||!order.length)return;
+  const btns=[...bar.querySelectorAll(".atab")].filter(_tabKey), arr=bar.querySelector(".atab-arr");
+  order.forEach(k=>{const b=btns.find(x=>_tabKey(x)===k);if(b)bar.insertBefore(b,arr||null);});
+  btns.filter(b=>!order.includes(_tabKey(b))).forEach(b=>bar.insertBefore(b,arr||null));   // tabs added later stay visible
+}
+function _saveTabOrder(){const bar=_tabsEl();const o=[...bar.querySelectorAll(".atab")].map(_tabKey).filter(Boolean);try{localStorage.setItem("ds_admin_tabs",JSON.stringify(o));}catch(e){}}
+function tabArrange(on){
+  const bar=_tabsEl();if(!bar)return;
+  bar.classList.toggle("arr",on);
+  bar.querySelectorAll(".atab").forEach(b=>{
+    if(!_tabKey(b))return;
+    b.draggable=on;
+    b.querySelectorAll(".tab-mv").forEach(x=>x.remove());
+    if(on){b.insertAdjacentHTML("afterbegin",'<span class="tab-mv" data-d="-1" title="Move left">◀</span>');b.insertAdjacentHTML("beforeend",'<span class="tab-mv" data-d="1" title="Move right">▶</span>');}
+  });
+  const ctl=bar.querySelector(".atab-arr");
+  if(ctl)ctl.innerHTML=on?'✓ Done <span class="tab-reset" title="Back to the original order">Reset</span>':"⇄ Arrange";
+  if(!on)_saveTabOrder();
+}
+(function(){
+  const bar=_tabsEl();if(!bar)return;
+  bar.insertAdjacentHTML("beforeend",'<button type="button" class="atab atab-arr" title="Rearrange tabs">⇄ Arrange</button>');
+  const DEFAULT=[...bar.querySelectorAll(".atab")].map(_tabKey).filter(Boolean);
+  let dragged=null;
+  // capture phase: in arrange mode a tap moves/selects instead of switching tab
+  bar.addEventListener("click",e=>{
+    const ctl=e.target.closest(".atab-arr");
+    if(ctl){e.preventDefault();e.stopPropagation();
+      if(e.target.closest(".tab-reset")){try{localStorage.removeItem("ds_admin_tabs");}catch(_){}DEFAULT.forEach(k=>{const b=[...bar.querySelectorAll(".atab")].find(x=>_tabKey(x)===k);if(b)bar.insertBefore(b,ctl);});tabArrange(false);try{localStorage.removeItem("ds_admin_tabs");}catch(_){}showToast("Tabs back to the original order",true);return;}
+      tabArrange(!bar.classList.contains("arr"));if(!bar.classList.contains("arr"))showToast("Tab order saved",true);return;}
+    if(!bar.classList.contains("arr"))return;
+    e.preventDefault();e.stopPropagation();
+    const mv=e.target.closest(".tab-mv");if(!mv)return;
+    const b=mv.closest(".atab"),d=+mv.dataset.d;
+    if(d<0&&b.previousElementSibling&&_tabKey(b.previousElementSibling))bar.insertBefore(b,b.previousElementSibling);
+    if(d>0&&b.nextElementSibling&&_tabKey(b.nextElementSibling))bar.insertBefore(b.nextElementSibling,b);
+  },true);
+  bar.addEventListener("dragstart",e=>{dragged=e.target.closest(".atab");if(dragged){e.dataTransfer.effectAllowed="move";dragged.classList.add("dragging");}});
+  bar.addEventListener("dragend",()=>{if(dragged)dragged.classList.remove("dragging");dragged=null;});
+  bar.addEventListener("dragover",e=>{
+    if(!dragged||!bar.classList.contains("arr"))return;e.preventDefault();
+    const over=e.target.closest(".atab");if(!over||over===dragged||!_tabKey(over))return;
+    const r=over.getBoundingClientRect();bar.insertBefore(dragged,(e.clientX-r.left)>r.width/2?over.nextSibling:over);
+  });
+  applyTabOrder();
+})();
 /* ===== CUSTOMER LIFELINE =====
    One search (order ID / phone / email / AWB / name) → the customer's whole
    story: every order and abandoned checkout, payment, shipment, address,
@@ -7084,6 +7188,7 @@ function _abRow(x){
   }else if(o.phone){
     actions=`<button class="ab-wa" onclick="abSendWa('${_dspEsc(o.order_id)}')">${x.state==="sent"?"Message again":"WhatsApp"}</button>
       <button class="tb" onclick="abCopyLink('${_dspEsc(o.order_id)}')" title="Copy the bag link">Copy link</button>
+      <button class="tb lf-open" onclick="lfOpen('${_dspEsc(o.order_id)}')">🔎 Lifeline</button>
       ${x.state==="sent"?`<span class="ab-sent">Messaged ${_abAgo(x.sent)} · <a onclick="abMark('${_dspEsc(o.order_id)}',false)">undo</a></span>`:""}`;
   }else actions=`<span class="ab-sent">No phone number</span>`;
   const fresh=(Date.now()-new Date(o.placed_at).getTime())<30*60000&&x.state==="todo";
@@ -7435,7 +7540,7 @@ function rnAdmOrders(){
         <button class="tb" onclick="toggleOrderEditor('${o.orderId}')" title="Edit customer, items or amounts">✎ Edit</button>
         <button class="tb tb-del" onclick="deleteOrder('${o.orderId}')" title="Delete this order permanently" style="margin-left:6px">Delete</button>
       </div>
-      <div style="margin-top:10px;font-size:13.5px;color:var(--white)"><b>${o.name}</b> · <a href="${waLink}" target="_blank" rel="noopener" style="color:#2980B9">${o.phone}</a> ${repeatBadge}</div>
+      <div style="margin-top:10px;font-size:13.5px;color:var(--white);display:flex;align-items:center;gap:6px;flex-wrap:wrap"><a class="lf-name-link" onclick="lfOpen('${o.orderId}')" title="Open in Customer Lifeline">${o.name}</a> · <a href="${waLink}" target="_blank" rel="noopener" style="color:#2980B9">${o.phone}</a> ${repeatBadge}<button class="tb lf-open" onclick="lfOpen('${o.orderId}')">🔎 Lifeline</button></div>
       <div id="ord-edit-${o.orderId}" class="oe-box" style="display:none"></div>
       <div style="font-size:13px;color:var(--off);margin-top:2px">${o.addr} — ${o.pin}</div>
       <div style="font-size:13px;color:var(--off);margin-top:8px;line-height:1.6">${itemsHtml}</div>
