@@ -4,7 +4,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>365 Drop Store — Clothing or Nothing | Wide Leg Jeans Delhi</title>
-<meta name="build" content="2026-09-28 admin-lifeline v2"/>
+<meta name="build" content="2026-09-28 inventory v1"/>
 <meta name="description" content="Clothing or Nothing. Premium wide-leg, baggy &amp; straight jeans for men, made in Delhi. From ₹1,099, free shipping across India, 7-day exchange, COD."/>
 <meta property="og:type" content="website"/>
 <meta property="og:title" content="365 Drop Store — Premium Denim | Clothing or Nothing"/>
@@ -901,6 +901,38 @@ button,a,.btn,[onclick]{-webkit-tap-highlight-color:transparent}
 .lf-wrap{position:relative}.lf-wrap>*{position:relative;z-index:1}
 
 
+
+/* inventory */
+.stk-box{border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:var(--glass)}
+.stk-box.stk-flash{box-shadow:0 0 0 3px rgba(192,57,43,.35);transition:box-shadow .3s}
+.stk-on{display:flex!important;align-items:center;gap:8px;font-weight:600;color:var(--white)!important;text-transform:none!important;letter-spacing:0!important;font-size:13px!important;cursor:pointer}
+.stk-on span{font-weight:400;color:var(--off)}
+.stk-grid{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+.stk-grid[hidden]{display:none}
+.stk-cell{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:12px;color:var(--off);text-transform:none!important;letter-spacing:0!important}
+.stk-cell span{font-weight:700;color:var(--white)}
+.stk-cell input{width:64px;text-align:center;padding:8px 4px!important;font-size:15px}
+.stk-hint{font-size:12px;color:var(--off);line-height:1.5}
+.stk-tot{color:var(--white);margin-left:4px}
+.stk-note{font-size:12px;color:var(--off);padding:6px 0}
+.stk-chips{display:flex;flex-wrap:wrap;gap:4px}
+.stk-chip{display:inline-flex;gap:4px;align-items:center;border:1px solid var(--line);border-radius:6px;padding:2px 6px;font-size:11px;color:var(--white)}
+.stk-chip b{font-weight:800}
+.stk-chip.low{border-color:#C08A1E;color:#C08A1E}
+#ap[data-theme="light"] .stk-chip.low{color:#7A5300;border-color:#B98A2B}
+.stk-chip.zero{opacity:.75;text-decoration:line-through}
+.stk-chip.over{border-color:#C0392B;color:#EE7363}
+#ap[data-theme="light"] .stk-chip.over{color:#A8321F}
+.stk-sum{display:block;margin-top:3px;font-size:11px;color:var(--off)}
+.stk-un{font-size:11.5px;color:var(--off)}
+.stk-alert{border:1px solid rgba(192,138,30,.45);background:rgba(242,184,75,.1);border-radius:10px;padding:10px 12px;margin:10px 0;font-size:13px;color:var(--white);line-height:1.6}
+.stk-alert a{cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.stk-hist{width:100%;margin-top:8px;border-collapse:collapse}
+#ap .stk-hist th{font-size:10.5px;text-align:left;padding:6px 4px;border-bottom:1px solid var(--line)}
+#ap .stk-hist td{font-size:12px;padding:6px 4px;border-bottom:1px solid var(--line);color:var(--white)}
+.stk-hist td.neg{color:#EE7363;font-weight:700}.stk-hist td.pos{color:#3ECF7A;font-weight:700}
+#ap[data-theme="light"] .stk-hist td.neg{color:#A8321F}#ap[data-theme="light"] .stk-hist td.pos{color:#176638}
+.stk-hist a{cursor:pointer;text-decoration:underline}
 /* open-in-Lifeline links */
 .lf-name-link{font-weight:700;cursor:pointer;color:inherit;text-decoration:underline;text-decoration-style:dotted;text-underline-offset:3px}
 .lf-name-link:hover{color:#C0392B}
@@ -2779,7 +2811,8 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
       </div>
     </div>
     <div class="apstats" id="apstats"></div>
-    <div style="overflow-x:auto"><table class="ptbl"><thead><tr><th>Photo</th><th>Name</th><th>Cat</th><th>Fit</th><th>Price</th><th>Status</th><th>Actions</th></tr></thead><tbody id="ptbd"></tbody></table></div>
+    <div id="stk-alert"></div>
+    <div style="overflow-x:auto"><table class="ptbl"><thead><tr><th>Photo</th><th>Name</th><th>Cat</th><th>Fit</th><th>Price</th><th>Stock</th><th>Status</th><th>Actions</th></tr></thead><tbody id="ptbd"></tbody></table></div>
   </div>
 
   <!-- orders tab -->
@@ -2935,7 +2968,14 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
     <div class="pff"><label>Offer Price (₹) — blank if none</label><input type="number" id="pf3" placeholder="1299"/></div>
     <div class="pff full"><label>Short Description *</label><textarea id="pf4" rows="2" placeholder="Brief selling description shown in modal"></textarea></div>
     <div class="pff full"><label>Full Description (shown in expandable section)</label><textarea id="pf-desc2" rows="4" placeholder="Detailed product description — fabric, fit notes, care instructions, etc."></textarea></div>
-    <div class="pff"><label>Sizes (pipe-separated)</label><input type="text" id="pf5" placeholder="28|30|32|34|36"/></div>
+    <div class="pff"><label>Sizes (pipe-separated)</label><input type="text" id="pf5" placeholder="28|30|32|34|36" oninput="pfStockRender()"/></div>
+    <div class="pff full stk-box" id="pf-stock-box">
+      <label>Stock per size</label>
+      <label class="stk-on"><input type="checkbox" id="pf-stock-on" onchange="pfStockRender()"> Track stock for this product <span>— a size sells out on the website automatically when it reaches 0</span></label>
+      <div id="pf-stock-grid" class="stk-grid"></div>
+      <div class="stk-hint" id="pf-stock-hint"></div>
+      <div id="pf-stock-hist"></div>
+    </div>
     <div class="pff"><label>Colours (text, shown on the product page)</label><input type="text" id="pf6" placeholder="Faded Indigo|Stone Blue"/></div>
     <div class="pff full"><label>Colour Family &mdash; drives the storefront colour filter</label>
       <div id="pf-shade" class="shadepick"></div>
@@ -4012,7 +4052,7 @@ function dismissTopbar(){
   const bar=document.getElementById("topbar"); if(bar)bar.hidden=true; clearInterval(_tbTimer);
   try{localStorage.setItem(_tbKey(_tbMsgs),"1");}catch(e){}
 }
-window.__BUILD="2026-09-28 admin-lifeline v2";
+window.__BUILD="2026-09-28 inventory v1";
 (function(){
   const bar=document.getElementById("topbar"); if(!bar)return;
   const pause=v=>()=>{_tbPaused=v;};
@@ -5813,7 +5853,7 @@ async function startRazorpayPayment(order, chargeAmount){
     if(rpOrder.error)throw new Error(rpOrder.error);
   }catch(e){
     if(payBtn){payBtn.disabled=false;payBtn.textContent="💳  Pay Now & Place Order";}
-    errEl.textContent="Couldn't start payment: "+e.message+" — please try again.";errEl.style.display="block";
+    errEl.textContent=/sold out|left of/i.test(e.message||"")?("⚠️ "+e.message):("Couldn't start payment: "+e.message+" — please try again.");errEl.style.display="block";
     return;
   }
   const rzp=new Razorpay({
@@ -6097,12 +6137,13 @@ function apSts(){const tot=products.length,sold=products.filter(p=>p.badges&&p.b
 
 function ldProds(){
   document.getElementById("pcnt").textContent=`(${products.length})`;
-  document.getElementById("ptbd").innerHTML=products.map(p=>{const sold=p.badges&&p.badges.includes("sold");return`<tr><td><img src="${(p.images||[])[0]||''}" alt="${p.name}"/></td><td><b style="color:var(--white)">${p.name}</b></td><td>${p.category}</td><td>${p.fit||''}</td><td>${p.offerPrice?`<b style="color:var(--white)">${inr(p.offerPrice)}</b> <s style="color:var(--off);font-size:11px">${inr(p.price)}</s>`:inr(p.price)}</td><td><span class="bdg ${sold?'adm-soldout':'adm-active'}">${sold?'Sold Out':'Active'}</span></td><td><div class="tba"><button class="tb" onclick="editP('${p.id}')">Edit</button><button class="tb" onclick="manageSizes('${p.id}')" style="color:#a0d060;border-color:rgba(160,208,96,.3)">Sizes</button><button class="tb tb-sold" onclick="togSold('${p.id}')">${sold?'Restock':'Mark Sold'}</button>${sold?`<button class="tb" onclick="setRestockDate('${p.id}')" style="color:#7ab0e0;border-color:rgba(122,176,224,.3)">Restock Date</button>`:''}<button class="tb tb-del" onclick="delP('${p.id}')">Delete</button></div></td></tr>`;}).join("");
+  try{renderStockAlert();}catch(e){}
+  document.getElementById("ptbd").innerHTML=products.map(p=>{const sold=p.badges&&p.badges.includes("sold");return`<tr><td><img src="${(p.images||[])[0]||''}" alt="${p.name}"/></td><td><b style="color:var(--white)">${p.name}</b></td><td>${p.category}</td><td>${p.fit||''}</td><td>${p.offerPrice?`<b style="color:var(--white)">${inr(p.offerPrice)}</b> <s style="color:var(--off);font-size:11px">${inr(p.price)}</s>`:inr(p.price)}</td><td>${stockCell(p)}</td><td><span class="bdg ${sold?'adm-soldout':'adm-active'}">${sold?'Sold Out':'Active'}</span></td><td><div class="tba"><button class="tb" onclick="editP('${p.id}')">Edit</button><button class="tb" onclick="editStock('${p.id}')">Stock</button><button class="tb" onclick="manageSizes('${p.id}')" style="color:#a0d060;border-color:rgba(160,208,96,.3)">Sizes</button><button class="tb tb-sold" onclick="togSold('${p.id}')">${sold?'Restock':'Mark Sold'}</button>${sold?`<button class="tb" onclick="setRestockDate('${p.id}')" style="color:#7ab0e0;border-color:rgba(122,176,224,.3)">Restock Date</button>`:''}<button class="tb tb-del" onclick="delP('${p.id}')">Delete</button></div></td></tr>`;}).join("");
 }
 function togSold(id){const p=products.find(x=>x.id===id);if(!p)return;if(!p.badges)p.badges=[];if(p.badges.includes("sold")){p.badges=p.badges.filter(b=>b!=="sold");p.restockAt='';}else p.badges.push("sold");LS.set("ds_p",products);renderGrid();ldProds();apSts();syncProductToSupabase("save",p);}
 function delP(id){if(!confirm("Delete? Cannot be undone."))return;products=products.filter(p=>p.id!==id);LS.set("ds_p",products);renderGrid();ldProds();apSts();syncProductToSupabase("delete",{id});}
-function editP(id){const p=products.find(x=>x.id===id);if(!p)return;editId=id;document.getElementById("pf0").value=p.name;document.getElementById("pf1").value=p.category;populateFitSelect();document.getElementById("pf-fit").value=p.fit||"Baggy";document.getElementById("pf2").value=p.price;document.getElementById("pf3").value=p.offerPrice||"";document.getElementById("pf4").value=p.desc;document.getElementById("pf-desc2").value=p.desc2||"";document.getElementById("pf5").value=(p.sizes||[]).join("|");document.getElementById("pf6").value=(p.colors||[]).join("|");document.getElementById("pf7").value=(p.badges||[]).filter(b=>b!=="sold")[0]||"";const pfStoryEl=document.getElementById("pf-story");if(pfStoryEl)pfStoryEl.value=p.story||"";document.getElementById("pf8").value=p.order||1;document.getElementById("pf-reel").value=p.reelUrl||"";document.getElementById("pf-video").value=p.videoUrl||"";document.getElementById("pf-soldcount").value=p.soldCount||"";_pfShade=p.shade||"";renderShadePicker();populateSgModelOptions(p.sizeGuideMode);document.getElementById("pf-sg-mode").value=p.sizeGuideMode||"default";onSgModeChange();document.getElementById("pf-fitstudio").checked=!!p.fitStudioEnabled;if(p.sizeGuideMode==="custom"&&Array.isArray(p.customSizeGuide)&&p.customSizeGuide.length){renderPfSgCustom(p.customSizeGuide.map(r=>({...r})));}pendingImgs=[...(p.images||[])];renderThumbs();if(p.sizeChartImg){document.getElementById("pf-scimg").value=p.sizeChartImg;document.getElementById("sc-prv").innerHTML=`<img src="${p.sizeChartImg}" style="width:120px;border-radius:7px" alt="Size chart"/>`;}document.getElementById("add-title").textContent="EDIT PRODUCT";apTab("add");}
-function resetF(){editId=null;_pfShade="";if(typeof renderShadePicker==="function")renderShadePicker();["pf0","pf2","pf3","pf4","pf-desc2","pf5","pf6","pf-reel","pf-video","pf-scimg","pf-imgurls","pf-soldcount","pf-story"].forEach(id=>{const e=document.getElementById(id);if(e)e.value=""});document.getElementById("pf7").value="new";document.getElementById("pf8").value=1;populateSgModelOptions("default");const sgSel=document.getElementById("pf-sg-mode");if(sgSel)sgSel.value="default";const fsChk=document.getElementById("pf-fitstudio");if(fsChk)fsChk.checked=false;const sgWrap=document.getElementById("pf-sg-custom");if(sgWrap){sgWrap.style.display="none";sgWrap.dataset.rows="";}pendingImgs=[];renderThumbs();document.getElementById("sc-prv").innerHTML="";document.getElementById("add-title").textContent="ADD NEW PRODUCT";const m=document.getElementById("pf-msg");if(m)m.style.display="none";}
+function editP(id){const p=products.find(x=>x.id===id);if(!p)return;editId=id;setTimeout(()=>{try{pfStockLoad(p);}catch(e){}},0);document.getElementById("pf0").value=p.name;document.getElementById("pf1").value=p.category;populateFitSelect();document.getElementById("pf-fit").value=p.fit||"Baggy";document.getElementById("pf2").value=p.price;document.getElementById("pf3").value=p.offerPrice||"";document.getElementById("pf4").value=p.desc;document.getElementById("pf-desc2").value=p.desc2||"";document.getElementById("pf5").value=(p.sizes||[]).join("|");document.getElementById("pf6").value=(p.colors||[]).join("|");document.getElementById("pf7").value=(p.badges||[]).filter(b=>b!=="sold")[0]||"";const pfStoryEl=document.getElementById("pf-story");if(pfStoryEl)pfStoryEl.value=p.story||"";document.getElementById("pf8").value=p.order||1;document.getElementById("pf-reel").value=p.reelUrl||"";document.getElementById("pf-video").value=p.videoUrl||"";document.getElementById("pf-soldcount").value=p.soldCount||"";_pfShade=p.shade||"";renderShadePicker();populateSgModelOptions(p.sizeGuideMode);document.getElementById("pf-sg-mode").value=p.sizeGuideMode||"default";onSgModeChange();document.getElementById("pf-fitstudio").checked=!!p.fitStudioEnabled;if(p.sizeGuideMode==="custom"&&Array.isArray(p.customSizeGuide)&&p.customSizeGuide.length){renderPfSgCustom(p.customSizeGuide.map(r=>({...r})));}pendingImgs=[...(p.images||[])];renderThumbs();if(p.sizeChartImg){document.getElementById("pf-scimg").value=p.sizeChartImg;document.getElementById("sc-prv").innerHTML=`<img src="${p.sizeChartImg}" style="width:120px;border-radius:7px" alt="Size chart"/>`;}document.getElementById("add-title").textContent="EDIT PRODUCT";apTab("add");}
+function resetF(){setTimeout(()=>{try{pfStockLoad(null);}catch(e){}},0);editId=null;_pfShade="";if(typeof renderShadePicker==="function")renderShadePicker();["pf0","pf2","pf3","pf4","pf-desc2","pf5","pf6","pf-reel","pf-video","pf-scimg","pf-imgurls","pf-soldcount","pf-story"].forEach(id=>{const e=document.getElementById(id);if(e)e.value=""});document.getElementById("pf7").value="new";document.getElementById("pf8").value=1;populateSgModelOptions("default");const sgSel=document.getElementById("pf-sg-mode");if(sgSel)sgSel.value="default";const fsChk=document.getElementById("pf-fitstudio");if(fsChk)fsChk.checked=false;const sgWrap=document.getElementById("pf-sg-custom");if(sgWrap){sgWrap.style.display="none";sgWrap.dataset.rows="";}pendingImgs=[];renderThumbs();document.getElementById("sc-prv").innerHTML="";document.getElementById("add-title").textContent="ADD NEW PRODUCT";const m=document.getElementById("pf-msg");if(m)m.style.display="none";}
 let pendingImgs=[];
 function handleImgs(inp){const files=[...inp.files].slice(0,5-pendingImgs.length);files.forEach(f=>{if(pendingImgs.length>=5)return;
   const slot=pendingImgs.length;pendingImgs.push("__uploading__");renderThumbs();
@@ -6270,6 +6311,70 @@ function readPfSgCustomRows(){
   return (window._pfSgRows||[]).filter(r=>r.size&&r.waist);
 }
 
+
+/* ===== INVENTORY (stock per size) =====
+   Counts live in products.stock ({ "28": 5, ... }). The DATABASE deducts on every
+   paid / logged sale and adds back on cancel / delete / edit, and keeps sold-out in
+   sync — so this screen only ever SETS the physical count (admin-products setStock),
+   and only when you actually changed a number. */
+let _pfStockOrig="null";
+function _pfSizes(){return String(document.getElementById("pf5").value||"").split("|").map(x=>x.trim()).filter(Boolean);}
+function _pfStockRead(){
+  if(!document.getElementById("pf-stock-on").checked)return null;
+  const out={};
+  document.querySelectorAll("#pf-stock-grid input[data-size]").forEach(i=>{const v=parseInt(i.value,10);out[i.dataset.size]=Number.isFinite(v)&&v>0?v:0;});
+  return out;
+}
+function pfStockRender(prefill){
+  const on=document.getElementById("pf-stock-on").checked, grid=document.getElementById("pf-stock-grid"), hint=document.getElementById("pf-stock-hint");
+  const keep={};grid.querySelectorAll("input[data-size]").forEach(i=>keep[i.dataset.size]=i.value);
+  const src=prefill||keep, sizes=_pfSizes();
+  grid.hidden=!on;
+  grid.innerHTML=sizes.length?sizes.map(z=>`<label class="stk-cell"><span>${_dspEsc(z)}</span><input type="number" min="0" step="1" inputmode="numeric" data-size="${_dspEsc(z)}" value="${src[z]!=null&&src[z]!==""?_dspEsc(String(src[z])):""}" placeholder="0" oninput="pfStockTotals()"></label>`).join(""):`<div class="stk-note">Add sizes above first (e.g. 28|30|32).</div>`;
+  hint.innerHTML=on?`Enter what's on your shelf <b>right now</b>. Don't count pieces already sold but not yet shipped. From here on, every sale, cancellation and walk-in is counted automatically.<span id="pf-stock-total"></span>`:`Not tracked — sizes sell out only when you mark them sold out manually.`;
+  pfStockTotals();
+}
+function pfStockTotals(){const t=document.getElementById("pf-stock-total");if(!t)return;const s=_pfStockRead();if(!s){t.textContent="";return;}const n=Object.values(s).reduce((a,b)=>a+b,0);t.innerHTML=` <b class="stk-tot">Total: ${n} piece${n===1?"":"s"}</b>`;}
+function pfStockLoad(p){
+  const st=p&&p.stock&&typeof p.stock==="object"?p.stock:null;
+  document.getElementById("pf-stock-on").checked=!!st;
+  document.getElementById("pf-stock-grid").innerHTML="";
+  pfStockRender(st||{});
+  _pfStockOrig=JSON.stringify(_pfStockRead());
+  const h=document.getElementById("pf-stock-hist");
+  h.innerHTML=p&&p.id&&products.some(x=>x.id===p.id)?`<button type="button" class="tb" onclick="pfStockHistory('${_dspEsc(p.id)}')">📜 Stock history</button><div id="pf-stock-hist-list"></div>`:"";
+}
+async function pfStockPush(id,stock){
+  try{
+    const r=await fetch(SB_FN_BASE+"admin-products",{method:"POST",headers:{"Content-Type":"application/json","apikey":SB_APIKEY},body:JSON.stringify({password:_adminPw,action:"setStock",product:{id},stock})});
+    const d=await r.json();if(d.error)throw new Error(d.error);
+    products=products.map(x=>x.id===id?{...x,stock:d.stock,oosizes:d.oosizes||x.oosizes}:x);
+    LS.set("ds_p",products);try{ldProds();renderGrid();}catch(e){}
+    showToast(stock?`Stock saved ✓ (${d.logged} change${d.logged===1?"":"s"} logged)`:"Stock tracking turned off",true);
+  }catch(e){showToast("⚠️ Stock not saved — "+e.message,false);}
+}
+async function pfStockHistory(id){
+  const box=document.getElementById("pf-stock-hist-list");if(!box)return;box.innerHTML='<div class="stk-note">Loading…</div>';
+  try{
+    const r=await fetch(SB_FN_BASE+"admin-products",{method:"POST",headers:{"Content-Type":"application/json","apikey":SB_APIKEY},body:JSON.stringify({password:_adminPw,action:"movements",product:{id}})});
+    const d=await r.json();if(d.error)throw new Error(d.error);
+    box.innerHTML=d.movements.length?`<table class="stk-hist"><thead><tr><th>When</th><th>Size</th><th>Change</th><th>Left</th><th>Why</th></tr></thead><tbody>${d.movements.map(m=>`<tr><td>${_dspEsc(new Date(m.created_at).toLocaleString("en-IN",{day:"2-digit",month:"short",hour:"numeric",minute:"2-digit",timeZone:"Asia/Kolkata"}))}</td><td>${_dspEsc(m.size)}</td><td class="${m.delta<0?"neg":"pos"}">${m.delta>0?"+":""}${m.delta}</td><td>${_dspEsc(m.stock_after)}</td><td>${_dspEsc(m.reason)}${m.order_id?` · <a onclick="lfOpen('${_dspEsc(m.order_id)}')">${_dspEsc(m.order_id)}</a>`:""}</td></tr>`).join("")}</tbody></table>`:'<div class="stk-note">No stock changes yet.</div>';
+  }catch(e){box.innerHTML=`<div class="stk-note">Couldn't load history — ${_dspEsc(e.message)}</div>`;}
+}
+function editStock(id){editP(id);setTimeout(()=>{const b=document.getElementById("pf-stock-box");if(b){b.scrollIntoView({behavior:"smooth",block:"center"});b.classList.add("stk-flash");setTimeout(()=>b.classList.remove("stk-flash"),1600);if(!document.getElementById("pf-stock-on").checked){document.getElementById("pf-stock-on").checked=true;pfStockRender();}const i=b.querySelector("input[data-size]");if(i)i.focus();}},250);}
+function stockCell(p){
+  if(!p.stock||typeof p.stock!=="object")return '<span class="stk-un">Not tracked</span>';
+  const sizes=(p.sizes&&p.sizes.length?p.sizes:Object.keys(p.stock)).filter(z=>z in p.stock);
+  const total=sizes.reduce((a,z)=>a+Math.max(0,+p.stock[z]||0),0);
+  return `<div class="stk-chips">${sizes.map(z=>{const n=+p.stock[z]||0;return `<span class="stk-chip ${n<0?"over":n===0?"zero":n<=2?"low":""}" title="${n<0?"Oversold by "+(-n):n===0?"Sold out":n+" left"}">${_dspEsc(z)}<b>${n}</b></span>`;}).join("")}</div><small class="stk-sum">${total} in stock</small>`;
+}
+function renderStockAlert(){
+  const el=document.getElementById("stk-alert");if(!el)return;
+  const low=[],over=[];
+  products.forEach(p=>{if(!p.stock)return;Object.entries(p.stock).forEach(([z,n])=>{n=+n||0;if(n<0)over.push(`${p.name} ${z} (${n})`);else if(n<=2)low.push({t:`${p.name} · ${z}`,n,id:p.id});});});
+  if(!low.length&&!over.length){el.innerHTML="";return;}
+  el.innerHTML=`<div class="stk-alert">${over.length?`<div><b>⚠️ Oversold:</b> ${over.map(_dspEsc).join(", ")} — sold more than you had; check the shelf.</div>`:""}${low.length?`<div><b>Low stock:</b> ${low.sort((a,b)=>a.n-b.n).map(x=>`<a onclick="editStock('${_dspEsc(x.id)}')">${_dspEsc(x.t)} <b>${x.n===0?"sold out":x.n+" left"}</b></a>`).join(" · ")}</div>`:""}</div>`;
+}
 function saveProd(){
   const name=document.getElementById("pf0").value.trim();const price=Number(document.getElementById("pf2").value);
   if(!name||!price){shPMsg("Fill in Name & Price.","#c0392b");return;}
@@ -6283,11 +6388,17 @@ function saveProd(){
   const customSizeGuide=sgMode==="custom"?readPfSgCustomRows():undefined;
   const prod={id:editId||("P-"+uid()),name,category:document.getElementById("pf1").value,fit:document.getElementById("pf-fit").value,price,offerPrice:offer,images:[...cleanImgs],sizeChartImg:document.getElementById("pf-scimg").value||"",shade:_pfShade||"",badges:badge?[badge]:[],sizes:document.getElementById("pf5").value.split("|").map(s=>s.trim()).filter(Boolean),colors:document.getElementById("pf6").value.split("|").map(c=>c.trim()).filter(Boolean)||["As shown"],desc:document.getElementById("pf4").value.trim(),desc2:document.getElementById("pf-desc2").value.trim(),story:(document.getElementById("pf-story")?document.getElementById("pf-story").value:"").trim(),shippingInfo:"Delivery in 3-5 working days · Free shipping all over India · Only damaged or defective items can be returned · Unboxing video required for all return claims · Size exchange available for ₹200 fee · Item must be returned in original condition · Check size before ordering",reelUrl:document.getElementById("pf-reel").value.trim(),videoUrl:document.getElementById("pf-video").value.trim(),features:[],order:Number(document.getElementById("pf8").value)||99,soldCount:soldCountVal,sizeGuideMode:sgMode,customSizeGuide:customSizeGuide,fitStudioEnabled:document.getElementById("pf-fitstudio").checked,addedAt:editId?(products.find(p=>p.id===editId)||{}).addedAt||Date.now():Date.now()};
   const wasEdit=!!editId;
+  const _oldStock=(editId&&(products.find(x=>x.id===editId)||{}).stock)||null;
+  const _newStock=_pfStockRead(), _stockChanged=JSON.stringify(_newStock)!==_pfStockOrig;
+  if(_newStock){const bad=Object.keys(_newStock).length===0;if(bad){shPMsg("Add sizes before tracking stock.","#c0392b");return;}}
+  prod.stock=_stockChanged?_newStock:_oldStock;
   if(editId)products=products.map(p=>p.id===editId?prod:p);else products.unshift(prod);
   LS.set("ds_p",products);renderGrid();renderHeroShowcase();
   const okMsg=wasEdit?"Updated ✓ — saved to this device.":"Product added ✓ — saved to this device.";
   shPMsg(okMsg,"#4ade80");showToast(okMsg+" Syncing live...",true);
   syncProductToSupabase("save",prod).then(res=>{
+    if(res&&res.oosizes){prod.oosizes=res.oosizes;}
+    if(_stockChanged&&res&&res.success!==false)pfStockPush(prod.id,_newStock);
     if(res&&res.images){
       prod.images=res.images;
       if(res.sizeChartImg)prod.sizeChartImg=res.sizeChartImg;
@@ -6316,7 +6427,8 @@ async function syncProductMeta(prod){
 function shPMsg(t,c){const m=document.getElementById("pf-msg");m.textContent=t;m.style.color=c;m.style.background=c.includes("4a")?"rgba(74,222,128,.08)":"rgba(192,57,43,.08)";m.style.display="block";}
 
 // SIZE MANAGEMENT
-function manageSizes(id){const p=products.find(x=>x.id===id);if(!p)return;if(!p.oosizes)p.oosizes=[];const d=document.createElement('div');d.style.cssText='position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;padding:18px';d.onclick=e=>{if(e.target===d)d.remove();};d.innerHTML='<div style="background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:28px;max-width:460px;width:100%"><h3 style="font-family:var(--dsp);font-size:21px;margin-bottom:5px;color:var(--white)">SIZE AVAILABILITY</h3><p style="color:var(--off);font-size:13px;margin-bottom:18px">'+p.name+'</p><div id="sztog" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px"></div><button class="btn btn-w" onclick="this.closest(\'div[style]\').remove()" style="width:100%;justify-content:center">Done</button></div>';document.body.appendChild(d);renderSzTog(id);}
+function manageSizes(id){const p=products.find(x=>x.id===id);if(!p)return;
+  if(p.stock&&Object.keys(p.stock).length){showToast("This product tracks stock — a size sells out automatically at 0. Change the counts with the Stock button.",true);editStock(id);return;}if(!p.oosizes)p.oosizes=[];const d=document.createElement('div');d.style.cssText='position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;padding:18px';d.onclick=e=>{if(e.target===d)d.remove();};d.innerHTML='<div style="background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:28px;max-width:460px;width:100%"><h3 style="font-family:var(--dsp);font-size:21px;margin-bottom:5px;color:var(--white)">SIZE AVAILABILITY</h3><p style="color:var(--off);font-size:13px;margin-bottom:18px">'+p.name+'</p><div id="sztog" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px"></div><button class="btn btn-w" onclick="this.closest(\'div[style]\').remove()" style="width:100%;justify-content:center">Done</button></div>';document.body.appendChild(d);renderSzTog(id);}
 function setRestockDate(id){
   const p=products.find(x=>x.id===id);if(!p)return;
   const d=document.createElement('div');
@@ -8640,6 +8752,7 @@ async function refreshProductsFromSupabase(){
       addedAt:p.added_at?new Date(p.added_at).getTime():Date.now(),
       restockAt:p.restock_at||'',
       sizeRestockDates:p.size_restock_dates||{},
+      stock:(p.stock&&typeof p.stock==="object")?p.stock:null,
       soldCount:p.sold_count||0,shade:p.shade||"",sizeGuideMode:p.size_guide_mode||'default',customSizeGuide:p.custom_size_guide||undefined,fitStudioEnabled:!!p.fit_studio_enabled
     }));
     LS.set("ds_p",products);
@@ -8677,7 +8790,8 @@ async function loadFromSupabaseIfAvailable(){
       restockAt:p.restock_at||'',
       shade:p.shade||"",
       fitStudioEnabled:!!p.fit_studio_enabled,
-      sizeRestockDates:p.size_restock_dates||{}
+      sizeRestockDates:p.size_restock_dates||{},
+      stock:(p.stock&&typeof p.stock==="object")?p.stock:null
     }));
     if(!revRes.error && revRes.data && revRes.data.length){
       reviews = sortBySeq(revRes.data.map(r=>({
