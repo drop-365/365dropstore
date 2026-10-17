@@ -274,6 +274,37 @@ header.sc .nav{height:58px}
 .hright-hud.br{bottom:28px;right:28px;text-align:right}
 .hright-hud b{color:var(--glow,#C0392B)}
 @media(max-width:860px){.hright-hud{display:none}}
+/* Product-first hero — phones only */
+.hpf{display:none}
+@media(max-width:768px){
+  #hero .hleft{padding:16px 16px 28px}
+  .hpf:not([hidden]){display:grid;gap:12px;width:100%;order:-1;margin-bottom:22px}
+  .hpf-media{position:relative;display:block;width:100%;aspect-ratio:4/5;max-width:100%;padding:0;border:0;border-radius:18px;overflow:hidden;background:#E3DFD8;cursor:pointer}
+  .hpf-media img{width:100%;height:100%;object-fit:cover;display:block}
+  .hpf-tag{position:absolute;left:12px;top:12px;background:#141312;color:#F8F7F4;font:600 11px/1 var(--bod);letter-spacing:.08em;text-transform:uppercase;padding:7px 10px;border-radius:999px}
+  .hpf-tag:empty{display:none}
+  .hpf-info{display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
+  .hpf-id{min-width:0}
+  .hpf-name{font-family:var(--dsp);font-size:26px;line-height:1;color:#141312;text-transform:uppercase;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .hpf-meta{margin-top:5px;font-size:13px;color:#6B655E}
+  .hpf-price{text-align:right;white-space:nowrap;font-size:20px;font-weight:700;color:#141312}
+  .hpf-price s{display:block;font-size:12px;font-weight:400;color:#8A847C}
+  .hpf-ctas{display:grid;grid-template-columns:1fr auto;gap:8px}
+  .hpf-buy,.hpf-all{min-height:48px;border-radius:999px;font:600 15px/1 var(--bod);cursor:pointer}
+  .hpf-buy{background:#C0392B;color:#fff;border:0}
+  .hpf-all{background:transparent;color:#141312;border:1.5px solid #141312;padding:0 20px}
+  .hpf-fits{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+  .hpf-fits::-webkit-scrollbar{display:none}
+  .hpf-fits button{flex:0 0 auto;min-height:40px;padding:0 16px;border-radius:999px;border:1px solid #D6D1C8;background:#fff;color:#141312;font:500 14px/1 var(--bod);cursor:pointer}
+  .hpf-fits small{opacity:.55;margin-left:4px}
+  /* With a real product on top, the calendar, terminal strip, stats and the
+     duplicate CTAs only push the shop further down on a phone. */
+  #hero.has-hpf .tc-cal,#hero.has-hpf #termstrip,#hero.has-hpf .hstats,#hero.has-hpf .hctas,#hero.has-hpf .hey{display:none}
+  #hero.has-hpf .hh1{font-size:34px;margin:4px 0 8px}
+  #hero.has-hpf .hsub{font-size:15px;margin-bottom:12px}
+  /* The first screen must not wait for the scroll-reveal script to fade in. */
+  #hero .hleft.sr{opacity:1;transform:none;transition:none}
+}
 @keyframes hscan{0%,100%{top:4%}50%{top:94%}}
 @media(prefers-reduced-motion:reduce){.showcase{animation:none}.scan{display:none}.rvh{animation:none;opacity:1;transform:none}}
 @media(max-width:860px){
@@ -1760,6 +1791,23 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
   <canvas id="netfx" aria-hidden="true"></canvas>
   <div class="hud" aria-hidden="true"><span class="htl"></span><span class="htr"></span><span class="hbl"></span><span class="hbr"></span></div>
   <div class="hleft sr">
+    <!-- Product-first hero (phones): the first screen shows a real jean,
+         its price and one clear next step. Filled by renderHeroProduct(). -->
+    <div class="hpf" id="hpf" hidden>
+      <button type="button" class="hpf-media" id="hpf-media" aria-label="Open product">
+        <img id="hpf-img" alt="" fetchpriority="high" decoding="async"/>
+        <span class="hpf-tag" id="hpf-tag"></span>
+      </button>
+      <div class="hpf-info">
+        <div class="hpf-id"><div class="hpf-name" id="hpf-name"></div><div class="hpf-meta" id="hpf-meta"></div></div>
+        <div class="hpf-price" id="hpf-price"></div>
+      </div>
+      <div class="hpf-ctas">
+        <button type="button" class="hpf-buy" id="hpf-buy">Choose your size</button>
+        <button type="button" class="hpf-all" onclick="goTo('#shop')">Shop all</button>
+      </div>
+      <div class="hpf-fits" id="hpf-fits" aria-label="Shop by fit"></div>
+    </div>
     <div class="tc-cal rvh hd1" id="tc" role="img" aria-label="Tear-off calendar: today's day of the year">
       <span class="tc-nail"></span>
       <span class="tc-string"></span>
@@ -3941,7 +3989,7 @@ window.addEventListener("popstate",function(){
     if(typeof products!=="undefined"&&products.some(x=>String(x.id)===pid)){_moDepth=Math.max(0,_moDepth-1);openMo(pid,true);}
   }else if(ov&&ov.classList.contains("op")&&ov.classList.contains("as-page")){_moDepth=0;_moHide();}
 });
-function showStickyBuy(p){const sbb=document.getElementById("stickyBuyBar");if(!sbb||window.innerWidth>768)return;const sold=p.badges&&p.badges.includes("sold");if(sold){sbb.classList.remove("visible");return;}document.getElementById("sbbName").textContent=p.name;document.getElementById("sbbPrice").textContent=inr(eff(p));sbb.dataset.pid=p.id;sbb.classList.add("visible");}
+function showStickyBuy(p){const sbb=document.getElementById("stickyBuyBar");if(!sbb||window.innerWidth>768)return;const sold=p.badges&&p.badges.includes("sold");if(sold){sbb.classList.remove("visible");return;}document.getElementById("sbbName").textContent=dispName(p);document.getElementById("sbbPrice").textContent=inr(eff(p));sbb.dataset.pid=p.id;sbb.classList.add("visible");}
 function addFromStickyBar(){const sbb=document.getElementById("stickyBuyBar");if(!sbb)return;const pid=sbb.dataset.pid;if(pid&&ms&&ms.p&&ms.p.id===pid)addCart();}
 
 // CART
@@ -5043,7 +5091,34 @@ async function loadPublished(){
     }
   }
   setTimeout(build,400);
-  window.rebuildHeroShowcase=build;
+  window.rebuildHeroShowcase=function(){build();renderHeroProduct();};
+  // Product-first hero (phones). Same pick as the showcase: admin's hero
+  // product, else the bestseller, else the first live product.
+  function renderHeroProduct(){
+    const box=document.getElementById("hpf");if(!box)return;
+    const all=typeof products!=="undefined"?products:[];
+    const live=all.filter(p=>(p.images||[]).length&&!(p.badges||[]).includes("sold"));
+    if(!live.length){setTimeout(renderHeroProduct,300);return;}
+    const s=(typeof siteContent!=="undefined")?siteContent:{};
+    const feat=live.find(p=>p.id===(s.heroP1||"DR-001"))||live.find(p=>(p.badges||[]).includes("best"))||live[0];
+    const nm=typeof dispName==="function"?dispName(feat):feat.name;
+    const img=document.getElementById("hpf-img");
+    img.src=(feat.images||[])[0];img.alt=nm+", "+(feat.fit||"")+" jeans";
+    const sold=typeof getSoldCount==="function"?getSoldCount(feat.id):0;
+    document.getElementById("hpf-tag").textContent=(feat.badges||[]).includes("best")?"Bestseller":(sold>0?sold+" sold":"");
+    document.getElementById("hpf-name").textContent=nm;
+    document.getElementById("hpf-meta").textContent=[feat.fit,(feat.sizes||[]).length?"Waist "+feat.sizes[0]+"–"+feat.sizes[feat.sizes.length-1]:""].filter(Boolean).join(" · ");
+    const now=typeof eff==="function"?eff(feat):(feat.offerPrice||feat.price);
+    document.getElementById("hpf-price").innerHTML=inr(now)+(feat.offerPrice&&feat.price>now?"<s>"+inr(feat.price)+"</s>":"");
+    const open=()=>openMo(feat.id);
+    document.getElementById("hpf-media").onclick=open;document.getElementById("hpf-buy").onclick=open;
+    const inGrid=p=>(p.images||[]).length&&!(p.badges||[]).includes("designer")&&!(p.badges||[]).includes("vault");
+    const fitsIn=[...new Set(all.filter(inGrid).map(p=>p.fit).filter(Boolean))];
+    document.getElementById("hpf-fits").innerHTML=fitsIn.map(f=>`<button type="button" data-fit="${f.replace(/"/g,"&quot;")}">${f}<small>${all.filter(p=>inGrid(p)&&p.fit===f).length}</small></button>`).join("");
+    document.querySelectorAll("#hpf-fits button").forEach(b=>b.onclick=()=>pickFitTab(b.dataset.fit));
+    box.hidden=false;document.getElementById("hero").classList.add("has-hpf");
+  }
+  setTimeout(renderHeroProduct,400);
   window.scMiniClick=function(el){
     const src=el.getAttribute('src');const main=document.getElementById('sc-main');if(main)main.src=src;
     const pid=el.getAttribute('data-pid')||window._scFeatId||"";
