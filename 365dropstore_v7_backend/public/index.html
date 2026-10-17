@@ -23,7 +23,8 @@
 <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png"/>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Instrument+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0"></script>
+<link rel="canonical" href="https://365dropstore.com/"/>
 <style>
 :root{
   --bg:#F4F1EC;--bg2:#EAE7E1;--bg3:#DDD9D2;--bg4:#D0CBC3;
@@ -1198,7 +1199,7 @@ button,a,.btn,[onclick]{-webkit-tap-highlight-color:transparent}
 /* modal body */
 .mobody{padding:28px 24px;position:relative;overflow-y:auto;max-height:92vh;display:flex;flex-direction:column;gap:0}
 .mocat{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--off);margin-bottom:6px}
-.moname{font-family:var(--dsp);font-size:28px;line-height:1;margin-bottom:12px;color:var(--white)}
+.moname{font-family:var(--dsp);font-size:28px;line-height:1;margin-bottom:12px;color:var(--white)}h1.moname{margin-top:0;font-weight:inherit}
 .moprices{display:flex;align-items:baseline;gap:10px;margin-bottom:4px}
 .monow{font-size:22px;font-weight:700;color:var(--white)}
 .mowas{font-size:14px;color:var(--off);text-decoration:line-through}
@@ -2118,7 +2119,7 @@ fbq('track','PageView');
 </script>
 <noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=2018974752158259&ev=PageView&noscript=1"/></noscript>
 <!-- End Meta Pixel -->
-<script type="application/ld+json">{"@context": "https://schema.org", "@type": "ClothingStore", "name": "365 Drop Store", "alternateName": "365dropstore", "url": "https://365dropstore.com/", "logo": "https://365dropstore.com/favicon.ico", "description": "Premium wide-leg, baggy and straight denim jeans for men, made in Delhi.", "telephone": "+91-9990905969", "priceRange": "₹999 – ₹1,899", "address": {"@type": "PostalAddress", "streetAddress": "E-42/2A Subhash Vihar", "addressLocality": "Delhi", "postalCode": "110053", "addressRegion": "Delhi", "addressCountry": "IN"}, "areaServed": "IN", "sameAs": ["https://instagram.com/365dropstore", "https://www.youtube.com/@365_drop_store"], "slogan": "Clothing or Nothing"}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "ClothingStore", "name": "365 Drop Store", "alternateName": "365dropstore", "url": "https://365dropstore.com/", "logo": "https://365dropstore.com/icon-512.png", "description": "Premium wide-leg, baggy and straight denim jeans for men, made in Delhi.", "telephone": "+91-9990905969", "priceRange": "₹999 – ₹1,599", "address": {"@type": "PostalAddress", "streetAddress": "E-42/2A Subhash Vihar", "addressLocality": "Delhi", "postalCode": "110053", "addressRegion": "Delhi", "addressCountry": "IN"}, "areaServed": "IN", "sameAs": ["https://instagram.com/365dropstore", "https://www.youtube.com/@365_drop_store"], "slogan": "Clothing or Nothing"}</script>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebSite", "name": "365 Drop Store", "url": "https://365dropstore.com/"}</script>
 </head>
 <body>
@@ -2455,11 +2456,8 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
         if(!isNaN(d))return d;
       }
     }catch(e){}
-    var now = new Date();
-    var t = new Date();
-    t.setHours(21,0,0,0);
-    if (t <= now) t.setDate(t.getDate()+1);
-    return t;
+    // No admin date: treat the vault as open rather than inventing a deadline.
+    return new Date(0);
   }
   function build(){
     if(vdInterval){clearInterval(vdInterval);vdInterval=null;}
@@ -2643,7 +2641,7 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
   <div class="rev-trust-strip" id="revTrustStrip" onclick="goTo('#reviews')" style="display:none">
     <span class="rts-score">5.0</span>
     <span class="rts-stars">★★★★★</span>
-    <span class="rts-meta"><b id="rtsCount">42</b> verified reviews · Real Google reviews</span>
+    <span class="rts-meta"><b id="rtsCount">42</b> reviews from real customers</span>
     <span class="rts-quote" id="rtsQuote">"Quality way above the price. Heavyweight denim that actually lasts."</span>
   </div>
   <div class="sh sr"><div><h2 data-dec>SHOP ALL <span id="shopall-count" style="font-family:var(--bod);font-size:15px;color:var(--off);font-weight:400;text-transform:none;letter-spacing:0"></span></h2><p class="shs">Every style, every fit — the full drop, in one place.</p></div></div>
@@ -4070,8 +4068,8 @@ function renderHeroShowcase(){return;
   sc.innerHTML=prods.map(p=>{
     const badgeHtml=(p.badges||[]).filter(b=>BM[b]&&b!=='best').map(b=>`<span class="bdg ${BM[b].c}">${BM[b].t}</span>`).join("");
     return`<div class="hprod" onclick="openMo('${p.id}')">
-      <img src="${(p.images||[])[0]||''}" alt="${p.name}"/>
-      <div class="hprod-info"><span class="hprod-name">${p.name}</span><span class="hprod-price">${inr(eff(p))}</span></div>
+      <img src="${(p.images||[])[0]||''}" alt="${dispName(p)} jeans"/>
+      <div class="hprod-info"><span class="hprod-name">${dispName(p)}</span><span class="hprod-price">${inr(eff(p))}</span></div>
       ${badgeHtml?`<div style="position:absolute;top:12px;left:12px;display:flex;flex-direction:column;gap:4px;z-index:2">${badgeHtml}</div>`:''}
       <button class="hprod-shop" onclick="event.stopPropagation();openMo('${p.id}')">Quick view →</button>
     </div>`;
@@ -4193,8 +4191,8 @@ function pcardHTML(p){
       <div class="pimg">
         <div class="pbadges">${bgs}</div>
         <div class="pwish${saved?' on':''}" onclick="event.stopPropagation();toggleWishlist('${p.id}')" title="Save">${saved?'♥':'♡'}</div>
-        <img class="pfront" src="${img1}" alt="${p.name}" loading="${_myIdx<4?'eager':'lazy'}" decoding="async" fetchpriority="${_myIdx<2?'high':'auto'}"/>
-        <img class="pback" src="${img2}" alt="${p.name}" loading="lazy"/>
+        <img class="pfront" src="${img1}" alt="${dispName(p)}, front view" loading="${_myIdx<4?'eager':'lazy'}" decoding="async" fetchpriority="${_myIdx<2?'high':'auto'}"/>
+        <img class="pback" src="${img2}" alt="${dispName(p)}, second view" loading="lazy"/>
         ${fitBand}
         ${rbl}
         ${!isSold(p)?`<div class="pactions">
@@ -4202,7 +4200,7 @@ function pcardHTML(p){
           <div class="pshare" onclick="event.stopPropagation();shareProduct('${p.id}','${p.name.replace(/'/g,"\\'")}','${plink}')" title="Share">🔗</div>
         </div>`:''}
       </div>
-      <div class="pmeta"><div class="pname">${p.name}</div><div class="pfit">${p.fit||''} · ${p.category}</div><div class="pprices">${pr}</div><div class="psizes">${szs}</div>${lowStock}${restockNote}${restockSoon.length?`<div class="pRestockBack">\u21bb ${restockSoon.join(", ")} back ${(()=>{const dt=new Date((p.sizeRestockDates||{})[restockSoon[0]]);return dt.toLocaleDateString("en-IN",{day:"numeric",month:"short"});})()}</div>`:''}</div>
+      <div class="pmeta"><div class="pname">${dispName(p)}</div><div class="pfit">${p.fit||''} · ${p.category}</div><div class="pprices">${pr}</div><div class="psizes">${szs}</div>${lowStock}${restockNote}${restockSoon.length?`<div class="pRestockBack">\u21bb ${restockSoon.join(", ")} back ${(()=>{const dt=new Date((p.sizeRestockDates||{})[restockSoon[0]]);return dt.toLocaleDateString("en-IN",{day:"numeric",month:"short"});})()}</div>`:''}</div>
     </div>`;
 }
 let wishlist=LS.get("ds_wishlist",[])||[];
@@ -4215,6 +4213,12 @@ function toggleWishlist(id){
   showCustomerToast(wishlist.includes(id)?'Saved ♥':'Removed from saved');
 }
 const isSold=p=>p.badges&&p.badges.includes("sold");
+// Storefront name: "365-WD JET BLACK WARM Faded" -> "Jet Black Warm Faded".
+// p.name stays untouched for orders, admin and search.
+function dispName(p){
+  const raw=String((p&&p.name)||"").replace(/^365-[A-Z]{1,4}\s+/,"").trim();
+  return raw.split(/\s+/).map(w=>w.length<=2&&/^[A-Z]+$/.test(w)?w:w.charAt(0).toUpperCase()+w.slice(1).toLowerCase()).join(" ")||String((p&&p.name)||"");
+}
 function renderHomeSections(){
   // replaced by fit-tabs — this is now a no-op for backwards compat
   // (admin still saves homeSections; they just don't render as strips anymore)
@@ -4222,12 +4226,13 @@ function renderHomeSections(){
 function renderFitBtns(){
   const el=document.getElementById("fit-btns");
   if(!el)return;
-  const fitsInUse=[...new Set(products.filter(p=>(p.images||[]).length).map(p=>p.fit).filter(Boolean))];
+  const inGrid=p=>(p.images||[]).length&&!(p.badges||[]).includes("designer")&&!(p.badges||[]).includes("vault");
+  const fitsInUse=[...new Set(products.filter(inGrid).map(p=>p.fit).filter(Boolean))];
   const activeFit=fFits.length===1?fFits[0]:"";
-  const totalCount=products.filter(p=>(p.images||[]).length).length;
+  const totalCount=products.filter(inGrid).length;
   el.innerHTML=`<button class="fit-pill${activeFit?'':' act'}" onclick="clearFitTab()">All <small style="opacity:.6;font-size:.75em">${totalCount}</small></button>`
     +fitsInUse.map(f=>{
-      const cnt=products.filter(p=>(p.images||[]).length&&p.fit===f).length;
+      const cnt=products.filter(p=>inGrid(p)&&p.fit===f).length;
       return`<button class="fit-pill${f===activeFit?' act':''}" onclick="pickFitTab('${f.replace(/'/g,"\\'")}')">${f} <small style="opacity:.6;font-size:.75em">${cnt}</small></button>`;
     }).join("");
 }
@@ -4621,7 +4626,7 @@ function renderDesignerSection(){
         ${mosaicHtml}
       </div>
       <div class="des-body">
-        <div class="des-name">${p.name}</div>
+        <div class="des-name">${dispName(p)}</div>
         <div class="des-fit">${(p.fit||p.category||"").toString().toUpperCase()} · DESIGNER ARTICLE</div>
         <div class="des-price-row">
           <span class="des-price">${priceHtml}</span>
@@ -5004,7 +5009,7 @@ function renderFooterFits(){
 
 // ONE place to change the trust claim — hero, shop grid and product page all read this.
 // Keep it TRUE: it's a public claim to customers (Consumer Protection / CCPA dark-pattern rules).
-var TRUST_LINE={big:"1,000+",text:"happy customers",sub:"Zero returns on quality"};  // owner-stated total incl. unrecorded offline sales
+var TRUST_LINE={big:"1,000+",text:"happy customers",sub:"Free shipping across India"};  // owner-stated total incl. unrecorded offline sales
 function trustLineHtml(){return '<span class="tl-ico">✓</span><span><b>'+TRUST_LINE.big+'</b> '+TRUST_LINE.text+'</span><span class="tl-sep">·</span><span class="tl-sub">'+TRUST_LINE.sub+'</span>';}
 function trustChipsHtml(){return '<span class="tc"><i>✓</i><b>'+TRUST_LINE.big+'</b>&nbsp;'+TRUST_LINE.text+'</span><span class="tc"><i>✓</i>'+TRUST_LINE.sub+'</span>';}
 function applyTrustLines(){document.querySelectorAll(".js-trust").forEach(el=>{el.innerHTML=el.closest(".hero-trust")?trustChipsHtml():trustLineHtml();});}
@@ -5058,7 +5063,7 @@ function renderRevs(){
     _sumEl.innerHTML='<div class="rs-score"><b>'+avg+'</b><span class="rs-stars">'
       +'&#9733;&#9733;&#9733;&#9733;&#9733;</span></div>'
       +'<div class="rs-meta"><b>'+_txt.length+' verified reviews</b>'
-      +'<span>Real Google reviews from real orders. Nothing written by us.'+(_revs.filter(r=>r.img).length?' · '+_revs.filter(r=>r.img).length+' with customer photos':'')+'</span></div>';
+      +'<span>Reviews from real customers and Google.'+(_revs.filter(r=>r.img).length?' · '+_revs.filter(r=>r.img).length+' with customer photos':'')+'</span></div>';
   }
   // theme chips
   const _th=document.getElementById("revthemes");
@@ -5508,7 +5513,7 @@ function renderNewArrivals(){
     .slice(0,8);
   if(items.length<4){sec.style.display="none";return;}
   sec.style.display="block";
-  strip.innerHTML=items.map(p=>`<div class="rv-item" onclick="openMo('${p.id}')"><img src="${(p.images||[])[0]||''}" alt="" loading="lazy"/><div class="rv-name">${p.name}</div><div class="rv-price">${inr(eff(p))}</div></div>`).join("");
+  strip.innerHTML=items.map(p=>`<div class="rv-item" onclick="openMo('${p.id}')"><img src="${(p.images||[])[0]||''}" alt="" loading="lazy"/><div class="rv-name">${dispName(p)}</div><div class="rv-price">${inr(eff(p))}</div></div>`).join("");
 }
 function renderRecentlyViewed(){var sec=document.getElementById("recently-viewed");var strip=document.getElementById("rv-strip");if(!sec||!strip)return;var items=recentlyViewed.map(function(pid){return products.find(function(p){return p.id===pid})}).filter(Boolean).slice(0,6);if(items.length<2){sec.style.display="none";return;}sec.style.display="block";strip.innerHTML=items.map(function(p){return '<div class="rv-item" onclick="openMo(\''+p.id+'\')"><img src="'+(p.images&&p.images[0]||'')+'" alt="" loading="lazy"/><div class="rv-name">'+p.name+'</div><div class="rv-price">'+inr(eff(p))+'</div></div>'}).join("");}
 function openMo(id,noPush){
@@ -5519,8 +5524,8 @@ function openMo(id,noPush){
   const sold=p.badges&&p.badges.includes("sold");
   const imgs=p.images||[];
   const pr=p.offerPrice?`<span class="monow">${inr(p.offerPrice)}</span><span class="mowas">${inr(p.price)}</span><span class="mosave">Save ${inr(p.price-p.offerPrice)}</span>`:`<span class="monow">${inr(p.price)}</span>`;
-  const carImgs=imgs.map((s,i)=>i===0?`<img src="${s}" alt="${p.name}" class="active"/>`:`<img data-src="${s}" alt="${p.name}"/>`).join("");
-  const thumbs=imgs.length>1?`<div class="mocar-thumbs">${imgs.map((s,i)=>`<div class="mthumb${i===0?' act':''}${i===0?' main-tag':''}" onclick="goSlide(${i})"><img src="${s}" alt="${p.name}"/></div>`).join("")}</div>`:'';
+  const carImgs=imgs.map((s,i)=>i===0?`<img src="${s}" alt="${dispName(p)}" class="active"/>`:`<img data-src="${s}" alt="${dispName(p)}"/>`).join("");
+  const thumbs=imgs.length>1?`<div class="mocar-thumbs">${imgs.map((s,i)=>`<div class="mthumb${i===0?' act':''}${i===0?' main-tag':''}" onclick="goSlide(${i})"><img src="${s}" alt="${dispName(p)} thumbnail"/></div>`).join("")}</div>`:'';
   const arrows=imgs.length>1?`<button class="car-arr car-prev" onclick="slideDir(-1)">‹</button><button class="car-arr car-next" onclick="slideDir(1)">›</button>`:'';
   const dots=imgs.length>1?`<div class="car-dots">${imgs.map((_,i)=>`<button class="cdot${i===0?' act':''}" onclick="goSlide(${i})"></button>`).join("")}</div>`:'';
   const reelHtml=p.reelUrl?`<a href="${p.reelUrl}" target="_blank" rel="noopener" class="mo-reel">▶ Watch Reel on Instagram</a>`:'';
@@ -5541,7 +5546,7 @@ function openMo(id,noPush){
     </div>
     <div class="mobody">
       <div class="mocat">${p.category} · ${p.fit||''}</div>
-      <div class="moname">${p.name}</div>
+      <h1 class="moname">${dispName(p)}</h1>
       <div class="moprices">${pr}</div>
       ${getSoldCount(p.id)>0?`<div class="mo-sold-count">🔥 ${getSoldCount(p.id)} sold</div>`:''}
       <p class="modal">${p.desc}</p>
@@ -5603,7 +5608,7 @@ function moApplyView(p,noPush){
   const ov=document.getElementById("ov");
   if(productViewMode()!=="page"){ov.classList.remove("as-page");return;}
   ov.classList.add("as-page");ov.scrollTop=0;
-  document.title=p.name+" — 365 Drop Store";
+  document.title=dispName(p)+" — "+(p.fit?p.fit+" ":"")+(/t-?shirt/i.test(p.category||"")?"T-Shirt":"Jeans")+" for Men · "+inr(eff(p))+" | 365 Drop Store";
   const target="/p/"+encodeURIComponent(p.id);
   if(!noPush&&location.pathname!==target){history.pushState({pid:p.id},"",target);_moDepth++;}
 }
@@ -6145,7 +6150,7 @@ function nlSub(e){e.preventDefault();const v=document.getElementById("nli").valu
 // SEARCH / NAV
 function openSrch(){document.getElementById("sov").classList.add("op");setTimeout(()=>document.getElementById("sin").focus(),100);}
 function closeSrch(){document.getElementById("sov").classList.remove("op");}
-function doSrch(q){const r=document.getElementById("sres");if(!q.trim()){r.innerHTML="";return;}const hits=products.filter(p=>p.name.toLowerCase().includes(q.toLowerCase())||p.category.toLowerCase().includes(q.toLowerCase())||(p.fit||"").toLowerCase().includes(q.toLowerCase()));if(!hits.length){r.innerHTML=`<p style="color:var(--off);grid-column:1/-1">No results for "${q}"</p>`;return;}r.innerHTML=hits.map(p=>`<div class="pcard" onclick="closeSrch();openMo('${p.id}')"><div class="pimg"><img class="pfront" src="${(p.images||[])[0]||''}" alt="${p.name}" loading="lazy"/></div><div class="pmeta"><div class="pname">${p.name}</div><div class="pprices"><span class="pnow">${inr(eff(p))}</span></div></div></div>`).join("");}
+function doSrch(q){const r=document.getElementById("sres");if(!q.trim()){r.innerHTML="";return;}const hits=products.filter(p=>p.name.toLowerCase().includes(q.toLowerCase())||p.category.toLowerCase().includes(q.toLowerCase())||(p.fit||"").toLowerCase().includes(q.toLowerCase()));if(!hits.length){r.innerHTML=`<p style="color:var(--off);grid-column:1/-1">No results for "${q}"</p>`;return;}r.innerHTML=hits.map(p=>`<div class="pcard" onclick="closeSrch();openMo('${p.id}')"><div class="pimg"><img class="pfront" src="${(p.images||[])[0]||''}" alt="${p.name}" loading="lazy"/></div><div class="pmeta"><div class="pname">${dispName(p)}</div><div class="pprices"><span class="pnow">${inr(eff(p))}</span></div></div></div>`).join("");}
 function openMob(){document.getElementById("mbnav").classList.add("op");document.getElementById("mob-scm").classList.add("op");}
 function closeMob(){document.getElementById("mbnav").classList.remove("op");document.getElementById("mob-scm").classList.remove("op");}
 
@@ -6235,8 +6240,21 @@ function runMetaCheckout(){
   renderIgPicks();
   openIgPick(window._igPicks[0].id);
 }
+// Fit landing pages (/wide-leg-jeans etc.): open the shop pre-filtered to
+// that fit. Title, description and canonical come from the fit-landing
+// edge function, so search engines see the right page without JS.
+// (Map lives inside the function: chkRoute() first runs before this point
+// in the script, so a top-level const would not be initialised yet.)
+function applyFitLanding(){
+  const routes={"/wide-leg-jeans":"Wide-Leg","/straight-jeans":"Straight"};
+  const f=routes[(location.pathname||"").replace(/\/+$/,"")];
+  if(!f||window._fitLandingDone||!window._productsReady)return;
+  window._fitLandingDone=true;
+  if(typeof pickFitTab==="function")pickFitTab(f);
+}
 function chkRoute(){
   parseMetaCheckout();
+  applyFitLanding();
   if(window._productsReady)handlePayReturn();
   try{const t=new URLSearchParams(location.search).get("track");
     if(t&&!window._trackLinkDone){window._trackLinkDone=true;history.replaceState(null,"",location.pathname==="/"?"/":location.pathname);
@@ -8615,12 +8633,9 @@ async function uploadImageToBlob(file){
     if(dcInterval){clearInterval(dcInterval);dcInterval=null;}
     let target;
     try{ if(typeof siteContent!=="undefined"&&siteContent.dropDate){target=new Date(siteContent.dropDate).getTime();} }catch(e){}
-    if(!target||isNaN(target)){
-      // rolling weekly drop: next Friday 8pm IST (fallback only — no admin date set)
-      const now=new Date();const d=new Date(now);d.setHours(20,0,0,0);
-      const day=d.getDay();let add=(5-day+7)%7;if(add===0&&now.getTime()>d.getTime())add=7;
-      d.setDate(d.getDate()+add);target=d.getTime();
-    }
+    // No admin date, or the date has passed: hide the countdown instead of
+    // inventing one. A timer that resets itself reads as false urgency.
+    if(!target||isNaN(target)||target<=Date.now()){el.style.display="none";return;}
     el.style.display="flex";
     const pad=n=>String(n).padStart(2,"0");
     const fields={d:document.getElementById("dc-d"),h:document.getElementById("dc-h"),m:document.getElementById("dc-m"),s:document.getElementById("dc-s")};

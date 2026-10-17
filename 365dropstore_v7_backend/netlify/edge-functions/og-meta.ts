@@ -20,6 +20,22 @@ function escHtml(s) {
     .replace(/>/g, "&gt;");
 }
 
+// Storefront name: "365-WD JET BLACK WARM Faded" -> "Jet Black Warm Faded"
+// (same rule as dispName() in public/index.html).
+function dispName(name) {
+  const raw = String(name || "").replace(/^365-[A-Z]{1,4}\s+/, "").trim();
+  return (
+    raw
+      .split(/\s+/)
+      .map((w) =>
+        w.length <= 2 && /^[A-Z]+$/.test(w)
+          ? w
+          : w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()
+      )
+      .join(" ") || String(name || "")
+  );
+}
+
 function inr(n) {
   return "₹" + Number(n).toLocaleString("en-IN");
 }
@@ -67,7 +83,7 @@ export default async (request, context) => {
   }
 
   // Build product-specific meta tags
-  const name = escHtml(product.name);
+  const name = escHtml(dispName(product.name));
   const price = product.offer_price
     ? inr(product.offer_price)
     : inr(product.price);
@@ -86,10 +102,23 @@ export default async (request, context) => {
   // e.g. "365-WD JET BLACK WARM Faded — Wide-Leg Jeans for Men · ₹1,099 | 365 Drop Store"
   const fitLabel = String(product.fit || "").trim();
   const kind = /t-?shirt/i.test(String(product.category || "")) ? "T-Shirt for Men" : "Jeans for Men";
-  const title = `${product.name} — ${fitLabel ? fitLabel + " " : ""}${kind} · ${price} | 365 Drop Store`;
+  const title = `${dispName(product.name)} — ${fitLabel ? fitLabel + " " : ""}${kind} · ${price} | 365 Drop Store`;
 
   // Replace the generic meta tags with product-specific ones
   let modified = html;
+
+  // Canonical points at this product, not the homepage
+  modified = modified.replace(
+    /<link rel="canonical"[^>]*\/>/,
+    `<link rel="canonical" href="${productUrl}"/>`
+  );
+
+  // The product name is the page's <h1> (rendered by the app); demote the
+  // homepage hero heading so a product page has exactly one <h1>.
+  modified = modified.replace(
+    /<h1 class="hh1 rvh hd3" id="hero-h1">([\s\S]*?)<\/h1>/,
+    `<div class="hh1 rvh hd3" id="hero-h1">$1</div>`
+  );
 
   // Replace <title>
   modified = modified.replace(
@@ -172,7 +201,7 @@ export default async (request, context) => {
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Product",
-    name: product.name,
+    name: dispName(product.name),
     image: (product.images && product.images.length ? product.images.slice(0, 5) : [image]),
     description: product.description || `${product.name} — premium ${String(product.fit || "").toLowerCase()} jeans for men, made in Delhi.`,
     sku: product.id,

@@ -26,6 +26,18 @@
   to = "/index.html"
   status = 200
 
+# Fit landing pages for search — the JS app pre-filters the shop; the
+# fit-landing edge function sets the title, description, canonical and h1.
+[[redirects]]
+  from = "/wide-leg-jeans"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/straight-jeans"
+  to = "/index.html"
+  status = 200
+
 # Meta Shop checkout URL (Commerce Manager → Shop → Add checkout URL).
 # Meta sends buyers to /checkout?products=<id>:<qty>,...  — the JS app reads it.
 [[redirects]]

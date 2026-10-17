@@ -38,6 +38,16 @@ export default async (request, context) => {
     <priority>1.0</priority>
   </url>`;
 
+  for (const slug of ["wide-leg-jeans", "straight-jeans"]) {
+    xml += `
+  <url>
+    <loc>https://365dropstore.com/${slug}</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>`;
+  }
+
   for (const p of products) {
     const lastmod = p.updated_at
       ? new Date(p.updated_at).toISOString().split("T")[0]
