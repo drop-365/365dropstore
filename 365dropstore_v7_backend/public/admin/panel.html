@@ -1,0 +1,730 @@
+<!-- admin gate -->
+<div id="ag"><div class="agc"><div class="agl">365 DROP</div><div class="ags">Admin · Owner access only</div><div class="agcard"><h2>SIGN IN</h2><p>Locked after 5 wrong attempts.</p><div class="agf"><label>Email</label><input type="email" id="age" placeholder="365dropstore@gmail.com" autocomplete="off"/></div><div class="agf"><label>Password</label><input type="password" id="agp" placeholder="••••••••" onkeydown="if(event.key==='Enter')admLogin()"/></div><div class="agerr" id="agerr"></div><button class="btn btn-w" style="width:100%;justify-content:center;margin-top:16px;background:#E8E4DF;color:#090909" onclick="admLogin()">Sign in →</button><p style="color:var(--off);font-size:12px;text-align:center;margin-top:10px" id="agatt"></p></div></div></div>
+
+<!-- admin panel -->
+<div id="ap">
+<div id="lf-modal" class="lf-modal" hidden onclick="if(event.target===this)lfCloseModal()"><div class="lf-mbox" role="dialog" aria-modal="true"><button class="lf-x" onclick="lfCloseModal()" aria-label="Close">✕</button><div id="lf-mbody"></div></div></div>
+<div class="apbar"><div class="apbar-t" role="heading" aria-level="2">365 DROP STORE — ADMIN</div>
+<form class="lf-gs" onsubmit="event.preventDefault();lfGlobalSearch(this.q.value)"><input name="q" type="search" placeholder="Search order ID, phone, email or AWB…" aria-label="Search customers"><button type="submit" aria-label="Search">🔎</button></form><button class="btn btn-g" onclick="admOut()" style="padding:8px 16px">Sign out</button></div>
+<div class="aptabs">
+  <button class="atab" onclick="apTab('lifeline')">🔎 Customer Lifeline</button>
+  <button class="atab act" onclick="apTab('products')">Products</button>
+  <button class="atab" onclick="apTab('dashboard')">Dashboard</button>
+  <button class="atab" onclick="apTab('sequence')">Sequence</button>
+  <button class="atab" onclick="apTab('orders')">Orders</button>
+  <button class="atab" onclick="apTab('add')">Add / Edit</button>
+  <button class="atab" onclick="apTab('site')">Edit Site</button>
+  <button class="atab" onclick="apTab('banner')">Live Banner</button>
+  <button class="atab" onclick="apTab('vault')">Vault Content</button>
+  <button class="atab" onclick="apTab('wall')">Star Wall</button>
+  <button class="atab" onclick="apTab('fits')">Fits Manager</button>
+  <button class="atab" onclick="apTab('reviews')">Reviews</button>
+  <button class="atab" onclick="apTab('stories')">Story Updates</button>
+  <button class="atab" onclick="apTab('instagrid')">Hero Grid</button>
+  <button class="atab" onclick="apTab('faq')">FAQ</button>
+  <button class="atab" onclick="apTab('sizeguide')">Size Guide</button>
+  <button class="atab" onclick="apTab('payment')">Payments</button>
+  <button class="atab" onclick="apTab('settings')">Settings</button>
+</div>
+<div class="apbody">
+
+  <!-- ===== CUSTOMER LIFELINE ===== -->
+  <div id="tab-lifeline" class="apsec lf" style="display:none">
+    <div class="lf-top">
+      <h3 style="margin:0">Customer Lifeline</h3>
+      <form class="lf-search" onsubmit="event.preventDefault();lfSearch()">
+        <select id="lf-type" aria-label="Search by">
+          <option value="auto">Auto-detect</option><option value="order">Order ID</option><option value="phone">Phone</option>
+          <option value="email">Email</option><option value="awb">AWB / Shipment ID</option><option value="name">Name</option>
+        </select>
+        <input id="lf-q" type="search" placeholder="Order ID, phone, email or AWB…" autocomplete="off">
+        <button type="submit" class="lf-go">Search</button>
+      </form>
+      <div class="lf-recent" id="lf-recent"></div>
+    </div>
+    <div id="lf-body"><div class="lf-empty"><div class="lf-empty-i">🔎</div><b>Look up any customer</b><span>Search by order ID, phone number, email or AWB to see everything about them: every order, payment, shipment, product and comment.</span></div></div>
+  </div>
+
+  <!-- products tab -->
+  <div id="tab-products" class="apsec">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+      <h3 style="margin:0">ALL PRODUCTS <span id="pcnt" style="color:var(--off);font-size:14px;font-weight:400"></span></h3>
+      <div style="display:flex;gap:10px">
+        <button class="btn btn-g" onclick="refreshProductsFromSupabase()">↻ Refresh from live</button>
+        <button class="btn btn-w" onclick="resetF();apTab('add')">+ Add New Product</button>
+      </div>
+    </div>
+    <div class="apstats" id="apstats"></div>
+    <div id="stk-alert"></div>
+    <div style="overflow-x:auto"><table class="ptbl"><thead><tr><th>Photo</th><th>Name</th><th>Cat</th><th>Fit</th><th>Price</th><th>Stock</th><th>Status</th><th>Actions</th></tr></thead><tbody id="ptbd"></tbody></table></div>
+  </div>
+
+  <!-- orders tab -->
+  <div id="tab-dashboard" class="apsec sfd-root" style="display:none">
+    <div class="sfd-scan"></div>
+    <div class="sfd-head">
+      <h3 class="sfd-title">SALES ANALYTICS<span class="sfd-blink">_</span></h3>
+      <button class="sfd-export" onclick="exportDashboardCSV()">⬇ EXPORT CSV</button>
+    </div>
+    <div class="sfd-range" id="dash-range">
+      <button class="sfd-rbtn" data-r="today" onclick="setDashRange('today')">TODAY</button>
+      <button class="sfd-rbtn" data-r="7d" onclick="setDashRange('7d')">7D</button>
+      <button class="sfd-rbtn" data-r="30d" onclick="setDashRange('30d')">30D</button>
+      <button class="sfd-rbtn" data-r="month" onclick="setDashRange('month')">THIS MONTH</button>
+      <button class="sfd-rbtn" data-r="all" onclick="setDashRange('all')">ALL TIME</button>
+      <input type="date" id="dash-custom-from" class="sfd-datein" onchange="setDashRange('custom')"/>
+      <span class="sfd-arrow">→</span>
+      <input type="date" id="dash-custom-to" class="sfd-datein" onchange="setDashRange('custom')"/>
+    </div>
+    <div id="dash-stats" class="sfd-stats"></div>
+    <div class="sfd-grid2">
+      <div class="sfd-panel">
+        <div class="sfd-panel-h">CHANNEL BREAKDOWN</div>
+        <div id="dash-channel"></div>
+      </div>
+      <div class="sfd-panel">
+        <div class="sfd-panel-h">PAYMENT METHOD</div>
+        <div id="dash-paymethod"></div>
+      </div>
+    </div>
+    <div id="dash-coddue-wrap" class="sfd-cod"></div>
+    <div class="sfd-panel">
+      <div class="sfd-panel-h">TOP PRODUCTS <span id="dash-prod-count"></span></div>
+      <div id="dash-products"></div>
+    </div>
+    <div class="sfd-panel">
+      <div class="sfd-panel-h">DAILY REVENUE <span style="font-weight:400;opacity:.6">(current range)</span></div>
+      <div id="dash-daily"></div>
+    </div>
+    <div class="sfd-panel">
+      <div class="sfd-panel-h">CUSTOMERS <span style="font-weight:400;opacity:.6">(lifetime + current range)</span></div>
+      <div id="dash-cust-stats" class="sfd-stats" style="margin-bottom:14px"></div>
+      <div style="display:grid;grid-template-columns:1fr;gap:6px">
+        <div class="sfd-panel-h" style="margin-top:6px">TOP CUSTOMERS BY LIFETIME SPEND</div>
+        <div id="dash-cust-top"></div>
+      </div>
+    </div>
+  </div>
+  <div id="tab-orders" class="apsec" style="display:none">
+    <div style="border:1px solid rgba(37,211,102,.4);background:rgba(37,211,102,.06);border-radius:12px;padding:16px;margin-bottom:18px">
+      <h3 style="margin-bottom:4px">LOG AN OFFLINE SALE</h3>
+      <p style="color:var(--off);font-size:12px;margin-bottom:14px">WhatsApp and walk-in sales never hit the database on their own — sold counts and the dispatch map under-report until you log them here.</p>
+      <div class="pfgrid">
+        <div class="pff"><label>Where did this sell?</label>
+          <select id="wo-channel"><option value="whatsapp">WhatsApp</option><option value="walkin">Walk-in / Store</option><option value="instagram">Instagram DM</option></select>
+        </div>
+        <div class="pff"><label>How did they pay?</label>
+          <select id="wo-paymode"><option value="cash">Cash</option><option value="upi">UPI</option><option value="cod">COD</option><option value="card">Card</option><option value="bank">Bank Transfer</option></select>
+        </div>
+        <div class="pff"><label>Customer Name</label><input type="text" id="wo-name" placeholder="Aryan M."/></div>
+        <div class="pff"><label>Phone</label><input type="text" id="wo-phone" placeholder="9xxxxxxxxx" inputmode="tel" oninput="woPhoneLookup()"/><div id="wo-cust"></div></div>
+        <div class="pff"><label>Pincode <span style="text-transform:none;font-weight:400">(leave blank for a walk-in)</span></label><input type="text" id="wo-pin" inputmode="numeric" maxlength="6" placeholder="110001"/></div>
+        <div class="pff full"><label>Delivery address <span style="text-transform:none;font-weight:400">(optional — saved for their next order)</span></label><textarea id="wo-addr" rows="2" placeholder="House / street, area, city"></textarea></div>
+        <div class="pff full" style="border-top:1px solid var(--line);padding-top:14px;margin-top:2px">
+          <label>Articles in this order <span style="text-transform:none;font-weight:400;color:var(--off)">— one customer, add as many as they bought</span></label>
+          <div id="wo-lines"></div>
+          <button class="tb" style="margin-top:8px" onclick="woAddLine()">+ Add another article</button>
+        </div>
+        <div class="pff full" style="display:flex;justify-content:space-between;align-items:center;padding:10px 2px;font-size:13px;color:var(--off)">
+          <span>Order total</span><b id="wo-grandtotal" style="color:var(--white);font-size:16px">₹0</b>
+        </div>
+        <div class="pff full"><button class="btn btn-w" onclick="saveWhatsappOrder()" style="width:100%;justify-content:center">Log Order</button><small id="wo-msg" style="display:block;margin-top:8px;color:var(--off)"></small></div>
+      </div>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+      <h3 style="margin:0">ORDERS <span id="ocnt" style="color:var(--off);font-size:14px;font-weight:400"></span></h3>
+      <button class="btn btn-g" onclick="rnAdmOrders()">↻ Refresh</button>
+    </div>
+    <div class="apstats" id="ordstats"></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin:14px 0" id="ord-filters">
+      <input type="date" id="ord-f-from" onchange="rnAdmOrders()" style="min-width:130px"/>
+      <span style="color:var(--off);align-self:center;font-size:12px">to</span>
+      <input type="date" id="ord-f-to" onchange="rnAdmOrders()" style="min-width:130px"/>
+      <select id="ord-f-channel" onchange="rnAdmOrders()">
+        <option value="">All channels</option>
+        <option value="website">Website</option>
+        <option value="whatsapp">WhatsApp</option>
+        <option value="walkin">Walk-in / Store</option>
+        <option value="instagram">Instagram</option>
+      </select>
+      <select id="ord-f-paymode" onchange="rnAdmOrders()">
+        <option value="">All payment methods</option>
+        <option value="prepaid">Prepaid</option>
+        <option value="cod">Cash on Delivery</option>
+        <option value="partial_cod">Partial COD</option>
+      </select>
+      <button class="tb" onclick="clearOrderFilters()">Clear filters</button>
+    </div>
+    <div id="abandoned-box" style="margin-top:16px;border:1px solid var(--line);border-radius:10px;overflow:hidden">
+      <div style="padding:12px 16px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;background:rgba(192,57,43,0.08)" onclick="toggleAbandoned()">
+        <span style="font-weight:700;color:var(--white)">💬 Win back abandoned checkouts <span id="ab-cnt" style="color:var(--off);font-weight:400"></span></span>
+        <span id="ab-arrow" style="color:var(--off)">▾</span>
+      </div>
+      <div id="abandoned-list" style="display:none;padding:0 16px 16px"></div>
+    </div>
+
+    <div style="margin-top:16px;border:1px solid rgba(41,128,185,.35);background:rgba(41,128,185,.06);border-radius:10px;padding:16px">
+      <h4 style="margin-bottom:4px">LOOK UP A CUSTOMER</h4>
+      <p style="color:var(--off);font-size:12px;margin-bottom:12px">See everything one person has ever bought — across the website, WhatsApp, Instagram and walk-ins — by phone (exact) or name (partial match).</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <input type="text" id="ch-phone" placeholder="Phone number" style="flex:1;min-width:140px"/>
+        <input type="text" id="ch-name" placeholder="or a name" style="flex:1;min-width:140px"/>
+        <button class="btn btn-g" onclick="lfOpen((document.getElementById('ch-phone').value||document.getElementById('ch-name').value).trim())">Open in Lifeline</button>
+      </div>
+      <div id="ch-result" style="margin-top:14px"></div>
+    </div>
+
+    <div id="ord-list" style="margin-top:18px"></div>
+  </div>
+
+  <!-- add/edit tab -->
+  <div id="tab-sequence" class="apsec" style="display:none">
+    <h3>PRODUCT SEQUENCE</h3>
+    <p style="color:var(--off);font-size:12.5px;margin-bottom:14px">This is the order products appear in on the website's "Featured" sort. Use the arrows to reorder — changes save automatically.</p>
+    <input type="text" id="seq-search" placeholder="Search by name, fit, or SKU..." oninput="renderSequenceList()" style="width:100%;margin-bottom:14px"/>
+
+    <div style="border:1px solid rgba(192,57,43,.3);background:rgba(192,57,43,.06);border-radius:10px;padding:14px;margin-bottom:16px">
+      <div style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--red);font-weight:700;margin-bottom:8px">FIT STUDIO BULK CONTROL</div>
+      <p style="font-size:12px;color:var(--off);margin-bottom:10px">The "Find my size" button is off by default everywhere. Turn it on for every product in one fit at once, instead of one product at a time.</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+        <select id="fs-bulk-fit" style="flex:1;min-width:140px"></select>
+        <button class="tb" onclick="fsBulkSet(true)">Enable for this fit</button>
+        <button class="tb tb-del" onclick="fsBulkSet(false)">Disable for this fit</button>
+      </div>
+      <div id="fs-bulk-status" style="margin-top:8px;font-size:12px;color:var(--off)"></div>
+    </div>
+
+    <div id="seq-list"></div>
+    <div id="seq-status" style="margin-top:10px;font-size:12.5px;color:var(--off)"></div>
+  </div>
+  <div id="tab-add" class="apsec" style="display:none">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+      <h3 id="add-title" style="margin:0">ADD NEW PRODUCT</h3>
+      <button class="btn btn-g" onclick="resetF()" style="padding:8px 16px;font-size:13px">+ New / Clear Form</button>
+    </div>
+    <div class="pfgrid">
+    <div class="pff"><label>Product Name *</label><input type="text" id="pf0" placeholder="e.g. Faded Wide-Leg Jeans"/></div>
+    <div class="pff"><label>Category *</label><select id="pf1"><option>Jeans</option><option>T-Shirts</option></select></div>
+    <div class="pff"><label>Fit *</label><select id="pf-fit"></select></div>
+    <div class="pff"><label>Badge</label><select id="pf7"><option value="new">New</option><option value="best">Bestseller</option><option value="designer">Designer</option><option value="vault">Vault</option><option value="ltd">Limited</option><option value="off">Offer</option><option value="">None</option></select></div>
+    <div class="pff" style="grid-column:1/-1"><label>Designer "Why This Piece" bullets (pipe-separated, e.g. Japanese denim | Hand-finished stitching | Only 12 made)</label><input type="text" id="pf-story" placeholder="Bullet one | Bullet two | Bullet three"/></div>
+    <div class="pff"><label>MRP (₹) *</label><input type="number" id="pf2" placeholder="1799"/></div>
+    <div class="pff"><label>Offer Price (₹) — blank if none</label><input type="number" id="pf3" placeholder="1299"/></div>
+    <div class="pff full"><label>Short Description *</label><textarea id="pf4" rows="2" placeholder="Brief selling description shown in modal"></textarea></div>
+    <div class="pff full"><label>Full Description (shown in expandable section)</label><textarea id="pf-desc2" rows="4" placeholder="Detailed product description — fabric, fit notes, care instructions, etc."></textarea></div>
+    <div class="pff"><label>Sizes (pipe-separated)</label><input type="text" id="pf5" placeholder="28|30|32|34|36" oninput="pfStockRender()"/></div>
+    <div class="pff full stk-box" id="pf-stock-box">
+      <label>Stock per size</label>
+      <label class="stk-on"><input type="checkbox" id="pf-stock-on" onchange="pfStockRender()"> Track stock for this product <span>— a size sells out on the website automatically when it reaches 0</span></label>
+      <div id="pf-stock-grid" class="stk-grid"></div>
+      <div class="stk-hint" id="pf-stock-hint"></div>
+      <div id="pf-stock-hist"></div>
+    </div>
+    <div class="pff"><label>Colours (text, shown on the product page)</label><input type="text" id="pf6" placeholder="Faded Indigo|Stone Blue"/></div>
+    <div class="pff full"><label>Colour Family &mdash; drives the storefront colour filter</label>
+      <div id="pf-shade" class="shadepick"></div>
+      <small>Pick what the jean actually looks like in the photo, not what the name says. Leave unset and the product simply won't appear under any colour.</small></div>
+    <div class="pff"><label>Display Order</label><input type="number" id="pf8" value="1"/></div>
+    <div class="pff"><label>Instagram Reel Link</label><input type="url" id="pf-reel" placeholder="https://instagram.com/reel/..."/></div>
+    <div class="pff full"><label>Product Video URL (optional — autoplays muted in place of the main image, used by the Vault page and product modal)</label><input type="url" id="pf-video" placeholder="https://pub-....r2.dev/products/your-video.mp4"/><small>Must be a direct .mp4 link (upload to R2/Supabase Storage first). Leave blank to just show the main photo.</small></div>
+    <div class="pff"><label>Sold Count (manual override)</label><input type="number" id="pf-soldcount" min="0" placeholder="Leave empty to auto-calculate from orders"/></div>
+    <div class="pff full" style="border:1px solid var(--line);border-radius:12px;padding:16px">
+      <label style="font-size:14px">Size Guide For This Product</label>
+      <select id="pf-sg-mode" style="padding:8px;background:#141312;color:#F8F7F4;border:1px solid rgba(255,255,255,.18);border-radius:8px;margin-top:8px" onchange="onSgModeChange()">
+        <option value="default">Use Fit default (from admin Size Guide)</option>
+        <option value="custom">Custom for this product</option>
+        <option value="off">Don't show size guide on this product</option>
+        <optgroup label="Size Models" id="pf-sg-models-group"></optgroup>
+      </select>
+      <small style="color:var(--off);display:block;margin-top:8px">Default pulls from the fit-based table in Admin → Size Guide. Pick a Size Model to reuse a named chart shared across products — edit the model once in Admin → Size Models and every product using it updates. Pick Custom for a one-off just for this product.</small>
+      <div id="pf-sg-custom" style="display:none;margin-top:14px"></div>
+      <div id="pf-sg-model-preview" style="display:none;margin-top:14px;padding:12px;background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:8px;font-size:12.5px"></div>
+      <label style="display:flex;align-items:center;gap:8px;margin-top:16px;cursor:pointer">
+        <input type="checkbox" id="pf-fitstudio" style="width:16px;height:16px"/>
+        <span style="font-size:12.5px">Show "Not sure of your size? Find it" on this product</span>
+      </label>
+      <small style="color:var(--off);display:block;margin-top:4px">Off by default for every product. Turn on individually here, or use "Enable Fit Studio for this Fit" in the Sequence tab to switch on a whole fit at once.</small>
+    </div>
+    <div class="pff full">
+      <label>Product Images * (up to 5 — first = main card image)</label>
+      <input type="file" id="pf9" accept="image/*,.heic,.heif" multiple onchange="handleImgs(this)"/>
+      <small>Upload from phone/computer, OR paste image links below (one per line). First image = product card thumbnail.</small>
+      <textarea id="pf-imgurls" rows="3" placeholder="Paste image links — one per line:
+https://raw.githubusercontent.com/drop-365/365dropstore/main/images/jean1.jpg
+https://raw.githubusercontent.com/drop-365/365dropstore/main/images/jean2.jpg" style="margin-top:8px;width:100%;font-family:var(--mono,monospace);font-size:12px"></textarea>
+      <button class="btn btn-g" type="button" onclick="addImgUrls()" style="margin-top:6px;font-size:12px;padding:9px 16px">+ Add these links</button>
+      <small style="display:block;margin-top:6px;color:var(--off)">Tip: this also sets your hero image — whichever product you mark as the featured/bestseller shows large on the homepage.</small>
+      <div class="ith" id="ithumbs"></div>
+      <input type="hidden" id="pfimgs"/>
+    </div>
+    <div class="pff full">
+      <label>Size Chart Image (upload your measurement guide)</label>
+      <input type="file" id="pf-sc" accept="image/*,.heic,.heif" onchange="scImgUpload(this)"/>
+      <small>Upload a size chart image — shown in product modal as a popup. Recommended: table screenshot or measurement diagram.</small>
+      <div id="sc-prv" style="margin-top:8px"></div>
+      <input type="hidden" id="pf-scimg"/>
+    </div>
+    <div class="pff full" style="display:flex;gap:12px;margin-top:8px">
+      <button class="btn btn-w" onclick="saveProd()">Save Product</button>
+      <button class="btn btn-g" onclick="resetF()">Clear</button>
+    </div>
+    <div id="pf-msg" class="pff full" style="display:none;padding:10px;border-radius:9px"></div>
+  </div></div>
+
+  <!-- edit site tab -->
+  <div id="tab-site" class="apsec" style="display:none"><h3>EDIT SITE CONTENT <button class="btn btn-g" style="font-size:11px;padding:4px 10px;margin-left:8px" onclick="refreshSectionFromSupabase('site')">↻ Refresh</button></h3><div class="pfgrid">
+    <div class="pff full" style="padding-bottom:14px;border-bottom:1px solid var(--line)"><label>ANNOUNCEMENT BAR (small text below nav)</label><input type="text" id="site-ann" placeholder="Drop 001 · Delhi · WhatsApp-only checkout · Pan India shipping"/></div>
+    <div class="pff full" style="border-top:0"><label>HERO HEADLINE (line 1 | line 2 | line 3 — pipe separated)</label><input type="text" id="site-hero-h1" placeholder="365|DROPS|DAILY"/><small>3 words, one per line. First and third go white, middle goes muted.</small></div>
+    <div class="pff full"><label>PRODUCT VIEW — what happens when a customer taps a product</label><select id="site-product-view"><option value="page">Full page — own link, Back button works, related products (recommended)</option><option value="modal">Pop-up over the shop (old behaviour)</option></select></div><div class="pff full"><label>HERO SUBTITLE</label><textarea id="site-hero-sub" rows="2"></textarea></div>
+    <div class="pff full" style="border-bottom:1px solid var(--line);padding-bottom:14px;margin-bottom:4px">
+      <label>HERO PRODUCT — clicking the hero image/price opens this product</label>
+      <select id="site-hero-product"><option value="">— Auto (bestseller / first live product) —</option></select>
+      <small>Pick which product the hero showcase links to. Same idea as linking a Story to a product.</small>
+    </div>
+    <div class="pff full" style="border-bottom:1px solid var(--line);padding-bottom:14px;margin-bottom:4px">
+      <label>NEXT DROP COUNTDOWN — set the exact date &amp; time</label>
+      <input type="datetime-local" id="site-drop-date"/>
+      <small>Countdown on the homepage ticks down to this. Leave blank to fall back to the default (next Friday 8pm IST).</small>
+    </div>
+    <div class="pff full" style="border-bottom:1px solid var(--line);padding-bottom:14px;margin-bottom:4px">
+      <label>VAULT DROP COUNTDOWN — separate from the drop above</label>
+      <input type="datetime-local" id="site-vault-drop-date"/>
+      <small>Controls the Vault door countdown on the homepage AND the countdown on 365dropstore.com/vault/ — both read this same date, so they always match. Leave blank to fall back to 9 PM today.</small>
+    </div>
+    <!-- hero showcase removed -->
+    <div class="pff full" style="border-bottom:1px solid var(--line);padding-bottom:14px;margin-bottom:4px">
+      <label>HERO IMAGE (right side) — paste GitHub raw link</label>
+      <input type="url" id="site-hero-img" placeholder="https://raw.githubusercontent.com/drop-365/365dropstore/main/images/hero.jpg"/>
+      <small>This overrides the auto-picked product image on the right side of the homepage hero.</small>
+    </div>
+    <div class="pff full" style="border-bottom:1px solid var(--line);padding-bottom:14px;margin-bottom:4px">
+      <label>HERO SMALL GRID — top thumbnail</label>
+      <input type="url" id="site-hero-thumb1" placeholder="https://raw.githubusercontent.com/drop-365/365dropstore/main/images/thumb1.jpg"/>
+    </div>
+    <div class="pff full" style="border-bottom:1px solid var(--line);padding-bottom:14px;margin-bottom:4px">
+      <label>HERO SMALL GRID — bottom thumbnail</label>
+      <input type="url" id="site-hero-thumb2" placeholder="https://raw.githubusercontent.com/drop-365/365dropstore/main/images/thumb2.jpg"/>
+    </div>
+    <div class="pff full" style="padding-bottom:14px;border-bottom:1px solid var(--line)">
+      <label>EDITORIAL GALLERY — paste image link</label>
+      <div style="display:flex;gap:8px">
+        <input type="url" id="ed-gallery-link" placeholder="Paste Supabase Storage URL here" style="flex:1"/>
+        <button class="btn btn-w" style="white-space:nowrap" onclick="addGalleryLink('ed')">Add Photo</button>
+      </div>
+      <small>Go to Supabase Dashboard → Storage → product-images → find your photo → click it → copy the public URL → paste above → Add Photo. First photo is the main banner.</small>
+      <div class="gmgr" id="ed-gmgr"></div>
+    </div>
+    <div class="pff full" style="padding-bottom:14px;border-bottom:1px solid var(--line)">
+      <label>STORY GALLERY — paste image link</label>
+      <div style="display:flex;gap:8px">
+        <input type="url" id="st-gallery-link" placeholder="Paste Supabase Storage URL here" style="flex:1"/>
+        <button class="btn btn-w" style="white-space:nowrap" onclick="addGalleryLink('st')">Add Photo</button>
+      </div>
+      <small>Go to Supabase Dashboard → Storage → product-images → find your story photo → copy the public URL → paste above → Add Photo. First photo is the main image.</small>
+      <div class="gmgr" id="st-gmgr"></div>
+    </div>
+    <div class="pff full" style="padding-bottom:14px;border-bottom:1px solid var(--line)">
+      <label>TRUST STRIP (4 items — emoji|Title|Subtitle, one per line)</label>
+      <textarea id="site-trust" rows="4" placeholder="📦|Pan India|3-5 day delivery"></textarea>
+    </div>
+    <div class="pff full"><label>EDITORIAL HEADLINE</label><input type="text" id="site-ed-h2"/></div>
+    <div class="pff full"><label>EDITORIAL TEXT</label><textarea id="site-ed-p" rows="2"></textarea></div>
+    <div class="pff full" style="border-top:1px solid var(--line);padding-top:14px"><label>STORY HEADLINE</label><input type="text" id="site-story-h2"/></div>
+    <div class="pff full"><label>STORY PARAGRAPH 1</label><textarea id="site-story-p1" rows="2"></textarea></div>
+    <div class="pff full"><label>STORY PARAGRAPH 2</label><textarea id="site-story-p2" rows="2"></textarea></div>
+    <div class="pff full" style="border-top:1px solid var(--line);padding-top:14px;margin-top:8px">
+      <label>SHIPPING & RETURNS (bullet points, pipe-separated)</label>
+      <textarea id="site-shipping" rows="4" placeholder="Delivery in 3-5 working days|Free shipping all over India|Only damaged or defective items can be returned|Unboxing video required for proof|Size exchange for ₹200 fee|Item must be in original condition|Check size before ordering"></textarea>
+      <small>Pipe-separated. Each item becomes a bullet point in the product modal.</small>
+    </div>
+    <div class="pff full" style="border-top:1px solid var(--line);padding-top:14px;margin-top:8px">
+      <label>MARQUEE / SCROLLING TICKER (pipe-separated items)</label>
+      <input type="text" id="site-marquee" placeholder="365 DROP|CLOTHING OR NOTHING|PREMIUM DENIM|DELHI DROPS|LIMITED RUNS"/>
+      <small>Pipe-separated. These scroll horizontally below the hero.</small>
+    </div>
+    <div class="pff full" style="border-top:1px solid var(--line);padding-top:14px;margin-top:8px">
+      <label>HERO STATS (3 items: number|label, pipe-separated per item, comma between items)</label>
+      <input type="text" id="site-stats" placeholder="365|Days dropping,MANY|Ways to wear,0|Middlemen"/>
+      <small>Format: number|label,number|label,number|label</small>
+    </div>
+    <div class="pff full" style="border-top:1px solid var(--line);padding-top:14px;margin-top:8px"><label>FOOTER — CONTACT INFO</label></div>
+    <div class="pff"><label>Phone Number</label><input type="text" id="site-phone" placeholder="+91 9990905969"/></div>
+    <div class="pff"><label>Email</label><input type="text" id="site-email" placeholder="365dropstore@gmail.com"/></div>
+    <div class="pff full"><label>Address</label><input type="text" id="site-address" placeholder="E-42/2A Subhash Vihar, Delhi 110053"/></div>
+    <div class="pff full" style="border-top:1px solid var(--line);padding-top:14px;margin-top:8px"><label>SOCIAL MEDIA LINKS</label></div>
+    <div class="pff"><label>Instagram URL</label><input type="url" id="site-insta" placeholder="https://instagram.com/365dropstore"/></div>
+    <div class="pff"><label>Facebook URL</label><input type="url" id="site-fb" placeholder="https://facebook.com/fazalsaifi2"/></div>
+    <div class="pff full" style="display:flex;gap:12px;margin-top:12px"><button class="btn btn-w" onclick="saveSite()">Save All Site Content</button></div>
+    <div id="site-msg" class="pff full" style="display:none;padding:10px;border-radius:9px"></div>
+  </div></div>
+
+  <!-- live banner tab -->
+  <div id="tab-banner" class="apsec" style="display:none"><h3>LIVE BANNER <button class="btn btn-g" style="font-size:11px;padding:4px 10px;margin-left:8px" onclick="refreshSectionFromSupabase('banner')">↻ Refresh</button></h3>
+    <p style="color:var(--off);font-size:14px;margin-bottom:20px">This white banner appears at the very top of the site. Use it for flash sales, announcements, limited-time offers.</p>
+    <div class="pfgrid">
+      <div class="pff full"><label>Banner Text</label><input type="text" id="ban-text" placeholder="🔥 FLASH SALE — First 200 orders get ₹200 OFF. Use code DROP200 on WhatsApp."/></div>
+      <div class="pff full" style="display:flex;align-items:center;gap:14px">
+        <label style="display:flex;align-items:center;gap:9px;font-size:14px;color:var(--w2);text-transform:none;letter-spacing:0;cursor:pointer">
+          <input type="checkbox" id="ban-show" style="width:18px;height:18px;accent-color:var(--white)"/>
+          Show banner on site
+        </label>
+      </div>
+      <div class="pff full" style="display:flex;gap:12px"><button class="btn btn-w" onclick="saveBanner()">Save Banner</button></div>
+      <div id="ban-msg" class="pff full" style="display:none;padding:10px;border-radius:9px"></div>
+    </div>
+  </div>
+
+  <!-- vault content tab -->
+  <div id="tab-vault" class="apsec" style="display:none"><h3>VAULT CONTENT</h3>
+    <p style="color:var(--off);font-size:14px;margin-bottom:20px">Every piece of text on 365dropstore.com/vault/ — headline, both products, and the certificate section. Leave any field blank to keep the page's current default wording.</p>
+    <div class="pfgrid">
+      <div class="pff full"><label>Kicker line (above the headline)</label><input type="text" id="vc-kicker" placeholder="The Vault — twelve pairs, worldwide"/></div>
+      <div class="pff"><label>Headline — line 1</label><input type="text" id="vc-h1a" placeholder="Two forms."/></div>
+      <div class="pff"><label>Headline — line 2 (shown in accent italic)</label><input type="text" id="vc-h1b" placeholder="Built to last."/></div>
+      <div class="pff full"><label>Sub-headline paragraph</label><textarea id="vc-sub" rows="2" placeholder="Okayama 18oz selvedge, hand-forged in our Delhi studio..."></textarea></div>
+
+      <div class="pff full" style="border-top:1px solid var(--line);padding-top:16px;margin-top:6px;border:1px solid var(--line);border-radius:10px;padding:16px">
+        <label style="font-size:15px">HERO BACKGROUND</label>
+        <p style="color:var(--off);font-size:12.5px;margin:6px 0 14px">Full-bleed background behind the Vault headline — same Video/Image choice as the homepage Hero Grid. <b>Video (autoplay)</b> loops muted in the background. <b>Static image</b> shows one frame, no motion. This never touches the Entry I / Entry II product videos below.</p>
+        <div style="display:flex;gap:10px;align-items:center;margin-bottom:10px">
+          <select id="vc-hero-type" style="padding:9px;background:#141312;color:#F8F7F4;border:1px solid rgba(255,255,255,.18);border-radius:8px">
+            <option value="video">Video (autoplay)</option>
+            <option value="image">Static image</option>
+          </select>
+        </div>
+        <input type="url" id="vc-hero-url" placeholder="https://pub-....r2.dev/vault/hero-bg.mp4" style="width:100%"/>
+        <small style="color:var(--off);display:block;margin-top:6px">Direct .mp4 link for Video, or a direct image link for Static image. Leave blank to keep a plain dark panel.</small>
+      </div>
+
+      <div class="pff full" style="border-top:1px solid var(--line);padding-top:16px;margin-top:6px;border:1px solid var(--line);border-radius:10px;padding:16px">
+        <label style="font-size:15px">HOMEPAGE TEASER (Vault Door widget)</label>
+        <p style="color:var(--off);font-size:12.5px;margin:6px 0 14px">The pre-launch teaser card on the homepage, between New Arrivals and Shop. Separate copy from the Vault page above since this is time-limited "before launch" language, not the evergreen headline. Editing here updates the homepage automatically — the countdown time itself stays on the "Vault Drop Countdown" field in Edit Site.</p>
+        <div class="pfgrid">
+          <div class="pff"><label>Headline line 1</label><input type="text" id="vc-t-h1a" placeholder="Two forms."/></div>
+          <div class="pff"><label>Headline line 2 (italic)</label><input type="text" id="vc-t-h1b" placeholder="Dropping tonight."/></div>
+          <div class="pff"><label>Kicker line 1</label><input type="text" id="vc-t-kicker1" placeholder="VAULT 001 — ATELIER EDITION"/></div>
+          <div class="pff"><label>Kicker line 2</label><input type="text" id="vc-t-kicker2" placeholder="12 UNITS WORLDWIDE · DELHI STUDIO"/></div>
+          <div class="pff full"><label>Body line</label><input type="text" id="vc-t-body" placeholder="Okayama 18oz selvedge. Hand-forged in Delhi studio — not a warehouse. Numbered, certificate enclosed."/></div>
+          <div class="pff"><label>Button text</label><input type="text" id="vc-t-cta" placeholder="OPENS 9 PM →"/></div>
+          <div class="pff full" style="border-top:1px solid var(--line);padding-top:12px;margin-top:4px"><label style="font-size:13px;color:var(--off)">Locked-visual HUD labels (small print on the blurred image)</label></div>
+          <div class="pff"><label>Top-left tag</label><input type="text" id="vc-t-file" placeholder="FILE // 365-BLK-001"/></div>
+          <div class="pff"><label>Top-right tag</label><input type="text" id="vc-t-enc" placeholder="ENCRYPTED"/></div>
+          <div class="pff"><label>Center label</label><input type="text" id="vc-t-lock" placeholder="VISUAL LOCKED"/></div>
+          <div class="pff"><label>Center sub-label</label><input type="text" id="vc-t-locksub" placeholder="DECRYPTS AT 9:00 PM"/></div>
+          <div class="pff"><label>Bottom-left tag</label><input type="text" id="vc-t-res" placeholder="RES: CLASSIFIED"/></div>
+          <div class="pff"><label>Bottom-right tag</label><input type="text" id="vc-t-ed" placeholder="ED. 04/12"/></div>
+        </div>
+      </div>
+
+      <div class="pff full" style="border-top:1px solid var(--line);padding-top:16px;margin-top:6px"><label style="font-size:15px">ENTRY I</label></div>
+      <div class="pff"><label>Product name</label><input type="text" id="vc-e1-name" placeholder="365-WD Obsidian"/></div>
+      <div class="pff"><label>Edition meta line</label><input type="text" id="vc-e1-meta" placeholder="Carbon Black · Wide-Leg · Edition 4 of 12"/></div>
+      <div class="pff full"><label>Short description</label><input type="text" id="vc-e1-desc" placeholder="Carbon black, twelve dips..."/></div>
+      <div class="pff"><label>Price (₹)</label><input type="number" id="vc-e1-price" placeholder="7999"/></div>
+      <div class="pff"><label>MRP / crossed-out price (₹)</label><input type="number" id="vc-e1-mrp" placeholder="12000"/></div>
+      <div class="pff full"><label>Provenance — 4 lines, format: Label|Description text</label>
+        <textarea id="vc-e1-prov" rows="4" placeholder="Cloth|18oz Okayama selvedge...
+Hardware|Copper rivets, hand-set...
+Fit|Wide-leg, true to size...
+Origin|Cut, sewn, and inspected..."></textarea>
+      </div>
+
+      <div class="pff full" style="border-top:1px solid var(--line);padding-top:16px;margin-top:6px"><label style="font-size:15px">ENTRY II</label></div>
+      <div class="pff"><label>Product name</label><input type="text" id="vc-e2-name" placeholder="365-WD Gilded Indigo"/></div>
+      <div class="pff"><label>Edition meta line</label><input type="text" id="vc-e2-meta" placeholder="Wide-Leg · Edition 2 of 12"/></div>
+      <div class="pff full"><label>Short description</label><input type="text" id="vc-e2-desc" placeholder="Kurabo mill selvedge..."/></div>
+      <div class="pff"><label>Price (₹)</label><input type="number" id="vc-e2-price" placeholder="8499"/></div>
+      <div class="pff"><label>MRP / crossed-out price (₹)</label><input type="number" id="vc-e2-mrp" placeholder="13500"/></div>
+      <div class="pff full"><label>Provenance — 4 lines, format: Label|Description text</label>
+        <textarea id="vc-e2-prov" rows="4" placeholder="Cloth|Kurabo mill selvedge...
+Hardware|Chain-stitched hem...
+Fit|The same wide-leg cut...
+Origin|Delhi studio..."></textarea>
+      </div>
+
+      <div class="pff full" style="border-top:1px solid var(--line);padding-top:16px;margin-top:6px"><label style="font-size:15px">CERTIFICATE SECTION</label>
+        <p style="color:var(--off);font-size:12px;margin-top:4px">This is the authenticity section near the bottom of the page — it does not claim NFC chips, since the product doesn't have them. Keep it truthful when editing.</p>
+      </div>
+      <div class="pff"><label>Kicker</label><input type="text" id="vc-cert-kicker" placeholder="Authenticity"/></div>
+      <div class="pff"><label>Headline — line 2 (accent italic)</label><input type="text" id="vc-cert-h1b" placeholder="numbered by hand."/></div>
+      <div class="pff full"><label>Headline — line 1</label><input type="text" id="vc-cert-h1a" placeholder="Every pair,"/></div>
+      <div class="pff full"><label>Body paragraph</label><textarea id="vc-cert-body" rows="3" placeholder="Each pair ships with a signed certificate..."></textarea></div>
+      <div class="pff full"><label>Bottom mark line</label><input type="text" id="vc-cert-mark" placeholder="Certificate enclosed · Delhi Studio · Free shipping"/></div>
+      <div class="pff"><label>Signature name (on the card)</label><input type="text" id="vc-cert-sig" placeholder="e.g. your name or initials"/></div>
+      <div class="pff"><label>Location line (on the card)</label><input type="text" id="vc-cert-loc" placeholder="Delhi Studio|Est. 2025"/><small style="color:var(--off)">Two lines — separate with a pipe |</small></div>
+      <div class="pff"><label>Edition number (this card)</label><input type="text" id="vc-cert-ed-no" placeholder="04"/></div>
+      <div class="pff"><label>Edition total</label><input type="text" id="vc-cert-ed-total" placeholder="12"/></div>
+
+      <div class="pff full" style="display:flex;gap:12px;margin-top:8px"><button class="btn btn-w" onclick="saveVaultContent()">Save Vault Content</button></div>
+      <div id="vc-msg" class="pff full" style="display:none;padding:10px;border-radius:9px"></div>
+    </div>
+  </div>
+
+  <!-- star wall tab -->
+  <div id="tab-wall" class="apsec" style="display:none"><h3>STAR WALL</h3>
+    <p style="color:var(--off);font-size:14px;margin-bottom:20px">The star map at 365dropstore.com/wall/. Every paid order adds one star automatically — there is nothing to add by hand. Only the buyer's <b>first name</b> is ever shown; phone, email and address never leave the server.</p>
+    <div class="pfgrid">
+      <div class="pff full">
+        <label style="display:flex;align-items:center;gap:10px;cursor:pointer">
+          <input type="checkbox" id="wl-enabled" checked style="width:16px;height:16px;accent-color:#C0392B"/>
+          <span>Star Wall is live</span>
+        </label>
+        <small style="color:var(--off);display:block;margin-top:5px">Untick to take the page down without deleting anything. The homepage strip disappears too.</small>
+      </div>
+
+      <div class="pff full"><label>Hide these names</label>
+        <textarea id="wl-hidden" rows="3" placeholder="One name per line"></textarea>
+        <small style="color:var(--off)">Anyone listed here is pulled off the map. Use it if a buyer asks to be removed, or if a junk name slips through. Matching ignores case and spacing.</small>
+      </div>
+
+      <div class="pff full"><label>Offline buyers without recorded names</label>
+        <input type="number" id="wl-offline" min="0" max="5000" step="1" placeholder="0"/>
+        <small style="color:var(--off)">Real past buyers whose names weren't recorded. Each shows as an unnamed star, placed before the named stars. Raise it as you learn more; never use it for people who didn't buy.</small>
+      </div>
+      <div class="pff full"><label>Label on those stars</label>
+        <input type="text" id="wl-offline-label" maxlength="22" placeholder="Early Buyer"/>
+        <small style="color:var(--off)">Shown with each star's own number, e.g. "Early Buyer #247". Default: Early Buyer.</small>
+      </div>
+
+      <div class="pff full"><label>Extra blocked words</label>
+        <textarea id="wl-blocked" rows="3" placeholder="One word per line"></textarea>
+        <small style="color:var(--off)">Added on top of the built-in abuse list. Names containing these never reach the page. Leetspeak (f0ck, ch00t) and repeated letters are already handled automatically.</small>
+      </div>
+
+      <div class="pff full" style="border:1px solid var(--line);border-radius:10px;padding:14px;background:rgba(0,0,0,.02)">
+        <label style="font-size:13px">LIVE STATUS</label>
+        <div id="wl-status" style="font-size:13px;color:var(--off);margin-top:8px">Not checked yet.</div>
+        <button class="btn btn-g" style="font-size:12px;padding:6px 12px;margin-top:10px" onclick="checkWallStatus()">↻ Check now</button>
+      </div>
+
+      <div class="pff full" style="display:flex;gap:12px;margin-top:8px"><button class="btn btn-w" onclick="saveWallSettings()">Save Star Wall Settings</button></div>
+      <div id="wl-msg" class="pff full" style="display:none;padding:10px;border-radius:9px"></div>
+    </div>
+  </div>
+
+  <!-- fits manager tab -->
+  <div id="tab-fits" class="apsec" style="display:none"><h3>FITS MANAGER <button class="btn btn-g" style="font-size:11px;padding:4px 10px;margin-left:8px" onclick="refreshSectionFromSupabase('fits')">↻ Refresh</button></h3>
+    <p style="color:var(--off);font-size:14px;margin-bottom:18px">Add or remove fit options. These appear as filter checkboxes and in the product Add/Edit form.</p>
+    <div class="fits-list" id="fits-list"></div>
+    <div class="fit-add"><input type="text" id="fit-new" placeholder="New fit (e.g. Wide-Leg, Relaxed…)" onkeydown="if(event.key==='Enter')addFit()"/><button class="btn btn-w" onclick="addFit()">Add</button></div>
+    <p style="color:var(--off);font-size:12px;margin-top:12px">Changes apply immediately to filters and product forms.</p>
+    <div style="border-top:1px solid var(--line);margin-top:24px;padding-top:20px">
+      <label style="font-size:15px">HOMEPAGE SECTIONS</label>
+      <p style="color:var(--off);font-size:13px;margin:6px 0 14px">Show a dedicated row on the homepage for any fit — top 4 items, with a "Show More" that filters the full catalog. Unchecked fits stay filter-only, no homepage row.</p>
+      <div id="home-sections-admin"></div>
+      <button class="btn btn-w" style="margin-top:14px" onclick="saveHomeSections()">Save Homepage Sections</button>
+      <p id="hs-msg" style="display:none;font-size:12px;margin-top:8px"></p>
+    </div>
+  </div>
+
+  <!-- reviews tab -->
+  <div id="tab-reviews" class="apsec" style="display:none"><h3>REVIEWS <button class="btn btn-g" style="font-size:11px;padding:4px 10px;margin-left:8px" onclick="refreshSectionFromSupabase('reviews')">↻ Refresh</button></h3><div class="pfgrid"><div class="pff"><label>Customer Name</label><input type="text" id="rv0" placeholder="Aryan M."/></div><div class="pff"><label>City</label><input type="text" id="rv1" placeholder="Delhi"/></div><div class="pff"><label>Stars (1–5)</label><input type="number" id="rv2" min="1" max="5" value="5"/></div><div class="pff full"><label>Review Text</label><textarea id="rv3" rows="3" placeholder="What they said…"></textarea></div><div class="pff full"><button class="btn btn-w" onclick="saveRev()">Add Text Review</button></div><div class="pff full" style="border-top:1px solid var(--line);padding-top:16px;margin-top:6px"><label>OR ADD IMAGE REVIEWS — buyer screenshots (Insta story / WhatsApp chat)</label><input type="file" accept="image/*,.heic,.heif" multiple onchange="revImgUp(this)"/><small>Upload buyer screenshots. Each becomes a tap-to-zoom card in the reviews grid. Multiple allowed.</small></div></div><div style="margin-top:22px" id="rev-adm"></div><div style="border-top:1px solid var(--line);margin-top:26px;padding-top:18px"><h3>CUSTOMER PHOTO WALL</h3><p style="color:var(--off);font-size:12.5px;margin:6px 0 12px">Photos customers send you on WhatsApp / Instagram after delivery. Shows on the site as "WORN BY THE SQUAD" above the reviews. Only upload photos the customer is OK with you posting.</p><div class="pfgrid"><div class="pff"><label>Customer first name (optional, shown on photo)</label><input type="text" id="ugc-name" placeholder="Fazal"/></div><div class="pff full"><input type="file" accept="image/*,.heic,.heif" multiple onchange="ugcUp(this)"/><small>Multiple allowed. Each photo becomes one tile.</small></div></div><div style="margin-top:14px;display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:10px" id="ugc-adm"></div></div></div>
+
+  <!-- story updates tab -->
+  <div id="tab-stories" class="apsec" style="display:none"><h3>STORY UPDATES <button class="btn btn-g" style="font-size:11px;padding:4px 10px;margin-left:8px" onclick="refreshSectionFromSupabase('stories')">↻ Refresh</button></h3>
+    <p style="color:var(--off);font-size:14px;margin-bottom:16px">Instagram-style daily updates. These show as tappable circles below the ticker, with a tap-through full-screen viewer that auto-advances.</p>
+    <div class="pfgrid">
+      <div class="pff"><label>Story Label (under the circle)</label><input type="text" id="sty-label" placeholder="New Drop"/></div>
+      <div class="pff"><label>Caption (shown over the story)</label><input type="text" id="sty-cap" placeholder="Drop 002 live now — DM to cop"/></div>
+      <div class="pff full"><label>Story Image (portrait 9:16 works best)</label><input type="file" accept="image/*,.heic,.heif" onchange="styUp(this)"/><small>Auto-compressed for fast load.</small><div id="sty-prv" style="margin-top:8px"></div><input type="hidden" id="sty-imgdata"/></div>
+      <div class="pff full"><label>Link to a Product (optional — shows a Buy Now button on the story)</label><select id="sty-product"><option value="">— None —</option></select></div>
+      <div class="pff full"><button class="btn btn-w" onclick="saveStory()">Add Story</button></div>
+      <div id="sty-msg" class="pff full" style="display:none;padding:10px;border-radius:9px"></div>
+    </div>
+    <div style="margin-top:22px" id="sty-adm"></div>
+  </div>
+
+  <!-- settings tab -->
+  <div id="tab-instagrid" class="apsec" style="display:none"><h3>HERO GRID <button class="btn btn-g" style="font-size:11px;padding:4px 10px;margin-left:8px" onclick="refreshSectionFromSupabase('instagrid')">↻ Refresh</button></h3>
+    <p style="color:var(--off);font-size:13px;margin:6px 0 14px"><b>Featured film:</b> the first content tile (lowest Order number) automatically renders as a large 2×2 cinema tile — the hero moment. Use the Order field to pick which reel leads. Remaining tiles flow around it. <b>Video</b> type is the premium path: your own reel file (download from your Instagram, upload to Supabase Storage), plays in-place with your play button, sound toggle, and Buy Now — zero Instagram chrome. <b>Instagram embed</b> renders as a cropped cinema tile (their card chrome cropped out; their play button and tap-to-Instagram remain — that's inside their iframe). <b>Static image</b>: your chosen frame, tap opens the product.</p>
+    <div style="display:flex;gap:20px;align-items:center;margin-bottom:16px;padding:12px;border:1px solid var(--line);border-radius:10px">
+      <div><label style="display:block;font-size:11px;color:var(--off);margin-bottom:4px">ROWS</label><select id="hg-rows" onchange="resizeHeroGrid()" style="padding:8px;background:#141312;color:#F8F7F4;border:1px solid rgba(255,255,255,.18);border-radius:8px"><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
+      <div><label style="display:block;font-size:11px;color:var(--off);margin-bottom:4px">COLUMNS</label><select id="hg-cols" onchange="resizeHeroGrid()" style="padding:8px;background:#141312;color:#F8F7F4;border:1px solid rgba(255,255,255,.18);border-radius:8px"><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
+      <small style="color:var(--off);align-self:flex-end;padding-bottom:9px">Changing this resizes the tile list below — fill in fewer, bigger tiles if you don't have 9 videos yet.</small>
+    </div>
+    <div id="igrid-admin-list"></div>
+    <button class="btn btn-g" style="margin-top:14px" onclick="saveHeroGrid()">Save Hero Grid</button>
+    <p id="ig-msg" style="display:none;font-size:12px;margin-top:8px"></p>
+  </div>
+  <div id="tab-faq" class="apsec" style="display:none"><h3>BEFORE YOU ORDER</h3>
+    <p style="color:var(--off);font-size:13px;margin:6px 0 14px">Edit the FAQ cards shown near the footer. Each card has a question and answer. Changes save to localStorage and render immediately.</p>
+    <div id="faq-admin-list"></div>
+    <button class="btn btn-w" style="margin-top:14px" onclick="addFaqItem()">+ Add Question</button>
+    <button class="btn btn-g" style="margin-top:14px;margin-left:8px" onclick="saveFaqItems()">Save FAQ</button>
+    <p id="faq-msg" style="display:none;font-size:12px;margin-top:8px"></p>
+  </div>
+  <div id="tab-sizeguide" class="apsec" style="display:none"><h3>SIZE GUIDE</h3>
+    <p style="color:var(--off);font-size:13px;margin:6px 0 18px">Every product uses ONE of these, picked on its own Edit screen: the default chart for its fit below, a named model, or a one-off custom guide just for that product.</p>
+
+    <h4 style="margin-bottom:6px">1 — DEFAULT, BY FIT</h4>
+    <p style="color:var(--off);font-size:12.5px;margin-bottom:14px">The normal chart. Every Wide-Leg product uses this unless you specifically switch it to something else on its own Edit screen.</p>
+    <div id="sg-admin"></div>
+    <button class="btn btn-g" style="margin-top:14px" onclick="saveSizeGuide()">Save Size Guide</button>
+    <p id="sg-msg" style="display:none;font-size:12px;margin-top:8px"></p>
+
+    <h4 style="margin:26px 0 6px">2 — NAMED MODELS (OPTIONAL)</h4>
+    <p style="color:var(--off);font-size:12.5px;margin-bottom:14px">Only needed if a specific product runs differently from its fit's default above — e.g. a cut that fits smaller than the rest of the Wide-Leg range. Create a model here once, then pick it on that product's Edit screen. Editing it here updates every product using it at once. Most products will never need this section.</p>
+    <button class="btn btn-g" style="margin-bottom:16px" onclick="addSizeModel()">+ New Size Model</button>
+    <div id="szm-list"></div>
+  </div>
+  <div id="tab-payment" class="apsec" style="display:none">
+    <h3>PAYMENT SETTINGS</h3>
+    <p style="color:var(--off);font-size:12.5px;margin-bottom:16px">These settings control what payment options customers see at checkout. Changes reflect immediately on the website.</p>
+    <div class="pfgrid">
+      <div class="pff"><label>Prepaid (Online Payment)</label><select id="pay-prepaid"><option value="1">Enabled</option><option value="0">Disabled</option></select></div>
+      <div class="pff"><label>Cash on Delivery (COD)</label><select id="pay-cod"><option value="1">Enabled</option><option value="0">Disabled</option></select></div>
+      <div class="pff"><label>COD Additional Charge (&#8377;)</label><input type="number" id="pay-cod-charge" min="0" placeholder="50"/></div>
+      <div class="pff"><label>Partial COD</label><select id="pay-partial"><option value="1">Enabled</option><option value="0">Disabled</option></select></div>
+      <div class="pff"><label>Partial COD Advance Type</label><select id="pay-partial-mode" onchange="togglePartialModeFields()"><option value="flat">Flat amount</option><option value="percent">Percentage of order</option></select></div>
+      <div class="pff" id="pay-partial-flat-wrap"><label>Flat Advance Amount (&#8377;)</label><input type="number" id="pay-partial-adv" min="0" placeholder="199"/></div>
+      <div class="pff" id="pay-partial-pct-wrap" style="display:none">
+        <label>Advance Percentage (%)</label><input type="number" id="pay-partial-pct" min="1" max="100" placeholder="20"/>
+        <small style="display:block;margin-top:4px;color:var(--off)">Scales with cart size &mdash; a 5-item order asks for 5&times; the deposit of a 1-item order, same risk protection either way.</small>
+      </div>
+      <div class="pff" id="pay-partial-min-wrap" style="display:none"><label>Minimum Advance (&#8377;)</label><input type="number" id="pay-partial-min" min="0" placeholder="99"/></div>
+
+      <div class="pff full" style="border:1px solid rgba(192,57,43,.25);border-radius:10px;padding:16px;margin-top:6px">
+        <label style="font-size:15px">VAULT &mdash; SEPARATE COD RULES</label>
+        <p style="color:var(--off);font-size:12.5px;margin:6px 0 14px">Vault pieces cost far more than the regular drop, so the same small deposit leaves a much bigger amount riding on delivery. Turn this on to ask Vault buyers for a different advance. Leave it off and the Vault simply uses the settings above.</p>
+        <div class="pfgrid">
+          <div class="pff full"><label>Use different COD rules for the Vault</label>
+            <select id="pay-vault-on" onchange="toggleVaultPayFields()"><option value="0">No &mdash; same as the rest of the store</option><option value="1">Yes &mdash; Vault has its own rules</option></select>
+          </div>
+          <div class="pff vault-pay-field" style="display:none"><label>Partial COD on Vault</label>
+            <select id="pay-vault-partial" onchange="toggleVaultPayFields()"><option value="1">Enabled</option><option value="0">Disabled &mdash; prepaid only</option></select>
+            <small style="display:block;margin-top:4px;color:var(--off)">Disabling it makes the Vault fully prepaid, which removes the risk entirely.</small>
+          </div>
+          <div class="pff vault-pay-field" style="display:none"><label>Vault COD Charge (&#8377;)</label><input type="number" id="pay-vault-cod-charge" oninput="updateVaultPayPreview()" min="0" placeholder="50"/></div>
+          <div class="pff vault-pay-field" style="display:none"><label>Vault Advance Type</label>
+            <select id="pay-vault-mode" onchange="toggleVaultPayFields()"><option value="flat">Flat amount</option><option value="percent">Percentage of order</option></select>
+          </div>
+          <div class="pff vault-pay-field" id="pay-vault-flat-wrap" style="display:none"><label>Vault Flat Advance (&#8377;)</label><input type="number" id="pay-vault-adv" oninput="updateVaultPayPreview()" min="0" placeholder="999"/></div>
+          <div class="pff vault-pay-field" id="pay-vault-pct-wrap" style="display:none"><label>Vault Advance Percentage (%)</label><input type="number" id="pay-vault-pct" oninput="updateVaultPayPreview()" min="1" max="100" placeholder="50"/></div>
+          <div class="pff vault-pay-field" id="pay-vault-min-wrap" style="display:none"><label>Vault Minimum Advance (&#8377;)</label><input type="number" id="pay-vault-min" oninput="updateVaultPayPreview()" min="0" placeholder="499"/></div>
+          <div class="pff full vault-pay-field" style="display:none">
+            <div id="pay-vault-preview" style="font-size:12.5px;color:var(--off);background:rgba(0,0,0,.04);border-radius:8px;padding:10px 12px">&nbsp;</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pff full"><button class="btn btn-w" onclick="savePaySettings()" style="width:100%;justify-content:center">Save Payment Settings</button></div>
+    </div>
+  </div>
+  <div id="tab-settings" class="apsec" style="display:none"><h3>SETTINGS <button class="btn btn-g" style="font-size:11px;padding:4px 10px;margin-left:8px" onclick="refreshSectionFromSupabase('settings')">↻ Refresh</button></h3>
+    <div style="border:1px solid rgba(192,57,43,.25);border-radius:10px;padding:14px;margin-bottom:18px">
+      <h4 style="margin-bottom:10px">ADMIN THEME</h4>
+      <p style="color:var(--off);font-size:12px;margin-bottom:12px">Just how the admin panel looks on this device — doesn't affect the website customers see.</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap" id="theme-picker">
+        <button class="tb theme-swatch" data-theme="scifi" onclick="setAdminTheme('scifi')">Sci-Fi Red</button>
+        <button class="tb theme-swatch" data-theme="mono" onclick="setAdminTheme('mono')">Mono Dark</button>
+        <button class="tb theme-swatch" data-theme="ocean" onclick="setAdminTheme('ocean')">Ocean</button>
+        <button class="tb theme-swatch" data-theme="light" onclick="setAdminTheme('light')">Clean Light</button>
+      </div>
+    </div>
+    <div class="pfgrid">
+    <div class="pff full" style="border:1px solid var(--glow);border-radius:12px;padding:18px;margin-bottom:6px;background:rgba(192,57,43,.06)">
+      <label style="font-size:15px">🚀 PUBLISH TO LIVE (legacy — optional)</label>
+      <p style="color:var(--off)!important;font-size:12px;line-height:1.55;margin:8px 0 12px">Your saves now sync live automatically — you don't need this anymore for normal edits. <b>Preview</b> still works for checking unsaved drafts before saving. <b>Publish</b> is kept as a manual backup push, not required for day-to-day use.</p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn btn-g" onclick="previewDraft()">👁 Preview Draft</button>
+        <button class="btn btn-w" onclick="publishLive()" id="pub-btn">🚀 Publish to Live</button>
+      </div>
+      <div id="pub-msg" style="display:none;padding:10px;border-radius:9px;margin-top:12px;font-size:13px"></div>
+      <p style="color:var(--off)!important;font-size:11px;line-height:1.5;margin-top:10px;opacity:.7">First time? You'll be asked for your publish token once (set in Netlify env vars). It's stored locally after.</p>
+    </div>
+    <div class="pff full" style="border:1px solid var(--line);border-radius:12px;padding:18px;margin-bottom:6px;background:var(--glass,rgba(20,19,18,.03))">
+      <label style="font-size:15px">💾 BROWSER STORAGE</label>
+      <p style="color:var(--off)!important;font-size:12px;line-height:1.55;margin:8px 0 12px">Everything (products, photos, orders, reviews) lives in this browser's storage — capped around 5MB. Past ~80% you risk failed saves on the next image upload or order.</p>
+      <div id="storage-view"></div>
+      <div style="display:flex;gap:10px;margin-top:10px;flex-wrap:wrap">
+        <button class="btn btn-g" onclick="rnStorageView()">↻ Refresh</button>
+        <button class="btn btn-w" onclick="cleanupProductStorage()">🧹 Clean Up Storage</button>
+      </div>
+      <p id="cleanup-msg" style="display:none;font-size:12px;margin-top:8px"></p>
+    </div>
+    <div class="pff full" style="border:1px solid #C0392B;border-radius:12px;padding:18px;margin-bottom:6px;background:rgba(192,57,43,.06)">
+      <label style="font-size:15px">🚀 MIGRATE IMAGES TO R2</label>
+      <p style="color:var(--off)!important;font-size:12px;line-height:1.55;margin:8px 0 12px">Moves every product image and size chart that's still on Supabase Storage over to Cloudflare R2 (zero egress fees, ever). Existing product images already there stay untouched. <b>One-time operation</b> per image — safe to re-run, it only touches what's still on Supabase.</p>
+      <div id="opt-scan" style="margin-bottom:12px"></div>
+      <div id="opt-progress" style="display:none;margin-bottom:12px">
+        <div style="background:rgba(20,19,18,.1);border-radius:8px;overflow:hidden;height:24px;position:relative">
+          <div id="opt-bar" style="height:100%;background:linear-gradient(90deg,#C0392B,#E74C3C);width:0%;transition:width .3s;border-radius:8px"></div>
+          <span id="opt-pct" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#141312"></span>
+        </div>
+        <p id="opt-status" style="font-size:12px;color:var(--off);margin-top:6px"></p>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn btn-g" onclick="scanImageSizes()">🔍 Scan for Supabase Images</button>
+        <button class="btn btn-w" id="opt-go-btn" style="display:none" onclick="runImageOptimize()">⚡ Migrate to R2</button>
+      </div>
+      <p id="opt-msg" style="display:none;font-size:12px;margin-top:8px"></p>
+    </div>
+    <div class="pff full" style="border:1px solid #C0392B;border-radius:12px;padding:18px;margin-bottom:6px;background:rgba(192,57,43,.06)">
+      <label style="font-size:15px">🚀 MIGRATE EVERYTHING ELSE TO R2</label>
+      <p style="color:var(--off)!important;font-size:12px;line-height:1.55;margin:8px 0 12px">The first tool above only ever covered product images and size charts. This covers what it didn't: Founder's Note / Story gallery photos, review images, story rail images, global size chart, and Hero Grid video/image tiles. This is very likely your actual ongoing egress source — check this first if usage keeps climbing after the product migration.</p>
+      <div id="opt2-scan" style="margin-bottom:12px"></div>
+      <div id="opt2-progress" style="display:none;margin-bottom:12px">
+        <div style="background:rgba(20,19,18,.1);border-radius:8px;overflow:hidden;height:24px;position:relative">
+          <div id="opt2-bar" style="height:100%;background:linear-gradient(90deg,#C0392B,#E74C3C);width:0%;transition:width .3s;border-radius:8px"></div>
+          <span id="opt2-pct" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#141312"></span>
+        </div>
+        <p id="opt2-status" style="font-size:12px;color:var(--off);margin-top:6px"></p>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn btn-g" onclick="scanRemainingAssets()">🔍 Scan Everything Else</button>
+        <button class="btn btn-w" id="opt2-go-btn" style="display:none" onclick="runRemainingMigration()">⚡ Migrate the Rest to R2</button>
+      </div>
+      <p id="opt2-msg" style="display:none;font-size:12px;margin-top:8px"></p>
+    </div>
+    <div class="pff full"><label>New Password</label><input type="password" id="st0" placeholder="Min 8 characters"/></div>
+    <div class="pff full"><input type="password" id="st1" placeholder="Confirm new password"/></div>
+    <div class="pff full"><button class="btn btn-w" onclick="chgPwd()">Update Password</button></div>
+    <div class="pff full" style="border-top:1px solid var(--line);padding-top:18px;margin-top:8px">
+      <label>Download Site as ZIP (for Netlify)</label>
+      <p style="color:var(--off);font-size:12px;line-height:1.55;margin:8px 0 10px">Exports your full site with all products, edits, and images baked in. Drag to Netlify to go live.</p>
+      <button class="btn btn-g" onclick="downloadZip()">📦 Download ZIP</button>
+    </div>
+    <div class="pff full" style="border-top:1px solid var(--line);padding-top:18px;margin-top:8px">
+      <label>🎨 COLOUR PALETTE</label>
+      <p style="color:var(--off)!important;font-size:12px;line-height:1.55;margin:8px 0 14px">Customise your site's accent colours. Changes are saved and applied instantly.</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="pff"><label>Glow / Accent Colour</label><div style="display:flex;gap:8px;align-items:center"><input type="color" id="pal-glow" value="#C0392B" style="width:48px;height:36px;border:1px solid var(--line);border-radius:6px;cursor:pointer;padding:2px;background:transparent"/><span id="pal-glow-hex" style="font-size:12px;color:var(--off)!important">#C0392B</span></div></div>
+        <div class="pff"><label>Hero Top Background</label><div style="display:flex;gap:8px;align-items:center"><input type="color" id="pal-herotop" value="#F8F7F4" style="width:48px;height:36px;border:1px solid var(--line);border-radius:6px;cursor:pointer;padding:2px;background:transparent"/><span id="pal-herotop-hex" style="font-size:12px;color:var(--off)!important">#F8F7F4</span></div></div>
+        <div class="pff"><label>Button Colour</label><div style="display:flex;gap:8px;align-items:center"><input type="color" id="pal-btn" value="#141312" style="width:48px;height:36px;border:1px solid var(--line);border-radius:6px;cursor:pointer;padding:2px;background:transparent"/><span id="pal-btn-hex" style="font-size:12px;color:var(--off)!important">#141312</span></div></div>
+        <div class="pff"><label>Card Glow Colour</label><div style="display:flex;gap:8px;align-items:center"><input type="color" id="pal-cardglow" value="#C0392B" style="width:48px;height:36px;border:1px solid var(--line);border-radius:6px;cursor:pointer;padding:2px;background:transparent"/><span id="pal-cardglow-hex" style="font-size:12px;color:var(--off)!important">#C0392B</span></div></div>
+      </div>
+      <div style="margin-top:16px;display:flex;gap:10px">
+        <button class="btn btn-w" onclick="savePalette()">Save Palette</button>
+        <button class="btn btn-g" onclick="previewPalette()">👁 Preview Hero</button>
+        <button class="btn btn-g" onclick="resetPalette()">Reset to Default</button>
+      </div>
+      <!-- HERO PREVIEW -->
+      <div id="pal-preview" style="display:none;margin-top:16px;border:1px solid var(--line);border-radius:12px;overflow:hidden;height:200px;position:relative">
+        <div id="pal-prev-bg" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px">
+          <span id="pal-prev-h1" style="font-family:var(--dsp);font-size:48px;line-height:.9"></span>
+          <span style="font-family:var(--dsp);font-size:14px;letter-spacing:.25em;color:#888;text-transform:uppercase">Clothing or Nothing</span>
+          <button id="pal-prev-btn" style="margin-top:10px;padding:10px 22px;border-radius:8px;border:none;font-size:13px;font-weight:600;cursor:default">Shop the drop →</button>
+        </div>
+      </div>
+      <div id="pal-msg" class="pff full" style="display:none;padding:10px;border-radius:9px;margin-top:10px"></div>
+    </div>
+    <div class="pff full" style="border-top:1px solid var(--line);padding-top:18px;margin-top:8px">
+      <label>📏 DEFAULT SIZE CHART</label>
+      <p style="color:var(--off)!important;font-size:12px;line-height:1.55;margin:8px 0 10px">Upload a default size chart image. This shows on any product that doesn't have its own size chart uploaded.</p>
+      <input type="file" accept="image/*,.heic,.heif" onchange="globalScUpload(this)" style="margin-bottom:8px"/>
+      <div id="gsc-prv" style="margin-top:4px"></div>
+      <input type="hidden" id="gsc-data"/>
+      <button class="btn btn-w" onclick="saveGlobalSc()" style="margin-top:10px">Save Size Chart</button>
+      <div id="gsc-msg" style="display:none;padding:8px;border-radius:8px;margin-top:8px;font-size:13px"></div>
+    </div>
+    <div class="pff full" style="border-top:1px solid var(--line);padding-top:18px;margin-top:8px">
+      <label>Export Data Backup</label>
+      <button class="btn btn-g" onclick="expData()" style="margin-top:10px">Download JSON Backup</button>
+    </div>
+    <div class="pff full" style="border-top:1px solid var(--line);padding-top:18px;margin-top:8px">
+      <label style="color:#c0392b">Danger Zone</label>
+      <button class="btn" style="border:1px solid rgba(192,57,43,.4);color:#c0392b;margin-top:10px;padding:9px 18px;border-radius:8px" onclick="if(confirm('This will permanently DELETE ALL PRODUCTS with no way to undo. Are you absolutely sure?'))rstProds()">Clear All Products</button>
+    </div>
+  </div></div>
+
+</div></div><!-- end admin panel -->

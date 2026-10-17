@@ -26,6 +26,31 @@
   to = "/index.html"
   status = 200
 
+# Fit landing pages for search — the JS app pre-filters the shop; the
+# fit-landing edge function sets the title, description, canonical and h1.
+[[redirects]]
+  from = "/wide-leg-jeans"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/straight-jeans"
+  to = "/index.html"
+  status = 200
+
+# Owner admin. The storefront page serves /admin/ and, only on this route,
+# fetches /admin/panel.html, admin.css and admin.js — shoppers never download
+# them. Not linked anywhere; kept out of search by the X-Robots-Tag below.
+[[redirects]]
+  from = "/admin"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/admin/"
+  to = "/index.html"
+  status = 200
+
 # Meta Shop checkout URL (Commerce Manager → Shop → Add checkout URL).
 # Meta sends buyers to /checkout?products=<id>:<qty>,...  — the JS app reads it.
 [[redirects]]
@@ -146,3 +171,14 @@
   for = "/icon-512.png"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
+
+# Admin route and its files: never index.
+[[headers]]
+  for = "/admin"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/admin/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
