@@ -5,7 +5,8 @@
 // loadFromSupabaseIfAvailable, ...). Moved out of index.html on 2026-10-18.
 const AE="365dropstore@gmail.com";
 const MA=5;
-let AH="0cea13dbf9ea0a5a676f82d94c3315d7238e70cbd980131200a55d6c957337b7";
+// The admin password is checked on the server (Supabase function admin-verify).
+// No copy of its hash ships to the browser any more.
 // Customer identity = phone number. No new table -- derived entirely from
 // orders already in memory, since phone is validated (10-digit Indian
 // mobile) and captured on every order regardless of channel.
@@ -210,8 +211,7 @@ function saveSizeModels(){
 let attCnt=LS.get("adm_att",0);
 let locked=LS.get("adm_lk",false);
 let _adminPw="";
-const pwOv=LS.get("adm_pd",null);
-if(pwOv)AH=pwOv;
+try{localStorage.removeItem("adm_pd");localStorage.removeItem("adm_lk");}catch(e){}
 function renderShadePicker(){
   const el=document.getElementById("pf-shade");if(!el)return;
   el.innerHTML=SHADES.map(s=>'<button type="button" data-k="'+s.k+'" class="'+(_pfShade===s.k?"on":"")+'"'
@@ -490,9 +490,22 @@ async function saveWhatsappOrder(){
   }catch(e){fail(e.message||"Could not reach the logging service. Try again.");}
 }
 const _PAY_FAIL_LABEL={closed:"Closed payment screen",timeout:"UPI timed out",unsupported:"UPI app not supported",funds:"Low balance / limit",pin:"Wrong UPI PIN",bank:"Bank didn't respond",failed:"Payment failed",unknown:"Payment failed"};
-async function admLogin(){if(locked){shAErr("Locked. Run: localStorage.removeItem('adm_lk') in console.");return;}const e=document.getElementById("age").value.trim();const pw=document.getElementById("agp").value;const h=await sha256(pw);if(e===AE&&h===AH){_adminPw=pw;window._adminEmail=e;document.getElementById("ag").style.display="none";document.getElementById("ap").style.display="block";attCnt=0;LS.set("adm_att",0);LS.set("adm_lk",false);
+async function admLogin(){
+  const e=document.getElementById("age").value.trim().toLowerCase();const pw=document.getElementById("agp").value;
+  const btn=document.querySelector("#ag .btn");
+  if(!pw){shAErr("Enter your password.");return;}
+  if(e!==AE){shAErr("That isn't the admin email.");return;}
+  if(btn){btn.disabled=true;btn.textContent="Checking…";}
+  let res=null,data={};
+  try{res=await fetch(SB_FN_BASE+"admin-verify",{method:"POST",headers:{"Content-Type":"application/json","apikey":SB_APIKEY},body:JSON.stringify({password:pw})});data=await res.json().catch(()=>({}));}
+  catch(err){shAErr("Couldn't reach the server. Check your connection and try again.");}
+  if(btn){btn.disabled=false;btn.textContent="Sign in →";}
+  if(!res)return;
+  if(!(res.ok&&data.ok)){shAErr(data.error||("Sign-in failed ("+res.status+")."));return;}
+  document.getElementById("agerr").style.display="none";
+  _adminPw=pw;window._adminEmail=e;document.getElementById("ag").style.display="none";document.getElementById("ap").style.display="block";attCnt=0;LS.set("adm_att",0);LS.set("adm_lk",false);
     await loadFromSupabaseIfAvailable();
-    ldProds();apSts();rnAdmRev();loadSiteEd();loadFitsAdmin();loadBannerAdmin();loadPaletteAdmin();loadGlobalScAdmin();}else{attCnt++;LS.set("adm_att",attCnt);const left=MA-attCnt;if(left<=0){locked=true;LS.set("adm_lk",true);shAErr("Locked.");}else shAErr(`Wrong — ${left} left.`);document.getElementById("agatt").textContent=`${attCnt}/${MA}`;}}
+    ldProds();apSts();rnAdmRev();loadSiteEd();loadFitsAdmin();loadBannerAdmin();loadPaletteAdmin();loadGlobalScAdmin();}
 function shAErr(t){const e=document.getElementById("agerr");e.textContent=t;e.style.display="block";}
 function admOut(){document.getElementById("ap").style.display="none";unlockScroll();location.href="/";}
 function _woHook(t){if(t==="orders"&&typeof fillWoProducts==="function")fillWoProducts();}
@@ -512,14 +525,20 @@ function setAdminTheme(t){
   // admin.js loads after the page, so DOMContentLoaded has already fired
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",function(){setAdminTheme(saved);});else setAdminTheme(saved);
 })();
-function apTab(t){{const _ap=document.getElementById("ap");if(_ap)_ap.classList.toggle("lf-wide",t==="lifeline");}const all=["lifeline","products","dashboard","sequence","orders","add","site","banner","vault","wall","fits","reviews","stories","instagrid","faq","sizeguide","payment","settings"];all.forEach(id=>{const e=document.getElementById("tab-"+id);if(e)e.style.display=id===t?"block":"none";});document.querySelectorAll(".atab").forEach((b,i)=>b.classList.toggle("act",all[i]===t));if(t==="products"){ldProds();apSts();}if(t==="payment"){loadPaySettings();}if(t==="dashboard"){renderDashboard();}if(t==="sequence"){renderSequenceList();}if(t==="sizeguide"){renderSizeModelsList();}if(t==="vault"){loadVaultAdmin();}if(t==="wall"){loadWallAdmin();}
+function apTab(t){{const _ap=document.getElementById("ap");if(_ap)_ap.classList.toggle("lf-wide",t==="lifeline");}const all=["lifeline","products","lowstock","dashboard","sequence","orders","add","site","banner","vault","wall","fits","reviews","stories","instagrid","faq","sizeguide","payment","settings"];all.forEach(id=>{const e=document.getElementById("tab-"+id);if(e)e.style.display=id===t?"block":"none";});document.querySelectorAll(".atab").forEach((b,i)=>b.classList.toggle("act",all[i]===t));if(t==="products"){ldProds();apSts();}if(t==="lowstock"){try{renderStockAlert();}catch(e){}}if(t==="payment"){loadPaySettings();}if(t==="dashboard"){renderDashboard();}if(t==="sequence"){renderSequenceList();}if(t==="sizeguide"){renderSizeModelsList();}if(t==="vault"){loadVaultAdmin();}if(t==="wall"){loadWallAdmin();}
   if(t==="dashboard"){loadOrdersFromSupabase().then(()=>renderDashboard());}
   if(t==="orders"){rnAdmOrders();loadOrdersFromSupabase().then(ok=>{if(ok)rnAdmOrders();});loadAbandonedCount();_woHook("orders");}if(t==="reviews")rnAdmRev();if(t==="site")loadSiteEd();if(t==="fits")loadFitsAdmin();if(t==="settings"){loadPaletteAdmin();loadGlobalScAdmin();rnStorageView();}if(t==="banner")loadBannerAdmin();if(t==="stories")renderStoryAdmin();if(t==="instagrid")renderHeroGridAdmin();if(t==="faq")renderFaqAdmin();if(t==="sizeguide")renderSizeGuideAdmin();}
 function apSts(){const tot=products.length,sold=products.filter(p=>p.badges&&p.badges.includes("sold")).length,cats=[...new Set(products.map(p=>p.category))].length;document.getElementById("apstats").innerHTML=`<div class="apstat"><div class="v">${tot}</div><div class="k">Total</div></div><div class="apstat"><div class="v">${tot-sold}</div><div class="k">Active</div></div><div class="apstat"><div class="v">${sold}</div><div class="k">Sold Out</div></div><div class="apstat"><div class="v">${cats}</div><div class="k">Categories</div></div>`;}
 function ldProds(){
   document.getElementById("pcnt").textContent=`(${products.length})`;
   try{renderStockAlert();}catch(e){}
-  document.getElementById("ptbd").innerHTML=products.map(p=>{const sold=p.badges&&p.badges.includes("sold");return`<tr><td><img src="${(p.images||[])[0]||''}" alt="${p.name}"/></td><td><b style="color:var(--white)">${p.name}</b></td><td>${p.category}</td><td>${p.fit||''}</td><td>${p.offerPrice?`<b style="color:var(--white)">${inr(p.offerPrice)}</b> <s style="color:var(--off);font-size:11px">${inr(p.price)}</s>`:inr(p.price)}</td><td>${stockCell(p)}</td><td><span class="bdg ${sold?'adm-soldout':'adm-active'}">${sold?'Sold Out':'Active'}</span></td><td><div class="tba"><button class="tb" onclick="editP('${p.id}')">Edit</button><button class="tb" onclick="editStock('${p.id}')">Stock</button><button class="tb" onclick="manageSizes('${p.id}')" style="color:#a0d060;border-color:rgba(160,208,96,.3)">Sizes</button><button class="tb tb-sold" onclick="togSold('${p.id}')">${sold?'Restock':'Mark Sold'}</button>${sold?`<button class="tb" onclick="setRestockDate('${p.id}')" style="color:#7ab0e0;border-color:rgba(122,176,224,.3)">Restock Date</button>`:''}<button class="tb tb-del" onclick="delP('${p.id}')">Delete</button></div></td></tr>`;}).join("");
+  document.getElementById("ptbd").innerHTML=products.map(p=>{const sold=p.badges&&p.badges.includes("sold");const id=_dspEsc(p.id);return`<tr>
+<td class="pt-prod"><div class="pt-pw"><img src="${_dspEsc((p.images||[])[0]||'')}" alt="" loading="lazy"/><div><b>${_dspEsc(p.name)}</b><small>${_dspEsc([p.fit,p.category].filter(Boolean).join(" · "))}</small></div></div></td>
+<td class="pt-price">${p.offerPrice?`<b>${inr(p.offerPrice)}</b><s>${inr(p.price)}</s>`:`<b>${inr(p.price)}</b>`}</td>
+<td class="pt-stock">${stockCell(p)}</td>
+<td><span class="pt-status ${sold?'is-sold':'is-live'}">${sold?'Sold out':'Active'}</span></td>
+<td class="pt-act"><div><button class="pt-btn pt-primary" onclick="editP('${id}')">Edit</button><button class="pt-btn" onclick="editStock('${id}')">Stock</button><button class="pt-btn" onclick="manageSizes('${id}')">Sizes</button><button class="pt-btn pt-tog" onclick="togSold('${id}')">${sold?'Restock':'Mark sold'}</button>
+<details class="pt-more"><summary class="pt-btn" aria-label="More actions">⋯</summary><div class="pt-menu">${sold?`<button onclick="this.closest('details').open=false;setRestockDate('${id}')">Set restock date</button>`:''}<button class="pt-danger" onclick="this.closest('details').open=false;delP('${id}')">Delete product</button></div></details></div></td></tr>`;}).join("");
 }
 function togSold(id){const p=products.find(x=>x.id===id);if(!p)return;if(!p.badges)p.badges=[];if(p.badges.includes("sold")){p.badges=p.badges.filter(b=>b!=="sold");p.restockAt='';}else p.badges.push("sold");LS.set("ds_p",products);renderGrid();ldProds();apSts();syncProductToSupabase("save",p);}
 function delP(id){if(!confirm("Delete? Cannot be undone."))return;products=products.filter(p=>p.id!==id);LS.set("ds_p",products);renderGrid();ldProds();apSts();syncProductToSupabase("delete",{id});}
@@ -742,14 +761,45 @@ function stockCell(p){
   if(!p.stock||typeof p.stock!=="object")return '<span class="stk-un">Not tracked</span>';
   const sizes=(p.sizes&&p.sizes.length?p.sizes:Object.keys(p.stock)).filter(z=>z in p.stock);
   const total=sizes.reduce((a,z)=>a+Math.max(0,+p.stock[z]||0),0);
-  return `<div class="stk-chips">${sizes.map(z=>{const n=+p.stock[z]||0;return `<span class="stk-chip ${n<0?"over":n===0?"zero":n<=2?"low":""}" title="${n<0?"Oversold by "+(-n):n===0?"Sold out":n+" left"}">${_dspEsc(z)}<b>${n}</b></span>`;}).join("")}</div><small class="stk-sum">${total} in stock</small>`;
+  return `<div class="ls-sizes">${sizes.map(z=>{const n=+p.stock[z]||0;return `<span class="ls-size ${n<0?"over":n===0?"out":n<=2?"low":"ok"}" title="${n<0?"Oversold by "+(-n):n===0?"Sold out":n+" left"}"><i>${_dspEsc(z)}</i><b>${n}</b></span>`;}).join("")}</div><small class="stk-sum">${total} pcs in stock</small>`;
 }
+// Low Stock tab: one row per product still for sale that has a size sold out,
+// oversold, or down to 1–2 pieces. Oversold first, then most sizes out.
+// Products marked sold out and sizes no longer listed are skipped.
+let _lsFilter="all";
 function renderStockAlert(){
+  const rows=[];let nOver=0,nOut=0,nLow=0;
+  products.forEach(p=>{
+    if(!p.stock||typeof p.stock!=="object")return;
+    if((p.badges||[]).includes("sold"))return;
+    const sizes=(p.sizes&&p.sizes.length?p.sizes:Object.keys(p.stock)).filter(z=>z in p.stock);
+    const all=sizes.map(z=>({z,n:+p.stock[z]||0}));
+    const hits=all.filter(x=>x.n<=2);
+    if(!hits.length)return;
+    const over=hits.filter(x=>x.n<0).length,out=hits.filter(x=>x.n===0).length,low=hits.filter(x=>x.n>0).length;
+    nOver+=over;nOut+=out;nLow+=low;
+    rows.push({p,all,over,out,low,left:all.filter(x=>x.n>0).length,pcs:all.reduce((t,x)=>t+Math.max(0,x.n),0)});
+  });
+  const tabn=document.getElementById("ls-tabn");if(tabn)tabn.textContent=rows.length?rows.length:"";
   const el=document.getElementById("stk-alert");if(!el)return;
-  const low=[],over=[];
-  products.forEach(p=>{if(!p.stock)return;Object.entries(p.stock).forEach(([z,n])=>{n=+n||0;if(n<0)over.push(`${p.name} ${z} (${n})`);else if(n<=2)low.push({t:`${p.name} · ${z}`,n,id:p.id});});});
-  if(!low.length&&!over.length){el.innerHTML="";return;}
-  el.innerHTML=`<div class="stk-alert">${over.length?`<div><b>⚠️ Oversold:</b> ${over.map(_dspEsc).join(", ")} — sold more than you had; check the shelf.</div>`:""}${low.length?`<div><b>Low stock:</b> ${low.sort((a,b)=>a.n-b.n).map(x=>`<a onclick="editStock('${_dspEsc(x.id)}')">${_dspEsc(x.t)} <b>${x.n===0?"sold out":x.n+" left"}</b></a>`).join(" · ")}</div>`:""}</div>`;
+  if(!rows.length){el.innerHTML='<div class="ls-empty">Nothing to restock right now. Every tracked size has 3 or more pieces.</div>';return;}
+  rows.sort((a,b)=>(b.over-a.over)||(b.out-a.out)||(a.left-b.left)||String(a.p.name).localeCompare(String(b.p.name)));
+  const pass=r=>_lsFilter==="all"||(_lsFilter==="over"&&r.over)||(_lsFilter==="out"&&r.out)||(_lsFilter==="low"&&r.low);
+  const list=rows.filter(pass);
+  const tile=(k,n,label,cls)=>`<button type="button" class="ls-tile ${cls}${_lsFilter===k?" on":""}" onclick="_lsFilter='${k}';renderStockAlert()"><b>${n}</b><span>${label}</span></button>`;
+  const chip=x=>`<span class="ls-size ${x.n<0?"over":x.n===0?"out":x.n<=2?"low":"ok"}" title="${x.n<0?"Oversold by "+(-x.n):x.n===0?"Sold out":x.n+" left"}"><i>${_dspEsc(x.z)}</i><b>${x.n<0?x.n:x.n===0?"0":x.n}</b></span>`;
+  el.innerHTML=`<div class="ls-tiles">
+      ${tile("all",rows.length,"Products to restock","")}
+      ${tile("out",nOut,"Sizes sold out","t-out")}
+      ${tile("low",nLow,"Sizes with 1–2 left","t-low")}
+      ${nOver?tile("over",nOver,"Oversold sizes","t-over"):""}
+    </div>
+    <div class="ls-list">${list.length?list.map(r=>`<div class="ls-row${r.over?" is-over":""}">
+      <img src="${_dspEsc((r.p.images||[])[0]||"")}" alt="" loading="lazy"/>
+      <div class="ls-name"><b>${_dspEsc(r.p.name)}</b><small>${_dspEsc(r.p.fit||"")}${r.p.fit?" · ":""}${r.left} of ${r.all.length} sizes in stock · ${r.pcs} pcs</small></div>
+      <div class="ls-sizes">${r.all.map(chip).join("")}</div>
+      <button type="button" class="pt-btn" onclick="editStock('${_dspEsc(r.p.id)}')">Edit stock</button></div>`).join(""):'<div class="ls-empty">No products in this group.</div>'}</div>
+    <p class="ls-key"><span class="ls-size out"><i>30</i><b>0</b></span> sold out <span class="ls-size low"><i>32</i><b>2</b></span> 1–2 left <span class="ls-size ok"><i>34</i><b>6</b></span> fine</p>`;
 }
 function saveProd(){
   const name=document.getElementById("pf0").value.trim();const price=Number(document.getElementById("pf2").value);
@@ -2340,7 +2390,7 @@ function rnAdmRev(){
     </div>`;}).join("");
 }
 // SETTINGS
-async function chgPwd(){const p1=document.getElementById("st0").value;const p2=document.getElementById("st1").value;if(!p1||p1!==p2){alert("Passwords don't match.");return;}if(p1.length<8){alert("Min 8 chars.");return;}const h=await sha256(p1);
+async function chgPwd(){const p1=document.getElementById("st0").value;const p2=document.getElementById("st1").value;if(!p1||p1!==p2){alert("Passwords don't match.");return;}if(p1.length<12){alert("Use at least 12 characters. A short phrase of 3–4 random words works well.");return;}const h=await sha256(p1);
   // Update Supabase FIRST - if that fails, don't change local either, so they never diverge
   try{
     const res=await fetch(SB_FN_BASE+"admin-settings",{
@@ -2351,7 +2401,7 @@ async function chgPwd(){const p1=document.getElementById("st0").value;const p2=d
     const data=await res.json();
     if(data.error){alert("Password NOT changed — live-sync update failed: "+data.error);return;}
   }catch(e){alert("Password NOT changed — couldn't reach the server. Try again when online.");return;}
-  AH=h;_adminPw=p1;LS.set("adm_pd",h);
+  _adminPw=p1;
   alert("Password updated everywhere ✓");
   document.getElementById("st0").value="";document.getElementById("st1").value="";}
 function togglePartialModeFields(){
