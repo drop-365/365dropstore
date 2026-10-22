@@ -13,12 +13,12 @@ const PAGES: Record<string, { h1: string; title: string; desc: string }> = {
   "/wide-leg-jeans": {
     h1: "Wide-Leg Jeans for Men",
     title: "Wide-Leg Jeans for Men · From ₹1,099 | 365 Drop Store",
-    desc: "Wide-leg jeans for men, made in Delhi. Heavy washes, limited drops, free shipping across India and COD available.",
+    desc: "Wide-leg jeans for men, picked and checked in Delhi. Heavy washes, limited drops, free shipping across India and partial COD.",
   },
   "/straight-jeans": {
     h1: "Straight Fit Jeans for Men",
     title: "Straight Fit Jeans for Men · From ₹999 | 365 Drop Store",
-    desc: "Straight fit jeans for men, made in Delhi. Limited drops, free shipping across India and COD available.",
+    desc: "Straight fit jeans for men, picked and checked in Delhi. Limited drops, free shipping across India and partial COD.",
   },
 };
 
