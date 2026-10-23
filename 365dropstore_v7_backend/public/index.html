@@ -1642,6 +1642,116 @@ body:hover .cursor-glow{opacity:1}
 }
 @media (prefers-reduced-motion:reduce){.fs-ov .fs-panel,.fs-ov{transition:none}.fs-big.pop{animation:none}}
 </style>
+<style>
+/* ===== FIT FINDER (2026-10-23) =====
+   One question for every new visitor ("what's your waist?"), answered with the
+   exact size in every cut and a shop filtered to jeans that fit. Shares its
+   memory (ds_fit_mem) and size engine (_fsRecommend) with the product-page
+   size finder, so both always give the same answer. */
+.ff{position:fixed;inset:0;z-index:1300;display:flex;align-items:flex-end;justify-content:center;background:rgba(10,9,8,0);transition:background .28s ease}
+.ff[hidden]{display:none}
+.ff.in{background:rgba(10,9,8,.58)}
+.ff-sheet{position:relative;width:100%;max-width:480px;max-height:92vh;max-height:92dvh;display:flex;flex-direction:column;background:#FBF9F5;color:#141312;border-radius:24px 24px 0 0;box-shadow:0 -20px 60px rgba(0,0,0,.3);transform:translateY(100%);transition:transform .38s cubic-bezier(.2,.85,.25,1);overscroll-behavior:contain}
+.ff.in .ff-sheet{transform:none}
+@media(min-width:720px){.ff{align-items:center}.ff-sheet{border-radius:24px;transform:translateY(24px) scale(.98);opacity:0;transition:transform .3s cubic-bezier(.2,.85,.25,1),opacity .22s}.ff.in .ff-sheet{opacity:1}}
+.ff-grab{width:40px;height:4px;border-radius:4px;background:rgba(20,19,18,.18);margin:10px auto 0}
+.ff-x{position:absolute;right:14px;top:14px;width:36px;height:36px;border-radius:50%;border:1px solid rgba(20,19,18,.12);background:#fff;color:#141312;font-size:16px;line-height:1;cursor:pointer;display:grid;place-items:center}
+.ff-scroll{overflow-y:auto;padding:14px 22px 8px;-webkit-overflow-scrolling:touch}
+.ff-kick{font:600 11px/1 var(--mono,ui-monospace,monospace);letter-spacing:.14em;text-transform:uppercase;color:#A8321F;margin:6px 0 10px}
+.ff-h{font-family:var(--dsp);font-size:30px;line-height:1.02;letter-spacing:.01em;margin:0 0 8px;color:#141312;padding-right:36px}
+.ff-sub{color:#5f5a54;font-size:14px;line-height:1.45;margin:0 0 18px}
+.ff-seg{display:flex;gap:4px;background:#EFEAE2;border-radius:12px;padding:4px;margin:0 0 14px}
+.ff-seg button{flex:1;border:0;background:transparent;color:#3E3A35;border-radius:9px;padding:10px 6px;font:600 13.5px/1.1 var(--bod);cursor:pointer;min-height:42px;transition:background .15s,box-shadow .15s}
+.ff-seg button.on{background:#fff;color:#141312;box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.ff-read{display:flex;align-items:baseline;justify-content:center;gap:10px;margin:6px 0 2px}
+.ff-read b{font-family:var(--dsp);font-size:64px;line-height:1;letter-spacing:-.01em;color:#141312;font-variant-numeric:tabular-nums}
+.ff-read span{font-size:14px;color:#7A756E}
+.ff-rulerwrap{position:relative;display:flex;align-items:center;gap:8px;margin:4px 0 4px}
+.ff-step{flex:0 0 44px;height:44px;border-radius:50%;border:1px solid rgba(20,19,18,.14);background:#fff;color:#141312;font-size:22px;line-height:1;cursor:pointer;display:grid;place-items:center;touch-action:manipulation}
+.ff-step:active{transform:scale(.94)}
+.ff-ruler{position:relative;flex:1;height:64px;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scrollbar-width:none;-webkit-mask-image:linear-gradient(90deg,transparent,#000 18%,#000 82%,transparent);mask-image:linear-gradient(90deg,transparent,#000 18%,#000 82%,transparent);outline:none;cursor:grab;touch-action:pan-x}
+.ff-ruler::-webkit-scrollbar{display:none}
+.ff-ruler:focus-visible{box-shadow:inset 0 0 0 2px #C0392B;border-radius:10px}
+.ff-ticks{display:flex;align-items:flex-start;height:100%}
+.ff-tick{flex:0 0 14px;height:100%;position:relative;scroll-snap-align:center}
+.ff-tick::before{content:"";position:absolute;left:50%;top:8px;width:1.5px;height:14px;background:rgba(20,19,18,.28);transform:translateX(-50%)}
+.ff-tick.maj::before{height:24px;background:rgba(20,19,18,.55)}
+.ff-tick i{position:absolute;left:50%;top:38px;transform:translateX(-50%);font:600 11px/1 var(--bod);font-style:normal;color:#7A756E}
+.ff-pad{flex:0 0 auto}
+.ff-needle{position:absolute;left:50%;top:2px;width:3px;height:34px;border-radius:3px;background:#C0392B;transform:translateX(-50%);pointer-events:none;box-shadow:0 0 0 3px rgba(192,57,43,.14)}
+.ff-usual{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:4px 0 6px}
+.ff-usual button{border:1px solid rgba(20,19,18,.14);background:#fff;border-radius:12px;padding:14px 0;font:700 17px/1 var(--bod);color:#141312;cursor:pointer}
+.ff-usual button.on{background:#141312;color:#FBF9F5;border-color:#141312}
+.ff-tip{font-size:12.5px;color:#7A756E;text-align:center;margin:2px 0 14px}
+.ff-how{font-size:12.5px;color:#57524B;background:#F1ECE4;border-radius:12px;padding:10px 12px;margin:0 0 16px}
+.ff-how summary{cursor:pointer;font-weight:600;color:#3E3A35;list-style:none}
+.ff-how summary::-webkit-details-marker{display:none}
+.ff-how summary::after{content:"+";float:right}
+.ff-how[open] summary::after{content:"−"}
+.ff-how ol{margin:8px 0 2px;padding-left:18px;line-height:1.5}
+.ff-lbl{display:block;font:600 12px/1 var(--bod);letter-spacing:.06em;text-transform:uppercase;color:#7A756E;margin:0 0 8px}
+.ff-res{border:1px solid rgba(20,19,18,.1);border-radius:16px;background:#fff;overflow:hidden;margin:0 0 12px}
+.ff-res-h{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-bottom:1px solid rgba(20,19,18,.08);font-size:13px;color:#57524B}
+.ff-res-h b{color:#141312}
+.ff-row{display:flex;align-items:center;gap:10px;width:100%;padding:12px 14px;border:0;background:none;text-align:left;cursor:pointer;font-family:var(--bod);color:#141312;border-top:1px solid rgba(20,19,18,.06)}
+.ff-row:first-of-type{border-top:0}
+.ff-row .fit{flex:1;font-weight:600;font-size:14.5px}
+.ff-row .sz{font-family:var(--dsp);font-size:22px;min-width:40px;text-align:center;background:#141312;color:#FBF9F5;border-radius:10px;padding:5px 8px;line-height:1}
+.ff-row .n{font-size:12.5px;color:#2a8a4a;font-weight:600;min-width:74px;text-align:right}
+.ff-row .n.zero{color:#A8321F}
+.ff-row .go{color:#B0A99F;font-size:18px}
+.ff-promise{display:flex;gap:10px;align-items:flex-start;font-size:12.5px;line-height:1.45;color:#57524B;margin:2px 0 6px}
+.ff-promise span{font-size:16px;line-height:1.2}
+.ff-foot{padding:12px 22px calc(14px + env(safe-area-inset-bottom));border-top:1px solid rgba(20,19,18,.08);background:#FBF9F5;border-radius:0 0 24px 24px}
+.ff-cta{width:100%;border:0;border-radius:14px;background:#C0392B;color:#fff;font:700 16px/1 var(--bod);padding:17px 16px;cursor:pointer;box-shadow:0 8px 24px rgba(192,57,43,.28);transition:transform .12s}
+.ff-cta:active{transform:scale(.98)}
+.ff-skip{display:block;margin:10px auto 0;background:none;border:0;color:#7A756E;font:600 13px/1 var(--bod);cursor:pointer;padding:6px}
+/* shop bar */
+.ff-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:#141312;color:#F8F7F4;border-radius:14px;padding:10px 12px;margin:0 0 16px}
+.ff-bar[hidden]{display:none}
+.ff-bar .ffb-i{font-size:18px}
+.ff-bar .ffb-t{flex:1;min-width:160px;font-size:13.5px;line-height:1.35}
+.ff-bar .ffb-t b{color:#fff}
+.ff-bar .ffb-t small{display:block;color:#B9B3AA;font-size:12px}
+.ff-bar .ffb-seg{display:flex;background:rgba(255,255,255,.08);border-radius:10px;padding:3px;gap:3px}
+.ff-bar .ffb-seg button{border:0;background:transparent;color:#D8D3CB;border-radius:8px;padding:8px 10px;font:600 12.5px/1 var(--bod);cursor:pointer;white-space:nowrap}
+.ff-bar .ffb-seg button.on{background:#F8F7F4;color:#141312}
+.ff-bar .ffb-edit{border:0;background:none;color:#F0B4A8;font:600 12.5px/1 var(--bod);text-decoration:underline;text-underline-offset:3px;cursor:pointer;padding:6px 2px}
+.ff-bar.ask{background:#C0392B;cursor:pointer}
+.ff-bar.ask .ffb-t{font-weight:600}
+.ff-bar.ask .ffb-go{font-weight:700;white-space:nowrap}
+/* "your size" on cards */
+.psizes .sz.mine{background:#141312;color:#fff;border-color:#141312}
+.pmyfit{font-size:12px;font-weight:600;margin-top:6px}
+.pmyfit.ok{color:#2a8a4a}
+.pmyfit.no{color:#A8321F}
+/* product page: your size */
+.mo-myfit{display:flex;gap:10px;align-items:flex-start;background:#F1ECE4;border-radius:12px;padding:11px 12px;margin:2px 0 14px;font-size:13px;line-height:1.45;color:#3E3A35}
+.mo-myfit .i{font-size:17px;line-height:1.2}
+.mo-myfit b{color:#141312}
+.mo-myfit button{background:none;border:0;color:#A8321F;font:600 13px/1 var(--bod);text-decoration:underline;text-underline-offset:3px;cursor:pointer;padding:0;margin-left:2px}
+.mo-myfit.ask{cursor:pointer;background:#141312;color:#F8F7F4}
+.mo-myfit.ask b{color:#fff}
+.chip.mine{position:relative}
+.chip.mine::after{content:"YOU";position:absolute;top:-8px;right:-6px;background:#C0392B;color:#fff;font:700 8.5px/1 var(--bod);letter-spacing:.06em;padding:3px 4px;border-radius:5px}
+.mo-colour{font-size:12.5px;line-height:1.5;color:#57524B;margin:10px 0 0}
+.mo-colour a{color:#A8321F;font-weight:600}
+/* ===== SWIPE GALLERIES (2026-10-23) ===== */
+.mocar-imgs .mo-track{position:absolute;inset:0;display:flex;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scrollbar-width:none;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
+.mocar-imgs .mo-track::-webkit-scrollbar{display:none}
+.mocar-imgs .mo-track img{position:relative;inset:auto;flex:0 0 100%;width:100%;height:100%;opacity:1;scroll-snap-align:center;scroll-snap-stop:always;transition:none}
+@media(pointer:coarse){.mocar-imgs .car-arr{display:none}}
+.pimg .pslides{position:absolute;inset:0;display:flex;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scrollbar-width:none;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
+.pimg .pslides::-webkit-scrollbar{display:none}
+.pimg .pslides img{position:relative;inset:auto;flex:0 0 100%;width:100%;height:100%;object-fit:cover;opacity:1!important;scroll-snap-align:center;scroll-snap-stop:always;transition:none}
+.pdots{position:absolute;left:50%;bottom:44px;transform:translateX(-50%);display:flex;gap:4px;z-index:3;pointer-events:none}
+.pdots i{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,.5);box-shadow:0 0 2px rgba(0,0,0,.4);transition:width .2s,background .2s}
+.pdots i.on{width:14px;border-radius:3px;background:#fff}
+.pnav{position:absolute;top:42%;z-index:4;width:30px;height:30px;border-radius:50%;border:0;background:rgba(255,255,255,.92);color:#141312;font-size:16px;line-height:1;cursor:pointer;display:none;place-items:center;box-shadow:0 2px 8px rgba(0,0,0,.18)}
+.pnav.l{left:8px}.pnav.r{right:8px}
+@media(pointer:fine){.pcard:hover .pnav{display:grid}}
+@media(prefers-reduced-motion:reduce){.ff,.ff-sheet{transition:none}}
+</style>
 <script defer data-domain="365dropstore.com" src="https://plausible.io/js/script.js"></script>
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
@@ -2203,6 +2313,7 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
     <select class="ss" id="srt" onchange="renderGrid()"><option value="def">Sort: Featured</option><option value="low">Price: Low → High</option><option value="high">Price: High → Low</option><option value="new">Newest</option></select>
   </div>
   <div class="afs" id="active-filters"></div>
+  <div class="ff-bar" id="ff-bar" hidden></div>
   <div class="pgrid sr" id="pgrid"></div>
   <div id="load-more-wrap" style="text-align:center;padding:24px 0"></div>
   <div class="afs" id="active-filters-bottom" style="justify-content:center;margin-top:24px"></div>
@@ -2374,6 +2485,7 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
   </div>
 </aside>
 
+<div id="ff" class="ff" hidden></div>
 <div id="admin-mount"></div><!-- owner admin is loaded here on /admin/ (see openAdmin) -->
 
 <script>
@@ -2773,12 +2885,15 @@ function cAF(i){if(window._afc&&window._afc[i])window._afc[i]();}
 let _pcardIdx=0;
 function pcardHTML(p){
   const _myIdx=_pcardIdx++;
-    const imgs=p.images||[];const img1=imgs[0]||"";const img2=imgs[1]||img1;
+    const imgs=p.images||[];const img1=imgs[0]||"";
+    const _ff=ffSizeFor(p);
+    const myFit=_ff&&!isSold(p)?(_ff.oos?`<div class="pmyfit no">Your size ${_ff.best} is sold out</div>`:`<div class="pmyfit ok">✓ Your size: ${_ff.size}${_ff.swapped?" (closest in stock)":""}</div>`):"";
+    const slides=imgs.slice(0,6);
     const bgs=(p.badges||[]).filter(b=>BM[b]).map(b=>`<span class="bdg ${BM[b].c}">${BM[b].t}</span>`).join("");
     const pr=p.offerPrice?`<span class="pnow">${inr(p.offerPrice)}</span><span class="pwas">${inr(p.price)}</span><span class="psave">-${Math.round((1-p.offerPrice/p.price)*100)}%</span>`:`<span class="pnow">${inr(p.price)}</span>`;
     const _now=new Date();
     const szs=(p.sizes||[]).slice(0,5).map(s=>{
-      if(!(p.oosizes||[]).includes(s))return `<span class="sz">${s}</span>`;
+      if(!(p.oosizes||[]).includes(s))return `<span class="sz${_ff&&!_ff.oos&&_ff.size===s?" mine":""}">${s}</span>`;
       const rdv=(p.sizeRestockDates||{})[s];
       if(rdv){const dt=new Date(rdv);
         if(!isNaN(dt)&&dt>_now)return `<span class="sz restock" title="Restocking ${dt.toLocaleDateString('en-IN',{day:'numeric',month:'short'})}">${s}</span>`;}
@@ -2794,15 +2909,15 @@ function pcardHTML(p){
     const restockNote=isSold(p)&&p.restockAt?`<div class="prestock" data-restock="${p.restockAt}" data-pid="${p.id}">Back in —</div>`:'';
     const rbl=p.reelUrl?`<div class="rl-btn" onclick="event.stopPropagation();window.open('${p.reelUrl}','_blank')">▶ Reel</div>`:'';
     const plink=`https://365dropstore.com/p/${p.id}`;
-    const cardClick=` onclick="openMo('${p.id}')"`;
+    const cardClick=` onclick="pcardOpen(this,'${p.id}')"`;
     const fitBand=p.fit?`<div class="pfitband">${p.fit.toUpperCase()} FIT</div>`:'';
     const saved=isWishlisted(p.id);
     return`<div class="pcard${isSold(p)?' so':''}"${cardClick}>
       <div class="pimg">
         <div class="pbadges">${bgs}</div>
         <div class="pwish${saved?' on':''}" onclick="event.stopPropagation();toggleWishlist('${p.id}')" title="Save">${saved?'♥':'♡'}</div>
-        <img class="pfront" src="${img1}" alt="${dispName(p)}, front view" loading="${_myIdx<4?'eager':'lazy'}" decoding="async" fetchpriority="${_myIdx<2?'high':'auto'}"/>
-        <img class="pback" src="${img2}" alt="${dispName(p)}, second view" loading="lazy"/>
+        <div class="pslides"><img class="pfront" src="${img1}" alt="${dispName(p)}, photo 1" loading="${_myIdx<4?'eager':'lazy'}" decoding="async" fetchpriority="${_myIdx<2?'high':'auto'}"/>${slides.slice(1).map((s,i)=>`<img src="${s}" alt="${dispName(p)}, photo ${i+2}" loading="lazy" decoding="async"/>`).join("")}</div>
+        ${slides.length>1?`<div class="pdots">${slides.map((_,i)=>`<i class="${i?"":"on"}"></i>`).join("")}</div><button class="pnav l" onclick="pcardNav(event,this,-1)" aria-label="Previous photo">‹</button><button class="pnav r" onclick="pcardNav(event,this,1)" aria-label="Next photo">›</button>`:""}
         ${fitBand}
         ${rbl}
         ${!isSold(p)?`<div class="pactions">
@@ -2810,7 +2925,7 @@ function pcardHTML(p){
           <div class="pshare" onclick="event.stopPropagation();shareProduct('${p.id}','${p.name.replace(/'/g,"\\'")}','${plink}')" title="Share">🔗</div>
         </div>`:''}
       </div>
-      <div class="pmeta"><div class="pname">${dispName(p)}</div><div class="pfit">${p.fit||''} · ${p.category}</div><div class="pprices">${pr}</div><div class="psizes">${szs}</div>${lowStock}${restockNote}${restockSoon.length?`<div class="pRestockBack">\u21bb ${restockSoon.join(", ")} back ${(()=>{const dt=new Date((p.sizeRestockDates||{})[restockSoon[0]]);return dt.toLocaleDateString("en-IN",{day:"numeric",month:"short"});})()}</div>`:''}</div>
+      <div class="pmeta"><div class="pname">${dispName(p)}</div><div class="pfit">${p.fit||''} · ${p.category}</div><div class="pprices">${pr}</div><div class="psizes">${szs}</div>${myFit}${lowStock}${restockNote}${restockSoon.length?`<div class="pRestockBack">\u21bb ${restockSoon.join(", ")} back ${(()=>{const dt=new Date((p.sizeRestockDates||{})[restockSoon[0]]);return dt.toLocaleDateString("en-IN",{day:"numeric",month:"short"});})()}</div>`:''}</div>
     </div>`;
 }
 let wishlist=LS.get("ds_wishlist",[])||[];
@@ -2832,7 +2947,8 @@ function dispName(p){
 function renderFitBtns(){
   const el=document.getElementById("fit-btns");
   if(!el)return;
-  const inGrid=p=>(p.images||[]).length&&!(p.badges||[]).includes("designer")&&!(p.badges||[]).includes("vault");
+  const _ffp=ffProfile(), _ffOn=_ffp&&ffOnlyMine;
+  const inGrid=p=>(p.images||[]).length&&!(p.badges||[]).includes("designer")&&!(p.badges||[]).includes("vault")&&(!_ffOn||(()=>{const r=ffSizeFor(p,_ffp);return r&&!r.oos;})());
   const fitsInUse=[...new Set(products.filter(inGrid).map(p=>p.fit).filter(Boolean))];
   const activeFit=fFits.length===1?fFits[0]:"";
   const totalCount=products.filter(inGrid).length;
@@ -3017,6 +3133,244 @@ function jumpToFit(fit){
   if(grid)grid.scrollIntoView({behavior:"smooth",block:"start"});
 }
 let gridPage=0;const GRID_PAGE_SIZE=12;
+/* ===== FIT FINDER (2026-10-23) =====
+   Every new visitor gets one question: "what's your waist?". The answer is
+   saved on this device (ds_fit_mem, shared with the product-page size finder)
+   and drives: the shop's "In my size" view, the "your size" line on every
+   card, the pre-selected size on every product page. Sizes come from the same
+   engine as the size finder (_fsRecommend), never from guesses. */
+var FF_MIN=26, FF_MAX=44, FF_TICK=14;          // ruler: 26–44″ in 0.5″ steps, 14px per step
+var FF_LOG=false;                               // true once the fit_profiles table exists in Supabase
+var ffOnlyMine=true;                            // shop shows "In my size" when a profile exists
+var _ffDraft=null, _ffSource="", _ffRaf=0;
+function ffProfile(){const m=_fsMem();return m&&+m.waist>=20&&+m.waist<=60?{waist:+m.waist,pref:m.pref||"true",mode:m.mode||"waist"}:null;}
+function ffInGrid(p){return (p.images||[]).length&&!(p.badges||[]).includes("designer")&&!(p.badges||[]).includes("vault");}
+// The size this shopper should buy in product p: {size,best,oos,swapped,band} or null if no guide.
+function ffSizeFor(p,prof){
+  prof=prof||ffProfile(); if(!p||!prof)return null;
+  const guide=resolveSizeGuideRows(p); if(!guide)return null;
+  const rec=_fsRecommend(guide,prof.waist,prof.pref); if(!rec||!rec.pick)return null;
+  const best=rec.pick, soldAll=isSold(p);
+  if(!soldAll&&!_fsStock(p,best.size).oos)return {size:best.size,best:best.size,oos:false,swapped:false,band:best,conf:rec.conf};
+  if(!soldAll){
+    const order=[rec.alt,...rec.bands.slice().sort((a,b)=>Math.abs(a.min-best.min)-Math.abs(b.min-best.min))].filter(Boolean);
+    // Only offer another size if its range really covers this waist (±0.5″) — never a size that won't fit.
+    const w=prof.waist, avail=order.find(b=>b.size!==best.size&&!_fsStock(p,b.size).oos&&w>=b.min-0.5&&w<=b.max+0.5);
+    if(avail)return {size:avail.size,best:best.size,oos:false,swapped:true,band:avail,conf:"mid"};
+  }
+  return {size:best.size,best:best.size,oos:true,swapped:false,band:best,conf:rec.conf};
+}
+function ffSaveProfile(prof){
+  try{localStorage.setItem(_FS_MEM,JSON.stringify({waist:prof.waist,pref:prof.pref,mode:prof.mode,t:Date.now()}));}catch(e){}
+  ffLog({waist:prof.waist,pref:prof.pref,mode:prof.mode,source:_ffSource||"shop"});
+}
+function ffDeviceId(){try{let id=localStorage.getItem("ds_fid");if(!id){id=(crypto.randomUUID?crypto.randomUUID():Date.now().toString(36)+Math.random().toString(36).slice(2));localStorage.setItem("ds_fid",id);}return id;}catch(e){return null;}}
+// Keeps a copy for us (fit_profiles): which waist, which sizes we suggested, and which order it led to.
+function ffLog(row){
+  if(!FF_LOG)return;
+  try{
+    const prof=ffProfile(); const sizes={};
+    if(prof&&typeof products!=="undefined")products.filter(ffInGrid).forEach(p=>{const r=ffSizeFor(p,prof);if(r&&p.fit&&!sizes[p.fit])sizes[p.fit]=r.best;});
+    fetch(SUPABASE_URL+"/rest/v1/fit_profiles",{method:"POST",keepalive:true,
+      headers:{"Content-Type":"application/json","apikey":SUPABASE_ANON_KEY,"Authorization":"Bearer "+SUPABASE_ANON_KEY,"Prefer":"return=minimal"},
+      body:JSON.stringify(Object.assign({device_id:ffDeviceId(),sizes},row))}).catch(()=>{});
+  }catch(e){}
+}
+function ffLogOrder(order){
+  const prof=ffProfile(); if(!prof||!order)return;
+  ffLog({waist:prof.waist,pref:prof.pref,mode:prof.mode,source:"order",order_id:order.orderId||null,
+    ordered:(order.items||[]).map(i=>({name:i.name,size:i.size,qty:i.qty}))});
+}
+function ffTrack(name){try{if(typeof plausible==="function")plausible(name);}catch(e){}}
+// Which fits are on sale, and what size + how many in-stock styles each gives this shopper.
+function ffSummary(prof){
+  const byFit={};
+  products.filter(p=>ffInGrid(p)&&!isSold(p)).forEach(p=>{
+    if(!p.fit)return; const r=ffSizeFor(p,prof); if(!r)return;
+    const f=byFit[p.fit]||(byFit[p.fit]={fit:p.fit,sizes:{},n:0});
+    f.sizes[r.best]=(f.sizes[r.best]||0)+1; if(!r.oos)f.n++;
+  });
+  const rows=Object.values(byFit).map(f=>({fit:f.fit,size:Object.entries(f.sizes).sort((a,b)=>b[1]-a[1])[0][0],n:f.n}));
+  const order=(fits||[]).map(String), rank=f=>{const i=order.indexOf(f);return i<0?999:i;};
+  rows.sort((a,b)=>rank(a.fit)-rank(b.fit)||b.n-a.n);
+  return {rows,total:rows.reduce((s,r)=>s+r.n,0)};
+}
+function ffOpen(source){
+  if(!window._productsReady||typeof products==="undefined"||!products.length){setTimeout(()=>ffOpen(source),300);return;}
+  const el=document.getElementById("ff"); if(!el)return;
+  _ffSource=source||"shop";
+  const p0=ffProfile();
+  _ffDraft=p0?{...p0}:{waist:32,pref:"true",mode:"waist"};
+  try{localStorage.setItem("ds_ff_seen","1");}catch(e){}
+  el.innerHTML=`<div class="ff-sheet" role="dialog" aria-modal="true" aria-labelledby="ff-h">
+    <div class="ff-grab"></div>
+    <button class="ff-x" onclick="ffClose()" aria-label="Close">✕</button>
+    <div class="ff-scroll">
+      <div class="ff-kick">Your fit · 10 seconds</div>
+      <h2 class="ff-h" id="ff-h">Jeans that fit you.<br>First time.</h2>
+      <p class="ff-sub">Tell us your waist once. We'll match your exact size in every cut and show only what fits you.</p>
+      <div class="ff-seg" id="ff-mode">
+        <button data-m="waist" onclick="ffMode('waist')">My waist</button>
+        <button data-m="usual" onclick="ffMode('usual')">My usual size</button>
+      </div>
+      <div id="ff-waist-box">
+        <div class="ff-read"><b id="ff-in">32″</b><span id="ff-cm">81 cm</span></div>
+        <div class="ff-rulerwrap">
+          <button class="ff-step" onclick="ffStep(-1)" aria-label="Smaller waist">−</button>
+          <div class="ff-ruler" id="ff-ruler" tabindex="0" role="slider" aria-label="Waist in inches" aria-valuemin="${FF_MIN}" aria-valuemax="${FF_MAX}">
+            <div class="ff-ticks"><div class="ff-pad" id="ff-padl"></div>${(()=>{let s="";for(let v=FF_MIN;v<=FF_MAX;v+=0.5){const maj=v%1===0;s+=`<div class="ff-tick${maj?" maj":""}">${maj&&v%2===0?`<i>${v}</i>`:""}</div>`;}return s;})()}<div class="ff-pad" id="ff-padr"></div></div>
+          </div>
+          <div class="ff-needle" style="left:50%"></div>
+          <button class="ff-step" onclick="ffStep(1)" aria-label="Bigger waist">+</button>
+        </div>
+        <div class="ff-tip">Drag the ruler. Tape where your jeans sit, snug not tight.</div>
+        <details class="ff-how"><summary>No tape at home?</summary><ol><li>Lay your best-fitting jeans flat and buttoned.</li><li>Measure straight across the top of the waistband.</li><li>Double it. That's your waist.</li></ol></details>
+      </div>
+      <div id="ff-usual-box" hidden>
+        <div class="ff-usual" id="ff-usual">${[28,30,32,34,36,38,40,42].map(n=>`<button data-n="${n}" onclick="ffUsual(${n})">${n}</button>`).join("")}</div>
+        <div class="ff-tip">The number on the label of the jeans that fit you best.</div>
+      </div>
+      <label class="ff-lbl">How do you like it?</label>
+      <div class="ff-seg" id="ff-pref">
+        <button data-v="snug" onclick="ffPref('snug')">Snug</button>
+        <button data-v="true" onclick="ffPref('true')">Regular</button>
+        <button data-v="roomy" onclick="ffPref('roomy')">Relaxed</button>
+      </div>
+      <div class="ff-res" id="ff-res" aria-live="polite"></div>
+      <div class="ff-promise"><span>🔁</span><div>Wrong size, or the colour looks different when it arrives? Exchange within 7 days of delivery (₹200 fee).</div></div>
+    </div>
+    <div class="ff-foot">
+      <button class="ff-cta" id="ff-cta" onclick="ffDone()">Show jeans that fit me</button>
+      <button class="ff-skip" onclick="ffClose(true)">${p0?"Cancel":"Skip, I'll browse everything"}</button>
+    </div>
+  </div>`;
+  el.hidden=false; lockScroll();
+  el.onclick=e=>{if(e.target===el)ffClose(!p0);};
+  requestAnimationFrame(()=>{el.classList.add("in");ffInitRuler();ffSync();});
+  ffTrack("Fit finder opened");
+}
+function ffInitRuler(){
+  const r=document.getElementById("ff-ruler"); if(!r)return;
+  const pad=Math.max(0,r.clientWidth/2-FF_TICK/2);
+  document.getElementById("ff-padl").style.flexBasis=pad+"px";
+  document.getElementById("ff-padr").style.flexBasis=pad+"px";
+  ffRulerTo(_ffDraft.waist,false);
+  r.addEventListener("scroll",()=>{cancelAnimationFrame(_ffRaf);_ffRaf=requestAnimationFrame(()=>{
+    const v=Math.min(FF_MAX,Math.max(FF_MIN,FF_MIN+Math.round(r.scrollLeft/FF_TICK)*0.5));
+    if(v!==_ffDraft.waist){_ffDraft.waist=v;if(_ffDraft.mode!=="waist"){_ffDraft.mode="waist";}ffSync();}
+  });},{passive:true});
+  r.addEventListener("keydown",e=>{if(e.key==="ArrowRight"||e.key==="ArrowUp"){e.preventDefault();ffStep(1);}if(e.key==="ArrowLeft"||e.key==="ArrowDown"){e.preventDefault();ffStep(-1);}});
+  // mouse drag on desktop (touch already scrolls natively)
+  let down=null;
+  r.addEventListener("pointerdown",e=>{if(e.pointerType!=="mouse")return;down={x:e.clientX,s:r.scrollLeft};r.style.scrollSnapType="none";r.setPointerCapture(e.pointerId);});
+  r.addEventListener("pointermove",e=>{if(down)r.scrollLeft=down.s-(e.clientX-down.x);});
+  const up=()=>{if(!down)return;down=null;r.style.scrollSnapType="";ffRulerTo(_ffDraft.waist,true);};
+  r.addEventListener("pointerup",up);r.addEventListener("pointercancel",up);
+}
+function ffRulerTo(v,smooth){const r=document.getElementById("ff-ruler");if(!r)return;r.scrollTo({left:(v-FF_MIN)/0.5*FF_TICK,behavior:smooth?"smooth":"auto"});}
+function ffStep(d){const v=Math.min(FF_MAX,Math.max(FF_MIN,_ffDraft.waist+d*0.5));_ffDraft.waist=v;_ffDraft.mode="waist";ffRulerTo(v,true);ffSync();}
+function ffMode(m){_ffDraft.mode=m;if(m==="usual"&&_ffDraft.waist%2!==0)_ffDraft.waist=Math.round(_ffDraft.waist/2)*2;ffSync();if(m==="waist")requestAnimationFrame(()=>{ffInitRulerPad();ffRulerTo(_ffDraft.waist,false);});}
+function ffInitRulerPad(){const r=document.getElementById("ff-ruler");if(!r)return;const pad=Math.max(0,r.clientWidth/2-FF_TICK/2);document.getElementById("ff-padl").style.flexBasis=pad+"px";document.getElementById("ff-padr").style.flexBasis=pad+"px";}
+function ffUsual(n){_ffDraft.waist=n;_ffDraft.mode="usual";ffSync();}
+function ffPref(v){_ffDraft.pref=v;ffSync();}
+function ffSync(){
+  const d=_ffDraft;
+  document.querySelectorAll("#ff-mode button").forEach(b=>b.classList.toggle("on",b.dataset.m===d.mode));
+  document.querySelectorAll("#ff-pref button").forEach(b=>b.classList.toggle("on",b.dataset.v===d.pref));
+  document.querySelectorAll("#ff-usual button").forEach(b=>b.classList.toggle("on",+b.dataset.n===d.waist));
+  const wb=document.getElementById("ff-waist-box"),ub=document.getElementById("ff-usual-box");
+  if(wb)wb.hidden=d.mode!=="waist"; if(ub)ub.hidden=d.mode!=="usual";
+  const wi=document.getElementById("ff-in"),wc=document.getElementById("ff-cm"),r=document.getElementById("ff-ruler");
+  if(wi)wi.textContent=d.waist+"″"; if(wc)wc.textContent=Math.round(d.waist*2.54)+" cm";
+  if(r){r.setAttribute("aria-valuenow",d.waist);r.setAttribute("aria-valuetext",d.waist+" inches");}
+  const s=ffSummary(d), res=document.getElementById("ff-res"), cta=document.getElementById("ff-cta");
+  const head=d.mode==="usual"?`You wear <b>${d.waist}</b>. Your size in each cut:`:`At <b>${d.waist}″</b>, your size in each cut:`;
+  if(res)res.innerHTML=`<div class="ff-res-h"><span>${head}</span></div>`+(s.rows.length?s.rows.map(r=>`<button class="ff-row" onclick="ffDone('${r.fit.replace(/'/g,"\\'")}')"><span class="fit">${r.fit}</span><span class="sz">${r.size}</span><span class="n${r.n?"":" zero"}">${r.n?`${r.n} in stock`:"none in stock"}</span><span class="go">›</span></button>`).join(""):`<div class="ff-res-h"><span>Size details aren't ready yet. Message us on WhatsApp and we'll pick your size.</span></div>`);
+  if(cta)cta.textContent=s.total?`Show my ${s.total} jeans →`:"Save my size";
+}
+function ffDone(fit){
+  const prof={waist:_ffDraft.waist,pref:_ffDraft.pref,mode:_ffDraft.mode};
+  ffSaveProfile(prof); ffOnlyMine=true; ffTrack("Fit finder saved");
+  const src=_ffSource; ffClose();
+  if(src==="product"&&typeof ms!=="undefined"&&ms.p&&document.getElementById("ov").classList.contains("op")){openMo(ms.p.id,true);return;}
+  if(fit){fFits=[fit];}
+  renderGrid();
+  const shop=document.getElementById("shop"); if(shop)setTimeout(()=>shop.scrollIntoView({behavior:"smooth",block:"start"}),200);
+}
+function ffClose(skipped){
+  const el=document.getElementById("ff"); if(!el||el.hidden)return;
+  el.classList.remove("in"); unlockScroll();
+  if(skipped)ffTrack("Fit finder skipped");
+  setTimeout(()=>{el.hidden=true;el.innerHTML="";},380);
+  ffRenderBar();
+}
+window.addEventListener("resize",()=>{const el=document.getElementById("ff");if(el&&!el.hidden&&_ffDraft&&_ffDraft.mode==="waist"){ffInitRulerPad();ffRulerTo(_ffDraft.waist,false);}});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"){const el=document.getElementById("ff");if(el&&!el.hidden){e.stopImmediatePropagation();ffClose(!ffProfile());}}},true);
+function ffSetOnlyMine(v){ffOnlyMine=v;renderGrid();}
+function ffRenderBar(){
+  const bar=document.getElementById("ff-bar"); if(!bar)return;
+  const prof=ffProfile();
+  if(!prof){bar.className="ff-bar ask";bar.hidden=false;bar.onclick=()=>ffOpen("bar");
+    bar.innerHTML=`<span class="ffb-i">📏</span><span class="ffb-t">Not sure of your size? Find jeans that fit you</span><span class="ffb-go">10 sec →</span>`;return;}
+  bar.className="ff-bar";bar.hidden=false;bar.onclick=null;
+  const mine=products.filter(p=>ffInGrid(p)&&(()=>{const r=ffSizeFor(p,prof);return r&&!r.oos;})()).length;
+  const feel={snug:"Snug",true:"Regular",roomy:"Relaxed"}[prof.pref]||"Regular";
+  bar.innerHTML=`<span class="ffb-i">📏</span><span class="ffb-t"><b>${prof.mode==="usual"?"Usual size "+prof.waist:prof.waist+"″ waist"}</b> · ${feel}<small>Sizes picked for you on every jean</small></span>
+    <span class="ffb-seg"><button class="${ffOnlyMine?"on":""}" onclick="ffSetOnlyMine(true)">In my size · ${mine}</button><button class="${ffOnlyMine?"":"on"}" onclick="ffSetOnlyMine(false)">All</button></span>
+    <button class="ffb-edit" onclick="ffOpen('bar')">Edit</button>`;
+}
+// Show the finder once to every new visitor, after the intro and only when nothing else is open.
+function ffMaybeAuto(){
+  let tries=0;
+  const t=setInterval(()=>{
+    if(++tries>60){clearInterval(t);return;}
+    try{
+      if(ffProfile()||localStorage.getItem("ds_ff_seen")){clearInterval(t);return;}
+      const pn=location.pathname||"/";
+      if(!(pn==="/"||pn==="/index.html"||pn==="/wide-leg-jeans"||pn==="/straight-jeans")||location.hash||/[?&](track|checkout|payment|razorpay)/i.test(location.search)){clearInterval(t);return;}
+      if(!window._productsReady)return;
+      const bi=document.getElementById("bi"); if(bi&&bi.isConnected&&getComputedStyle(bi).display!=="none")return;
+      if(document.querySelector("#ov.op,.cdrawer.op,#sov.op,.fdrawer.op,#ff:not([hidden])")){return;}
+      clearInterval(t); setTimeout(()=>{if(!ffProfile()&&!document.querySelector("#ov.op,.cdrawer.op,#sov.op"))ffOpen("auto");},1200);
+    }catch(e){clearInterval(t);}
+  },500);
+}
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",ffMaybeAuto);else setTimeout(ffMaybeAuto,0);
+// Product page block: your size for this cut, or the ask.
+function ffMoBlock(p){
+  const prof=ffProfile();
+  if(!prof){return `<div class="mo-myfit ask" onclick="ffOpen('product')"><span class="i">📏</span><div><b>What's your waist?</b> Tell us once and we'll pick your exact size here and on every jean.</div></div>`;}
+  const r=ffSizeFor(p,prof); if(!r)return "";
+  const who=prof.mode==="usual"?`you usually wear ${prof.waist}`:`your waist is ${prof.waist}″`;
+  const band=r.band&&Number.isFinite(r.band.min)?` (cut for ${r.band.min}–${r.band.max}″)`:"";
+  let msg;
+  if(r.oos)msg=`Your size here is <b>${r.best}</b>${band}, and it's sold out right now.`;
+  else if(r.swapped)msg=`Your best size, ${r.best}, is sold out. <b>${r.size}</b> is the closest fit in stock${band}.`;
+  else msg=`Your size in this cut: <b>${r.size}</b>${band}. We've selected it for you.`;
+  return `<div class="mo-myfit"><span class="i">📏</span><div>${msg} <span style="color:#7A756E">Because ${who}.</span> <button onclick="ffOpen('product')">Change</button></div></div>`;
+}
+/* ----- swipe galleries ----- */
+// Shop cards: current slide → dots; open the product page on the photo the shopper was looking at.
+function _pslideIdx(track){return track&&track.clientWidth?Math.round(track.scrollLeft/track.clientWidth):0;}
+document.addEventListener("scroll",e=>{
+  const t=e.target; if(!t||!t.classList||!t.classList.contains("pslides"))return;
+  const i=_pslideIdx(t), dots=t.parentElement.querySelectorAll(".pdots i");
+  dots.forEach((d,j)=>d.classList.toggle("on",j===i));
+},true);
+function pcardOpen(el,id){const t=el.querySelector(".pslides");const i=_pslideIdx(t);openMo(id);if(i>0)requestAnimationFrame(()=>goSlide(i,true));}
+function pcardNav(e,btn,d){e.stopPropagation();const t=btn.parentElement.querySelector(".pslides");if(!t)return;const n=t.children.length;const i=Math.min(n-1,Math.max(0,_pslideIdx(t)+d));t.scrollTo({left:i*t.clientWidth,behavior:"smooth"});}
+// Product page: the photo track scrolls natively; this keeps dots, thumbs and lazy images in step.
+function moGalleryInit(){
+  const t=document.getElementById("motrack"); if(!t)return;
+  t.addEventListener("scroll",()=>{cancelAnimationFrame(t._raf);t._raf=requestAnimationFrame(()=>{const i=_pslideIdx(t);if(i!==ms.idx)_moMark(i);});},{passive:true});
+}
+function _moMark(i){
+  ms.idx=i; const imgs=document.querySelectorAll("#motrack img");
+  [i-1,i,i+1].forEach(j=>{const im=imgs[j];if(im&&!im.getAttribute("src")&&im.dataset.src)im.src=im.dataset.src;});
+  imgs.forEach((im,j)=>im.classList.toggle("active",j===i));
+  document.querySelectorAll(".car-dots .cdot").forEach((d,j)=>d.classList.toggle("act",j===i));
+  document.querySelectorAll(".mocar-thumbs .mthumb").forEach((d,j)=>d.classList.toggle("act",j===i));
+}
 function renderGrid(){
   gridPage=0;_pcardIdx=0;
   const srt=document.getElementById("srt").value;
@@ -3028,6 +3382,8 @@ function renderGrid(){
   // the filter chip's own count already uses.
   if(fSizes.length)list=list.filter(p=>(p.sizes||[]).some(s=>fSizes.includes(s)&&!(p.oosizes||[]).includes(s)));
   if(fFits.length)list=list.filter(p=>fFits.includes(p.fit));
+  // Fit finder: "In my size" = jeans whose recommended size for this shopper is in stock
+  const _ffp=ffProfile(); if(_ffp&&ffOnlyMine)list=list.filter(p=>{const r=ffSizeFor(p,_ffp);return r&&!r.oos;});
   if(fShade)list=list.filter(p=>{const s=shadeOf(p);return s&&s.k===fShade;});
   list=list.filter(p=>eff(p)<=fMaxPrice);
   if(srt==="low")list.sort((a,b)=>eff(a)-eff(b));else if(srt==="high")list.sort((a,b)=>eff(b)-eff(a));else if(srt==="new")list.sort((a,b)=>(b.addedAt||0)-(a.addedAt||0));else list.sort((a,b)=>(a.order||99)-(b.order||99));
@@ -3043,11 +3399,12 @@ function renderGrid(){
   const visible=list.slice(0,GRID_PAGE_SIZE);
   const remaining=list.length-GRID_PAGE_SIZE;
   const grid=document.getElementById("pgrid");
-  grid.innerHTML=visible.length?visible.map(pcardHTML).join(""):`<div class="np">No products match your filters.</div>`;
+  grid.innerHTML=visible.length?visible.map(pcardHTML).join(""):(_ffp&&ffOnlyMine?`<div class="np">No jeans in your size match these filters right now. <button class="ffb-edit" style="color:#A8321F" onclick="ffSetOnlyMine(false)">Show all sizes</button></div>`:`<div class="np">No products match your filters.</div>`);
   const lmEl=document.getElementById("load-more-wrap");
   if(lmEl)lmEl.innerHTML=remaining>0?`<button class="btn-loadmore" onclick="loadMoreProducts()">Load ${Math.min(remaining,GRID_PAGE_SIZE)} more styles ↓</button>`:'';
   const cnt=document.getElementById("shopall-count");if(cnt)cnt.textContent=list.length?`· ${list.length} item${list.length>1?'s':''}`:'';
   renderFitBtns();
+  ffRenderBar();
   if(typeof rebuildStickyBuy==="function")rebuildStickyBuy();
   renderHeroGrid();
   renderDesignerSection();
@@ -3470,12 +3827,12 @@ function getSoldCount(pid){
 }
 function renderMoSizes(p){
   if(!(p.sizes||[]).length)return'';
-  const chips=p.sizes.map((s,i)=>{const oos=(p.oosizes||[]).includes(s);const fa=(p.sizes).findIndex(z=>!(p.oosizes||[]).includes(z));const sel=!oos&&i===fa;
+  const _ffr=ffSizeFor(p);
+  const chips=p.sizes.map((s,i)=>{const oos=(p.oosizes||[]).includes(s);const sel=!oos&&s===ms.size;const mine=_ffr&&_ffr.size===s?" mine":"";
     if(oos){const hasRestock=(p.sizeRestockDates||{})[s]&&new Date((p.sizeRestockDates||{})[s])>new Date();if(hasRestock)return`<button class="chip restock-chip" onclick="selectOosSize(this,'${s}')" title="Restocking soon">${s}</button>`;return`<button class="chip oos-chip" onclick="selectOosSize(this,'${s}')" title="Out of stock — tap to see measurements"><s>${s}</s></button>`;}
-    return`<button class="chip${sel?' sel':''}" onclick="pick('size','${s}',this)">${s}</button>`;
+    return`<button class="chip${sel?' sel':''}${mine}" onclick="pick('size','${s}',this)">${s}</button>`;
   }).join('');
-  const fsBtn=p.fitStudioEnabled?`<button class="fs-trigger" onclick="openFitStudio()">📏 Not sure of your size? Find it in 15 seconds</button>`:"";
-  return`<span class="mol">Size</span><div class="chips">${chips}</div><div id="mo-size-rec" class="mo-size-rec"></div><div id="mo-notify-host"></div>${fsBtn}`;
+  return`<span class="mol">Size</span>${ffMoBlock(p)}<div class="chips">${chips}</div><div id="mo-size-rec" class="mo-size-rec"></div><div id="mo-notify-host"></div>`;
 }
 // Single source of truth for "which size-guide rows apply to this product" --
 // used by both the existing per-size recommendation (getSizeRec, below) and
@@ -3834,11 +4191,12 @@ function openMo(id,noPush){
   const p=products.find(x=>x.id===id);if(!p)return;
   trackRecentView(id);
   if(typeof fbq==="function")fbq("track","ViewContent",{content_name:p.name,content_ids:[p.id],content_type:"product",value:eff(p),currency:"INR"});
-  ms={p,size:((p.sizes||[]).find(s=>!(p.oosizes||[]).includes(s)))||"",color:(p.colors||[])[0]||"",qty:1,idx:0};
+  const _ffm=ffSizeFor(p);
+  ms={p,size:(_ffm&&!_ffm.oos?_ffm.size:"")||((p.sizes||[]).find(s=>!(p.oosizes||[]).includes(s)))||"",color:(p.colors||[])[0]||"",qty:1,idx:0};
   const sold=p.badges&&p.badges.includes("sold");
   const imgs=p.images||[];
   const pr=p.offerPrice?`<span class="monow">${inr(p.offerPrice)}</span><span class="mowas">${inr(p.price)}</span><span class="mosave">Save ${inr(p.price-p.offerPrice)}</span>`:`<span class="monow">${inr(p.price)}</span>`;
-  const carImgs=imgs.map((s,i)=>i===0?`<img src="${s}" alt="${dispName(p)}" class="active"/>`:`<img data-src="${s}" alt="${dispName(p)}"/>`).join("");
+  const carImgs=`<div class="mo-track" id="motrack">`+imgs.map((s,i)=>i<2?`<img src="${s}" alt="${dispName(p)}, photo ${i+1}"${i===0?' class="active"':''}/>`:`<img data-src="${s}" alt="${dispName(p)}, photo ${i+1}"/>`).join("")+`</div>`;
   const thumbs=imgs.length>1?`<div class="mocar-thumbs">${imgs.map((s,i)=>`<div class="mthumb${i===0?' act':''}${i===0?' main-tag':''}" onclick="goSlide(${i})"><img src="${s}" alt="${dispName(p)} thumbnail"/></div>`).join("")}</div>`:'';
   const arrows=imgs.length>1?`<button class="car-arr car-prev" onclick="slideDir(-1)">‹</button><button class="car-arr car-next" onclick="slideDir(1)">›</button>`:'';
   const dots=imgs.length>1?`<div class="car-dots">${imgs.map((_,i)=>`<button class="cdot${i===0?' act':''}" onclick="goSlide(${i})"></button>`).join("")}</div>`:'';
@@ -3872,6 +4230,7 @@ function openMo(id,noPush){
       <div class="qrow"><span class="mol" style="margin:0">Qty</span><div class="stepper"><button onclick="stp(-1)">−</button><span id="mqty">1</span><button onclick="stp(1)">+</button></div></div>
       <button class="moadd btn ${sold?'btn-g':'btn-w'}" onclick="addCart()" ${sold?'disabled':''}>${sold?'Sold Out':'Add to Bag · '+inr(eff(p))}</button>
       <div class="mo-trust"><span class="trust-line">${trustLineHtml()}</span></div>
+      <p class="mo-colour">🎨 Want to see the real colour first? <a href="https://wa.me/${WA}?text=${encodeURIComponent("Hi! Can you send me a daylight video of "+dispName(p)+"? "+plink)}" target="_blank" rel="noopener">Ask us for a daylight video on WhatsApp</a>. If it looks different when it arrives, exchange within 7 days (₹200 fee).</p>
       ${descFull}${shipHtml}
     </div>
     ${moRelatedHtml(p)}`;
@@ -3892,12 +4251,11 @@ function openMo(id,noPush){
   // sticky mobile buy bar
   showStickyBuy(p);
   moApplyView(p,noPush);
+  moGalleryInit();
 }
 function openSizeChart(id){const p=products.find(x=>x.id===id);if(!p)return;const scSrc=p.sizeChartImg||globalSc;if(!scSrc)return;const d=document.createElement('div');d.style.cssText='position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.9);display:flex;align-items:center;justify-content:center;padding:20px;cursor:pointer;z-index:9999';d.onclick=()=>d.remove();d.innerHTML=`<div style="background:var(--bg2);border-radius:12px;padding:16px;max-width:700px;width:100%;max-height:90vh;overflow-y:auto"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><h3 style="font-family:var(--dsp);font-size:20px;color:var(--white)">SIZE CHART</h3><button onclick="this.closest('[style]').remove()" style="background:var(--glass);border:1px solid var(--line);color:var(--white);width:34px;height:34px;border-radius:8px;font-size:20px;cursor:pointer">×</button></div><img src="${scSrc}" style="width:100%;border-radius:8px;image-rendering:crisp-edges" alt="Size chart" onclick="event.stopPropagation();window.open(this.src,'_blank')" title="Tap to open full size"/><p style="text-align:center;font-size:12px;color:var(--off);margin-top:8px">Tap the chart to open it full size</p></div>`;document.body.appendChild(d);}
 function toggleExp(row){row.classList.toggle("open");row.nextElementSibling.classList.toggle("open");}
-function goSlide(i){ms.idx=i;const imgs=document.querySelectorAll("#mocarimgs img");const dots=document.querySelectorAll(".car-dots .cdot");const thumbs=document.querySelectorAll(".mocar-thumbs .mthumb");
-  [i-1,i,i+1].forEach(j=>{if(j<0||j>=imgs.length)return;const im=imgs[j];if(!im.src&&im.dataset.src)im.src=im.dataset.src;});
-  imgs.forEach((im,j)=>im.classList.toggle("active",j===i));dots.forEach((d,j)=>d.classList.toggle("act",j===i));thumbs.forEach((t,j)=>t.classList.toggle("act",j===i));}
+function goSlide(i,instant){const t=document.getElementById("motrack");if(t)t.scrollTo({left:i*t.clientWidth,behavior:instant?"auto":"smooth"});_moMark(i);}
 function toggleImgZoom(e){var w=e.target.closest(".mocar-imgs");if(!w)return;if(w.classList.contains("zoomed")){w.classList.remove("zoomed");var img=w.querySelector("img.active");if(img)img.style.transform="";}else{w.classList.add("zoomed");var img=w.querySelector("img.active");if(img)img.style.transform="scale(2)";}}
 function slideDir(d){const n=(ms.p.images||[]).length;if(n<2)return;ms.idx=(ms.idx+d+n)%n;goSlide(ms.idx);}
 function pick(k,v,el){ms[k]=v;[...el.parentElement.children].forEach(c=>c.classList.remove("sel"));el.classList.add("sel");}
@@ -4185,6 +4543,7 @@ function proceedToPayment(){
   }
 }
 async function placeCodOrder(order,cfg){
+  ffLogOrder(order);
   const btn=document.getElementById("ck-pay-btn-review");
   const errEl=document.getElementById("ck-err-review");
   if(btn){btn.disabled=true;btn.textContent="Placing order...";}
@@ -4366,6 +4725,7 @@ async function startRazorpayPayment(order, chargeAmount){
   _watchRzpClose(_att);
 }
 async function finalizeOrder(order,paymentId,rzpResponse){
+  ffLogOrder(order);
   if(typeof fbq==="function")fbq("track","Purchase",pixelItems(order.items,order.total));
   order.status="paid";order.paymentId=paymentId;
   let saved=true;
