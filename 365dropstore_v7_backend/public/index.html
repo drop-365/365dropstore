@@ -1643,125 +1643,122 @@ body:hover .cursor-glow{opacity:1}
 @media (prefers-reduced-motion:reduce){.fs-ov .fs-panel,.fs-ov{transition:none}.fs-big.pop{animation:none}}
 </style>
 <style>
-/* ===== FIT FINDER (2026-10-23, sci-fi v2) =====
-   FIT_SCAN: two taps for every new visitor — waist, then cuts — answered with
-   the exact size in each cut and a shop filtered to pairs that fit. Shares its
-   memory (ds_fit_mem) and size engine (_fsRecommend) with the product-page
-   size finder, so both always give the same answer. */
-.ff{position:fixed;inset:0;z-index:1300;display:flex;align-items:flex-end;justify-content:center;background:rgba(5,5,4,0);transition:background .3s ease}
+/* ===== FIT FINDER (2026-10-24, editorial v3) =====
+   Full-screen, magazine-style: real catalogue photography, giant type, one
+   question per screen. 01 swipe your waist; 02 swipe your cuts, each shown as
+   a real pair in stock in your size. Shares its memory (ds_fit_mem) and size
+   engine (_fsRecommend) with the product-page size finder. */
+.ff{position:fixed;inset:0;z-index:1300;display:flex;align-items:stretch;justify-content:center;background:rgba(20,19,18,0);transition:background .35s ease}
 .ff[hidden]{display:none}
-.ff.in{background:rgba(5,5,4,.72);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}
-.ff-sheet{--ffr:#E5482F;position:relative;width:100%;max-width:480px;max-height:94vh;max-height:94dvh;display:flex;flex-direction:column;color:#F3EFE8;
-  background:radial-gradient(120% 60% at 50% -10%,rgba(192,57,43,.28),transparent 60%),
-    linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px) 0 0/22px 22px,
-    linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px) 0 0/22px 22px,#0B0A09;
-  border:1px solid rgba(229,72,47,.35);border-bottom:0;border-radius:22px 22px 0 0;box-shadow:0 -24px 80px rgba(192,57,43,.25),inset 0 1px 0 rgba(255,255,255,.06);
-  transform:translateY(100%);transition:transform .42s cubic-bezier(.2,.85,.25,1);overscroll-behavior:contain;overflow:hidden}
-.ff.in .ff-sheet{transform:none}
-@media(min-width:720px){.ff{align-items:center}.ff-sheet{border-radius:22px;border-bottom:1px solid rgba(229,72,47,.35);transform:translateY(24px) scale(.98);opacity:0;transition:transform .32s cubic-bezier(.2,.85,.25,1),opacity .22s}.ff.in .ff-sheet{opacity:1}}
-.ff-sheet::before,.ff-sheet::after{content:"";position:absolute;top:12px;width:18px;height:18px;border-top:2px solid var(--ffr);pointer-events:none;opacity:.8}
-.ff-sheet::before{left:12px;border-left:2px solid var(--ffr)}
-.ff-sheet::after{right:12px;border-right:2px solid var(--ffr)}
-.ff-scanline{position:absolute;left:0;right:0;top:0;height:90px;pointer-events:none;background:linear-gradient(180deg,transparent,rgba(229,72,47,.16) 70%,rgba(229,72,47,.55) 98%,transparent);opacity:0}
-.ff.in .ff-scanline{animation:ffscan 1.6s cubic-bezier(.4,0,.2,1) .15s 1}
-@keyframes ffscan{0%{transform:translateY(-90px);opacity:1}100%{transform:translateY(calc(94dvh));opacity:0}}
-.ff-x{position:absolute;right:16px;top:16px;z-index:3;width:36px;height:36px;border-radius:10px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.04);color:#F3EFE8;font-size:15px;line-height:1;cursor:pointer;display:grid;place-items:center}
-.ff-scroll{position:relative;z-index:1;overflow-y:auto;padding:22px 22px 8px;-webkit-overflow-scrolling:touch}
-.ff-term{display:flex;justify-content:space-between;align-items:center;gap:10px;font:500 11px/1 var(--mono);letter-spacing:.12em;color:#8C857B;text-transform:uppercase;margin:4px 46px 14px 6px}
-.ff-term b{color:var(--ffr);font-weight:600}
-.ff-term .cur{display:inline-block;width:7px;height:12px;background:var(--ffr);margin-left:4px;vertical-align:-2px;animation:ffblink 1s steps(1) infinite}
-@keyframes ffblink{50%{opacity:0}}
-.ff-steps{display:flex;gap:6px}
-.ff-steps i{width:22px;height:3px;border-radius:2px;background:rgba(255,255,255,.14)}
-.ff-steps i.on{background:var(--ffr);box-shadow:0 0 10px rgba(229,72,47,.7)}
-.ff-h{font-family:var(--dsp);font-size:34px;line-height:.98;letter-spacing:.01em;text-transform:uppercase;margin:0 0 8px;color:#fff}
-.ff-h em{font-style:normal;color:var(--ffr);text-shadow:0 0 18px rgba(229,72,47,.55)}
-.ff-sub{color:#A8A197;font-size:13.5px;line-height:1.45;margin:0 0 16px}
-.ff-seg{display:flex;gap:4px;border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:4px;margin:0 0 16px;background:rgba(255,255,255,.02)}
-.ff-seg button{flex:1;border:0;background:transparent;color:#A8A197;border-radius:8px;padding:11px 6px;font:600 11.5px/1.1 var(--mono);letter-spacing:.08em;text-transform:uppercase;cursor:pointer;min-height:40px;transition:background .15s,color .15s}
-.ff-seg button.on{background:#F3EFE8;color:#0B0A09}
-.ff-read{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:12px 16px 10px;margin:0 0 12px;background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.01))}
-.ff-read .lbl{font:500 10.5px/1.4 var(--mono);letter-spacing:.14em;color:#8C857B;text-transform:uppercase}
-.ff-read b{display:block;font-family:var(--dsp);font-size:62px;line-height:.95;color:#fff;font-variant-numeric:tabular-nums;text-shadow:0 0 24px rgba(229,72,47,.35)}
-.ff-read .cm{font:600 13px/1 var(--mono);color:#C9C2B7;text-align:right}
-.ff-read .cm small{display:block;font-size:10.5px;color:#8C857B;letter-spacing:.1em;margin-top:6px}
-.ff-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:0 0 10px}
-.ff-grid.sizes{grid-template-columns:repeat(3,1fr)}
-.ff-cell{position:relative;border:1px solid rgba(255,255,255,.13);background:rgba(255,255,255,.03);color:#F3EFE8;border-radius:12px;min-height:54px;font:600 19px/1 var(--mono);cursor:pointer;transition:border-color .15s,background .15s,box-shadow .15s,transform .1s;touch-action:manipulation}
-.ff-cell small{display:block;font-size:9.5px;letter-spacing:.1em;color:#8C857B;margin-top:4px}
-.ff-cell:active{transform:scale(.96)}
-.ff-cell.on{border-color:var(--ffr);background:rgba(229,72,47,.16);color:#fff;box-shadow:0 0 0 1px var(--ffr),0 0 22px rgba(229,72,47,.35)}
-.ff-cell.half{font-size:15px}
-.ff-cell.half.on small{color:#FFD9D1}
-.ff-cell:disabled{opacity:.3;cursor:not-allowed}
-.ff-tip{font:500 10.5px/1.5 var(--mono);letter-spacing:.06em;color:#8C857B;text-transform:uppercase;margin:2px 0 10px}
-.ff-how{font-size:12.5px;color:#C9C2B7;border:1px dashed rgba(255,255,255,.14);border-radius:12px;padding:10px 12px;margin:0 0 10px}
-.ff-how summary{cursor:pointer;font:600 11px/1.3 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:#F3EFE8;list-style:none}
-.ff-how summary::-webkit-details-marker{display:none}
-.ff-how summary::after{content:"+";float:right;color:var(--ffr)}
-.ff-how[open] summary::after{content:"−"}
-.ff-how ol{margin:8px 0 2px;padding-left:18px;line-height:1.5}
-.ff-out{font-size:12.5px;color:#A8A197;margin:0 0 6px}
-.ff-out a{color:#FF8C78;font-weight:600}
-.ff-back{display:flex;justify-content:space-between;align-items:center;border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:10px 12px;margin:0 0 14px;font:600 12px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:#C9C2B7}
-.ff-back b{color:#fff}
-.ff-back button{border:0;background:none;color:#FF8C78;font:600 12px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;cursor:pointer;padding:4px 0}
-.ff-cuts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 0 12px}
-.ff-cut{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:6px;text-align:left;border:1px solid rgba(255,255,255,.13);background:rgba(255,255,255,.03);color:#F3EFE8;border-radius:14px;padding:12px 12px 11px;cursor:pointer;font-family:var(--bod);transition:border-color .15s,background .15s,box-shadow .15s}
-.ff-cut svg{width:34px;height:46px;color:#C9C2B7}
-.ff-cut .nm{font-family:var(--dsp);font-size:20px;letter-spacing:.02em;text-transform:uppercase;line-height:1}
-.ff-cut .st{font:600 10.5px/1.35 var(--mono);letter-spacing:.06em;text-transform:uppercase}
-.ff-cut .st.ok{color:#5FD38A}
-.ff-cut .st.no{color:#8C857B}
-.ff-cut .sz{position:absolute;right:10px;top:10px;font-family:var(--dsp);font-size:26px;line-height:1;color:#fff}
-.ff-cut .sz small{display:block;font:600 9px/1 var(--mono);letter-spacing:.12em;color:#8C857B;text-align:right;margin-bottom:3px}
-.ff-cut .belt{font:700 9.5px/1.2 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:#FFC24B}
-.ff-cut .tick{position:absolute;right:10px;bottom:10px;width:20px;height:20px;border-radius:6px;border:1px solid rgba(255,255,255,.2);display:grid;place-items:center;font-size:12px;color:transparent}
-.ff-cut.on{border-color:var(--ffr);background:rgba(229,72,47,.12);box-shadow:0 0 0 1px var(--ffr),0 0 22px rgba(229,72,47,.25)}
-.ff-cut.on svg{color:#fff}
-.ff-cut.on .tick{background:var(--ffr);border-color:var(--ffr);color:#fff}
-.ff-cut.dim{opacity:.55}
-.ff-warn{display:flex;gap:10px;border:1px solid rgba(255,194,75,.45);background:rgba(255,194,75,.08);color:#FFE3A6;border-radius:12px;padding:10px 12px;font-size:12.5px;line-height:1.45;margin:0 0 12px}
-.ff-warn b{color:#FFC24B}
-.ff-status{font:600 11px/1.4 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:#8C857B;margin:0 0 10px}
-.ff-status b{color:#5FD38A}
-.ff-promise{font-size:12px;line-height:1.45;color:#A8A197;margin:0 0 6px}
-.ff-foot{position:relative;z-index:1;padding:12px 22px calc(14px + env(safe-area-inset-bottom));border-top:1px solid rgba(255,255,255,.08);background:rgba(11,10,9,.92)}
-.ff-cta{width:100%;border:0;border-radius:12px;background:var(--ffr);color:#fff;font:700 13px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;padding:18px 16px;cursor:pointer;box-shadow:0 0 0 1px rgba(255,255,255,.12) inset,0 10px 30px rgba(229,72,47,.4);transition:transform .12s,opacity .15s}
-.ff-cta:active{transform:scale(.98)}
-.ff-cta:disabled{opacity:.4;box-shadow:none;cursor:not-allowed}
-.ff-skip{display:block;margin:10px auto 0;background:none;border:0;color:#8C857B;font:600 11px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;cursor:pointer;padding:6px}
+.ff.in{background:rgba(20,19,18,.55)}
+.ff-sheet{position:relative;width:100%;height:100%;height:100dvh;display:flex;flex-direction:column;background:#F6F3EE;color:#141312;overflow:hidden;
+  transform:translateY(24px);opacity:0;transition:transform .5s cubic-bezier(.16,1,.3,1),opacity .35s ease}
+.ff.in .ff-sheet{transform:none;opacity:1}
+@media(min-width:820px){.ff{align-items:center}.ff-sheet{width:min(1040px,94vw);height:min(720px,92vh);border-radius:28px;flex-direction:row;box-shadow:0 40px 120px rgba(0,0,0,.35)}}
+/* photo stage */
+.ff-stage{position:relative;flex:0 0 38%;transition:flex-basis .55s cubic-bezier(.16,1,.3,1);min-height:0;overflow:hidden;background:#1a1816}
+@media(min-width:820px){.ff-stage{flex:0 0 44%}}
+.ff-stage img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 30%;opacity:0;transform:scale(1.06);transition:opacity .9s ease,transform 6s ease}
+.ff-stage img.on{opacity:1;transform:scale(1)}
+.ff-stage::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(20,19,18,.35) 0%,rgba(20,19,18,0) 35%,rgba(246,243,238,0) 70%,#F6F3EE 100%)}
+@media(min-width:820px){.ff-stage::after{background:linear-gradient(90deg,rgba(20,19,18,0) 60%,rgba(20,19,18,.15))}}
+.ff-brand{position:absolute;left:20px;top:calc(18px + env(safe-area-inset-top));z-index:2;color:#fff;font:600 11px/1 var(--bod);letter-spacing:.22em;text-transform:uppercase;text-shadow:0 1px 8px rgba(0,0,0,.35)}
+.ff-x{position:absolute;right:16px;top:calc(12px + env(safe-area-inset-top));z-index:3;width:40px;height:40px;border-radius:50%;border:0;background:rgba(255,255,255,.9);color:#141312;font-size:16px;line-height:1;cursor:pointer;display:grid;place-items:center;box-shadow:0 4px 18px rgba(0,0,0,.18);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+@media(min-width:820px){.ff-x{right:18px;top:18px;background:#fff}}
+@media(max-width:819px){.ff-sheet.s2 .ff-stage{flex-basis:0}.ff-sheet.s2 .ff-scroll{padding-top:calc(66px + env(safe-area-inset-top))}}
+/* content */
+.ff-main{position:relative;flex:1;min-height:0;min-width:0;display:flex;flex-direction:column}
+.ff-scroll{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;padding:4px 24px 8px;-webkit-overflow-scrolling:touch;display:flex;flex-direction:column}
+@media(min-width:820px){.ff-scroll{padding:56px 48px 8px;justify-content:center}}
+.ff-kick{display:flex;align-items:center;gap:10px;font:600 11px/1 var(--bod);letter-spacing:.2em;text-transform:uppercase;color:#8A847C;margin:0 0 12px}
+.ff-kick i{display:block;height:2px;width:22px;border-radius:2px;background:#D9D3CA}
+.ff-kick i.on{background:#C0392B}
+.ff-h{font-family:var(--dsp);font-size:clamp(40px,11vw,64px);line-height:.92;letter-spacing:-.005em;text-transform:uppercase;margin:0;color:#141312}
+.ff-sub{color:#6F6A63;font-size:14px;line-height:1.45;margin:10px 0 0;max-width:34ch}
+.ff-anim{animation:ffin .55s cubic-bezier(.16,1,.3,1) both}
+@keyframes ffin{from{opacity:0;transform:translateX(28px)}to{opacity:1;transform:none}}
+/* giant number wheel */
+.ff-wheelwrap{position:relative;margin:18px -24px 0}
+@media(min-width:820px){.ff-wheelwrap{margin:26px -48px 0}}
+.ff-wheel{display:flex;align-items:flex-end;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scrollbar-width:none;-webkit-overflow-scrolling:touch;outline:none;padding:62px 0 6px;cursor:grab}
+.ff-wheel::-webkit-scrollbar{display:none}
+.ff-wheel:focus-visible{box-shadow:inset 0 -2px 0 #C0392B}
+.ff-pad{flex:0 0 auto}
+.ff-n{flex:0 0 92px;scroll-snap-align:center;text-align:center;font-family:var(--dsp);font-size:44px;line-height:1;color:#141312;opacity:.08;transform:scale(.5);transform-origin:50% 80%;transition:opacity .25s,transform .25s cubic-bezier(.16,1,.3,1),color .25s;user-select:none;-webkit-user-select:none;cursor:pointer;font-variant-numeric:tabular-nums;padding:8px 0}
+.ff-n.near{opacity:.22;transform:scale(.62)}
+.ff-n.on{opacity:1;transform:scale(2.1);color:#141312}
+.ff-n sup{font-size:.42em;vertical-align:.95em;margin-left:1px}
+.ff-n small{font-size:.5em}
+.ff-mark{position:absolute;left:50%;bottom:-10px;width:6px;height:6px;border-radius:50%;background:#C0392B;transform:translateX(-50%)}
+.ff-meta{display:flex;justify-content:center;gap:14px;margin:22px 0 0;font:500 13px/1 var(--bod);color:#8A847C}
+.ff-meta b{color:#141312;font-weight:600}
+.ff-alt{align-self:center;margin:16px 0 0;border:0;background:none;font:600 13px/1 var(--bod);color:#141312;text-decoration:underline;text-decoration-color:#C0392B;text-underline-offset:5px;text-decoration-thickness:2px;cursor:pointer;padding:6px}
+.ff-help{align-self:center;margin:12px 0 0;font-size:12.5px;color:#8A847C;text-align:center;max-width:32ch;line-height:1.45}
+/* cut cards */
+.ff-cuts{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;margin:18px -24px 0;padding:0 24px 6px;-webkit-overflow-scrolling:touch}
+.ff-cuts::-webkit-scrollbar{display:none}
+@media(min-width:820px){.ff-cuts{margin:24px -48px 0;padding:0 48px 6px}}
+.ff-cut{position:relative;flex:0 0 72%;max-width:300px;aspect-ratio:3/4.2;border-radius:20px;overflow:hidden;scroll-snap-align:start;scroll-margin-left:24px;border:0;padding:0;cursor:pointer;background:#E9E4DC;color:#fff;text-align:left;font-family:var(--bod);transition:transform .25s cubic-bezier(.16,1,.3,1),box-shadow .25s}
+@media(min-width:820px){.ff-cut{flex-basis:44%;scroll-margin-left:48px}}
+.ff-cut img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 35%;transition:transform .6s cubic-bezier(.16,1,.3,1),filter .3s}
+.ff-cut::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(20,19,18,.0) 35%,rgba(20,19,18,.82) 100%)}
+.ff-cut .tx{position:absolute;left:16px;right:16px;bottom:14px;z-index:2}
+.ff-cut .nm{display:block;font-family:var(--dsp);font-size:32px;line-height:.95;text-transform:uppercase;letter-spacing:.01em}
+.ff-cut .ln{display:block;font-size:13px;color:rgba(255,255,255,.85);margin-top:6px}
+.ff-cut .fsz{position:absolute;right:12px;top:12px;z-index:2;text-align:center;font-family:var(--dsp);font-size:38px;line-height:.9;background:#fff;color:#141312;border-radius:14px;padding:8px 11px 7px;box-shadow:0 6px 20px rgba(0,0,0,.18)}
+.ff-cut .fsz small{display:block;font:700 8.5px/1 var(--bod);letter-spacing:.16em;margin-bottom:5px;color:#8A847C}
+.ff-cut .chk{position:absolute;left:14px;top:14px;z-index:2;width:26px;height:26px;border-radius:50%;border:1.5px solid rgba(255,255,255,.85);display:grid;place-items:center;font-size:13px;color:transparent;background:rgba(20,19,18,.2);transition:background .2s,border-color .2s}
+.ff-cut.on{box-shadow:0 0 0 3px #F6F3EE,0 0 0 5px #141312}
+.ff-cut.on .chk{background:#fff;border-color:#fff;color:#141312}
+.ff-cut.off img{filter:grayscale(.85) brightness(.85)}
+.ff-cut.bare{background:#141312}
+.ff-cut.bare::after{display:none}
+.ff-cut.bare .soon{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--dsp);font-size:64px;color:rgba(255,255,255,.07);text-transform:uppercase;letter-spacing:.02em}
+.ff-cut .belt{display:inline-block;margin-top:8px;background:#FFC24B;color:#141312;font:700 10px/1 var(--bod);letter-spacing:.06em;text-transform:uppercase;padding:5px 7px;border-radius:5px}
+.ff-swipe{margin:12px 0 0;font:600 11px/1 var(--bod);letter-spacing:.16em;text-transform:uppercase;color:#8A847C}
+.ff-swipe span{color:#C0392B;display:inline-block;animation:ffnudge 1.6s ease-in-out infinite}
+@keyframes ffnudge{50%{transform:translateX(5px)}}
+.ff-note{margin:14px 0 0;font-size:12.5px;line-height:1.5;color:#6F6A63}
+.ff-note b{color:#141312}
+/* footer */
+.ff-foot{padding:12px 24px calc(16px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:10px}
+@media(min-width:820px){.ff-foot{padding:16px 48px 36px}}
+.ff-cta{width:100%;border:0;border-radius:999px;background:#141312;color:#F6F3EE;font:600 15px/1 var(--bod);letter-spacing:.01em;padding:19px 22px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;transition:transform .15s,background .2s}
+.ff-cta span{opacity:.6;font-weight:500}
+.ff-cta:active{transform:scale(.985)}
+.ff-cta:disabled{background:#BDB7AE;cursor:not-allowed}
+.ff-skip{align-self:center;background:none;border:0;color:#8A847C;font:500 13px/1 var(--bod);cursor:pointer;padding:6px}
 /* shop bar */
-.ff-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;color:#F3EFE8;border:1px solid rgba(229,72,47,.35);border-radius:14px;padding:11px 12px;margin:0 0 16px;
-  background:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px) 0 0/18px 18px,linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px) 0 0/18px 18px,#0B0A09}
+.ff-bar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:#141312;color:#F6F3EE;border-radius:18px;padding:12px 14px;margin:0 0 16px}
 .ff-bar[hidden]{display:none}
-.ff-bar .ffb-t{flex:1;min-width:170px;font:600 11.5px/1.45 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:#C9C2B7}
-.ff-bar .ffb-t b{color:#fff;font-size:13px}
-.ff-bar .ffb-t .dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#5FD38A;box-shadow:0 0 8px #5FD38A;margin-right:6px;vertical-align:1px}
-.ff-bar .ffb-seg{display:flex;border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:3px;gap:3px}
-.ff-bar .ffb-seg button{border:0;background:transparent;color:#C9C2B7;border-radius:7px;padding:8px 10px;font:600 11px/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;cursor:pointer;white-space:nowrap}
-.ff-bar .ffb-seg button.on{background:#F3EFE8;color:#0B0A09}
-.ff-bar .ffb-edit{border:0;background:none;color:#FF8C78;font:600 11px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;cursor:pointer;padding:6px 2px}
-.ff-bar.ask{cursor:pointer;border-color:#E5482F;box-shadow:0 0 24px rgba(229,72,47,.25)}
-.ff-bar.ask .ffb-go{font:700 11px/1 var(--mono);letter-spacing:.1em;color:#fff;background:#E5482F;border-radius:8px;padding:9px 10px;white-space:nowrap}
+.ff-bar .ffb-t{flex:1;min-width:160px;font-size:13px;line-height:1.35;color:#BDB7AE}
+.ff-bar .ffb-t b{display:block;font-family:var(--dsp);font-size:20px;letter-spacing:.01em;text-transform:uppercase;color:#fff;font-weight:400}
+.ff-bar .ffb-seg{display:flex;background:rgba(255,255,255,.08);border-radius:999px;padding:3px;gap:2px}
+.ff-bar .ffb-seg button{border:0;background:transparent;color:#D8D3CB;border-radius:999px;padding:9px 12px;font:600 12.5px/1 var(--bod);cursor:pointer;white-space:nowrap}
+.ff-bar .ffb-seg button.on{background:#F6F3EE;color:#141312}
+.ff-bar .ffb-edit{border:0;background:none;color:#fff;font:600 12.5px/1 var(--bod);text-decoration:underline;text-decoration-color:#C0392B;text-underline-offset:4px;text-decoration-thickness:2px;cursor:pointer;padding:6px 2px}
+.ff-bar.ask{cursor:pointer;background:#141312}
+.ff-bar.ask .ffb-go{background:#F6F3EE;color:#141312;border-radius:999px;padding:10px 14px;font:600 12.5px/1 var(--bod);white-space:nowrap}
 /* "your size" on cards */
 .psizes .sz.mine{background:#141312;color:#fff;border-color:#141312}
-.pmyfit{font:600 11.5px/1.3 var(--mono);letter-spacing:.02em;margin-top:6px}
+.pmyfit{font-size:12px;font-weight:600;margin-top:6px}
 .pmyfit.ok{color:#1F7A44}
 .pmyfit.no{color:#A8321F}
-.pmyfit.belt{color:#9A6400}
+.pmyfit.belt{color:#8A5A00}
 /* product page: your size */
-.mo-myfit{display:flex;gap:10px;align-items:flex-start;border-radius:12px;padding:11px 12px;margin:2px 0 14px;font-size:13px;line-height:1.45;color:#C9C2B7;
-  background:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px) 0 0/16px 16px,#0B0A09;border:1px solid rgba(229,72,47,.3)}
-.mo-myfit .i{font:700 10px/1.3 var(--mono);letter-spacing:.1em;color:#E5482F;padding-top:2px;white-space:nowrap}
+.mo-myfit{display:flex;gap:12px;align-items:flex-start;background:#141312;color:#BDB7AE;border-radius:16px;padding:13px 14px;margin:2px 0 14px;font-size:13px;line-height:1.45}
+.mo-myfit .i{flex:0 0 auto;font-family:var(--dsp);font-size:28px;line-height:.9;color:#fff;min-width:34px;text-align:center}
+.mo-myfit .i small{display:block;font:700 8.5px/1 var(--bod);letter-spacing:.14em;color:#8A847C;margin-bottom:3px}
 .mo-myfit b{color:#fff}
 .mo-myfit .bw{display:block;margin-top:6px;color:#FFC24B}
-.mo-myfit button{background:none;border:0;color:#FF8C78;font:600 12px/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;cursor:pointer;padding:0;margin-left:2px}
-.mo-myfit.ask{cursor:pointer;border-color:#E5482F;box-shadow:0 0 18px rgba(229,72,47,.18)}
+.mo-myfit button{background:none;border:0;color:#fff;font:600 12.5px/1 var(--bod);text-decoration:underline;text-decoration-color:#C0392B;text-underline-offset:4px;text-decoration-thickness:2px;cursor:pointer;padding:0;margin-left:2px}
+.mo-myfit.ask{cursor:pointer}
+.mo-myfit.ask .i{font-size:22px}
 .chip.mine{position:relative}
-.chip.mine::after{content:"YOU";position:absolute;top:-8px;right:-6px;background:#C0392B;color:#fff;font:700 8.5px/1 var(--mono);letter-spacing:.06em;padding:3px 4px;border-radius:5px}
+.chip.mine::after{content:"YOU";position:absolute;top:-8px;right:-6px;background:#C0392B;color:#fff;font:700 8.5px/1 var(--bod);letter-spacing:.06em;padding:3px 4px;border-radius:5px}
 .mo-colour{font-size:12.5px;line-height:1.5;color:#57524B;margin:10px 0 0}
 .mo-colour a{color:#A8321F;font-weight:600}
+@media(prefers-reduced-motion:reduce){.ff-sheet,.ff-n,.ff-stage img,.ff-anim{transition:none;animation:none}}
 /* ===== SWIPE GALLERIES (2026-10-23) ===== */
 .mocar-imgs .mo-track{position:absolute;inset:0;display:flex;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scrollbar-width:none;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
 .mocar-imgs .mo-track::-webkit-scrollbar{display:none}
@@ -3159,9 +3156,9 @@ function jumpToFit(fit){
   if(grid)grid.scrollIntoView({behavior:"smooth",block:"start"});
 }
 let gridPage=0;const GRID_PAGE_SIZE=12;
-/* ===== FIT FINDER (2026-10-23, sci-fi v2) =====
-   Every new visitor gets FIT_SCAN: 01 waist (tap grid, 28–38″ + ½″, or their
-   usual jeans size), 02 cuts (Wide-Leg / Straight / Comfort / Baggy) with the
+/* ===== FIT FINDER (2026-10-24, editorial v3) =====
+   Every new visitor gets a full-screen finder: 01 swipe their waist (28–38″
+   in ½″ steps, or their usual jeans size), 02 cuts (Wide-Leg / Straight / Comfort / Baggy) with the
    exact size and live stock for each. Saved on this device (ds_fit_mem, shared
    with the product-page size finder), it drives the shop's "In my size" view,
    "your size" on every card and the pre-selected size on every product page.
@@ -3169,7 +3166,7 @@ let gridPage=0;const GRID_PAGE_SIZE=12;
 var FF_SIZES=[28,30,32,34,36,38];              // sizes we make
 var FF_MIN=28, FF_MAX=38;                       // waist input range (inches)
 var FF_BELT_FIT="Wide-Leg", FF_BELT_BELOW=29;   // founder's rule: Wide-Leg below a 29″ waist sits loose — belt needed, no fit returns
-var FF_LOG=true;                                // fit_profiles table created 2026-10-23 (insert-only for the website)
+var FF_LOG=false;                               // true once the fit_profiles table exists in Supabase
 var ffOnlyMine=true;                            // shop shows "In my size" when a profile exists
 var _ffDraft=null, _ffSource="", _ffStep=1;
 function ffProfile(){const m=_fsMem();if(!m||!(+m.waist>=20&&+m.waist<=60))return null;
@@ -3227,15 +3224,21 @@ function ffCuts(prof){
     if(live.length){const tally={};live.forEach(p=>{const r=ffSizeFor(p,prof);if(!r)return;if(r.none){none=true;return;}tally[r.best]=(tally[r.best]||0)+1;if(!r.oos)n++;});
       const top=Object.entries(tally).sort((a,b)=>b[1]-a[1])[0]; if(top){size=top[0];none=false;}}
     else{const rec=_fsRecommend(sizeGuide[fit],prof.waist,"true");if(rec&&rec.pick&&prof.waist>=rec.pick.min-0.5&&prof.waist<=rec.pick.max+0.5)size=rec.pick.size;else none=true;}
-    return {fit,size,n,styles:live.length,none:none&&!size,belt:ffBelt(fit,prof.waist)};
+    const pick=live.find(p=>{const r=ffSizeFor(p,prof);return r&&!r.oos&&!r.none;})||live[0];
+    return {fit,size,n,styles:live.length,none:none&&!size,belt:ffBelt(fit,prof.waist),img:pick&&(pick.images||[])[0]||""};
   });
 }
-const FF_SIL={ // little leg-shape outlines so "cut" means something at a glance
-  "Wide-Leg":'<path d="M11 4h18l7 50H24l-4-30-4 30H4z"/>',
-  "Straight":'<path d="M11 4h18l1 50h-8l-2-30-2 30h-8z"/>',
-  "Comfort":'<path d="M9 4h22l1 22-3 28h-7l-2-26-2 26h-7l-3-28z"/>',
-  "Baggy":'<path d="M8 4h24l3 20-2 30h-9l-4-28-4 28H7L5 24z"/>'};
-function ffSil(fit){return `<svg viewBox="0 0 40 58" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true">${FF_SIL[fit]||FF_SIL.Straight}<path d="M11 10h18" opacity=".5"/></svg>`;}
+// ---- UI (editorial v3) ----
+var FF_STEP_W=92, _ffStageT=0, _ffRaf=0;
+function ffStops(mode){if(mode==="usual")return FF_SIZES.slice();const a=[];for(let v=FF_MIN;v<=FF_MAX;v+=0.5)a.push(v);return a;}
+function ffFmt(v,mode){return mode==="usual"?`${v}`:(v%1?`${Math.floor(v)}<small>½</small>`:`${v}`)+`<sup>″</sup>`;}
+function ffStageImgs(){
+  const live=products.filter(p=>ffInGrid(p)&&!isSold(p)&&(p.images||[]).length);
+  const seen=new Set(), out=[];
+  live.sort((a,b)=>(a.order||99)-(b.order||99)).forEach(p=>{if(out.length<5&&!seen.has(p.fit)){seen.add(p.fit);out.push(p.images[0]);}});
+  live.forEach(p=>{if(out.length<5&&!out.includes(p.images[0]))out.push(p.images[0]);});
+  return out;
+}
 function ffOpen(source){
   if(!window._productsReady||typeof products==="undefined"||!products.length){setTimeout(()=>ffOpen(source),300);return;}
   const el=document.getElementById("ff"); if(!el)return;
@@ -3245,36 +3248,39 @@ function ffOpen(source){
   _ffDraft.waist=Math.min(FF_MAX,Math.max(FF_MIN,_ffDraft.waist));
   _ffStep=1;
   try{localStorage.setItem("ds_ff_seen","1");}catch(e){}
-  el.innerHTML=`<div class="ff-sheet" role="dialog" aria-modal="true" aria-labelledby="ff-h">
-    <div class="ff-scanline"></div>
+  const imgs=ffStageImgs();
+  el.innerHTML=`<div class="ff-sheet" id="ff-sheet" role="dialog" aria-modal="true" aria-labelledby="ff-h">
+    <div class="ff-stage" aria-hidden="true">${imgs.map((s,i)=>`<img src="${s}" alt="" class="${i?"":"on"}" ${i?'loading="lazy"':""}/>`).join("")}<span class="ff-brand">365 Drop Store · Fit finder</span></div>
     <button class="ff-x" onclick="ffClose(${p0?"false":"true"})" aria-label="Close">✕</button>
-    <div class="ff-scroll" id="ff-body"></div>
-    <div class="ff-foot" id="ff-foot"></div>
+    <div class="ff-main"><div class="ff-scroll" id="ff-body"></div><div class="ff-foot" id="ff-foot"></div></div>
   </div>`;
   el.hidden=false; lockScroll();
   el.onclick=e=>{if(e.target===el)ffClose(!p0);};
   ffRender();
   requestAnimationFrame(()=>el.classList.add("in"));
+  clearInterval(_ffStageT);
+  _ffStageT=setInterval(()=>{const st=document.querySelectorAll("#ff .ff-stage img");if(!st.length){clearInterval(_ffStageT);return;}
+    const i=[...st].findIndex(x=>x.classList.contains("on"));st[i].classList.remove("on");st[(i+1)%st.length].classList.add("on");},3600);
   ffTrack("Fit finder opened");
 }
+function ffKick(){return `<div class="ff-kick">Fit finder <i class="on"></i><i class="${_ffStep===2?"on":""}"></i></div>`;}
 function ffRender(){
   const body=document.getElementById("ff-body"), foot=document.getElementById("ff-foot"); if(!body)return;
-  const d=_ffDraft, p0=ffProfile();
-  const term=`<div class="ff-term"><span><b>&gt;</b> FIT_SCAN // 365 DROP<span class="cur"></span></span><span class="ff-steps"><i class="on"></i><i class="${_ffStep===2?"on":""}"></i></span></div>`;
+  const d=_ffDraft, p0=ffProfile(), sheet=document.getElementById("ff-sheet");
+  if(sheet)sheet.classList.toggle("s2",_ffStep===2);
   if(_ffStep===1){
-    const cells=d.mode==="usual"
-      ?`<div class="ff-grid sizes">${FF_SIZES.map(n=>`<button class="ff-cell${d.waist===n?" on":""}" onclick="ffSet(${n})">${n}<small>SIZE</small></button>`).join("")}</div>`
-      :`<div class="ff-grid">${Array.from({length:FF_MAX-FF_MIN+1},(_,i)=>FF_MIN+i).map(n=>`<button class="ff-cell${Math.floor(d.waist)===n?" on":""}" onclick="ffSet(${n}+(${d.waist%1?0.5:0}))">${n}</button>`).join("")}<button class="ff-cell half${d.waist%1?" on":""}" onclick="ffHalf()" ${Math.floor(d.waist)>=FF_MAX?"disabled":""}>+½″<small>${d.waist%1?"ON":"OFF"}</small></button></div>`;
-    body.innerHTML=`${term}
-      <h2 class="ff-h" id="ff-h">What's your <em>waist?</em></h2>
-      <p class="ff-sub">One tap. We'll match your exact size in every cut and show only the pairs that fit you.</p>
-      <div class="ff-seg"><button class="${d.mode==="waist"?"on":""}" onclick="ffMode('waist')">Waist · inches</button><button class="${d.mode==="usual"?"on":""}" onclick="ffMode('usual')">My jeans size</button></div>
-      <div class="ff-read"><div><span class="lbl">${d.mode==="usual"?"Your jeans size":"Your waist"}</span><b>${d.waist}${d.mode==="usual"?"":"″"}</b></div><div class="cm">${Math.round(d.waist*2.54)} CM<small>${d.mode==="usual"?"LABEL SIZE":"MEASURED"}</small></div></div>
-      ${cells}
-      ${d.mode==="usual"?`<div class="ff-tip">The number on the label of the jeans that fit you best.</div>`
-        :`<div class="ff-tip">Tape where your jeans sit · snug, not tight</div><details class="ff-how"><summary>No tape at home?</summary><ol><li>Lay your best-fitting jeans flat, buttoned.</li><li>Measure straight across the top of the waistband.</li><li>Double it. That's your waist.</li></ol></details>`}
-      <p class="ff-out">Outside ${FF_MIN}–${FF_MAX}″? We don't make your size yet. <a href="https://wa.me/${WA}?text=${encodeURIComponent("Hi! My waist is outside 28–38\". Do you have anything that fits me?")}" target="_blank" rel="noopener">Message us</a></p>`;
-    foot.innerHTML=`<button class="ff-cta" onclick="ffNext()">Next · pick your cuts →</button><button class="ff-skip" onclick="ffClose(${p0?"false":"true"})">${p0?"Cancel":"Skip · browse everything"}</button>`;
+    const stops=ffStops(d.mode);
+    body.innerHTML=`<div class="ff-anim">${ffKick()}
+      <h2 class="ff-h" id="ff-h">${d.mode==="usual"?"Your jeans size.":"Your waist."}</h2>
+      <p class="ff-sub">${d.mode==="usual"?"The number on the label of the jeans that fit you best.":"Swipe to your number. We'll pick your size in every cut."}</p></div>
+      <div class="ff-wheelwrap"><div class="ff-wheel" id="ff-wheel" tabindex="0" role="slider" aria-label="${d.mode==="usual"?"Jeans size":"Waist in inches"}" aria-valuemin="${stops[0]}" aria-valuemax="${stops[stops.length-1]}">
+        <div class="ff-pad"></div>${stops.map((v,i)=>`<div class="ff-n" data-v="${v}" data-i="${i}">${ffFmt(v,d.mode)}</div>`).join("")}<div class="ff-pad"></div>
+      </div><span class="ff-mark"></span></div>
+      <div class="ff-meta" id="ff-meta"></div>
+      <button class="ff-alt" onclick="ffMode('${d.mode==="usual"?"waist":"usual"}')">${d.mode==="usual"?"I know my waist in inches":"Don't know your waist? Use your jeans size"}</button>
+      ${d.mode==="usual"?"":`<p class="ff-help">No tape? Lay your best jeans flat, measure across the waistband, double it.</p>`}`;
+    foot.innerHTML=`<button class="ff-cta" onclick="ffNext()">Continue <span>→</span></button><button class="ff-skip" onclick="ffClose(${p0?"false":"true"})">${p0?"Cancel":"Not now"}</button>`;
+    ffWheelInit();
     return;
   }
   const cuts=ffCuts(d);
@@ -3282,28 +3288,60 @@ function ffRender(){
   const chosen=cuts.filter(c=>d.cuts.includes(c.fit));
   const total=chosen.reduce((s,c)=>s+c.n,0);
   const beltOn=chosen.some(c=>c.belt&&!c.none);
-  body.innerHTML=`${term}
-    <div class="ff-back"><span>${d.mode==="usual"?"Size":"Waist"} <b>${d.waist}${d.mode==="usual"?"":"″"}</b></span><button onclick="ffStepTo(1)">Edit</button></div>
-    <h2 class="ff-h" id="ff-h">Pick your <em>cuts</em></h2>
-    <p class="ff-sub">Your size is worked out for each cut. Tap the ones you like.</p>
-    <div class="ff-cuts">${cuts.map(c=>{
-      const on=d.cuts.includes(c.fit);
-      const st=c.none?`<span class="st no">Not made in your size</span>`:!c.styles?`<span class="st no">Dropping soon</span>`:c.n?`<span class="st ok">${c.n} pair${c.n>1?"s":""} in your size</span>`:`<span class="st no">Your size sold out</span>`;
-      return `<button class="ff-cut${on?" on":""}${c.none||!c.n?" dim":""}" onclick="ffToggleCut('${c.fit.replace(/'/g,"\\'")}')" aria-pressed="${on}">
-        ${ffSil(c.fit)}${c.size&&!c.none?`<span class="sz"><small>YOUR SIZE</small>${c.size}</span>`:""}
-        <span class="nm">${c.fit}</span>${st}${c.belt&&!c.none?`<span class="belt">⚠ Belt needed</span>`:""}<span class="tick">✓</span></button>`;}).join("")}</div>
-    ${beltOn?`<div class="ff-warn"><span>⚠</span><div><b>Wide-Leg at ${d.waist}${d.mode==="usual"?"":"″"}:</b> it sits loose at this waist. Wear it with a belt. Fit-related returns aren't accepted on Wide-Leg below a ${FF_BELT_BELOW}″ waist.</div></div>`:""}
-`;
+  const w=d.mode==="usual"?`size ${d.waist}`:`${Math.floor(d.waist)}${d.waist%1?"½":""}″`;
+  body.innerHTML=`<div class="ff-anim">${ffKick()}
+    <h2 class="ff-h" id="ff-h">Your size,<br>every cut.</h2>
+    <p class="ff-sub">For a ${w} waist. Tap the cuts you'd wear. <button class="ff-alt" style="margin:0;padding:0;font-size:14px" onclick="ffStepTo(1)">Change</button></p></div>
+    <div class="ff-cuts ff-anim" style="animation-delay:.06s">${cuts.map(c=>{
+      const on=d.cuts.includes(c.fit), bare=!c.img;
+      const ln=c.none?"Not made in your size yet":!c.styles?"Dropping soon":c.n?`${c.n} pair${c.n>1?"s":""} in your size`:"Your size is sold out";
+      return `<button class="ff-cut${on?" on":" off"}${bare?" bare":""}" onclick="ffToggleCut('${c.fit.replace(/'/g,"\\'")}')" aria-pressed="${on}">
+        ${bare?`<span class="soon">${c.fit}</span>`:`<img src="${c.img}" alt="${c.fit} jeans" loading="lazy"/>`}
+        <span class="chk">✓</span>
+        ${c.size&&!c.none?`<span class="fsz"><small>YOUR SIZE</small>${c.size}</span>`:""}
+        <span class="tx"><span class="nm">${c.fit}</span><span class="ln">${ln}</span>${c.belt&&!c.none?`<span class="belt">Belt needed</span>`:""}</span></button>`;}).join("")}</div>
+    <p class="ff-swipe">Swipe for all ${cuts.length} cuts <span>→</span></p>
+    ${beltOn?`<p class="ff-note"><b>Wide-Leg at ${w}</b> sits loose. Wear it with a belt. Fit-related returns aren't accepted on Wide-Leg below a ${FF_BELT_BELOW}″ waist.</p>`:""}`;
   foot.innerHTML=total
-    ?`<button class="ff-cta" onclick="ffDone()">Show my ${total} pairs →</button><button class="ff-skip" onclick="ffStepTo(1)">← Back</button>`
-    :`<button class="ff-cta" onclick="ffDone()" ${chosen.length?"":"disabled"}>Save my size →</button><button class="ff-skip" onclick="ffStepTo(1)">← Back</button>`;
+    ?`<button class="ff-cta" onclick="ffDone()">See my pairs <span>${total} →</span></button><button class="ff-skip" onclick="ffStepTo(1)">Back</button>`
+    :`<button class="ff-cta" onclick="ffDone()" ${chosen.length?"":"disabled"}>Save my size <span>→</span></button><button class="ff-skip" onclick="ffStepTo(1)">Back</button>`;
 }
-function ffSet(v){_ffDraft.waist=Math.min(FF_MAX,Math.max(FF_MIN,v));_ffDraft.cuts=null;ffRender();}
-function ffHalf(){const w=Math.floor(_ffDraft.waist);_ffDraft.waist=_ffDraft.waist%1?w:Math.min(FF_MAX,w+0.5);_ffDraft.cuts=null;ffRender();}
+function ffWheelInit(){
+  const wh=document.getElementById("ff-wheel"); if(!wh)return;
+  const pad=Math.max(0,(wh.clientWidth-FF_STEP_W)/2);
+  wh.querySelectorAll(".ff-pad").forEach(p=>p.style.flexBasis=pad+"px");
+  const items=[...wh.querySelectorAll(".ff-n")], stops=items.map(x=>+x.dataset.v);
+  let idx=Math.max(0,stops.indexOf(_ffDraft.waist)); if(stops.indexOf(_ffDraft.waist)<0){idx=stops.reduce((b,v,i)=>Math.abs(v-_ffDraft.waist)<Math.abs(stops[b]-_ffDraft.waist)?i:b,0);_ffDraft.waist=stops[idx];}
+  wh.scrollLeft=idx*FF_STEP_W; ffWheelMark(idx);
+  wh.addEventListener("scroll",()=>{cancelAnimationFrame(_ffRaf);_ffRaf=requestAnimationFrame(()=>{
+    const i=Math.min(items.length-1,Math.max(0,Math.round(wh.scrollLeft/FF_STEP_W)));
+    if(stops[i]!==_ffDraft.waist){_ffDraft.waist=stops[i];_ffDraft.cuts=null;ffWheelMark(i);try{navigator.vibrate&&navigator.vibrate(4);}catch(e){}}
+  });},{passive:true});
+  items.forEach((it,i)=>it.addEventListener("click",()=>wh.scrollTo({left:i*FF_STEP_W,behavior:"smooth"})));
+  wh.addEventListener("keydown",e=>{const i=stops.indexOf(_ffDraft.waist);
+    if(e.key==="ArrowRight"||e.key==="ArrowUp"){e.preventDefault();wh.scrollTo({left:Math.min(items.length-1,i+1)*FF_STEP_W,behavior:"smooth"});}
+    if(e.key==="ArrowLeft"||e.key==="ArrowDown"){e.preventDefault();wh.scrollTo({left:Math.max(0,i-1)*FF_STEP_W,behavior:"smooth"});}});
+  // mouse drag on desktop; touch scrolls natively
+  wh.addEventListener("pointerdown",e=>{if(e.pointerType!=="mouse")return;window._ffDrag={wh,x:e.clientX,s:wh.scrollLeft};wh.style.scrollSnapType="none";});
+  if(!window._ffDragBound){window._ffDragBound=true;
+    window.addEventListener("pointermove",e=>{const g=window._ffDrag;if(g)g.wh.scrollLeft=g.s-(e.clientX-g.x);});
+    window.addEventListener("pointerup",()=>{const g=window._ffDrag;if(!g)return;window._ffDrag=null;g.wh.style.scrollSnapType="";g.wh.scrollTo({left:Math.round(g.wh.scrollLeft/FF_STEP_W)*FF_STEP_W,behavior:"smooth"});});}
+}
+function ffWheelMark(i){
+  const items=document.querySelectorAll("#ff-wheel .ff-n");
+  items.forEach((x,j)=>{x.classList.toggle("on",j===i);x.classList.toggle("near",Math.abs(j-i)===1);});
+  const wh=document.getElementById("ff-wheel"), d=_ffDraft;
+  if(wh){wh.setAttribute("aria-valuenow",d.waist);wh.setAttribute("aria-valuetext",d.mode==="usual"?`size ${d.waist}`:`${d.waist} inches`);}
+  const meta=document.getElementById("ff-meta");
+  if(meta){const prof={waist:d.waist,pref:"true",mode:d.mode,cuts:null};const n=products.filter(p=>ffInGrid(p)&&ffMatches(p,prof)).length;
+    meta.innerHTML=`${d.mode==="usual"?"":`<span>${Math.round(d.waist*2.54)} cm</span><span>·</span>`}<span><b>${n} pairs</b> fit you</span>`;}
+}
 function ffMode(m){_ffDraft.mode=m;if(m==="usual"){_ffDraft.waist=FF_SIZES.reduce((a,b)=>Math.abs(b-_ffDraft.waist)<Math.abs(a-_ffDraft.waist)?b:a);}_ffDraft.cuts=null;ffRender();}
 function ffNext(){ffStepTo(2);ffTrack("Fit finder waist set");}
 function ffStepTo(n){_ffStep=n;ffRender();const b=document.getElementById("ff-body");if(b)b.scrollTop=0;}
-function ffToggleCut(f){const c=_ffDraft.cuts||[];_ffDraft.cuts=c.includes(f)?c.filter(x=>x!==f):[...c,f];ffRender();}
+function ffToggleCut(f){const c=_ffDraft.cuts||[];_ffDraft.cuts=c.includes(f)?c.filter(x=>x!==f):[...c,f];
+  const sc=document.querySelector("#ff .ff-cuts"), x=sc?sc.scrollLeft:0; ffRender();
+  const sc2=document.querySelector("#ff .ff-cuts"); if(sc2){sc2.scrollLeft=x;sc2.classList.remove("ff-anim");} const a=document.querySelector("#ff-body .ff-anim"); if(a)a.classList.remove("ff-anim");}
 function ffDone(){
   const prof={waist:_ffDraft.waist,pref:"true",mode:_ffDraft.mode,cuts:(_ffDraft.cuts||[]).slice()};
   ffSaveProfile(prof); ffOnlyMine=true; ffTrack("Fit finder saved");
@@ -3311,26 +3349,27 @@ function ffDone(){
   if(src==="product"&&typeof ms!=="undefined"&&ms.p&&document.getElementById("ov").classList.contains("op")){openMo(ms.p.id,true);return;}
   fFits=[];
   renderGrid();
-  const shop=document.getElementById("shop"); if(shop)setTimeout(()=>shop.scrollIntoView({behavior:"smooth",block:"start"}),200);
+  const shop=document.getElementById("shop"); if(shop)setTimeout(()=>shop.scrollIntoView({behavior:"smooth",block:"start"}),250);
 }
 function ffClose(skipped){
   const el=document.getElementById("ff"); if(!el||el.hidden)return;
-  el.classList.remove("in"); unlockScroll();
+  el.classList.remove("in"); unlockScroll(); clearInterval(_ffStageT);
   if(skipped)ffTrack("Fit finder skipped");
-  setTimeout(()=>{el.hidden=true;el.innerHTML="";},420);
+  setTimeout(()=>{el.hidden=true;el.innerHTML="";},450);
   ffRenderBar();
 }
 document.addEventListener("keydown",e=>{if(e.key==="Escape"){const el=document.getElementById("ff");if(el&&!el.hidden){e.stopImmediatePropagation();ffClose(!ffProfile());}}},true);
+window.addEventListener("resize",()=>{const el=document.getElementById("ff");if(el&&!el.hidden&&_ffStep===1){const wh=document.getElementById("ff-wheel");if(!wh)return;const pad=Math.max(0,(wh.clientWidth-FF_STEP_W)/2);wh.querySelectorAll(".ff-pad").forEach(p=>p.style.flexBasis=pad+"px");const i=ffStops(_ffDraft.mode).indexOf(_ffDraft.waist);if(i>=0)wh.scrollLeft=i*FF_STEP_W;}});
 function ffSetOnlyMine(v){ffOnlyMine=v;renderGrid();}
 function ffRenderBar(){
   const bar=document.getElementById("ff-bar"); if(!bar)return;
   const prof=ffProfile();
   if(!prof){bar.className="ff-bar ask";bar.hidden=false;bar.onclick=()=>ffOpen("bar");
-    bar.innerHTML=`<span class="ffb-t"><b>Not sure of your size?</b><br>Scan your fit · 2 taps</span><span class="ffb-go">FIT_SCAN →</span>`;return;}
+    bar.innerHTML=`<span class="ffb-t"><b>Find your size</b>Two swipes. Every cut.</span><span class="ffb-go">Start →</span>`;return;}
   bar.className="ff-bar";bar.hidden=false;bar.onclick=null;
   const mine=products.filter(p=>ffInGrid(p)&&ffMatches(p,prof)).length;
   const cuts=prof.cuts&&prof.cuts.length?prof.cuts.join(" · "):"All cuts";
-  bar.innerHTML=`<span class="ffb-t"><span class="dot"></span><b>${prof.mode==="usual"?"Size "+prof.waist:prof.waist+"″ waist"}</b><br>${cuts}</span>
+  bar.innerHTML=`<span class="ffb-t"><b>${prof.mode==="usual"?"Size "+prof.waist:prof.waist+"″ waist"}</b>${cuts}</span>
     <span class="ffb-seg"><button class="${ffOnlyMine?"on":""}" onclick="ffSetOnlyMine(true)">My size · ${mine}</button><button class="${ffOnlyMine?"":"on"}" onclick="ffSetOnlyMine(false)">All</button></span>
     <button class="ffb-edit" onclick="ffOpen('bar')">Edit</button>`;
 }
@@ -3354,17 +3393,17 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
 // Product page block: your size for this cut, or the ask.
 function ffMoBlock(p){
   const prof=ffProfile();
-  if(!prof){return `<div class="mo-myfit ask" onclick="ffOpen('product')"><span class="i">FIT_SCAN</span><div><b>What's your waist?</b> Two taps and we'll pick your exact size here and on every pair.</div></div>`;}
+  if(!prof){return `<div class="mo-myfit ask" onclick="ffOpen('product')"><span class="i">?</span><div><b>Not sure of your size?</b> Swipe your waist once and we'll pick your exact size here and on every pair. <button>Find my size</button></div></div>`;}
   const r=ffSizeFor(p,prof); if(!r)return "";
   const who=prof.mode==="usual"?`you wear ${prof.waist}`:`your waist is ${prof.waist}″`;
   const band=r.band&&Number.isFinite(r.band.min)?` (cut for ${r.band.min}–${r.band.max}″)`:"";
-  let msg;
-  if(r.none)msg=`We don't make this cut in your size yet.`;
+  let msg,big=r.size;
+  if(r.none){msg=`We don't make this cut in your size yet.`;big="–";}
   else if(r.oos)msg=`Your size here is <b>${r.best}</b>${band}, and it's sold out right now.`;
   else if(r.swapped)msg=`Your best size, ${r.best}, is sold out. <b>${r.size}</b> is the closest fit in stock${band}.`;
-  else msg=`Your size in this cut: <b>${r.size}</b>${band}. Selected for you.`;
-  const belt=r.belt&&!r.none?`<span class="bw">⚠ At ${prof.waist}${prof.mode==="usual"?"":"″"} this Wide-Leg sits loose. Wear it with a belt. Fit-related returns aren't accepted on Wide-Leg below a ${FF_BELT_BELOW}″ waist.</span>`:"";
-  return `<div class="mo-myfit"><span class="i">YOUR FIT</span><div>${msg} Because ${who}. <button onclick="ffOpen('product')">Change</button>${belt}</div></div>`;
+  else msg=`<b>Your size in this cut</b>${band}. Selected for you.`;
+  const belt=r.belt&&!r.none?`<span class="bw">At ${prof.waist}${prof.mode==="usual"?"":"″"} this Wide-Leg sits loose. Wear it with a belt. Fit-related returns aren't accepted on Wide-Leg below a ${FF_BELT_BELOW}″ waist.</span>`:"";
+  return `<div class="mo-myfit"><span class="i"><small>YOUR SIZE</small>${big}</span><div>${msg} Because ${who}. <button onclick="ffOpen('product')">Change</button>${belt}</div></div>`;
 }
 /* ----- swipe galleries ----- */
 // Shop cards: current slide → dots; open the product page on the photo the shopper was looking at.
