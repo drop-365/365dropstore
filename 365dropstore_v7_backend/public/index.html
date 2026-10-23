@@ -1643,97 +1643,123 @@ body:hover .cursor-glow{opacity:1}
 @media (prefers-reduced-motion:reduce){.fs-ov .fs-panel,.fs-ov{transition:none}.fs-big.pop{animation:none}}
 </style>
 <style>
-/* ===== FIT FINDER (2026-10-23) =====
-   One question for every new visitor ("what's your waist?"), answered with the
-   exact size in every cut and a shop filtered to jeans that fit. Shares its
+/* ===== FIT FINDER (2026-10-23, sci-fi v2) =====
+   FIT_SCAN: two taps for every new visitor — waist, then cuts — answered with
+   the exact size in each cut and a shop filtered to pairs that fit. Shares its
    memory (ds_fit_mem) and size engine (_fsRecommend) with the product-page
    size finder, so both always give the same answer. */
-.ff{position:fixed;inset:0;z-index:1300;display:flex;align-items:flex-end;justify-content:center;background:rgba(10,9,8,0);transition:background .28s ease}
+.ff{position:fixed;inset:0;z-index:1300;display:flex;align-items:flex-end;justify-content:center;background:rgba(5,5,4,0);transition:background .3s ease}
 .ff[hidden]{display:none}
-.ff.in{background:rgba(10,9,8,.58)}
-.ff-sheet{position:relative;width:100%;max-width:480px;max-height:92vh;max-height:92dvh;display:flex;flex-direction:column;background:#FBF9F5;color:#141312;border-radius:24px 24px 0 0;box-shadow:0 -20px 60px rgba(0,0,0,.3);transform:translateY(100%);transition:transform .38s cubic-bezier(.2,.85,.25,1);overscroll-behavior:contain}
+.ff.in{background:rgba(5,5,4,.72);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}
+.ff-sheet{--ffr:#E5482F;position:relative;width:100%;max-width:480px;max-height:94vh;max-height:94dvh;display:flex;flex-direction:column;color:#F3EFE8;
+  background:radial-gradient(120% 60% at 50% -10%,rgba(192,57,43,.28),transparent 60%),
+    linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px) 0 0/22px 22px,
+    linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px) 0 0/22px 22px,#0B0A09;
+  border:1px solid rgba(229,72,47,.35);border-bottom:0;border-radius:22px 22px 0 0;box-shadow:0 -24px 80px rgba(192,57,43,.25),inset 0 1px 0 rgba(255,255,255,.06);
+  transform:translateY(100%);transition:transform .42s cubic-bezier(.2,.85,.25,1);overscroll-behavior:contain;overflow:hidden}
 .ff.in .ff-sheet{transform:none}
-@media(min-width:720px){.ff{align-items:center}.ff-sheet{border-radius:24px;transform:translateY(24px) scale(.98);opacity:0;transition:transform .3s cubic-bezier(.2,.85,.25,1),opacity .22s}.ff.in .ff-sheet{opacity:1}}
-.ff-grab{width:40px;height:4px;border-radius:4px;background:rgba(20,19,18,.18);margin:10px auto 0}
-.ff-x{position:absolute;right:14px;top:14px;width:36px;height:36px;border-radius:50%;border:1px solid rgba(20,19,18,.12);background:#fff;color:#141312;font-size:16px;line-height:1;cursor:pointer;display:grid;place-items:center}
-.ff-scroll{overflow-y:auto;padding:14px 22px 8px;-webkit-overflow-scrolling:touch}
-.ff-kick{font:600 11px/1 var(--mono,ui-monospace,monospace);letter-spacing:.14em;text-transform:uppercase;color:#A8321F;margin:6px 0 10px}
-.ff-h{font-family:var(--dsp);font-size:30px;line-height:1.02;letter-spacing:.01em;margin:0 0 8px;color:#141312;padding-right:36px}
-.ff-sub{color:#5f5a54;font-size:14px;line-height:1.45;margin:0 0 18px}
-.ff-seg{display:flex;gap:4px;background:#EFEAE2;border-radius:12px;padding:4px;margin:0 0 14px}
-.ff-seg button{flex:1;border:0;background:transparent;color:#3E3A35;border-radius:9px;padding:10px 6px;font:600 13.5px/1.1 var(--bod);cursor:pointer;min-height:42px;transition:background .15s,box-shadow .15s}
-.ff-seg button.on{background:#fff;color:#141312;box-shadow:0 1px 3px rgba(0,0,0,.12)}
-.ff-read{display:flex;align-items:baseline;justify-content:center;gap:10px;margin:6px 0 2px}
-.ff-read b{font-family:var(--dsp);font-size:64px;line-height:1;letter-spacing:-.01em;color:#141312;font-variant-numeric:tabular-nums}
-.ff-read span{font-size:14px;color:#7A756E}
-.ff-rulerwrap{position:relative;display:flex;align-items:center;gap:8px;margin:4px 0 4px}
-.ff-step{flex:0 0 44px;height:44px;border-radius:50%;border:1px solid rgba(20,19,18,.14);background:#fff;color:#141312;font-size:22px;line-height:1;cursor:pointer;display:grid;place-items:center;touch-action:manipulation}
-.ff-step:active{transform:scale(.94)}
-.ff-ruler{position:relative;flex:1;height:64px;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scrollbar-width:none;-webkit-mask-image:linear-gradient(90deg,transparent,#000 18%,#000 82%,transparent);mask-image:linear-gradient(90deg,transparent,#000 18%,#000 82%,transparent);outline:none;cursor:grab;touch-action:pan-x}
-.ff-ruler::-webkit-scrollbar{display:none}
-.ff-ruler:focus-visible{box-shadow:inset 0 0 0 2px #C0392B;border-radius:10px}
-.ff-ticks{display:flex;align-items:flex-start;height:100%}
-.ff-tick{flex:0 0 14px;height:100%;position:relative;scroll-snap-align:center}
-.ff-tick::before{content:"";position:absolute;left:50%;top:8px;width:1.5px;height:14px;background:rgba(20,19,18,.28);transform:translateX(-50%)}
-.ff-tick.maj::before{height:24px;background:rgba(20,19,18,.55)}
-.ff-tick i{position:absolute;left:50%;top:38px;transform:translateX(-50%);font:600 11px/1 var(--bod);font-style:normal;color:#7A756E}
-.ff-pad{flex:0 0 auto}
-.ff-needle{position:absolute;left:50%;top:2px;width:3px;height:34px;border-radius:3px;background:#C0392B;transform:translateX(-50%);pointer-events:none;box-shadow:0 0 0 3px rgba(192,57,43,.14)}
-.ff-usual{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:4px 0 6px}
-.ff-usual button{border:1px solid rgba(20,19,18,.14);background:#fff;border-radius:12px;padding:14px 0;font:700 17px/1 var(--bod);color:#141312;cursor:pointer}
-.ff-usual button.on{background:#141312;color:#FBF9F5;border-color:#141312}
-.ff-tip{font-size:12.5px;color:#7A756E;text-align:center;margin:2px 0 14px}
-.ff-how{font-size:12.5px;color:#57524B;background:#F1ECE4;border-radius:12px;padding:10px 12px;margin:0 0 16px}
-.ff-how summary{cursor:pointer;font-weight:600;color:#3E3A35;list-style:none}
+@media(min-width:720px){.ff{align-items:center}.ff-sheet{border-radius:22px;border-bottom:1px solid rgba(229,72,47,.35);transform:translateY(24px) scale(.98);opacity:0;transition:transform .32s cubic-bezier(.2,.85,.25,1),opacity .22s}.ff.in .ff-sheet{opacity:1}}
+.ff-sheet::before,.ff-sheet::after{content:"";position:absolute;top:12px;width:18px;height:18px;border-top:2px solid var(--ffr);pointer-events:none;opacity:.8}
+.ff-sheet::before{left:12px;border-left:2px solid var(--ffr)}
+.ff-sheet::after{right:12px;border-right:2px solid var(--ffr)}
+.ff-scanline{position:absolute;left:0;right:0;top:0;height:90px;pointer-events:none;background:linear-gradient(180deg,transparent,rgba(229,72,47,.16) 70%,rgba(229,72,47,.55) 98%,transparent);opacity:0}
+.ff.in .ff-scanline{animation:ffscan 1.6s cubic-bezier(.4,0,.2,1) .15s 1}
+@keyframes ffscan{0%{transform:translateY(-90px);opacity:1}100%{transform:translateY(calc(94dvh));opacity:0}}
+.ff-x{position:absolute;right:16px;top:16px;z-index:3;width:36px;height:36px;border-radius:10px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.04);color:#F3EFE8;font-size:15px;line-height:1;cursor:pointer;display:grid;place-items:center}
+.ff-scroll{position:relative;z-index:1;overflow-y:auto;padding:22px 22px 8px;-webkit-overflow-scrolling:touch}
+.ff-term{display:flex;justify-content:space-between;align-items:center;gap:10px;font:500 11px/1 var(--mono);letter-spacing:.12em;color:#8C857B;text-transform:uppercase;margin:4px 46px 14px 6px}
+.ff-term b{color:var(--ffr);font-weight:600}
+.ff-term .cur{display:inline-block;width:7px;height:12px;background:var(--ffr);margin-left:4px;vertical-align:-2px;animation:ffblink 1s steps(1) infinite}
+@keyframes ffblink{50%{opacity:0}}
+.ff-steps{display:flex;gap:6px}
+.ff-steps i{width:22px;height:3px;border-radius:2px;background:rgba(255,255,255,.14)}
+.ff-steps i.on{background:var(--ffr);box-shadow:0 0 10px rgba(229,72,47,.7)}
+.ff-h{font-family:var(--dsp);font-size:34px;line-height:.98;letter-spacing:.01em;text-transform:uppercase;margin:0 0 8px;color:#fff}
+.ff-h em{font-style:normal;color:var(--ffr);text-shadow:0 0 18px rgba(229,72,47,.55)}
+.ff-sub{color:#A8A197;font-size:13.5px;line-height:1.45;margin:0 0 16px}
+.ff-seg{display:flex;gap:4px;border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:4px;margin:0 0 16px;background:rgba(255,255,255,.02)}
+.ff-seg button{flex:1;border:0;background:transparent;color:#A8A197;border-radius:8px;padding:11px 6px;font:600 11.5px/1.1 var(--mono);letter-spacing:.08em;text-transform:uppercase;cursor:pointer;min-height:40px;transition:background .15s,color .15s}
+.ff-seg button.on{background:#F3EFE8;color:#0B0A09}
+.ff-read{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:12px 16px 10px;margin:0 0 12px;background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.01))}
+.ff-read .lbl{font:500 10.5px/1.4 var(--mono);letter-spacing:.14em;color:#8C857B;text-transform:uppercase}
+.ff-read b{display:block;font-family:var(--dsp);font-size:62px;line-height:.95;color:#fff;font-variant-numeric:tabular-nums;text-shadow:0 0 24px rgba(229,72,47,.35)}
+.ff-read .cm{font:600 13px/1 var(--mono);color:#C9C2B7;text-align:right}
+.ff-read .cm small{display:block;font-size:10.5px;color:#8C857B;letter-spacing:.1em;margin-top:6px}
+.ff-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:0 0 10px}
+.ff-grid.sizes{grid-template-columns:repeat(3,1fr)}
+.ff-cell{position:relative;border:1px solid rgba(255,255,255,.13);background:rgba(255,255,255,.03);color:#F3EFE8;border-radius:12px;min-height:54px;font:600 19px/1 var(--mono);cursor:pointer;transition:border-color .15s,background .15s,box-shadow .15s,transform .1s;touch-action:manipulation}
+.ff-cell small{display:block;font-size:9.5px;letter-spacing:.1em;color:#8C857B;margin-top:4px}
+.ff-cell:active{transform:scale(.96)}
+.ff-cell.on{border-color:var(--ffr);background:rgba(229,72,47,.16);color:#fff;box-shadow:0 0 0 1px var(--ffr),0 0 22px rgba(229,72,47,.35)}
+.ff-cell.half{font-size:15px}
+.ff-cell.half.on small{color:#FFD9D1}
+.ff-cell:disabled{opacity:.3;cursor:not-allowed}
+.ff-tip{font:500 10.5px/1.5 var(--mono);letter-spacing:.06em;color:#8C857B;text-transform:uppercase;margin:2px 0 10px}
+.ff-how{font-size:12.5px;color:#C9C2B7;border:1px dashed rgba(255,255,255,.14);border-radius:12px;padding:10px 12px;margin:0 0 10px}
+.ff-how summary{cursor:pointer;font:600 11px/1.3 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:#F3EFE8;list-style:none}
 .ff-how summary::-webkit-details-marker{display:none}
-.ff-how summary::after{content:"+";float:right}
+.ff-how summary::after{content:"+";float:right;color:var(--ffr)}
 .ff-how[open] summary::after{content:"−"}
 .ff-how ol{margin:8px 0 2px;padding-left:18px;line-height:1.5}
-.ff-lbl{display:block;font:600 12px/1 var(--bod);letter-spacing:.06em;text-transform:uppercase;color:#7A756E;margin:0 0 8px}
-.ff-res{border:1px solid rgba(20,19,18,.1);border-radius:16px;background:#fff;overflow:hidden;margin:0 0 12px}
-.ff-res-h{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-bottom:1px solid rgba(20,19,18,.08);font-size:13px;color:#57524B}
-.ff-res-h b{color:#141312}
-.ff-row{display:flex;align-items:center;gap:10px;width:100%;padding:12px 14px;border:0;background:none;text-align:left;cursor:pointer;font-family:var(--bod);color:#141312;border-top:1px solid rgba(20,19,18,.06)}
-.ff-row:first-of-type{border-top:0}
-.ff-row .fit{flex:1;font-weight:600;font-size:14.5px}
-.ff-row .sz{font-family:var(--dsp);font-size:22px;min-width:40px;text-align:center;background:#141312;color:#FBF9F5;border-radius:10px;padding:5px 8px;line-height:1}
-.ff-row .n{font-size:12.5px;color:#2a8a4a;font-weight:600;min-width:74px;text-align:right}
-.ff-row .n.zero{color:#A8321F}
-.ff-row .go{color:#B0A99F;font-size:18px}
-.ff-promise{display:flex;gap:10px;align-items:flex-start;font-size:12.5px;line-height:1.45;color:#57524B;margin:2px 0 6px}
-.ff-promise span{font-size:16px;line-height:1.2}
-.ff-foot{padding:12px 22px calc(14px + env(safe-area-inset-bottom));border-top:1px solid rgba(20,19,18,.08);background:#FBF9F5;border-radius:0 0 24px 24px}
-.ff-cta{width:100%;border:0;border-radius:14px;background:#C0392B;color:#fff;font:700 16px/1 var(--bod);padding:17px 16px;cursor:pointer;box-shadow:0 8px 24px rgba(192,57,43,.28);transition:transform .12s}
+.ff-out{font-size:12.5px;color:#A8A197;margin:0 0 6px}
+.ff-out a{color:#FF8C78;font-weight:600}
+.ff-back{display:flex;justify-content:space-between;align-items:center;border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:10px 12px;margin:0 0 14px;font:600 12px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:#C9C2B7}
+.ff-back b{color:#fff}
+.ff-back button{border:0;background:none;color:#FF8C78;font:600 12px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;cursor:pointer;padding:4px 0}
+.ff-cuts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 0 12px}
+.ff-cut{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:6px;text-align:left;border:1px solid rgba(255,255,255,.13);background:rgba(255,255,255,.03);color:#F3EFE8;border-radius:14px;padding:12px 12px 11px;cursor:pointer;font-family:var(--bod);transition:border-color .15s,background .15s,box-shadow .15s}
+.ff-cut svg{width:34px;height:46px;color:#C9C2B7}
+.ff-cut .nm{font-family:var(--dsp);font-size:20px;letter-spacing:.02em;text-transform:uppercase;line-height:1}
+.ff-cut .st{font:600 10.5px/1.35 var(--mono);letter-spacing:.06em;text-transform:uppercase}
+.ff-cut .st.ok{color:#5FD38A}
+.ff-cut .st.no{color:#8C857B}
+.ff-cut .sz{position:absolute;right:10px;top:10px;font-family:var(--dsp);font-size:26px;line-height:1;color:#fff}
+.ff-cut .sz small{display:block;font:600 9px/1 var(--mono);letter-spacing:.12em;color:#8C857B;text-align:right;margin-bottom:3px}
+.ff-cut .belt{font:700 9.5px/1.2 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:#FFC24B}
+.ff-cut .tick{position:absolute;right:10px;bottom:10px;width:20px;height:20px;border-radius:6px;border:1px solid rgba(255,255,255,.2);display:grid;place-items:center;font-size:12px;color:transparent}
+.ff-cut.on{border-color:var(--ffr);background:rgba(229,72,47,.12);box-shadow:0 0 0 1px var(--ffr),0 0 22px rgba(229,72,47,.25)}
+.ff-cut.on svg{color:#fff}
+.ff-cut.on .tick{background:var(--ffr);border-color:var(--ffr);color:#fff}
+.ff-cut.dim{opacity:.55}
+.ff-warn{display:flex;gap:10px;border:1px solid rgba(255,194,75,.45);background:rgba(255,194,75,.08);color:#FFE3A6;border-radius:12px;padding:10px 12px;font-size:12.5px;line-height:1.45;margin:0 0 12px}
+.ff-warn b{color:#FFC24B}
+.ff-status{font:600 11px/1.4 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:#8C857B;margin:0 0 10px}
+.ff-status b{color:#5FD38A}
+.ff-promise{font-size:12px;line-height:1.45;color:#A8A197;margin:0 0 6px}
+.ff-foot{position:relative;z-index:1;padding:12px 22px calc(14px + env(safe-area-inset-bottom));border-top:1px solid rgba(255,255,255,.08);background:rgba(11,10,9,.92)}
+.ff-cta{width:100%;border:0;border-radius:12px;background:var(--ffr);color:#fff;font:700 13px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;padding:18px 16px;cursor:pointer;box-shadow:0 0 0 1px rgba(255,255,255,.12) inset,0 10px 30px rgba(229,72,47,.4);transition:transform .12s,opacity .15s}
 .ff-cta:active{transform:scale(.98)}
-.ff-skip{display:block;margin:10px auto 0;background:none;border:0;color:#7A756E;font:600 13px/1 var(--bod);cursor:pointer;padding:6px}
+.ff-cta:disabled{opacity:.4;box-shadow:none;cursor:not-allowed}
+.ff-skip{display:block;margin:10px auto 0;background:none;border:0;color:#8C857B;font:600 11px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;cursor:pointer;padding:6px}
 /* shop bar */
-.ff-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:#141312;color:#F8F7F4;border-radius:14px;padding:10px 12px;margin:0 0 16px}
+.ff-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;color:#F3EFE8;border:1px solid rgba(229,72,47,.35);border-radius:14px;padding:11px 12px;margin:0 0 16px;
+  background:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px) 0 0/18px 18px,linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px) 0 0/18px 18px,#0B0A09}
 .ff-bar[hidden]{display:none}
-.ff-bar .ffb-i{font-size:18px}
-.ff-bar .ffb-t{flex:1;min-width:160px;font-size:13.5px;line-height:1.35}
-.ff-bar .ffb-t b{color:#fff}
-.ff-bar .ffb-t small{display:block;color:#B9B3AA;font-size:12px}
-.ff-bar .ffb-seg{display:flex;background:rgba(255,255,255,.08);border-radius:10px;padding:3px;gap:3px}
-.ff-bar .ffb-seg button{border:0;background:transparent;color:#D8D3CB;border-radius:8px;padding:8px 10px;font:600 12.5px/1 var(--bod);cursor:pointer;white-space:nowrap}
-.ff-bar .ffb-seg button.on{background:#F8F7F4;color:#141312}
-.ff-bar .ffb-edit{border:0;background:none;color:#F0B4A8;font:600 12.5px/1 var(--bod);text-decoration:underline;text-underline-offset:3px;cursor:pointer;padding:6px 2px}
-.ff-bar.ask{background:#C0392B;cursor:pointer}
-.ff-bar.ask .ffb-t{font-weight:600}
-.ff-bar.ask .ffb-go{font-weight:700;white-space:nowrap}
+.ff-bar .ffb-t{flex:1;min-width:170px;font:600 11.5px/1.45 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:#C9C2B7}
+.ff-bar .ffb-t b{color:#fff;font-size:13px}
+.ff-bar .ffb-t .dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#5FD38A;box-shadow:0 0 8px #5FD38A;margin-right:6px;vertical-align:1px}
+.ff-bar .ffb-seg{display:flex;border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:3px;gap:3px}
+.ff-bar .ffb-seg button{border:0;background:transparent;color:#C9C2B7;border-radius:7px;padding:8px 10px;font:600 11px/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;cursor:pointer;white-space:nowrap}
+.ff-bar .ffb-seg button.on{background:#F3EFE8;color:#0B0A09}
+.ff-bar .ffb-edit{border:0;background:none;color:#FF8C78;font:600 11px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;cursor:pointer;padding:6px 2px}
+.ff-bar.ask{cursor:pointer;border-color:#E5482F;box-shadow:0 0 24px rgba(229,72,47,.25)}
+.ff-bar.ask .ffb-go{font:700 11px/1 var(--mono);letter-spacing:.1em;color:#fff;background:#E5482F;border-radius:8px;padding:9px 10px;white-space:nowrap}
 /* "your size" on cards */
 .psizes .sz.mine{background:#141312;color:#fff;border-color:#141312}
-.pmyfit{font-size:12px;font-weight:600;margin-top:6px}
-.pmyfit.ok{color:#2a8a4a}
+.pmyfit{font:600 11.5px/1.3 var(--mono);letter-spacing:.02em;margin-top:6px}
+.pmyfit.ok{color:#1F7A44}
 .pmyfit.no{color:#A8321F}
+.pmyfit.belt{color:#9A6400}
 /* product page: your size */
-.mo-myfit{display:flex;gap:10px;align-items:flex-start;background:#F1ECE4;border-radius:12px;padding:11px 12px;margin:2px 0 14px;font-size:13px;line-height:1.45;color:#3E3A35}
-.mo-myfit .i{font-size:17px;line-height:1.2}
-.mo-myfit b{color:#141312}
-.mo-myfit button{background:none;border:0;color:#A8321F;font:600 13px/1 var(--bod);text-decoration:underline;text-underline-offset:3px;cursor:pointer;padding:0;margin-left:2px}
-.mo-myfit.ask{cursor:pointer;background:#141312;color:#F8F7F4}
-.mo-myfit.ask b{color:#fff}
+.mo-myfit{display:flex;gap:10px;align-items:flex-start;border-radius:12px;padding:11px 12px;margin:2px 0 14px;font-size:13px;line-height:1.45;color:#C9C2B7;
+  background:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px) 0 0/16px 16px,#0B0A09;border:1px solid rgba(229,72,47,.3)}
+.mo-myfit .i{font:700 10px/1.3 var(--mono);letter-spacing:.1em;color:#E5482F;padding-top:2px;white-space:nowrap}
+.mo-myfit b{color:#fff}
+.mo-myfit .bw{display:block;margin-top:6px;color:#FFC24B}
+.mo-myfit button{background:none;border:0;color:#FF8C78;font:600 12px/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;cursor:pointer;padding:0;margin-left:2px}
+.mo-myfit.ask{cursor:pointer;border-color:#E5482F;box-shadow:0 0 18px rgba(229,72,47,.18)}
 .chip.mine{position:relative}
-.chip.mine::after{content:"YOU";position:absolute;top:-8px;right:-6px;background:#C0392B;color:#fff;font:700 8.5px/1 var(--bod);letter-spacing:.06em;padding:3px 4px;border-radius:5px}
+.chip.mine::after{content:"YOU";position:absolute;top:-8px;right:-6px;background:#C0392B;color:#fff;font:700 8.5px/1 var(--mono);letter-spacing:.06em;padding:3px 4px;border-radius:5px}
 .mo-colour{font-size:12.5px;line-height:1.5;color:#57524B;margin:10px 0 0}
 .mo-colour a{color:#A8321F;font-weight:600}
 /* ===== SWIPE GALLERIES (2026-10-23) ===== */
@@ -2887,13 +2913,13 @@ function pcardHTML(p){
   const _myIdx=_pcardIdx++;
     const imgs=p.images||[];const img1=imgs[0]||"";
     const _ff=ffSizeFor(p);
-    const myFit=_ff&&!isSold(p)?(_ff.oos?`<div class="pmyfit no">Your size ${_ff.best} is sold out</div>`:`<div class="pmyfit ok">✓ Your size: ${_ff.size}${_ff.swapped?" (closest in stock)":""}</div>`):"";
+    const myFit=_ff&&!isSold(p)?(_ff.none?`<div class="pmyfit no">Not made in your size</div>`:_ff.oos?`<div class="pmyfit no">Your size ${_ff.best} is sold out</div>`:`<div class="pmyfit ok">✓ Your size: ${_ff.size}${_ff.swapped?" (closest in stock)":""}</div>`+(_ff.belt?`<div class="pmyfit belt">⚠ Loose at your waist · belt needed</div>`:"")):"";
     const slides=imgs.slice(0,6);
     const bgs=(p.badges||[]).filter(b=>BM[b]).map(b=>`<span class="bdg ${BM[b].c}">${BM[b].t}</span>`).join("");
     const pr=p.offerPrice?`<span class="pnow">${inr(p.offerPrice)}</span><span class="pwas">${inr(p.price)}</span><span class="psave">-${Math.round((1-p.offerPrice/p.price)*100)}%</span>`:`<span class="pnow">${inr(p.price)}</span>`;
     const _now=new Date();
     const szs=(p.sizes||[]).slice(0,5).map(s=>{
-      if(!(p.oosizes||[]).includes(s))return `<span class="sz${_ff&&!_ff.oos&&_ff.size===s?" mine":""}">${s}</span>`;
+      if(!(p.oosizes||[]).includes(s))return `<span class="sz${_ff&&!_ff.oos&&!_ff.none&&_ff.size===s?" mine":""}">${s}</span>`;
       const rdv=(p.sizeRestockDates||{})[s];
       if(rdv){const dt=new Date(rdv);
         if(!isNaN(dt)&&dt>_now)return `<span class="sz restock" title="Restocking ${dt.toLocaleDateString('en-IN',{day:'numeric',month:'short'})}">${s}</span>`;}
@@ -2948,7 +2974,7 @@ function renderFitBtns(){
   const el=document.getElementById("fit-btns");
   if(!el)return;
   const _ffp=ffProfile(), _ffOn=_ffp&&ffOnlyMine;
-  const inGrid=p=>(p.images||[]).length&&!(p.badges||[]).includes("designer")&&!(p.badges||[]).includes("vault")&&(!_ffOn||(()=>{const r=ffSizeFor(p,_ffp);return r&&!r.oos;})());
+  const inGrid=p=>(p.images||[]).length&&!(p.badges||[]).includes("designer")&&!(p.badges||[]).includes("vault")&&(!_ffOn||ffMatches(p,_ffp));
   const fitsInUse=[...new Set(products.filter(inGrid).map(p=>p.fit).filter(Boolean))];
   const activeFit=fFits.length===1?fFits[0]:"";
   const totalCount=products.filter(inGrid).length;
@@ -3133,36 +3159,45 @@ function jumpToFit(fit){
   if(grid)grid.scrollIntoView({behavior:"smooth",block:"start"});
 }
 let gridPage=0;const GRID_PAGE_SIZE=12;
-/* ===== FIT FINDER (2026-10-23) =====
-   Every new visitor gets one question: "what's your waist?". The answer is
-   saved on this device (ds_fit_mem, shared with the product-page size finder)
-   and drives: the shop's "In my size" view, the "your size" line on every
-   card, the pre-selected size on every product page. Sizes come from the same
-   engine as the size finder (_fsRecommend), never from guesses. */
-var FF_MIN=26, FF_MAX=44, FF_TICK=14;          // ruler: 26–44″ in 0.5″ steps, 14px per step
-var FF_LOG=false;                               // true once the fit_profiles table exists in Supabase
+/* ===== FIT FINDER (2026-10-23, sci-fi v2) =====
+   Every new visitor gets FIT_SCAN: 01 waist (tap grid, 28–38″ + ½″, or their
+   usual jeans size), 02 cuts (Wide-Leg / Straight / Comfort / Baggy) with the
+   exact size and live stock for each. Saved on this device (ds_fit_mem, shared
+   with the product-page size finder), it drives the shop's "In my size" view,
+   "your size" on every card and the pre-selected size on every product page.
+   Sizes come from the admin size guides via _fsRecommend, never from guesses. */
+var FF_SIZES=[28,30,32,34,36,38];              // sizes we make
+var FF_MIN=28, FF_MAX=38;                       // waist input range (inches)
+var FF_BELT_FIT="Wide-Leg", FF_BELT_BELOW=29;   // founder's rule: Wide-Leg below a 29″ waist sits loose — belt needed, no fit returns
+var FF_LOG=true;                                // fit_profiles table created 2026-10-23 (insert-only for the website)
 var ffOnlyMine=true;                            // shop shows "In my size" when a profile exists
-var _ffDraft=null, _ffSource="", _ffRaf=0;
-function ffProfile(){const m=_fsMem();return m&&+m.waist>=20&&+m.waist<=60?{waist:+m.waist,pref:m.pref||"true",mode:m.mode||"waist"}:null;}
+var _ffDraft=null, _ffSource="", _ffStep=1;
+function ffProfile(){const m=_fsMem();if(!m||!(+m.waist>=20&&+m.waist<=60))return null;
+  return {waist:+m.waist,pref:"true",mode:m.mode==="usual"?"usual":"waist",cuts:Array.isArray(m.cuts)?m.cuts:null};}
 function ffInGrid(p){return (p.images||[]).length&&!(p.badges||[]).includes("designer")&&!(p.badges||[]).includes("vault");}
-// The size this shopper should buy in product p: {size,best,oos,swapped,band} or null if no guide.
+function ffBelt(fit,waist){return fit===FF_BELT_FIT&&waist<FF_BELT_BELOW;}
+// The size this shopper should buy in product p:
+// {size,best,oos,swapped,band,none,belt} — none=true when we don't make this cut in their size; null if no guide.
 function ffSizeFor(p,prof){
   prof=prof||ffProfile(); if(!p||!prof)return null;
   const guide=resolveSizeGuideRows(p); if(!guide)return null;
-  const rec=_fsRecommend(guide,prof.waist,prof.pref); if(!rec||!rec.pick)return null;
-  const best=rec.pick, soldAll=isSold(p);
-  if(!soldAll&&!_fsStock(p,best.size).oos)return {size:best.size,best:best.size,oos:false,swapped:false,band:best,conf:rec.conf};
+  const w=prof.waist, rec=_fsRecommend(guide,w,"true"); if(!rec||!rec.pick)return null;
+  const best=rec.pick, belt=ffBelt(p.fit,w);
+  // never call a size "yours" unless its range covers the waist (±0.5″)
+  if(!(w>=best.min-0.5&&w<=best.max+0.5))return {size:best.size,best:best.size,oos:true,none:true,swapped:false,band:best,belt};
+  const soldAll=isSold(p);
+  if(!soldAll&&!_fsStock(p,best.size).oos)return {size:best.size,best:best.size,oos:false,swapped:false,band:best,belt};
   if(!soldAll){
     const order=[rec.alt,...rec.bands.slice().sort((a,b)=>Math.abs(a.min-best.min)-Math.abs(b.min-best.min))].filter(Boolean);
-    // Only offer another size if its range really covers this waist (±0.5″) — never a size that won't fit.
-    const w=prof.waist, avail=order.find(b=>b.size!==best.size&&!_fsStock(p,b.size).oos&&w>=b.min-0.5&&w<=b.max+0.5);
-    if(avail)return {size:avail.size,best:best.size,oos:false,swapped:true,band:avail,conf:"mid"};
+    const avail=order.find(b=>b.size!==best.size&&!_fsStock(p,b.size).oos&&w>=b.min-0.5&&w<=b.max+0.5);
+    if(avail)return {size:avail.size,best:best.size,oos:false,swapped:true,band:avail,belt};
   }
-  return {size:best.size,best:best.size,oos:true,swapped:false,band:best,conf:rec.conf};
+  return {size:best.size,best:best.size,oos:true,swapped:false,band:best,belt};
 }
+function ffMatches(p,prof){const r=ffSizeFor(p,prof);return !!(r&&!r.oos&&(!prof.cuts||!prof.cuts.length||prof.cuts.includes(p.fit)));}
 function ffSaveProfile(prof){
-  try{localStorage.setItem(_FS_MEM,JSON.stringify({waist:prof.waist,pref:prof.pref,mode:prof.mode,t:Date.now()}));}catch(e){}
-  ffLog({waist:prof.waist,pref:prof.pref,mode:prof.mode,source:_ffSource||"shop"});
+  try{localStorage.setItem(_FS_MEM,JSON.stringify({waist:prof.waist,pref:"true",mode:prof.mode,cuts:prof.cuts,t:Date.now()}));}catch(e){}
+  ffLog({waist:prof.waist,pref:"true",mode:prof.mode,source:_ffSource||"shop"});
 }
 function ffDeviceId(){try{let id=localStorage.getItem("ds_fid");if(!id){id=(crypto.randomUUID?crypto.randomUUID():Date.now().toString(36)+Math.random().toString(36).slice(2));localStorage.setItem("ds_fid",id);}return id;}catch(e){return null;}}
 // Keeps a copy for us (fit_profiles): which waist, which sizes we suggested, and which order it led to.
@@ -3170,7 +3205,8 @@ function ffLog(row){
   if(!FF_LOG)return;
   try{
     const prof=ffProfile(); const sizes={};
-    if(prof&&typeof products!=="undefined")products.filter(ffInGrid).forEach(p=>{const r=ffSizeFor(p,prof);if(r&&p.fit&&!sizes[p.fit])sizes[p.fit]=r.best;});
+    if(prof&&typeof products!=="undefined")products.filter(ffInGrid).forEach(p=>{const r=ffSizeFor(p,prof);if(r&&!r.none&&p.fit&&!sizes[p.fit])sizes[p.fit]=r.best;});
+    if(prof&&prof.cuts)sizes._cuts=prof.cuts;
     fetch(SUPABASE_URL+"/rest/v1/fit_profiles",{method:"POST",keepalive:true,
       headers:{"Content-Type":"application/json","apikey":SUPABASE_ANON_KEY,"Authorization":"Bearer "+SUPABASE_ANON_KEY,"Prefer":"return=minimal"},
       body:JSON.stringify(Object.assign({device_id:ffDeviceId(),sizes},row))}).catch(()=>{});
@@ -3178,122 +3214,103 @@ function ffLog(row){
 }
 function ffLogOrder(order){
   const prof=ffProfile(); if(!prof||!order)return;
-  ffLog({waist:prof.waist,pref:prof.pref,mode:prof.mode,source:"order",order_id:order.orderId||null,
+  ffLog({waist:prof.waist,pref:"true",mode:prof.mode,source:"order",order_id:order.orderId||null,
     ordered:(order.items||[]).map(i=>({name:i.name,size:i.size,qty:i.qty}))});
 }
 function ffTrack(name){try{if(typeof plausible==="function")plausible(name);}catch(e){}}
-// Which fits are on sale, and what size + how many in-stock styles each gives this shopper.
-function ffSummary(prof){
-  const byFit={};
-  products.filter(p=>ffInGrid(p)&&!isSold(p)).forEach(p=>{
-    if(!p.fit)return; const r=ffSizeFor(p,prof); if(!r)return;
-    const f=byFit[p.fit]||(byFit[p.fit]={fit:p.fit,sizes:{},n:0});
-    f.sizes[r.best]=(f.sizes[r.best]||0)+1; if(!r.oos)f.n++;
+// The four cuts (admin's fit list ∩ size guides), each with this shopper's size and how many pairs fit.
+function ffCuts(prof){
+  const names=[...new Set([...(fits||[]),...Object.keys(sizeGuide||{})])].filter(f=>sizeGuide&&sizeGuide[f]);
+  return names.map(fit=>{
+    const live=products.filter(p=>ffInGrid(p)&&!isSold(p)&&p.fit===fit);
+    let size=null,n=0,none=false;
+    if(live.length){const tally={};live.forEach(p=>{const r=ffSizeFor(p,prof);if(!r)return;if(r.none){none=true;return;}tally[r.best]=(tally[r.best]||0)+1;if(!r.oos)n++;});
+      const top=Object.entries(tally).sort((a,b)=>b[1]-a[1])[0]; if(top){size=top[0];none=false;}}
+    else{const rec=_fsRecommend(sizeGuide[fit],prof.waist,"true");if(rec&&rec.pick&&prof.waist>=rec.pick.min-0.5&&prof.waist<=rec.pick.max+0.5)size=rec.pick.size;else none=true;}
+    return {fit,size,n,styles:live.length,none:none&&!size,belt:ffBelt(fit,prof.waist)};
   });
-  const rows=Object.values(byFit).map(f=>({fit:f.fit,size:Object.entries(f.sizes).sort((a,b)=>b[1]-a[1])[0][0],n:f.n}));
-  const order=(fits||[]).map(String), rank=f=>{const i=order.indexOf(f);return i<0?999:i;};
-  rows.sort((a,b)=>rank(a.fit)-rank(b.fit)||b.n-a.n);
-  return {rows,total:rows.reduce((s,r)=>s+r.n,0)};
 }
+const FF_SIL={ // little leg-shape outlines so "cut" means something at a glance
+  "Wide-Leg":'<path d="M11 4h18l7 50H24l-4-30-4 30H4z"/>',
+  "Straight":'<path d="M11 4h18l1 50h-8l-2-30-2 30h-8z"/>',
+  "Comfort":'<path d="M9 4h22l1 22-3 28h-7l-2-26-2 26h-7l-3-28z"/>',
+  "Baggy":'<path d="M8 4h24l3 20-2 30h-9l-4-28-4 28H7L5 24z"/>'};
+function ffSil(fit){return `<svg viewBox="0 0 40 58" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true">${FF_SIL[fit]||FF_SIL.Straight}<path d="M11 10h18" opacity=".5"/></svg>`;}
 function ffOpen(source){
   if(!window._productsReady||typeof products==="undefined"||!products.length){setTimeout(()=>ffOpen(source),300);return;}
   const el=document.getElementById("ff"); if(!el)return;
   _ffSource=source||"shop";
   const p0=ffProfile();
-  _ffDraft=p0?{...p0}:{waist:32,pref:"true",mode:"waist"};
+  _ffDraft=p0?{...p0}:{waist:32,pref:"true",mode:"waist",cuts:null};
+  _ffDraft.waist=Math.min(FF_MAX,Math.max(FF_MIN,_ffDraft.waist));
+  _ffStep=1;
   try{localStorage.setItem("ds_ff_seen","1");}catch(e){}
   el.innerHTML=`<div class="ff-sheet" role="dialog" aria-modal="true" aria-labelledby="ff-h">
-    <div class="ff-grab"></div>
-    <button class="ff-x" onclick="ffClose()" aria-label="Close">✕</button>
-    <div class="ff-scroll">
-      <div class="ff-kick">Your fit · 10 seconds</div>
-      <h2 class="ff-h" id="ff-h">Jeans that fit you.<br>First time.</h2>
-      <p class="ff-sub">Tell us your waist once. We'll match your exact size in every cut and show only what fits you.</p>
-      <div class="ff-seg" id="ff-mode">
-        <button data-m="waist" onclick="ffMode('waist')">My waist</button>
-        <button data-m="usual" onclick="ffMode('usual')">My usual size</button>
-      </div>
-      <div id="ff-waist-box">
-        <div class="ff-read"><b id="ff-in">32″</b><span id="ff-cm">81 cm</span></div>
-        <div class="ff-rulerwrap">
-          <button class="ff-step" onclick="ffStep(-1)" aria-label="Smaller waist">−</button>
-          <div class="ff-ruler" id="ff-ruler" tabindex="0" role="slider" aria-label="Waist in inches" aria-valuemin="${FF_MIN}" aria-valuemax="${FF_MAX}">
-            <div class="ff-ticks"><div class="ff-pad" id="ff-padl"></div>${(()=>{let s="";for(let v=FF_MIN;v<=FF_MAX;v+=0.5){const maj=v%1===0;s+=`<div class="ff-tick${maj?" maj":""}">${maj&&v%2===0?`<i>${v}</i>`:""}</div>`;}return s;})()}<div class="ff-pad" id="ff-padr"></div></div>
-          </div>
-          <div class="ff-needle" style="left:50%"></div>
-          <button class="ff-step" onclick="ffStep(1)" aria-label="Bigger waist">+</button>
-        </div>
-        <div class="ff-tip">Drag the ruler. Tape where your jeans sit, snug not tight.</div>
-        <details class="ff-how"><summary>No tape at home?</summary><ol><li>Lay your best-fitting jeans flat and buttoned.</li><li>Measure straight across the top of the waistband.</li><li>Double it. That's your waist.</li></ol></details>
-      </div>
-      <div id="ff-usual-box" hidden>
-        <div class="ff-usual" id="ff-usual">${[28,30,32,34,36,38,40,42].map(n=>`<button data-n="${n}" onclick="ffUsual(${n})">${n}</button>`).join("")}</div>
-        <div class="ff-tip">The number on the label of the jeans that fit you best.</div>
-      </div>
-      <label class="ff-lbl">How do you like it?</label>
-      <div class="ff-seg" id="ff-pref">
-        <button data-v="snug" onclick="ffPref('snug')">Snug</button>
-        <button data-v="true" onclick="ffPref('true')">Regular</button>
-        <button data-v="roomy" onclick="ffPref('roomy')">Relaxed</button>
-      </div>
-      <div class="ff-res" id="ff-res" aria-live="polite"></div>
-      <div class="ff-promise"><span>🔁</span><div>Wrong size, or the colour looks different when it arrives? Exchange within 7 days of delivery (₹200 fee).</div></div>
-    </div>
-    <div class="ff-foot">
-      <button class="ff-cta" id="ff-cta" onclick="ffDone()">Show jeans that fit me</button>
-      <button class="ff-skip" onclick="ffClose(true)">${p0?"Cancel":"Skip, I'll browse everything"}</button>
-    </div>
+    <div class="ff-scanline"></div>
+    <button class="ff-x" onclick="ffClose(${p0?"false":"true"})" aria-label="Close">✕</button>
+    <div class="ff-scroll" id="ff-body"></div>
+    <div class="ff-foot" id="ff-foot"></div>
   </div>`;
   el.hidden=false; lockScroll();
   el.onclick=e=>{if(e.target===el)ffClose(!p0);};
-  requestAnimationFrame(()=>{el.classList.add("in");ffInitRuler();ffSync();});
+  ffRender();
+  requestAnimationFrame(()=>el.classList.add("in"));
   ffTrack("Fit finder opened");
 }
-function ffInitRuler(){
-  const r=document.getElementById("ff-ruler"); if(!r)return;
-  const pad=Math.max(0,r.clientWidth/2-FF_TICK/2);
-  document.getElementById("ff-padl").style.flexBasis=pad+"px";
-  document.getElementById("ff-padr").style.flexBasis=pad+"px";
-  ffRulerTo(_ffDraft.waist,false);
-  r.addEventListener("scroll",()=>{cancelAnimationFrame(_ffRaf);_ffRaf=requestAnimationFrame(()=>{
-    const v=Math.min(FF_MAX,Math.max(FF_MIN,FF_MIN+Math.round(r.scrollLeft/FF_TICK)*0.5));
-    if(v!==_ffDraft.waist){_ffDraft.waist=v;if(_ffDraft.mode!=="waist"){_ffDraft.mode="waist";}ffSync();}
-  });},{passive:true});
-  r.addEventListener("keydown",e=>{if(e.key==="ArrowRight"||e.key==="ArrowUp"){e.preventDefault();ffStep(1);}if(e.key==="ArrowLeft"||e.key==="ArrowDown"){e.preventDefault();ffStep(-1);}});
-  // mouse drag on desktop (touch already scrolls natively)
-  let down=null;
-  r.addEventListener("pointerdown",e=>{if(e.pointerType!=="mouse")return;down={x:e.clientX,s:r.scrollLeft};r.style.scrollSnapType="none";r.setPointerCapture(e.pointerId);});
-  r.addEventListener("pointermove",e=>{if(down)r.scrollLeft=down.s-(e.clientX-down.x);});
-  const up=()=>{if(!down)return;down=null;r.style.scrollSnapType="";ffRulerTo(_ffDraft.waist,true);};
-  r.addEventListener("pointerup",up);r.addEventListener("pointercancel",up);
+function ffRender(){
+  const body=document.getElementById("ff-body"), foot=document.getElementById("ff-foot"); if(!body)return;
+  const d=_ffDraft, p0=ffProfile();
+  const term=`<div class="ff-term"><span><b>&gt;</b> FIT_SCAN // 365 DROP<span class="cur"></span></span><span class="ff-steps"><i class="on"></i><i class="${_ffStep===2?"on":""}"></i></span></div>`;
+  if(_ffStep===1){
+    const cells=d.mode==="usual"
+      ?`<div class="ff-grid sizes">${FF_SIZES.map(n=>`<button class="ff-cell${d.waist===n?" on":""}" onclick="ffSet(${n})">${n}<small>SIZE</small></button>`).join("")}</div>`
+      :`<div class="ff-grid">${Array.from({length:FF_MAX-FF_MIN+1},(_,i)=>FF_MIN+i).map(n=>`<button class="ff-cell${Math.floor(d.waist)===n?" on":""}" onclick="ffSet(${n}+(${d.waist%1?0.5:0}))">${n}</button>`).join("")}<button class="ff-cell half${d.waist%1?" on":""}" onclick="ffHalf()" ${Math.floor(d.waist)>=FF_MAX?"disabled":""}>+½″<small>${d.waist%1?"ON":"OFF"}</small></button></div>`;
+    body.innerHTML=`${term}
+      <h2 class="ff-h" id="ff-h">What's your <em>waist?</em></h2>
+      <p class="ff-sub">One tap. We'll match your exact size in every cut and show only the pairs that fit you.</p>
+      <div class="ff-seg"><button class="${d.mode==="waist"?"on":""}" onclick="ffMode('waist')">Waist · inches</button><button class="${d.mode==="usual"?"on":""}" onclick="ffMode('usual')">My jeans size</button></div>
+      <div class="ff-read"><div><span class="lbl">${d.mode==="usual"?"Your jeans size":"Your waist"}</span><b>${d.waist}${d.mode==="usual"?"":"″"}</b></div><div class="cm">${Math.round(d.waist*2.54)} CM<small>${d.mode==="usual"?"LABEL SIZE":"MEASURED"}</small></div></div>
+      ${cells}
+      ${d.mode==="usual"?`<div class="ff-tip">The number on the label of the jeans that fit you best.</div>`
+        :`<div class="ff-tip">Tape where your jeans sit · snug, not tight</div><details class="ff-how"><summary>No tape at home?</summary><ol><li>Lay your best-fitting jeans flat, buttoned.</li><li>Measure straight across the top of the waistband.</li><li>Double it. That's your waist.</li></ol></details>`}
+      <p class="ff-out">Outside ${FF_MIN}–${FF_MAX}″? We don't make your size yet. <a href="https://wa.me/${WA}?text=${encodeURIComponent("Hi! My waist is outside 28–38\". Do you have anything that fits me?")}" target="_blank" rel="noopener">Message us</a></p>`;
+    foot.innerHTML=`<button class="ff-cta" onclick="ffNext()">Next · pick your cuts →</button><button class="ff-skip" onclick="ffClose(${p0?"false":"true"})">${p0?"Cancel":"Skip · browse everything"}</button>`;
+    return;
+  }
+  const cuts=ffCuts(d);
+  if(!d.cuts){d.cuts=cuts.filter(c=>c.n>0).map(c=>c.fit);if(!d.cuts.length)d.cuts=cuts.filter(c=>!c.none).map(c=>c.fit);}
+  const chosen=cuts.filter(c=>d.cuts.includes(c.fit));
+  const total=chosen.reduce((s,c)=>s+c.n,0);
+  const beltOn=chosen.some(c=>c.belt&&!c.none);
+  body.innerHTML=`${term}
+    <div class="ff-back"><span>${d.mode==="usual"?"Size":"Waist"} <b>${d.waist}${d.mode==="usual"?"":"″"}</b></span><button onclick="ffStepTo(1)">Edit</button></div>
+    <h2 class="ff-h" id="ff-h">Pick your <em>cuts</em></h2>
+    <p class="ff-sub">Your size is worked out for each cut. Tap the ones you like.</p>
+    <div class="ff-cuts">${cuts.map(c=>{
+      const on=d.cuts.includes(c.fit);
+      const st=c.none?`<span class="st no">Not made in your size</span>`:!c.styles?`<span class="st no">Dropping soon</span>`:c.n?`<span class="st ok">${c.n} pair${c.n>1?"s":""} in your size</span>`:`<span class="st no">Your size sold out</span>`;
+      return `<button class="ff-cut${on?" on":""}${c.none||!c.n?" dim":""}" onclick="ffToggleCut('${c.fit.replace(/'/g,"\\'")}')" aria-pressed="${on}">
+        ${ffSil(c.fit)}${c.size&&!c.none?`<span class="sz"><small>YOUR SIZE</small>${c.size}</span>`:""}
+        <span class="nm">${c.fit}</span>${st}${c.belt&&!c.none?`<span class="belt">⚠ Belt needed</span>`:""}<span class="tick">✓</span></button>`;}).join("")}</div>
+    ${beltOn?`<div class="ff-warn"><span>⚠</span><div><b>Wide-Leg at ${d.waist}${d.mode==="usual"?"":"″"}:</b> it sits loose at this waist. Wear it with a belt. Fit-related returns aren't accepted on Wide-Leg below a ${FF_BELT_BELOW}″ waist.</div></div>`:""}
+    <div class="ff-status" aria-live="polite">${total?`Scan complete · <b>${total} pairs</b> match your size`:`No pairs in your size in these cuts right now`}</div>
+    <p class="ff-promise">Size or colour not right when it arrives? Exchange within 7 days of delivery (₹200 fee).</p>`;
+  foot.innerHTML=total
+    ?`<button class="ff-cta" onclick="ffDone()">Show my ${total} pairs →</button><button class="ff-skip" onclick="ffStepTo(1)">← Back</button>`
+    :`<button class="ff-cta" onclick="ffDone()" ${chosen.length?"":"disabled"}>Save my size →</button><button class="ff-skip" onclick="ffStepTo(1)">← Back</button>`;
 }
-function ffRulerTo(v,smooth){const r=document.getElementById("ff-ruler");if(!r)return;r.scrollTo({left:(v-FF_MIN)/0.5*FF_TICK,behavior:smooth?"smooth":"auto"});}
-function ffStep(d){const v=Math.min(FF_MAX,Math.max(FF_MIN,_ffDraft.waist+d*0.5));_ffDraft.waist=v;_ffDraft.mode="waist";ffRulerTo(v,true);ffSync();}
-function ffMode(m){_ffDraft.mode=m;if(m==="usual"&&_ffDraft.waist%2!==0)_ffDraft.waist=Math.round(_ffDraft.waist/2)*2;ffSync();if(m==="waist")requestAnimationFrame(()=>{ffInitRulerPad();ffRulerTo(_ffDraft.waist,false);});}
-function ffInitRulerPad(){const r=document.getElementById("ff-ruler");if(!r)return;const pad=Math.max(0,r.clientWidth/2-FF_TICK/2);document.getElementById("ff-padl").style.flexBasis=pad+"px";document.getElementById("ff-padr").style.flexBasis=pad+"px";}
-function ffUsual(n){_ffDraft.waist=n;_ffDraft.mode="usual";ffSync();}
-function ffPref(v){_ffDraft.pref=v;ffSync();}
-function ffSync(){
-  const d=_ffDraft;
-  document.querySelectorAll("#ff-mode button").forEach(b=>b.classList.toggle("on",b.dataset.m===d.mode));
-  document.querySelectorAll("#ff-pref button").forEach(b=>b.classList.toggle("on",b.dataset.v===d.pref));
-  document.querySelectorAll("#ff-usual button").forEach(b=>b.classList.toggle("on",+b.dataset.n===d.waist));
-  const wb=document.getElementById("ff-waist-box"),ub=document.getElementById("ff-usual-box");
-  if(wb)wb.hidden=d.mode!=="waist"; if(ub)ub.hidden=d.mode!=="usual";
-  const wi=document.getElementById("ff-in"),wc=document.getElementById("ff-cm"),r=document.getElementById("ff-ruler");
-  if(wi)wi.textContent=d.waist+"″"; if(wc)wc.textContent=Math.round(d.waist*2.54)+" cm";
-  if(r){r.setAttribute("aria-valuenow",d.waist);r.setAttribute("aria-valuetext",d.waist+" inches");}
-  const s=ffSummary(d), res=document.getElementById("ff-res"), cta=document.getElementById("ff-cta");
-  const head=d.mode==="usual"?`You wear <b>${d.waist}</b>. Your size in each cut:`:`At <b>${d.waist}″</b>, your size in each cut:`;
-  if(res)res.innerHTML=`<div class="ff-res-h"><span>${head}</span></div>`+(s.rows.length?s.rows.map(r=>`<button class="ff-row" onclick="ffDone('${r.fit.replace(/'/g,"\\'")}')"><span class="fit">${r.fit}</span><span class="sz">${r.size}</span><span class="n${r.n?"":" zero"}">${r.n?`${r.n} in stock`:"none in stock"}</span><span class="go">›</span></button>`).join(""):`<div class="ff-res-h"><span>Size details aren't ready yet. Message us on WhatsApp and we'll pick your size.</span></div>`);
-  if(cta)cta.textContent=s.total?`Show my ${s.total} jeans →`:"Save my size";
-}
-function ffDone(fit){
-  const prof={waist:_ffDraft.waist,pref:_ffDraft.pref,mode:_ffDraft.mode};
+function ffSet(v){_ffDraft.waist=Math.min(FF_MAX,Math.max(FF_MIN,v));_ffDraft.cuts=null;ffRender();}
+function ffHalf(){const w=Math.floor(_ffDraft.waist);_ffDraft.waist=_ffDraft.waist%1?w:Math.min(FF_MAX,w+0.5);_ffDraft.cuts=null;ffRender();}
+function ffMode(m){_ffDraft.mode=m;if(m==="usual"){_ffDraft.waist=FF_SIZES.reduce((a,b)=>Math.abs(b-_ffDraft.waist)<Math.abs(a-_ffDraft.waist)?b:a);}_ffDraft.cuts=null;ffRender();}
+function ffNext(){ffStepTo(2);ffTrack("Fit finder waist set");}
+function ffStepTo(n){_ffStep=n;ffRender();const b=document.getElementById("ff-body");if(b)b.scrollTop=0;}
+function ffToggleCut(f){const c=_ffDraft.cuts||[];_ffDraft.cuts=c.includes(f)?c.filter(x=>x!==f):[...c,f];ffRender();}
+function ffDone(){
+  const prof={waist:_ffDraft.waist,pref:"true",mode:_ffDraft.mode,cuts:(_ffDraft.cuts||[]).slice()};
   ffSaveProfile(prof); ffOnlyMine=true; ffTrack("Fit finder saved");
   const src=_ffSource; ffClose();
   if(src==="product"&&typeof ms!=="undefined"&&ms.p&&document.getElementById("ov").classList.contains("op")){openMo(ms.p.id,true);return;}
-  if(fit){fFits=[fit];}
+  fFits=[];
   renderGrid();
   const shop=document.getElementById("shop"); if(shop)setTimeout(()=>shop.scrollIntoView({behavior:"smooth",block:"start"}),200);
 }
@@ -3301,22 +3318,21 @@ function ffClose(skipped){
   const el=document.getElementById("ff"); if(!el||el.hidden)return;
   el.classList.remove("in"); unlockScroll();
   if(skipped)ffTrack("Fit finder skipped");
-  setTimeout(()=>{el.hidden=true;el.innerHTML="";},380);
+  setTimeout(()=>{el.hidden=true;el.innerHTML="";},420);
   ffRenderBar();
 }
-window.addEventListener("resize",()=>{const el=document.getElementById("ff");if(el&&!el.hidden&&_ffDraft&&_ffDraft.mode==="waist"){ffInitRulerPad();ffRulerTo(_ffDraft.waist,false);}});
 document.addEventListener("keydown",e=>{if(e.key==="Escape"){const el=document.getElementById("ff");if(el&&!el.hidden){e.stopImmediatePropagation();ffClose(!ffProfile());}}},true);
 function ffSetOnlyMine(v){ffOnlyMine=v;renderGrid();}
 function ffRenderBar(){
   const bar=document.getElementById("ff-bar"); if(!bar)return;
   const prof=ffProfile();
   if(!prof){bar.className="ff-bar ask";bar.hidden=false;bar.onclick=()=>ffOpen("bar");
-    bar.innerHTML=`<span class="ffb-i">📏</span><span class="ffb-t">Not sure of your size? Find jeans that fit you</span><span class="ffb-go">10 sec →</span>`;return;}
+    bar.innerHTML=`<span class="ffb-t"><b>Not sure of your size?</b><br>Scan your fit · 2 taps</span><span class="ffb-go">FIT_SCAN →</span>`;return;}
   bar.className="ff-bar";bar.hidden=false;bar.onclick=null;
-  const mine=products.filter(p=>ffInGrid(p)&&(()=>{const r=ffSizeFor(p,prof);return r&&!r.oos;})()).length;
-  const feel={snug:"Snug",true:"Regular",roomy:"Relaxed"}[prof.pref]||"Regular";
-  bar.innerHTML=`<span class="ffb-i">📏</span><span class="ffb-t"><b>${prof.mode==="usual"?"Usual size "+prof.waist:prof.waist+"″ waist"}</b> · ${feel}<small>Sizes picked for you on every jean</small></span>
-    <span class="ffb-seg"><button class="${ffOnlyMine?"on":""}" onclick="ffSetOnlyMine(true)">In my size · ${mine}</button><button class="${ffOnlyMine?"":"on"}" onclick="ffSetOnlyMine(false)">All</button></span>
+  const mine=products.filter(p=>ffInGrid(p)&&ffMatches(p,prof)).length;
+  const cuts=prof.cuts&&prof.cuts.length?prof.cuts.join(" · "):"All cuts";
+  bar.innerHTML=`<span class="ffb-t"><span class="dot"></span><b>${prof.mode==="usual"?"Size "+prof.waist:prof.waist+"″ waist"}</b><br>${cuts}</span>
+    <span class="ffb-seg"><button class="${ffOnlyMine?"on":""}" onclick="ffSetOnlyMine(true)">My size · ${mine}</button><button class="${ffOnlyMine?"":"on"}" onclick="ffSetOnlyMine(false)">All</button></span>
     <button class="ffb-edit" onclick="ffOpen('bar')">Edit</button>`;
 }
 // Show the finder once to every new visitor, after the intro and only when nothing else is open.
@@ -3339,15 +3355,17 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
 // Product page block: your size for this cut, or the ask.
 function ffMoBlock(p){
   const prof=ffProfile();
-  if(!prof){return `<div class="mo-myfit ask" onclick="ffOpen('product')"><span class="i">📏</span><div><b>What's your waist?</b> Tell us once and we'll pick your exact size here and on every jean.</div></div>`;}
+  if(!prof){return `<div class="mo-myfit ask" onclick="ffOpen('product')"><span class="i">FIT_SCAN</span><div><b>What's your waist?</b> Two taps and we'll pick your exact size here and on every pair.</div></div>`;}
   const r=ffSizeFor(p,prof); if(!r)return "";
-  const who=prof.mode==="usual"?`you usually wear ${prof.waist}`:`your waist is ${prof.waist}″`;
+  const who=prof.mode==="usual"?`you wear ${prof.waist}`:`your waist is ${prof.waist}″`;
   const band=r.band&&Number.isFinite(r.band.min)?` (cut for ${r.band.min}–${r.band.max}″)`:"";
   let msg;
-  if(r.oos)msg=`Your size here is <b>${r.best}</b>${band}, and it's sold out right now.`;
+  if(r.none)msg=`We don't make this cut in your size yet.`;
+  else if(r.oos)msg=`Your size here is <b>${r.best}</b>${band}, and it's sold out right now.`;
   else if(r.swapped)msg=`Your best size, ${r.best}, is sold out. <b>${r.size}</b> is the closest fit in stock${band}.`;
-  else msg=`Your size in this cut: <b>${r.size}</b>${band}. We've selected it for you.`;
-  return `<div class="mo-myfit"><span class="i">📏</span><div>${msg} <span style="color:#7A756E">Because ${who}.</span> <button onclick="ffOpen('product')">Change</button></div></div>`;
+  else msg=`Your size in this cut: <b>${r.size}</b>${band}. Selected for you.`;
+  const belt=r.belt&&!r.none?`<span class="bw">⚠ At ${prof.waist}${prof.mode==="usual"?"":"″"} this Wide-Leg sits loose. Wear it with a belt. Fit-related returns aren't accepted on Wide-Leg below a ${FF_BELT_BELOW}″ waist.</span>`:"";
+  return `<div class="mo-myfit"><span class="i">YOUR FIT</span><div>${msg} Because ${who}. <button onclick="ffOpen('product')">Change</button>${belt}</div></div>`;
 }
 /* ----- swipe galleries ----- */
 // Shop cards: current slide → dots; open the product page on the photo the shopper was looking at.
@@ -3383,7 +3401,7 @@ function renderGrid(){
   if(fSizes.length)list=list.filter(p=>(p.sizes||[]).some(s=>fSizes.includes(s)&&!(p.oosizes||[]).includes(s)));
   if(fFits.length)list=list.filter(p=>fFits.includes(p.fit));
   // Fit finder: "In my size" = jeans whose recommended size for this shopper is in stock
-  const _ffp=ffProfile(); if(_ffp&&ffOnlyMine)list=list.filter(p=>{const r=ffSizeFor(p,_ffp);return r&&!r.oos;});
+  const _ffp=ffProfile(); if(_ffp&&ffOnlyMine)list=list.filter(p=>ffMatches(p,_ffp));
   if(fShade)list=list.filter(p=>{const s=shadeOf(p);return s&&s.k===fShade;});
   list=list.filter(p=>eff(p)<=fMaxPrice);
   if(srt==="low")list.sort((a,b)=>eff(a)-eff(b));else if(srt==="high")list.sort((a,b)=>eff(b)-eff(a));else if(srt==="new")list.sort((a,b)=>(b.addedAt||0)-(a.addedAt||0));else list.sort((a,b)=>(a.order||99)-(b.order||99));
@@ -3399,7 +3417,7 @@ function renderGrid(){
   const visible=list.slice(0,GRID_PAGE_SIZE);
   const remaining=list.length-GRID_PAGE_SIZE;
   const grid=document.getElementById("pgrid");
-  grid.innerHTML=visible.length?visible.map(pcardHTML).join(""):(_ffp&&ffOnlyMine?`<div class="np">No jeans in your size match these filters right now. <button class="ffb-edit" style="color:#A8321F" onclick="ffSetOnlyMine(false)">Show all sizes</button></div>`:`<div class="np">No products match your filters.</div>`);
+  grid.innerHTML=visible.length?visible.map(pcardHTML).join(""):(_ffp&&ffOnlyMine?`<div class="np">No pairs in your size and cuts match these filters right now. <button class="ffb-edit" style="color:#A8321F" onclick="ffSetOnlyMine(false)">Show all sizes</button></div>`:`<div class="np">No products match your filters.</div>`);
   const lmEl=document.getElementById("load-more-wrap");
   if(lmEl)lmEl.innerHTML=remaining>0?`<button class="btn-loadmore" onclick="loadMoreProducts()">Load ${Math.min(remaining,GRID_PAGE_SIZE)} more styles ↓</button>`:'';
   const cnt=document.getElementById("shopall-count");if(cnt)cnt.textContent=list.length?`· ${list.length} item${list.length>1?'s':''}`:'';
@@ -3828,7 +3846,7 @@ function getSoldCount(pid){
 function renderMoSizes(p){
   if(!(p.sizes||[]).length)return'';
   const _ffr=ffSizeFor(p);
-  const chips=p.sizes.map((s,i)=>{const oos=(p.oosizes||[]).includes(s);const sel=!oos&&s===ms.size;const mine=_ffr&&_ffr.size===s?" mine":"";
+  const chips=p.sizes.map((s,i)=>{const oos=(p.oosizes||[]).includes(s);const sel=!oos&&s===ms.size;const mine=_ffr&&!_ffr.none&&_ffr.size===s?" mine":"";
     if(oos){const hasRestock=(p.sizeRestockDates||{})[s]&&new Date((p.sizeRestockDates||{})[s])>new Date();if(hasRestock)return`<button class="chip restock-chip" onclick="selectOosSize(this,'${s}')" title="Restocking soon">${s}</button>`;return`<button class="chip oos-chip" onclick="selectOosSize(this,'${s}')" title="Out of stock — tap to see measurements"><s>${s}</s></button>`;}
     return`<button class="chip${sel?' sel':''}${mine}" onclick="pick('size','${s}',this)">${s}</button>`;
   }).join('');
@@ -4192,7 +4210,7 @@ function openMo(id,noPush){
   trackRecentView(id);
   if(typeof fbq==="function")fbq("track","ViewContent",{content_name:p.name,content_ids:[p.id],content_type:"product",value:eff(p),currency:"INR"});
   const _ffm=ffSizeFor(p);
-  ms={p,size:(_ffm&&!_ffm.oos?_ffm.size:"")||((p.sizes||[]).find(s=>!(p.oosizes||[]).includes(s)))||"",color:(p.colors||[])[0]||"",qty:1,idx:0};
+  ms={p,size:(_ffm&&!_ffm.oos&&!_ffm.none?_ffm.size:"")||((p.sizes||[]).find(s=>!(p.oosizes||[]).includes(s)))||"",color:(p.colors||[])[0]||"",qty:1,idx:0};
   const sold=p.badges&&p.badges.includes("sold");
   const imgs=p.images||[];
   const pr=p.offerPrice?`<span class="monow">${inr(p.offerPrice)}</span><span class="mowas">${inr(p.price)}</span><span class="mosave">Save ${inr(p.price-p.offerPrice)}</span>`:`<span class="monow">${inr(p.price)}</span>`;

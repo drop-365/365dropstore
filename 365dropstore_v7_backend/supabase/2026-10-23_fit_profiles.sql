@@ -1,3 +1,4 @@
+-- APPLIED to production 2026-10-23 (migration "fit_profiles").
 -- Fit finder: keep a copy of every shopper's waist and the sizes we suggested,
 -- plus the order it led to, so we can see which suggestions actually fit
 -- (compare with size exchanges later).
@@ -20,6 +21,5 @@ create index if not exists fit_profiles_order_idx  on public.fit_profiles (order
 alter table public.fit_profiles enable row level security;
 revoke all on public.fit_profiles from anon, authenticated;
 grant insert on public.fit_profiles to anon;
-grant usage on sequence public.fit_profiles_id_seq to anon;
 create policy "website can add fit profiles" on public.fit_profiles
   for insert to anon with check (true);
