@@ -3293,8 +3293,7 @@ function ffRender(){
         ${ffSil(c.fit)}${c.size&&!c.none?`<span class="sz"><small>YOUR SIZE</small>${c.size}</span>`:""}
         <span class="nm">${c.fit}</span>${st}${c.belt&&!c.none?`<span class="belt">⚠ Belt needed</span>`:""}<span class="tick">✓</span></button>`;}).join("")}</div>
     ${beltOn?`<div class="ff-warn"><span>⚠</span><div><b>Wide-Leg at ${d.waist}${d.mode==="usual"?"":"″"}:</b> it sits loose at this waist. Wear it with a belt. Fit-related returns aren't accepted on Wide-Leg below a ${FF_BELT_BELOW}″ waist.</div></div>`:""}
-    <div class="ff-status" aria-live="polite">${total?`Scan complete · <b>${total} pairs</b> match your size`:`No pairs in your size in these cuts right now`}</div>
-    <p class="ff-promise">Size or colour not right when it arrives? Exchange within 7 days of delivery (₹200 fee).</p>`;
+`;
   foot.innerHTML=total
     ?`<button class="ff-cta" onclick="ffDone()">Show my ${total} pairs →</button><button class="ff-skip" onclick="ffStepTo(1)">← Back</button>`
     :`<button class="ff-cta" onclick="ffDone()" ${chosen.length?"":"disabled"}>Save my size →</button><button class="ff-skip" onclick="ffStepTo(1)">← Back</button>`;
