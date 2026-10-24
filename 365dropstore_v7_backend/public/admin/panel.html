@@ -1,5 +1,5 @@
 <!-- admin gate -->
-<div id="ag"><div class="agc"><div class="agl">365 DROP</div><div class="ags">Admin · Owner access only</div><div class="agcard"><h2>SIGN IN</h2><p>Locked after 5 wrong attempts.</p><div class="agf"><label>Email</label><input type="email" id="age" placeholder="365dropstore@gmail.com" autocomplete="off"/></div><div class="agf"><label>Password</label><input type="password" id="agp" placeholder="••••••••" onkeydown="if(event.key==='Enter')admLogin()"/></div><div class="agerr" id="agerr"></div><button class="btn btn-w" style="width:100%;justify-content:center;margin-top:16px;background:#E8E4DF;color:#090909" onclick="admLogin()">Sign in →</button><p style="color:var(--off);font-size:12px;text-align:center;margin-top:10px" id="agatt"></p></div></div></div>
+<div id="ag"><div class="agc"><div class="agl">365 DROP</div><div class="ags">Admin · Owner access only</div><div class="agcard"><h2>SIGN IN</h2><p>8 wrong passwords lock sign-in for 15 minutes.</p><div class="agf"><label>Email</label><input type="email" id="age" placeholder="365dropstore@gmail.com" autocomplete="off"/></div><div class="agf"><label>Password</label><input type="password" id="agp" placeholder="••••••••" onkeydown="if(event.key==='Enter')admLogin()"/></div><div class="agerr" id="agerr"></div><button class="btn btn-w" style="width:100%;justify-content:center;margin-top:16px;background:#E8E4DF;color:#090909" onclick="admLogin()">Sign in →</button><p style="color:var(--off);font-size:12px;text-align:center;margin-top:10px" id="agatt"></p></div></div></div>
 
 <!-- admin panel -->
 <div id="ap">
@@ -9,6 +9,7 @@
 <div class="aptabs">
   <button class="atab" onclick="apTab('lifeline')">🔎 Customer Lifeline</button>
   <button class="atab act" onclick="apTab('products')">Products</button>
+  <button class="atab" onclick="apTab('lowstock')">Low Stock <span class="atab-n" id="ls-tabn"></span></button>
   <button class="atab" onclick="apTab('dashboard')">Dashboard</button>
   <button class="atab" onclick="apTab('sequence')">Sequence</button>
   <button class="atab" onclick="apTab('orders')">Orders</button>
@@ -45,6 +46,15 @@
     <div id="lf-body"><div class="lf-empty"><div class="lf-empty-i">🔎</div><b>Look up any customer</b><span>Search by order ID, phone number, email or AWB to see everything about them: every order, payment, shipment, product and comment.</span></div></div>
   </div>
 
+  <!-- low stock tab -->
+  <div id="tab-lowstock" class="apsec" style="display:none">
+    <div class="ls-top">
+      <div><h3 style="margin:0">LOW STOCK</h3><p class="ls-sub">Sizes that are sold out or down to their last 1–2 pieces, on products still for sale. Products marked sold out are left out.</p></div>
+      <button class="btn btn-g" onclick="refreshProductsFromSupabase()">↻ Refresh from live</button>
+    </div>
+    <div id="stk-alert"></div>
+  </div>
+
   <!-- products tab -->
   <div id="tab-products" class="apsec">
     <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
@@ -55,8 +65,7 @@
       </div>
     </div>
     <div class="apstats" id="apstats"></div>
-    <div id="stk-alert"></div>
-    <div style="overflow-x:auto"><table class="ptbl"><thead><tr><th>Photo</th><th>Name</th><th>Cat</th><th>Fit</th><th>Price</th><th>Stock</th><th>Status</th><th>Actions</th></tr></thead><tbody id="ptbd"></tbody></table></div>
+    <div style="overflow-x:auto"><table class="ptbl pt-clean"><thead><tr><th>Product</th><th>Price</th><th>Stock</th><th>Status</th><th class="pt-act-h">Actions</th></tr></thead><tbody id="ptbd"></tbody></table></div>
   </div>
 
   <!-- orders tab -->
@@ -547,7 +556,7 @@ Origin|Delhi studio..."></textarea>
     <p id="ig-msg" style="display:none;font-size:12px;margin-top:8px"></p>
   </div>
   <div id="tab-faq" class="apsec" style="display:none"><h3>BEFORE YOU ORDER</h3>
-    <p style="color:var(--off);font-size:13px;margin:6px 0 14px">Edit the FAQ cards shown near the footer. Each card has a question and answer. Changes save to localStorage and render immediately.</p>
+    <p style="color:var(--off);font-size:13px;margin:6px 0 14px">Edit the FAQ cards shown near the footer. Each card has a question and answer. Save FAQ puts your changes live on the site.</p>
     <div id="faq-admin-list"></div>
     <button class="btn btn-w" style="margin-top:14px" onclick="addFaqItem()">+ Add Question</button>
     <button class="btn btn-g" style="margin-top:14px;margin-left:8px" onclick="saveFaqItems()">Save FAQ</button>
@@ -633,8 +642,8 @@ Origin|Delhi studio..."></textarea>
       <p style="color:var(--off)!important;font-size:11px;line-height:1.5;margin-top:10px;opacity:.7">First time? You'll be asked for your publish token once (set in Netlify env vars). It's stored locally after.</p>
     </div>
     <div class="pff full" style="border:1px solid var(--line);border-radius:12px;padding:18px;margin-bottom:6px;background:var(--glass,rgba(20,19,18,.03))">
-      <label style="font-size:15px">💾 BROWSER STORAGE</label>
-      <p style="color:var(--off)!important;font-size:12px;line-height:1.55;margin:8px 0 12px">Everything (products, photos, orders, reviews) lives in this browser's storage — capped around 5MB. Past ~80% you risk failed saves on the next image upload or order.</p>
+      <label style="font-size:15px">💾 THIS BROWSER'S CACHE</label>
+      <p style="color:var(--off)!important;font-size:12px;line-height:1.55;margin:8px 0 12px">Your products, orders and reviews live in Supabase. This browser only keeps a working copy for the admin, capped at about 5MB. If it fills up, clean it here. Nothing on the live site is deleted.</p>
       <div id="storage-view"></div>
       <div style="display:flex;gap:10px;margin-top:10px;flex-wrap:wrap">
         <button class="btn btn-g" onclick="rnStorageView()">↻ Refresh</button>
@@ -676,12 +685,12 @@ Origin|Delhi studio..."></textarea>
       </div>
       <p id="opt2-msg" style="display:none;font-size:12px;margin-top:8px"></p>
     </div>
-    <div class="pff full"><label>New Password</label><input type="password" id="st0" placeholder="Min 8 characters"/></div>
+    <div class="pff full"><label>New Password</label><input type="password" id="st0" placeholder="At least 12 characters"/></div>
     <div class="pff full"><input type="password" id="st1" placeholder="Confirm new password"/></div>
     <div class="pff full"><button class="btn btn-w" onclick="chgPwd()">Update Password</button></div>
     <div class="pff full" style="border-top:1px solid var(--line);padding-top:18px;margin-top:8px">
-      <label>Download Site as ZIP (for Netlify)</label>
-      <p style="color:var(--off);font-size:12px;line-height:1.55;margin:8px 0 10px">Exports your full site with all products, edits, and images baked in. Drag to Netlify to go live.</p>
+      <label>Download a backup (ZIP)</label>
+      <p style="color:var(--off);font-size:12px;line-height:1.55;margin:8px 0 10px">A snapshot of the storefront with your current products, for safekeeping. Don't drag it onto Netlify: the live site needs its functions and would break.</p>
       <button class="btn btn-g" onclick="downloadZip()">📦 Download ZIP</button>
     </div>
     <div class="pff full" style="border-top:1px solid var(--line);padding-top:18px;margin-top:8px">
@@ -720,10 +729,6 @@ Origin|Delhi studio..."></textarea>
     <div class="pff full" style="border-top:1px solid var(--line);padding-top:18px;margin-top:8px">
       <label>Export Data Backup</label>
       <button class="btn btn-g" onclick="expData()" style="margin-top:10px">Download JSON Backup</button>
-    </div>
-    <div class="pff full" style="border-top:1px solid var(--line);padding-top:18px;margin-top:8px">
-      <label style="color:#c0392b">Danger Zone</label>
-      <button class="btn" style="border:1px solid rgba(192,57,43,.4);color:#c0392b;margin-top:10px;padding:9px 18px;border-radius:8px" onclick="if(confirm('This will permanently DELETE ALL PRODUCTS with no way to undo. Are you absolutely sure?'))rstProds()">Clear All Products</button>
     </div>
   </div></div>
 
