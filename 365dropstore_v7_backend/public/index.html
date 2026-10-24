@@ -3215,7 +3215,7 @@ var FF_SIZES=[28,30,32,34,36,38];              // sizes we make
 var FF_MIN=28, FF_MAX=38;                       // waist input range (inches)
 var FF_BELT_FIT="Wide-Leg", FF_BELT_BELOW=29;   // founder's rule: Wide-Leg below a 29″ waist sits loose — belt needed, no fit returns
 var FF_LOG=false;                               // true once the fit_profiles table exists in Supabase
-var ffOnlyMine=true;                            // shop shows "In my size" when a profile exists
+var ffOnlyMine=(()=>{try{return localStorage.getItem("ds_ff_view")!=="all";}catch(e){return true;}})(); // "My size" vs "All sizes", remembered on the device
 var _ffDraft=null, _ffSource="", _ffStep=1;
 function ffProfile(){const m=_fsMem();if(!m||!(+m.waist>=20&&+m.waist<=60))return null;
   return {waist:+m.waist,pref:"true",mode:m.mode==="usual"?"usual":"waist",cuts:Array.isArray(m.cuts)?m.cuts:null};}
@@ -3392,7 +3392,7 @@ function ffToggleCut(f){const c=_ffDraft.cuts||[];_ffDraft.cuts=c.includes(f)?c.
   const sc2=document.querySelector("#ff .ff-cuts"); if(sc2){sc2.scrollLeft=x;sc2.classList.remove("ff-anim");} const a=document.querySelector("#ff-body .ff-anim"); if(a)a.classList.remove("ff-anim");}
 function ffDone(){
   const prof={waist:_ffDraft.waist,pref:"true",mode:_ffDraft.mode,cuts:(_ffDraft.cuts||[]).slice()};
-  ffSaveProfile(prof); ffOnlyMine=true; ffTrack("Fit finder saved");
+  ffSaveProfile(prof); ffSetOnlyMineSilently(true); ffTrack("Fit finder saved");
   const src=_ffSource; ffClose();
   if(src==="product"&&typeof ms!=="undefined"&&ms.p&&document.getElementById("ov").classList.contains("op")){openMo(ms.p.id,true);return;}
   fFits=[];
@@ -3408,7 +3408,8 @@ function ffClose(skipped){
 }
 document.addEventListener("keydown",e=>{if(e.key==="Escape"){const el=document.getElementById("ff");if(el&&!el.hidden){e.stopImmediatePropagation();ffClose(!ffProfile());}}},true);
 window.addEventListener("resize",()=>{const el=document.getElementById("ff");if(el&&!el.hidden&&_ffStep===1){const wh=document.getElementById("ff-wheel");if(!wh)return;const pad=Math.max(0,(wh.clientWidth-FF_STEP_W)/2);wh.querySelectorAll(".ff-pad").forEach(p=>p.style.flexBasis=pad+"px");const i=ffStops(_ffDraft.mode).indexOf(_ffDraft.waist);if(i>=0)wh.scrollLeft=i*FF_STEP_W;}});
-function ffSetOnlyMine(v){ffOnlyMine=v;renderGrid();}
+function ffSetOnlyMineSilently(v){ffOnlyMine=v;try{localStorage.setItem("ds_ff_view",v?"mine":"all");}catch(e){}}
+function ffSetOnlyMine(v){ffOnlyMine=v;try{localStorage.setItem("ds_ff_view",v?"mine":"all");}catch(e){}renderGrid();}
 function ffRenderBar(){
   const bar=document.getElementById("ff-bar"); if(!bar)return;
   const prof=ffProfile();
@@ -3417,8 +3418,9 @@ function ffRenderBar(){
   bar.className="ff-bar";bar.hidden=false;bar.onclick=null;
   const mine=products.filter(p=>ffInGrid(p)&&ffMatches(p,prof)).length;
   const cuts=prof.cuts&&prof.cuts.length?prof.cuts.join(" · "):"All cuts";
-  bar.innerHTML=`<span class="ffb-t"><b>${prof.mode==="usual"?"Size "+prof.waist:prof.waist+"″ waist"}</b>${cuts}</span>
-    <span class="ffb-seg"><button class="${ffOnlyMine?"on":""}" onclick="ffSetOnlyMine(true)">My size · ${mine}</button><button class="${ffOnlyMine?"":"on"}" onclick="ffSetOnlyMine(false)">All</button></span>
+  const wtxt=prof.mode==="usual"?"Size "+prof.waist:Math.floor(prof.waist)+(prof.waist%1?"½":"")+"″ waist";
+  bar.innerHTML=`<span class="ffb-t"><b>${wtxt}</b>${mine} pair${mine===1?"":"s"} in your size · ${cuts}</span>
+    <span class="ffb-seg" role="group" aria-label="Which sizes to show"><button class="${ffOnlyMine?"on":""}" aria-pressed="${ffOnlyMine}" onclick="ffSetOnlyMine(true)">My size</button><button class="${ffOnlyMine?"":"on"}" aria-pressed="${!ffOnlyMine}" onclick="ffSetOnlyMine(false)">All sizes</button></span>
     <button class="ffb-edit" onclick="ffOpen('bar')">Edit</button>`;
 }
 // Show the finder once to every new visitor, after the intro and only when nothing else is open.
