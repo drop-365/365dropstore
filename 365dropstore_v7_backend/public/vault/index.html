@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>The Vault — 365 Drop Store</title>
-<meta name="description" content="Twelve pairs, worldwide. Okayama 18oz selvedge, hand-forged in Delhi.">
+<meta name="description" content="Two designs, 12 pieces each. Our heaviest wide-leg denim, checked by the founders before it ships.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -312,7 +312,7 @@ fbq('track','PageView');
   <div class="hero-inner">
     <div class="kicker" id="v-kicker">The Vault — twelve pairs, worldwide</div>
     <h1><span id="v-h1a">Two forms.</span><br><em id="v-h1b">Built to last.</em></h1>
-    <p id="v-sub">Okayama 18oz selvedge, hand-forged in our Delhi studio. Each pair numbered, each pair authenticated. Nothing here will be made again.</p>
+    <p id="v-sub">Our heaviest wide-leg denim, picked for weight and fall. Two designs, 12 pieces each, checked by the founders before each one ships.</p>
   </div>
 </section>
 
@@ -338,7 +338,7 @@ fbq('track','PageView');
       <div class="cert-card-top">
         <div class="cert-card-mark">∞</div>
         <div class="cert-card-brand">365 Drop Store</div>
-        <div class="cert-card-title">Certificate of Authenticity</div>
+        <div class="cert-card-title">Founder-checked</div>
       </div>
       <div class="cert-card-mid">
         <div class="cert-card-no"><span id="cert-ed-no">04</span><span id="cert-ed-total-wrap">/<span id="cert-ed-total">12</span></span></div>
@@ -346,21 +346,21 @@ fbq('track','PageView');
       </div>
       <div class="cert-card-bot">
         <div class="cert-card-sig" id="cert-sig">Wasi</div>
-        <div class="cert-card-loc" id="cert-loc">Delhi Studio<br>Est. 2025</div>
+        <div class="cert-card-loc" id="cert-loc">365 Drop Store<br>Delhi</div>
       </div>
     </div>
     <div class="cert-copy">
       <div class="kicker" id="cert-kicker">Authenticity</div>
-      <h2><span id="cert-h1a">Every pair,</span><br><em id="cert-h1b">numbered by hand.</em></h2>
-      <p id="cert-body">Each pair ships with a signed certificate, hand-numbered against our private ledger — the same twelve numbers we keep on file in Delhi. No two are alike, and none will be made again.</p>
-      <div class="cert-mark" id="cert-mark">Certificate enclosed · Delhi Studio · Free shipping</div>
+      <h2><span id="cert-h1a">Every pair,</span><br><em id="cert-h1b">checked by hand.</em></h2>
+      <p id="cert-body">Before a Vault pair ships, one of us checks the stitching, the wash and the fit. If it isn't right, it doesn't go.</p>
+      <div class="cert-mark" id="cert-mark">Founder-checked · Free shipping · 7-day size exchange</div>
     </div>
   </div>
 </section>
 
 <footer class="ftr">
   <div class="ftr-logo">365 Drop Store</div>
-  <p>Clothing or nothing. Delhi studio, established 2025.</p>
+  <p>Clothing or nothing. Delhi.</p>
   <div class="ftr-links">
     <a href="/">Store</a>
     <a href="/vault/">The Vault</a>
@@ -392,7 +392,7 @@ fbq('track','PageView');
         <div class="fg"><label>Phone</label><input type="tel" id="cf-p" placeholder="10-digit mobile"></div>
         <div class="fg"><label>Pincode</label><input type="text" id="cf-z" placeholder="6-digit pincode"></div>
         <div class="fg"><label>Full address</label><input type="text" id="cf-a" placeholder="House no, street, landmark, city"></div>
-        <div class="fg"><label>Email — for your receipt and certificate</label><input type="email" id="cf-e" placeholder="you@email.com"></div>
+        <div class="fg"><label>Email — for your receipt</label><input type="email" id="cf-e" placeholder="you@email.com"></div>
       </div>
       <div class="drawer-total" id="drawer-total"></div>
       <div class="pm-options" id="pm-options">
@@ -413,7 +413,7 @@ fbq('track','PageView');
     <div class="ok-mark">✓</div>
     <h3>Reserved.</h3>
     <div class="ok-id" id="ok-id"></div>
-    <p>Packed and checked in our Delhi studio. Dispatch within 24 hours, free shipping, tracking available from the store.</p>
+    <p>Packed and checked by us in Delhi. Dispatch within 24 hours, free shipping, tracking available from the store.</p>
     <button class="btn-done" onclick="location.reload()">Done</button>
   </div>
 </div>
@@ -613,7 +613,7 @@ async function loadVaultProducts(){
       <div class="vitrine">
         <div class="vitrine-main">${p.video_url?`<video autoplay muted loop playsinline src="${p.video_url}"></video>`:(imgs[0]?`<img src="${imgs[0]}" alt="${p.name}">`:'<div class="img-ph">Front — full length</div>')}</div>
         <div class="vitrine-side">
-          <div class="v-cell">${imgs[1]?`<img src="${imgs[1]}" alt="">`:'<div class="img-ph">Selvedge detail</div>'}</div>
+          <div class="v-cell">${imgs[1]?`<img src="${imgs[1]}" alt="">`:'<div class="img-ph">Fabric detail</div>'}</div>
           <div class="v-cell">${imgs[2]?`<img src="${imgs[2]}" alt="">`:'<div class="img-ph">Studio, on model</div>'}</div>
         </div>
       </div>
@@ -635,7 +635,7 @@ async function loadVaultProducts(){
             <dl>
               ${p.description_long?`<div class="prov-row"><dt>Detail</dt><dd>${p.description_long}</dd></div>`:''}
               ${p.fit?`<div class="prov-row"><dt>Fit</dt><dd>${p.fit}</dd></div>`:''}
-              <div class="prov-row"><dt>Origin</dt><dd>Cut, sewn, and inspected in our Delhi studio.</dd></div>
+              <div class="prov-row"><dt>Origin</dt><dd>Sourced by us, inspected in Delhi before dispatch.</dd></div>
             </dl>
           </div>
         </div>
