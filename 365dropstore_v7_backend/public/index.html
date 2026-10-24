@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>365 Drop Store — Clothing or Nothing | Wide Leg Jeans Delhi</title>
 <meta name="build" content="2026-09-28 size-finder v2"/>
-<meta name="description" content="Clothing or Nothing. Premium wide-leg, baggy &amp; straight jeans for men, made in Delhi. From ₹1,099, free shipping across India, 7-day exchange, COD."/>
+<meta name="description" content="Clothing or Nothing. Premium wide-leg, baggy &amp; straight jeans for men, picked and quality-checked in Delhi. From ₹999, free shipping across India, 7-day size exchange, partial COD."/>
 <meta property="og:type" content="website"/>
 <meta property="og:title" content="365 Drop Store — Premium Denim | Clothing or Nothing"/>
 <meta property="og:description" content="Premium baggy, wide-leg & straight jeans from Delhi. Limited drops. WhatsApp orders."/>
@@ -274,6 +274,37 @@ header.sc .nav{height:58px}
 .hright-hud.br{bottom:28px;right:28px;text-align:right}
 .hright-hud b{color:var(--glow,#C0392B)}
 @media(max-width:860px){.hright-hud{display:none}}
+/* Product-first hero — phones only */
+.hpf{display:none}
+@media(max-width:768px){
+  #hero .hleft{padding:16px 16px 28px}
+  .hpf:not([hidden]){display:grid;gap:12px;width:100%;order:-1;margin-bottom:22px}
+  .hpf-media{position:relative;display:block;width:100%;aspect-ratio:4/5;max-width:100%;padding:0;border:0;border-radius:18px;overflow:hidden;background:#E3DFD8;cursor:pointer}
+  .hpf-media img{width:100%;height:100%;object-fit:cover;display:block}
+  .hpf-tag{position:absolute;left:12px;top:12px;background:#141312;color:#F8F7F4;font:600 11px/1 var(--bod);letter-spacing:.08em;text-transform:uppercase;padding:7px 10px;border-radius:999px}
+  .hpf-tag:empty{display:none}
+  .hpf-info{display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
+  .hpf-id{min-width:0}
+  .hpf-name{font-family:var(--dsp);font-size:26px;line-height:1;color:#141312;text-transform:uppercase;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .hpf-meta{margin-top:5px;font-size:13px;color:#6B655E}
+  .hpf-price{text-align:right;white-space:nowrap;font-size:20px;font-weight:700;color:#141312}
+  .hpf-price s{display:block;font-size:12px;font-weight:400;color:#8A847C}
+  .hpf-ctas{display:grid;grid-template-columns:1fr auto;gap:8px}
+  .hpf-buy,.hpf-all{min-height:48px;border-radius:999px;font:600 15px/1 var(--bod);cursor:pointer}
+  .hpf-buy{background:#C0392B;color:#fff;border:0}
+  .hpf-all{background:transparent;color:#141312;border:1.5px solid #141312;padding:0 20px}
+  .hpf-fits{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+  .hpf-fits::-webkit-scrollbar{display:none}
+  .hpf-fits button{flex:0 0 auto;min-height:40px;padding:0 16px;border-radius:999px;border:1px solid #D6D1C8;background:#fff;color:#141312;font:500 14px/1 var(--bod);cursor:pointer}
+  .hpf-fits small{opacity:.55;margin-left:4px}
+  /* With a real product on top, the calendar, terminal strip, stats and the
+     duplicate CTAs only push the shop further down on a phone. */
+  #hero.has-hpf .tc-cal,#hero.has-hpf #termstrip,#hero.has-hpf .hstats,#hero.has-hpf .hctas,#hero.has-hpf .hey{display:none}
+  #hero.has-hpf .hh1{font-size:34px;margin:4px 0 8px}
+  #hero.has-hpf .hsub{font-size:15px;margin-bottom:12px}
+  /* The first screen must not wait for the scroll-reveal script to fade in. */
+  #hero .hleft.sr{opacity:1;transform:none;transition:none}
+}
 @keyframes hscan{0%,100%{top:4%}50%{top:94%}}
 @media(prefers-reduced-motion:reduce){.showcase{animation:none}.scan{display:none}.rvh{animation:none;opacity:1;transform:none}}
 @media(max-width:860px){
@@ -1642,6 +1673,139 @@ body:hover .cursor-glow{opacity:1}
 }
 @media (prefers-reduced-motion:reduce){.fs-ov .fs-panel,.fs-ov{transition:none}.fs-big.pop{animation:none}}
 </style>
+<style>
+/* ===== FIT FINDER (2026-10-24, editorial v3) =====
+   Full-screen, magazine-style: real catalogue photography, giant type, one
+   question per screen. 01 swipe your waist; 02 swipe your cuts, each shown as
+   a real pair in stock in your size. Shares its memory (ds_fit_mem) and size
+   engine (_fsRecommend) with the product-page size finder. */
+.ff{position:fixed;inset:0;z-index:1300;display:flex;align-items:stretch;justify-content:center;background:rgba(20,19,18,0);transition:background .35s ease}
+.ff[hidden]{display:none}
+.ff.in{background:rgba(20,19,18,.55)}
+.ff-sheet{position:relative;width:100%;height:100%;height:100dvh;display:flex;flex-direction:column;background:#F6F3EE;color:#141312;overflow:hidden;
+  transform:translateY(24px);opacity:0;transition:transform .5s cubic-bezier(.16,1,.3,1),opacity .35s ease}
+.ff.in .ff-sheet{transform:none;opacity:1}
+@media(min-width:820px){.ff{align-items:center}.ff-sheet{width:min(1040px,94vw);height:min(720px,92vh);border-radius:28px;flex-direction:row;box-shadow:0 40px 120px rgba(0,0,0,.35)}}
+/* photo stage */
+.ff-stage{position:relative;flex:0 0 38%;transition:flex-basis .55s cubic-bezier(.16,1,.3,1);min-height:0;overflow:hidden;background:#1a1816}
+@media(min-width:820px){.ff-stage{flex:0 0 44%}}
+.ff-stage img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 30%;opacity:0;transform:scale(1.06);transition:opacity .9s ease,transform 6s ease}
+.ff-stage img.on{opacity:1;transform:scale(1)}
+.ff-stage::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(20,19,18,.35) 0%,rgba(20,19,18,0) 35%,rgba(246,243,238,0) 70%,#F6F3EE 100%)}
+@media(min-width:820px){.ff-stage::after{background:linear-gradient(90deg,rgba(20,19,18,0) 60%,rgba(20,19,18,.15))}}
+.ff-brand{position:absolute;left:20px;top:calc(18px + env(safe-area-inset-top));z-index:2;color:#fff;font:600 11px/1 var(--bod);letter-spacing:.22em;text-transform:uppercase;text-shadow:0 1px 8px rgba(0,0,0,.35)}
+.ff-x{position:absolute;right:16px;top:calc(12px + env(safe-area-inset-top));z-index:3;width:40px;height:40px;border-radius:50%;border:0;background:rgba(255,255,255,.9);color:#141312;font-size:16px;line-height:1;cursor:pointer;display:grid;place-items:center;box-shadow:0 4px 18px rgba(0,0,0,.18);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+@media(min-width:820px){.ff-x{right:18px;top:18px;background:#fff}}
+@media(max-width:819px){.ff-sheet.s2 .ff-stage{flex-basis:0}.ff-sheet.s2 .ff-scroll{padding-top:calc(66px + env(safe-area-inset-top))}}
+/* content */
+.ff-main{position:relative;flex:1;min-height:0;min-width:0;display:flex;flex-direction:column}
+.ff-scroll{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;padding:4px 24px 8px;-webkit-overflow-scrolling:touch;display:flex;flex-direction:column}
+@media(min-width:820px){.ff-scroll{padding:56px 48px 8px;justify-content:center}}
+.ff-kick{display:flex;align-items:center;gap:10px;font:600 11px/1 var(--bod);letter-spacing:.2em;text-transform:uppercase;color:#8A847C;margin:0 0 12px}
+.ff-kick i{display:block;height:2px;width:22px;border-radius:2px;background:#D9D3CA}
+.ff-kick i.on{background:#C0392B}
+.ff-h{font-family:var(--dsp);font-size:clamp(40px,11vw,64px);line-height:.92;letter-spacing:-.005em;text-transform:uppercase;margin:0;color:#141312}
+.ff-sub{color:#6F6A63;font-size:14px;line-height:1.45;margin:10px 0 0;max-width:34ch}
+.ff-anim{animation:ffin .55s cubic-bezier(.16,1,.3,1) both}
+@keyframes ffin{from{opacity:0;transform:translateX(28px)}to{opacity:1;transform:none}}
+/* giant number wheel */
+.ff-wheelwrap{position:relative;margin:18px -24px 0}
+@media(min-width:820px){.ff-wheelwrap{margin:26px -48px 0}}
+.ff-wheel{display:flex;align-items:flex-end;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scrollbar-width:none;-webkit-overflow-scrolling:touch;outline:none;padding:62px 0 6px;cursor:grab}
+.ff-wheel::-webkit-scrollbar{display:none}
+.ff-wheel:focus-visible{box-shadow:inset 0 -2px 0 #C0392B}
+.ff-pad{flex:0 0 auto}
+.ff-n{flex:0 0 92px;scroll-snap-align:center;text-align:center;font-family:var(--dsp);font-size:44px;line-height:1;color:#141312;opacity:.08;transform:scale(.5);transform-origin:50% 80%;transition:opacity .25s,transform .25s cubic-bezier(.16,1,.3,1),color .25s;user-select:none;-webkit-user-select:none;cursor:pointer;font-variant-numeric:tabular-nums;padding:8px 0}
+.ff-n.near{opacity:.22;transform:scale(.62)}
+.ff-n.on{opacity:1;transform:scale(2.1);color:#141312}
+.ff-n sup{font-size:.42em;vertical-align:.95em;margin-left:1px}
+.ff-n small{font-size:.5em}
+.ff-mark{position:absolute;left:50%;bottom:-10px;width:6px;height:6px;border-radius:50%;background:#C0392B;transform:translateX(-50%)}
+.ff-meta{display:flex;justify-content:center;gap:14px;margin:22px 0 0;font:500 13px/1 var(--bod);color:#8A847C}
+.ff-meta b{color:#141312;font-weight:600}
+.ff-alt{align-self:center;margin:16px 0 0;border:0;background:none;font:600 13px/1 var(--bod);color:#141312;text-decoration:underline;text-decoration-color:#C0392B;text-underline-offset:5px;text-decoration-thickness:2px;cursor:pointer;padding:6px}
+.ff-help{align-self:center;margin:12px 0 0;font-size:12.5px;color:#8A847C;text-align:center;max-width:32ch;line-height:1.45}
+/* cut cards */
+.ff-cuts{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;margin:18px -24px 0;padding:0 24px 6px;-webkit-overflow-scrolling:touch}
+.ff-cuts::-webkit-scrollbar{display:none}
+@media(min-width:820px){.ff-cuts{margin:24px -48px 0;padding:0 48px 6px}}
+.ff-cut{position:relative;flex:0 0 72%;max-width:300px;aspect-ratio:3/4.2;border-radius:20px;overflow:hidden;scroll-snap-align:start;scroll-margin-left:24px;border:0;padding:0;cursor:pointer;background:#E9E4DC;color:#fff;text-align:left;font-family:var(--bod);transition:transform .25s cubic-bezier(.16,1,.3,1),box-shadow .25s}
+@media(min-width:820px){.ff-cut{flex-basis:44%;scroll-margin-left:48px}}
+.ff-cut img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 35%;transition:transform .6s cubic-bezier(.16,1,.3,1),filter .3s}
+.ff-cut::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(20,19,18,.0) 35%,rgba(20,19,18,.82) 100%)}
+.ff-cut .tx{position:absolute;left:16px;right:16px;bottom:14px;z-index:2}
+.ff-cut .nm{display:block;font-family:var(--dsp);font-size:32px;line-height:.95;text-transform:uppercase;letter-spacing:.01em}
+.ff-cut .ln{display:block;font-size:13px;color:rgba(255,255,255,.85);margin-top:6px}
+.ff-cut .fsz{position:absolute;right:12px;top:12px;z-index:2;text-align:center;font-family:var(--dsp);font-size:38px;line-height:.9;background:#fff;color:#141312;border-radius:14px;padding:8px 11px 7px;box-shadow:0 6px 20px rgba(0,0,0,.18)}
+.ff-cut .fsz small{display:block;font:700 8.5px/1 var(--bod);letter-spacing:.16em;margin-bottom:5px;color:#8A847C}
+.ff-cut .chk{position:absolute;left:14px;top:14px;z-index:2;width:26px;height:26px;border-radius:50%;border:1.5px solid rgba(255,255,255,.85);display:grid;place-items:center;font-size:13px;color:transparent;background:rgba(20,19,18,.2);transition:background .2s,border-color .2s}
+.ff-cut.on{box-shadow:0 0 0 3px #F6F3EE,0 0 0 5px #141312}
+.ff-cut.on .chk{background:#fff;border-color:#fff;color:#141312}
+.ff-cut.off img{filter:grayscale(.85) brightness(.85)}
+.ff-cut.bare{background:#141312}
+.ff-cut.bare::after{display:none}
+.ff-cut.bare .soon{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--dsp);font-size:64px;color:rgba(255,255,255,.07);text-transform:uppercase;letter-spacing:.02em}
+.ff-cut .belt{display:inline-block;margin-top:8px;background:#FFC24B;color:#141312;font:700 10px/1 var(--bod);letter-spacing:.06em;text-transform:uppercase;padding:5px 7px;border-radius:5px}
+.ff-swipe{margin:12px 0 0;font:600 11px/1 var(--bod);letter-spacing:.16em;text-transform:uppercase;color:#8A847C}
+.ff-swipe span{color:#C0392B;display:inline-block;animation:ffnudge 1.6s ease-in-out infinite}
+@keyframes ffnudge{50%{transform:translateX(5px)}}
+.ff-note{margin:14px 0 0;font-size:12.5px;line-height:1.5;color:#6F6A63}
+.ff-note b{color:#141312}
+/* footer */
+.ff-foot{padding:12px 24px calc(16px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:10px}
+@media(min-width:820px){.ff-foot{padding:16px 48px 36px}}
+.ff-cta{width:100%;border:0;border-radius:999px;background:#141312;color:#F6F3EE;font:600 15px/1 var(--bod);letter-spacing:.01em;padding:19px 22px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;transition:transform .15s,background .2s}
+.ff-cta span{opacity:.6;font-weight:500}
+.ff-cta:active{transform:scale(.985)}
+.ff-cta:disabled{background:#BDB7AE;cursor:not-allowed}
+.ff-skip{align-self:center;background:none;border:0;color:#8A847C;font:500 13px/1 var(--bod);cursor:pointer;padding:6px}
+/* shop bar */
+.ff-bar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:#141312;color:#F6F3EE;border-radius:18px;padding:12px 14px;margin:0 0 16px}
+.ff-bar[hidden]{display:none}
+.ff-bar .ffb-t{flex:1;min-width:160px;font-size:13px;line-height:1.35;color:#BDB7AE}
+.ff-bar .ffb-t b{display:block;font-family:var(--dsp);font-size:20px;letter-spacing:.01em;text-transform:uppercase;color:#fff;font-weight:400}
+.ff-bar .ffb-seg{display:flex;background:rgba(255,255,255,.08);border-radius:999px;padding:3px;gap:2px}
+.ff-bar .ffb-seg button{border:0;background:transparent;color:#D8D3CB;border-radius:999px;padding:9px 12px;font:600 12.5px/1 var(--bod);cursor:pointer;white-space:nowrap}
+.ff-bar .ffb-seg button.on{background:#F6F3EE;color:#141312}
+.ff-bar .ffb-edit{border:0;background:none;color:#fff;font:600 12.5px/1 var(--bod);text-decoration:underline;text-decoration-color:#C0392B;text-underline-offset:4px;text-decoration-thickness:2px;cursor:pointer;padding:6px 2px}
+.ff-bar.ask{cursor:pointer;background:#141312}
+.ff-bar.ask .ffb-go{background:#F6F3EE;color:#141312;border-radius:999px;padding:10px 14px;font:600 12.5px/1 var(--bod);white-space:nowrap}
+/* "your size" on cards */
+.psizes .sz.mine{background:#141312;color:#fff;border-color:#141312}
+.pmyfit{font-size:12px;font-weight:600;margin-top:6px}
+.pmyfit.ok{color:#1F7A44}
+.pmyfit.no{color:#A8321F}
+.pmyfit.belt{color:#8A5A00}
+/* product page: your size */
+.mo-myfit{display:flex;gap:12px;align-items:flex-start;background:#141312;color:#BDB7AE;border-radius:16px;padding:13px 14px;margin:2px 0 14px;font-size:13px;line-height:1.45}
+.mo-myfit .i{flex:0 0 auto;font-family:var(--dsp);font-size:28px;line-height:.9;color:#fff;min-width:34px;text-align:center}
+.mo-myfit .i small{display:block;font:700 8.5px/1 var(--bod);letter-spacing:.14em;color:#8A847C;margin-bottom:3px}
+.mo-myfit b{color:#fff}
+.mo-myfit .bw{display:block;margin-top:6px;color:#FFC24B}
+.mo-myfit button{background:none;border:0;color:#fff;font:600 12.5px/1 var(--bod);text-decoration:underline;text-decoration-color:#C0392B;text-underline-offset:4px;text-decoration-thickness:2px;cursor:pointer;padding:0;margin-left:2px}
+.mo-myfit.ask{cursor:pointer}
+.mo-myfit.ask .i{font-size:22px}
+.chip.mine{position:relative}
+.chip.mine::after{content:"YOU";position:absolute;top:-8px;right:-6px;background:#C0392B;color:#fff;font:700 8.5px/1 var(--bod);letter-spacing:.06em;padding:3px 4px;border-radius:5px}
+.mo-colour{font-size:12.5px;line-height:1.5;color:#57524B;margin:10px 0 0}
+.mo-colour a{color:#A8321F;font-weight:600}
+@media(prefers-reduced-motion:reduce){.ff-sheet,.ff-n,.ff-stage img,.ff-anim{transition:none;animation:none}}
+/* ===== SWIPE GALLERIES (2026-10-23) ===== */
+.mocar-imgs .mo-track{position:absolute;inset:0;display:flex;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scrollbar-width:none;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
+.mocar-imgs .mo-track::-webkit-scrollbar{display:none}
+.mocar-imgs .mo-track img{position:relative;inset:auto;flex:0 0 100%;width:100%;height:100%;opacity:1;scroll-snap-align:center;scroll-snap-stop:always;transition:none}
+@media(pointer:coarse){.mocar-imgs .car-arr{display:none}}
+.pimg .pslides{position:absolute;inset:0;display:flex;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scrollbar-width:none;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
+.pimg .pslides::-webkit-scrollbar{display:none}
+.pimg .pslides img{position:relative;inset:auto;flex:0 0 100%;width:100%;height:100%;object-fit:cover;opacity:1!important;scroll-snap-align:center;scroll-snap-stop:always;transition:none}
+.pdots{position:absolute;left:50%;bottom:44px;transform:translateX(-50%);display:flex;gap:4px;z-index:3;pointer-events:none}
+.pdots i{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,.5);box-shadow:0 0 2px rgba(0,0,0,.4);transition:width .2s,background .2s}
+.pdots i.on{width:14px;border-radius:3px;background:#fff}
+.pnav{position:absolute;top:42%;z-index:4;width:30px;height:30px;border-radius:50%;border:0;background:rgba(255,255,255,.92);color:#141312;font-size:16px;line-height:1;cursor:pointer;display:none;place-items:center;box-shadow:0 2px 8px rgba(0,0,0,.18)}
+.pnav.l{left:8px}.pnav.r{right:8px}
+@media(pointer:fine){.pcard:hover .pnav{display:grid}}
+@media(prefers-reduced-motion:reduce){.ff,.ff-sheet{transition:none}}
+</style>
 <script defer data-domain="365dropstore.com" src="https://plausible.io/js/script.js"></script>
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
@@ -1671,7 +1835,7 @@ fbq('track','PageView');
 </script>
 <noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=2018974752158259&ev=PageView&noscript=1"/></noscript>
 <!-- End Meta Pixel -->
-<script type="application/ld+json">{"@context": "https://schema.org", "@type": "ClothingStore", "name": "365 Drop Store", "alternateName": "365dropstore", "url": "https://365dropstore.com/", "logo": "https://365dropstore.com/icon-512.png", "description": "Premium wide-leg, baggy and straight denim jeans for men, made in Delhi.", "telephone": "+91-9990905969", "priceRange": "₹999 – ₹1,599", "address": {"@type": "PostalAddress", "streetAddress": "E-42/2A Subhash Vihar", "addressLocality": "Delhi", "postalCode": "110053", "addressRegion": "Delhi", "addressCountry": "IN"}, "areaServed": "IN", "sameAs": ["https://instagram.com/365dropstore", "https://www.youtube.com/@365_drop_store"], "slogan": "Clothing or Nothing"}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "ClothingStore", "name": "365 Drop Store", "alternateName": "365dropstore", "url": "https://365dropstore.com/", "logo": "https://365dropstore.com/icon-512.png", "description": "Premium wide-leg, baggy and straight denim jeans for men, picked and quality-checked in Delhi.", "telephone": "+91-9990905969", "priceRange": "₹999 – ₹1,599", "address": {"@type": "PostalAddress", "streetAddress": "E-42/2A Subhash Vihar", "addressLocality": "Delhi", "postalCode": "110053", "addressRegion": "Delhi", "addressCountry": "IN"}, "areaServed": "IN", "sameAs": ["https://instagram.com/365dropstore", "https://www.youtube.com/@365_drop_store"], "slogan": "Clothing or Nothing"}</script>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebSite", "name": "365 Drop Store", "url": "https://365dropstore.com/"}</script>
 </head>
 <body>
@@ -1738,7 +1902,7 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
     <div class="mb-track-row"><input id="mb-track-phone" type="tel" inputmode="numeric" maxlength="14" placeholder="10-digit mobile" onkeydown="if(event.key==='Enter')mbQuickTrack()"/><button onclick="mbQuickTrack()">Find</button></div>
     <a class="mb-track-alt" onclick="closeMob();openOrderTracker()">Have an Order ID? Track with it →</a>
   </div>
-  <a class="mb-vault" href="/vault/"><span class="mb-vault-k">LIMITED EDITION</span><span class="mb-vault-t">VAULT 001</span><span class="mb-vault-s">2 designs · numbered pairs →</span></a>
+  <a class="mb-vault" href="/vault/"><span class="mb-vault-k">LIMITED EDITION</span><span class="mb-vault-t">VAULT 001</span><span class="mb-vault-s">2 designs · limited pieces →</span></a>
   <a class="mb-wa" href="https://wa.me/919990905969?text=Hi%20365%20Drop%20Store%2C%20I%20need%20help%20with%20size%2Forder" target="_blank" rel="noopener">💬 WhatsApp us — size help &amp; orders</a>
   <a onclick="closeMob();goTo('#shop')">Shop</a><a onclick="closeMob();goTo('#story')">Our Story</a><a onclick="closeMob();goTo('#reviews')">Reviews</a><a onclick="closeMob();goTo('#nl')">Early Access</a>
 </nav>
@@ -1760,6 +1924,23 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
   <canvas id="netfx" aria-hidden="true"></canvas>
   <div class="hud" aria-hidden="true"><span class="htl"></span><span class="htr"></span><span class="hbl"></span><span class="hbr"></span></div>
   <div class="hleft sr">
+    <!-- Product-first hero (phones): the first screen shows a real jean,
+         its price and one clear next step. Filled by renderHeroProduct(). -->
+    <div class="hpf" id="hpf" hidden>
+      <button type="button" class="hpf-media" id="hpf-media" aria-label="Open product">
+        <img id="hpf-img" alt="" fetchpriority="high" decoding="async"/>
+        <span class="hpf-tag" id="hpf-tag"></span>
+      </button>
+      <div class="hpf-info">
+        <div class="hpf-id"><div class="hpf-name" id="hpf-name"></div><div class="hpf-meta" id="hpf-meta"></div></div>
+        <div class="hpf-price" id="hpf-price"></div>
+      </div>
+      <div class="hpf-ctas">
+        <button type="button" class="hpf-buy" id="hpf-buy">Choose your size</button>
+        <button type="button" class="hpf-all" onclick="goTo('#shop')">Shop all</button>
+      </div>
+      <div class="hpf-fits" id="hpf-fits" aria-label="Shop by fit"></div>
+    </div>
     <div class="tc-cal rvh hd1" id="tc" role="img" aria-label="Tear-off calendar: today's day of the year">
       <span class="tc-nail"></span>
       <span class="tc-string"></span>
@@ -1787,7 +1968,7 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
       <span class="motion-toggle" id="motion-toggle" onclick="toggleDropCountdown()">PAUSE MOTION</span>
     </div>
     <h1 class="hh1 rvh hd3" id="hero-h1"><span class="hero-gradient">365 DROP</span><span>STORE</span></h1>
-    <p class="hsub rvh hd4" id="hero-sub">Premium denim built from zero in Delhi — wide-leg, baggy, straight. Dropped limited, worn everywhere.</p>
+    <p class="hsub rvh hd4" id="hero-sub">Premium denim, picked and wear-tested by us in Delhi. Wide-leg, baggy, straight. Dropped limited, worn everywhere.</p>
     <div class="hero-trust"><span class="trust-line js-trust"></span></div>
     <div id="termstrip" class="termstrip rvh hd4" aria-hidden="true">
       <span class="ts-row"><i class="ts-dot"></i> DROP_001 // <b id="ts-units">—</b> UNITS LIVE</span>
@@ -1803,7 +1984,7 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
     <div class="hstats rvh hd6">
       <div class="hstat"><span class="num">365</span><span class="lbl">Days dropping</span></div>
       <div class="hstat"><span class="num"><svg class="inf-ico" viewBox="0 0 24 12" aria-hidden="true" focusable="false"><path fill="currentColor" d="M6 1.5C3.5 1.5 1.5 3.5 1.5 6S3.5 10.5 6 10.5c1.7 0 3.2-.9 4.1-2.3l.4-.6.4.6c.9 1.4 2.4 2.3 4.1 2.3 2.5 0 4.5-2 4.5-4.5S20.5 1.5 18 1.5c-1.7 0-3.2.9-4.1 2.3l-.4.6-.4-.6C12.2 2.4 10.7 1.5 9 1.5H6zm0 1.5c1.1 0 2.1.6 2.7 1.5L10.1 6 8.7 8c-.6.9-1.6 1.5-2.7 1.5C4.3 9.5 3 8.2 3 6.5S4.3 3 6 3zm12 0c1.7 0 3 1.3 3 3s-1.3 3-3 3c-1.1 0-2.1-.6-2.7-1.5L13.9 6l1.4-2c.6-.9 1.6-1.5 2.7-1.5z"/></svg></span><span class="lbl">Ways to wear</span></div>
-      <div class="hstat"><span class="num">0</span><span class="lbl">Middlemen</span></div>
+      <div class="hstat"><span class="num">5.0★</span><span class="lbl">52 Google reviews</span></div>
     </div>
   </div>
   <div class="hright">
@@ -1828,7 +2009,7 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
 <!-- trust -->
 <div class="trust"><div class="w tgrid" id="trust-grid">
   <div class="titem"><div class="tic">📦</div><div><div class="tit">Pan India</div><div class="tis">3–5 day delivery</div></div></div>
-  <div class="titem"><div class="tic">💰</div><div><div class="tit">COD Available</div><div class="tis">Pay when you receive</div></div></div>
+  <div class="titem"><div class="tic">💰</div><div><div class="tit">Partial COD</div><div class="tis">₹149 now, rest on delivery</div></div></div>
   <div class="titem"><div class="tic">✆</div><div><div class="tit">WhatsApp Orders</div><div class="tis">Direct with founder</div></div></div>
   <div class="titem"><div class="tic">📹</div><div><div class="tit">Easy Returns</div><div class="tis">Record unboxing, exchange free</div></div></div>
 </div></div>
@@ -1952,16 +2133,16 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
       </div>
     </div>
     <div class="vault-door-copy">
-      <div class="vd-tag"><span id="vd-kicker-1">VAULT 001 — ATELIER EDITION</span><br><span id="vd-kicker-2">12 UNITS WORLDWIDE · DELHI STUDIO</span></div>
+      <div class="vd-tag"><span id="vd-kicker-1">VAULT 001 — 2 DESIGNS</span><br><span id="vd-kicker-2">12 PIECES EACH</span></div>
       <h2><span id="vd-h1a">Two forms.</span><br><em id="vd-h1b">Open now.</em></h2>
-      <p id="vd-body">Okayama 18oz selvedge. Hand-forged in Delhi studio — not a warehouse. Numbered, certificate enclosed.</p>
+      <p id="vd-body">Our heaviest wide-leg denim, picked for weight and fall. Two designs, 12 pieces each, checked by the founders before each one ships.</p>
       <div class="vault-door-cd" id="vd-countdown" style="display:block">
-        <div class="vd-live-msg" id="vd-live-msg">THE VAULT IS OPEN. NO RESTOCK. NO SECOND DROP.</div>
+        <div class="vd-live-msg" id="vd-live-msg">THE VAULT IS OPEN. 12 PIECES PER DESIGN.</div>
       </div>
       <div class="vd-buy" id="vd-buy" style="display:none">
         <div class="vd-price"><b id="vd-price">₹1,899</b><span id="vd-price-note">each · 2 designs</span></div>
         <div class="vd-sizes" id="vd-sizes"></div>
-        <div class="vd-trust">Free shipping · 7-day exchange · Numbered pair</div>
+        <div class="vd-trust">Free shipping · 7-day size exchange · Founder-checked</div>
       </div>
       <a href="/vault/" class="vault-door-cta vd-cta-solid" id="vd-cta">SHOP THE VAULT →</a>
     </div>
@@ -2203,6 +2384,7 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
     <select class="ss" id="srt" onchange="renderGrid()"><option value="def">Sort: Featured</option><option value="low">Price: Low → High</option><option value="high">Price: High → Low</option><option value="new">Newest</option></select>
   </div>
   <div class="afs" id="active-filters"></div>
+  <div class="ff-bar" id="ff-bar" hidden></div>
   <div class="pgrid sr" id="pgrid"></div>
   <div id="load-more-wrap" style="text-align:center;padding:24px 0"></div>
   <div class="afs" id="active-filters-bottom" style="justify-content:center;margin-top:24px"></div>
@@ -2227,7 +2409,7 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
   <div class="dsp-head">
     <div class="dsp-eyebrow"><span class="dsp-live"></span> DISPATCH NETWORK &middot; LIVE</div>
     <h2 class="dsp-title">WE DELIVER TO <span>EVERY PINCODE</span> IN INDIA</h2>
-    <p class="dsp-sub">Free shipping nationwide, 3&ndash;5 working days. The lit routes are real orders that have already left our Delhi studio.</p>
+    <p class="dsp-sub">Free shipping nationwide, 3&ndash;5 working days. The lit routes are real orders that have already left our Delhi store.</p>
   </div>
   <div class="dsp-wrap">
     <div class="dsp-mapbox">
@@ -2250,7 +2432,7 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
 
 <section class="sec" style="padding-top:0"><div class="w"><div class="editorial sr">
   <div class="edimg"><img id="ed-img" src="" alt="365 denim"/></div>
-  <div class="edcopy"><div class="ey">FOUNDER'S NOTE</div><h2 id="ed-h2" data-dec>We don't restock. We don't compromise.</h2><p id="ed-p">Every drop is small on purpose. When the run is gone, that's it. You're not wearing what everyone else is wearing.</p><button class="btn btn-w" onclick="founderCta()">Order on WhatsApp →</button></div>
+  <div class="edcopy"><div class="ey">FOUNDER'S NOTE</div><h2 id="ed-h2" data-dec>Small runs. No compromise.</h2><p id="ed-p">Every drop is small on purpose. Some fits come back, most don't. Get drop alerts on WhatsApp.</p><button class="btn btn-w" onclick="founderCta()">Order on WhatsApp →</button></div>
 </div></div></section>
 
 <!-- story -->
@@ -2260,7 +2442,7 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
     <h2 id="story-h2" data-dec>Started in a bedroom. Worn everywhere.</h2>
     <p id="story-p1">365 Drop Store started the way real things do — one person, no safety net, and zero tolerance for the same five fits everyone else was selling.</p>
     <p id="story-p2">Heavy washes. Honest cuts. Limited drops. You're not buying mass production — you're buying the drop.</p>
-    <div class="stnums"><div><span class="snum">365</span><span class="slbl">Days dropping</span></div><div><span class="snum"><svg class="inf-ico" viewBox="0 0 24 12" aria-hidden="true" focusable="false"><path fill="currentColor" d="M6 1.5C3.5 1.5 1.5 3.5 1.5 6S3.5 10.5 6 10.5c1.7 0 3.2-.9 4.1-2.3l.4-.6.4.6c.9 1.4 2.4 2.3 4.1 2.3 2.5 0 4.5-2 4.5-4.5S20.5 1.5 18 1.5c-1.7 0-3.2.9-4.1 2.3l-.4.6-.4-.6C12.2 2.4 10.7 1.5 9 1.5H6zm0 1.5c1.1 0 2.1.6 2.7 1.5L10.1 6 8.7 8c-.6.9-1.6 1.5-2.7 1.5C4.3 9.5 3 8.2 3 6.5S4.3 3 6 3zm12 0c1.7 0 3 1.3 3 3s-1.3 3-3 3c-1.1 0-2.1-.6-2.7-1.5L13.9 6l1.4-2c.6-.9 1.6-1.5 2.7-1.5z"/></svg></span><span class="slbl">Ways to wear</span></div><div><span class="snum">0</span><span class="slbl">Middlemen</span></div></div>
+    <div class="stnums"><div><span class="snum">365</span><span class="slbl">Days dropping</span></div><div><span class="snum"><svg class="inf-ico" viewBox="0 0 24 12" aria-hidden="true" focusable="false"><path fill="currentColor" d="M6 1.5C3.5 1.5 1.5 3.5 1.5 6S3.5 10.5 6 10.5c1.7 0 3.2-.9 4.1-2.3l.4-.6.4.6c.9 1.4 2.4 2.3 4.1 2.3 2.5 0 4.5-2 4.5-4.5S20.5 1.5 18 1.5c-1.7 0-3.2.9-4.1 2.3l-.4.6-.4-.6C12.2 2.4 10.7 1.5 9 1.5H6zm0 1.5c1.1 0 2.1.6 2.7 1.5L10.1 6 8.7 8c-.6.9-1.6 1.5-2.7 1.5C4.3 9.5 3 8.2 3 6.5S4.3 3 6 3zm12 0c1.7 0 3 1.3 3 3s-1.3 3-3 3c-1.1 0-2.1-.6-2.7-1.5L13.9 6l1.4-2c.6-.9 1.6-1.5 2.7-1.5z"/></svg></span><span class="slbl">Ways to wear</span></div><div><span class="snum">5.0★</span><span class="slbl">52 Google reviews</span></div></div>
   </div>
 </div></section>
 
@@ -2284,7 +2466,7 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
 <!-- footer -->
 <footer><div class="w">
   <div class="fgrid">
-    <div class="fbrand"><div class="fbrand-lock" role="img" aria-label="365 Drop Store — Clothing or Nothing"><svg class="brand-block brand-block-lg" viewBox="0 1.16 175.20 51.84" aria-hidden="true" focusable="false"><g fill="#C0392B"><path transform="translate(0.00 52.00) scale(0.02832 -0.02832)" d="M484 -20Q251 -20 145.0 103.0Q39 226 39 474V658H400V473Q400 403 417.5 354.5Q435 306 496 306Q558 306 575.0 358.5Q592 411 592 530V574Q592 665 561.5 733.0Q531 801 442 801Q431 801 422.5 800.5Q414 800 408 799V1115Q499 1115 547.0 1155.5Q595 1196 595 1291Q595 1440 509 1440Q453 1440 433.5 1396.5Q414 1353 414 1286V1233H50Q49 1245 48.5 1262.0Q48 1279 48 1295Q48 1537 161.0 1650.0Q274 1763 507 1763Q957 1763 957 1295Q957 1165 922.0 1080.5Q887 996 792 962Q867 926 903.0 870.0Q939 814 950.0 731.0Q961 648 961 530Q961 266 850.5 123.0Q740 -20 484 -20Z"/><path transform="translate(27.66 52.00) scale(0.02832 -0.02832)" d="M529 -16Q346 -16 242.5 46.5Q139 109 96.5 235.0Q54 361 54 549V1025Q54 1208 69.5 1348.0Q85 1488 134.0 1583.0Q183 1678 280.0 1727.0Q377 1776 539 1776Q650 1776 746.0 1737.5Q842 1699 901.0 1622.5Q960 1546 960 1431V1241H621V1277Q621 1321 616.5 1365.0Q612 1409 594.0 1438.0Q576 1467 533 1467Q474 1467 451.0 1434.5Q428 1402 428 1341V988Q453 1035 503.0 1063.5Q553 1092 625 1092Q771 1092 849.5 1033.5Q928 975 958.0 859.0Q988 743 988 569Q988 393 945.0 261.5Q902 130 801.5 57.0Q701 -16 529 -16ZM516 308Q578 308 590.0 360.5Q602 413 602 495V637Q602 781 521 781Q428 781 428 656V438Q428 308 516 308Z"/><path transform="translate(55.32 52.00) scale(0.02832 -0.02832)" d="M506 -25Q303 -25 174.5 75.5Q46 176 46 384V646H412V495Q412 448 417.5 404.0Q423 360 443.0 332.0Q463 304 506 304Q563 304 581.0 342.5Q599 381 599 441V787Q599 830 593.5 872.0Q588 914 569.0 942.0Q550 970 508 970Q408 970 408 825H85V1761H924V1431H419V1183Q445 1215 489.5 1239.5Q534 1264 594 1264Q714 1264 789.5 1218.0Q865 1172 905.5 1090.0Q946 1008 961.5 900.0Q977 792 977 668Q977 509 960.5 381.5Q944 254 895.5 163.0Q847 72 753.5 23.5Q660 -25 506 -25Z"/></g><rect x="91.98" y="2.16" width="3" height="49.84" fill="currentColor"/><g fill="currentColor"><path transform="translate(103.98 24.58) scale(0.01274 -0.01274)" d="M78 0V1760H562Q752 1760 848.0 1654.5Q944 1549 944 1346V522Q944 272 856.5 136.0Q769 0 550 0ZM432 311H493Q590 311 590 405V1313Q590 1401 566.5 1426.5Q543 1452 471 1452H432Z"/><path transform="translate(119.85 24.58) scale(0.01274 -0.01274)" d="M78 0V1760H618Q753 1760 822.0 1698.5Q891 1637 914.5 1526.5Q938 1416 938 1267Q938 1123 901.5 1037.0Q865 951 764 918Q847 901 880.5 835.5Q914 770 914 666V0H567V689Q567 766 535.5 784.5Q504 803 434 803V0ZM436 1108H521Q594 1108 594 1267Q594 1370 578.0 1402.0Q562 1434 518 1434H436Z"/><path transform="translate(135.28 24.58) scale(0.01274 -0.01274)" d="M498 -16Q287 -16 175.5 111.5Q64 239 64 480V1316Q64 1542 174.5 1659.0Q285 1776 498 1776Q711 1776 821.5 1659.0Q932 1542 932 1316V480Q932 239 820.5 111.5Q709 -16 498 -16ZM501 308Q581 308 581 463V1322Q581 1452 503 1452Q415 1452 415 1319V461Q415 379 435.0 343.5Q455 308 501 308Z"/><path transform="translate(150.97 24.58) scale(0.01274 -0.01274)" d="M78 0V1760H543Q689 1760 774.5 1695.0Q860 1630 897.0 1510.0Q934 1390 934 1224Q934 1064 903.0 945.5Q872 827 792.5 762.0Q713 697 567 697H424V0ZM424 1013H444Q542 1013 564.0 1068.0Q586 1123 586 1230Q586 1330 564.5 1384.5Q543 1439 463 1439H424Z"/><path transform="translate(103.98 52.00) scale(0.01274 -0.01274)" d="M496 -16Q255 -16 148.5 104.0Q42 224 42 486V658H390V438Q390 377 408.5 342.5Q427 308 473 308Q521 308 539.5 336.0Q558 364 558 428Q558 509 542.0 563.5Q526 618 486.5 667.5Q447 717 377 783L219 933Q42 1100 42 1315Q42 1540 146.5 1658.0Q251 1776 449 1776Q691 1776 792.5 1647.0Q894 1518 894 1255H536V1376Q536 1412 515.5 1432.0Q495 1452 460 1452Q418 1452 398.5 1428.5Q379 1405 379 1368Q379 1331 399.0 1288.0Q419 1245 478 1189L681 994Q742 936 793.0 871.5Q844 807 875.0 721.5Q906 636 906 513Q906 265 814.5 124.5Q723 -16 496 -16Z"/><path transform="translate(119.02 52.00) scale(0.01274 -0.01274)" d="M229 0V1422H20V1760H790V1422H581V0Z"/><path transform="translate(132.34 52.00) scale(0.01274 -0.01274)" d="M498 -16Q287 -16 175.5 111.5Q64 239 64 480V1316Q64 1542 174.5 1659.0Q285 1776 498 1776Q711 1776 821.5 1659.0Q932 1542 932 1316V480Q932 239 820.5 111.5Q709 -16 498 -16ZM501 308Q581 308 581 463V1322Q581 1452 503 1452Q415 1452 415 1319V461Q415 379 435.0 343.5Q455 308 501 308Z"/><path transform="translate(148.03 52.00) scale(0.01274 -0.01274)" d="M78 0V1760H618Q753 1760 822.0 1698.5Q891 1637 914.5 1526.5Q938 1416 938 1267Q938 1123 901.5 1037.0Q865 951 764 918Q847 901 880.5 835.5Q914 770 914 666V0H567V689Q567 766 535.5 784.5Q504 803 434 803V0ZM436 1108H521Q594 1108 594 1267Q594 1370 578.0 1402.0Q562 1434 518 1434H436Z"/><path transform="translate(163.46 52.00) scale(0.01274 -0.01274)" d="M78 0V1760H782V1420H436V1077H768V746H436V343H805V0Z"/></g></svg><small class="fbrand-tag">CLOTHING OR NOTHING</small></div><p>Premium denim & streetwear from Delhi. Independent. No middlemen. Limited drops, shipped across India.</p><div class="fsoc"><div class="fsoca">📸</div><div class="fsoca">✆</div><div class="fsoca">f</div></div></div>
+    <div class="fbrand"><div class="fbrand-lock" role="img" aria-label="365 Drop Store — Clothing or Nothing"><svg class="brand-block brand-block-lg" viewBox="0 1.16 175.20 51.84" aria-hidden="true" focusable="false"><g fill="#C0392B"><path transform="translate(0.00 52.00) scale(0.02832 -0.02832)" d="M484 -20Q251 -20 145.0 103.0Q39 226 39 474V658H400V473Q400 403 417.5 354.5Q435 306 496 306Q558 306 575.0 358.5Q592 411 592 530V574Q592 665 561.5 733.0Q531 801 442 801Q431 801 422.5 800.5Q414 800 408 799V1115Q499 1115 547.0 1155.5Q595 1196 595 1291Q595 1440 509 1440Q453 1440 433.5 1396.5Q414 1353 414 1286V1233H50Q49 1245 48.5 1262.0Q48 1279 48 1295Q48 1537 161.0 1650.0Q274 1763 507 1763Q957 1763 957 1295Q957 1165 922.0 1080.5Q887 996 792 962Q867 926 903.0 870.0Q939 814 950.0 731.0Q961 648 961 530Q961 266 850.5 123.0Q740 -20 484 -20Z"/><path transform="translate(27.66 52.00) scale(0.02832 -0.02832)" d="M529 -16Q346 -16 242.5 46.5Q139 109 96.5 235.0Q54 361 54 549V1025Q54 1208 69.5 1348.0Q85 1488 134.0 1583.0Q183 1678 280.0 1727.0Q377 1776 539 1776Q650 1776 746.0 1737.5Q842 1699 901.0 1622.5Q960 1546 960 1431V1241H621V1277Q621 1321 616.5 1365.0Q612 1409 594.0 1438.0Q576 1467 533 1467Q474 1467 451.0 1434.5Q428 1402 428 1341V988Q453 1035 503.0 1063.5Q553 1092 625 1092Q771 1092 849.5 1033.5Q928 975 958.0 859.0Q988 743 988 569Q988 393 945.0 261.5Q902 130 801.5 57.0Q701 -16 529 -16ZM516 308Q578 308 590.0 360.5Q602 413 602 495V637Q602 781 521 781Q428 781 428 656V438Q428 308 516 308Z"/><path transform="translate(55.32 52.00) scale(0.02832 -0.02832)" d="M506 -25Q303 -25 174.5 75.5Q46 176 46 384V646H412V495Q412 448 417.5 404.0Q423 360 443.0 332.0Q463 304 506 304Q563 304 581.0 342.5Q599 381 599 441V787Q599 830 593.5 872.0Q588 914 569.0 942.0Q550 970 508 970Q408 970 408 825H85V1761H924V1431H419V1183Q445 1215 489.5 1239.5Q534 1264 594 1264Q714 1264 789.5 1218.0Q865 1172 905.5 1090.0Q946 1008 961.5 900.0Q977 792 977 668Q977 509 960.5 381.5Q944 254 895.5 163.0Q847 72 753.5 23.5Q660 -25 506 -25Z"/></g><rect x="91.98" y="2.16" width="3" height="49.84" fill="currentColor"/><g fill="currentColor"><path transform="translate(103.98 24.58) scale(0.01274 -0.01274)" d="M78 0V1760H562Q752 1760 848.0 1654.5Q944 1549 944 1346V522Q944 272 856.5 136.0Q769 0 550 0ZM432 311H493Q590 311 590 405V1313Q590 1401 566.5 1426.5Q543 1452 471 1452H432Z"/><path transform="translate(119.85 24.58) scale(0.01274 -0.01274)" d="M78 0V1760H618Q753 1760 822.0 1698.5Q891 1637 914.5 1526.5Q938 1416 938 1267Q938 1123 901.5 1037.0Q865 951 764 918Q847 901 880.5 835.5Q914 770 914 666V0H567V689Q567 766 535.5 784.5Q504 803 434 803V0ZM436 1108H521Q594 1108 594 1267Q594 1370 578.0 1402.0Q562 1434 518 1434H436Z"/><path transform="translate(135.28 24.58) scale(0.01274 -0.01274)" d="M498 -16Q287 -16 175.5 111.5Q64 239 64 480V1316Q64 1542 174.5 1659.0Q285 1776 498 1776Q711 1776 821.5 1659.0Q932 1542 932 1316V480Q932 239 820.5 111.5Q709 -16 498 -16ZM501 308Q581 308 581 463V1322Q581 1452 503 1452Q415 1452 415 1319V461Q415 379 435.0 343.5Q455 308 501 308Z"/><path transform="translate(150.97 24.58) scale(0.01274 -0.01274)" d="M78 0V1760H543Q689 1760 774.5 1695.0Q860 1630 897.0 1510.0Q934 1390 934 1224Q934 1064 903.0 945.5Q872 827 792.5 762.0Q713 697 567 697H424V0ZM424 1013H444Q542 1013 564.0 1068.0Q586 1123 586 1230Q586 1330 564.5 1384.5Q543 1439 463 1439H424Z"/><path transform="translate(103.98 52.00) scale(0.01274 -0.01274)" d="M496 -16Q255 -16 148.5 104.0Q42 224 42 486V658H390V438Q390 377 408.5 342.5Q427 308 473 308Q521 308 539.5 336.0Q558 364 558 428Q558 509 542.0 563.5Q526 618 486.5 667.5Q447 717 377 783L219 933Q42 1100 42 1315Q42 1540 146.5 1658.0Q251 1776 449 1776Q691 1776 792.5 1647.0Q894 1518 894 1255H536V1376Q536 1412 515.5 1432.0Q495 1452 460 1452Q418 1452 398.5 1428.5Q379 1405 379 1368Q379 1331 399.0 1288.0Q419 1245 478 1189L681 994Q742 936 793.0 871.5Q844 807 875.0 721.5Q906 636 906 513Q906 265 814.5 124.5Q723 -16 496 -16Z"/><path transform="translate(119.02 52.00) scale(0.01274 -0.01274)" d="M229 0V1422H20V1760H790V1422H581V0Z"/><path transform="translate(132.34 52.00) scale(0.01274 -0.01274)" d="M498 -16Q287 -16 175.5 111.5Q64 239 64 480V1316Q64 1542 174.5 1659.0Q285 1776 498 1776Q711 1776 821.5 1659.0Q932 1542 932 1316V480Q932 239 820.5 111.5Q709 -16 498 -16ZM501 308Q581 308 581 463V1322Q581 1452 503 1452Q415 1452 415 1319V461Q415 379 435.0 343.5Q455 308 501 308Z"/><path transform="translate(148.03 52.00) scale(0.01274 -0.01274)" d="M78 0V1760H618Q753 1760 822.0 1698.5Q891 1637 914.5 1526.5Q938 1416 938 1267Q938 1123 901.5 1037.0Q865 951 764 918Q847 901 880.5 835.5Q914 770 914 666V0H567V689Q567 766 535.5 784.5Q504 803 434 803V0ZM436 1108H521Q594 1108 594 1267Q594 1370 578.0 1402.0Q562 1434 518 1434H436Z"/><path transform="translate(163.46 52.00) scale(0.01274 -0.01274)" d="M78 0V1760H782V1420H436V1077H768V746H436V343H805V0Z"/></g></svg><small class="fbrand-tag">CLOTHING OR NOTHING</small></div><p>Premium denim & streetwear from Delhi. Independent. Founder-run. Limited drops, shipped across India.</p><div class="fsoc"><div class="fsoca">📸</div><div class="fsoca">✆</div><div class="fsoca">f</div></div></div>
     <div class="fcol"><h4>Shop</h4><a onclick="clearFitTab();goTo('#shop')">All Drops</a><span id="footer-fits"></span></div>
     <div class="fcol"><h4>Info</h4><a onclick="goTo('#story')">Our Story</a><a onclick="openGlobalSizeGuide()">Size Guide</a><a onclick="goTo('#faq')">Shipping & Returns</a><a onclick="openOrderTracker()">Track Order</a><a onclick="openSrch()">Search</a></div>
     <div class="fcol"><h4>Contact</h4><a>+91 9990905969</a><a>365dropstore@gmail.com</a><a>E-42/2A Subhash Vihar, Delhi 110053</a></div>
@@ -2374,6 +2556,7 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
   </div>
 </aside>
 
+<div id="ff" class="ff" hidden></div>
 <div id="admin-mount"></div><!-- owner admin is loaded here on /admin/ (see openAdmin) -->
 
 <script>
@@ -2386,7 +2569,7 @@ const ALL_SIZES=["28","30","32","34","36","S","M","L","XL","XXL"];
 // DEFAULT DATA
 const DP=[];
 const DR=[{id:"R1",stars:5,text:"The wide-leg fit is exactly what I wanted. Quality way above the price. Heavyweight denim that actually lasts.",who:"Aryan M.",where:"Delhi"},{id:"R2",stars:5,text:"Denim feels premium and heavy. Got compliments the same day I wore it. Delivered in 4 days.",who:"Simran K.",where:"Gurgaon"},{id:"R3",stars:5,text:"Small brand, real founder. Replied on WhatsApp instantly. Will order every drop.",who:"Rohit V.",where:"Noida"}];
-const DSite={ann:"Drop 001 · Delhi · WhatsApp-only checkout · Pan India shipping",heroH1:"365 DROP|STORE|",heroSub:"Premium denim built from zero in Delhi — wide-leg, baggy, straight. Dropped limited, worn everywhere.",heroP1:"DR-001",heroP2:"DR-003",trust:"📦|Pan India|3-5 day delivery\n💰|COD Available|Pay when you receive\n✆|WhatsApp Orders|Direct with founder\n📹|Easy Returns|Record unboxing, exchange free",edH2:"We don't restock. We don't compromise.",edP:"Every drop is small on purpose. When the run is gone, that's it. You're not wearing what everyone else is wearing.",storyH2:"Started in a bedroom. Worn everywhere.",storyP1:"365 Drop Store started the way real things do — one person, no safety net, and zero tolerance for the same five fits everyone else was selling.",storyP2:"Heavy washes. Honest cuts. Limited drops. You're not buying mass production — you're buying the drop.",shipping:"Delivery in 3-5 working days|Free shipping all over India|Only damaged or defective items can be returned|Unboxing video required for all return claims|Size exchange available for ₹200 fee|Item must be returned in original condition|Check size before ordering",marquee:"365 DROP|CLOTHING OR NOTHING|PREMIUM DENIM|DELHI DROPS|LIMITED RUNS",stats:"365|Days dropping,\u221E|Ways to wear,0|Middlemen",phone:"+91 9990905969",email:"365dropstore@gmail.com",address:"E-42/2A Subhash Vihar, Delhi 110053",insta:"https://instagram.com/365dropstore",fb:"https://facebook.com/fazalsaifi2"};
+const DSite={ann:"Drop 001 · Delhi · WhatsApp-only checkout · Pan India shipping",heroH1:"365 DROP|STORE|",heroSub:"Premium denim, picked and wear-tested by us in Delhi. Wide-leg, baggy, straight. Dropped limited, worn everywhere.",heroP1:"DR-001",heroP2:"DR-003",trust:"📦|Pan India|3-5 day delivery\n💰|Partial COD|₹149 now, rest on delivery\n✆|WhatsApp Orders|Direct with founder\n📹|Size Exchange|7 days · ₹200 · unboxing video",edH2:"Small runs. No compromise.",edP:"Every drop is small on purpose. Some fits come back, most don't. Get drop alerts on WhatsApp.",storyH2:"Started in a bedroom. Worn everywhere.",storyP1:"365 Drop Store started the way real things do — one person, no safety net, and zero tolerance for the same five fits everyone else was selling.",storyP2:"Heavy washes. Honest cuts. Limited drops. You're not buying mass production — you're buying the drop.",shipping:"Delivery in 3-5 working days|Free shipping all over India|Only damaged or defective items can be returned|Unboxing video required for all return claims|Size exchange available for ₹200 fee|Item must be returned in original condition|Check size before ordering",marquee:"365 DROP|CLOTHING OR NOTHING|PREMIUM DENIM|DELHI DROPS|LIMITED RUNS",stats:"365|Days dropping,\u221E|Ways to wear,5.0★|52 Google reviews",phone:"+91 9990905969",email:"365dropstore@gmail.com",address:"E-42/2A Subhash Vihar, Delhi 110053",insta:"https://instagram.com/365dropstore",fb:"https://facebook.com/fazalsaifi2"};
 const DBanner={text:"🔥 FLASH SALE — First 200 orders get ₹200 OFF. Use code DROP200 on WhatsApp.",show:false};
 const DFits=["Baggy","Straight","Slim","Oversized","Cargo","Wide-Leg","Relaxed"];
 
@@ -2431,9 +2614,9 @@ function normalizeHeroGrid(raw){
 }
 let heroGrid=normalizeHeroGrid(LS.get("ds_hero_grid",null));
 const DEFAULT_FAQ=[
-  {q:"How do I pay?",a:"Three ways. (1) Online checkout via Razorpay — UPI, cards, netbanking, wallets — order confirmed instantly. (2) Cash on Delivery — pay when the package arrives (small COD fee may apply). (3) Order on WhatsApp — message us and pay by UPI or bank transfer directly with the founder. Same price, same shipping, every method."},
+  {q:"How do I pay?",a:"Three ways. (1) Online checkout via Razorpay — UPI, cards, netbanking, wallets — order confirmed instantly. (2) Partial COD — pay ₹149 online now, the rest in cash when it arrives. (3) Order on WhatsApp — message us and pay by UPI or bank transfer directly with the founder. Same price, same shipping, every method."},
   {q:"When does it ship?",a:"Orders are dispatched within 24 hours. Delivery takes 3–5 days Pan India, tracked and shipped free on every order. Delhi NCR customers often receive same-day or next-day."},
-  {q:"What if it doesn't fit?",a:"Easy exchange within 7 days of delivery — same style, different size. Just record a quick unboxing video (protects both of us). No questions asked on exchanges; refunds are processed case-by-case on WhatsApp."},
+  {q:"What if it doesn't fit?",a:"Size exchange within 7 days of delivery: same style, different size, ₹200 exchange fee. It also applies if the colour you receive looks different from the photos. Just record an unboxing video (it protects both of us). Returns only for damaged or defective items, handled on WhatsApp."},
   {q:"How do I know my size?",a:"Every product page has a size guide with exact waist and length measurements. Still unsure? Message on WhatsApp with your height, weight, and usual size — the founder picks your fit personally."}
 ];
 let faqItems=LS.get("ds_faq",DEFAULT_FAQ);
@@ -2773,12 +2956,15 @@ function cAF(i){if(window._afc&&window._afc[i])window._afc[i]();}
 let _pcardIdx=0;
 function pcardHTML(p){
   const _myIdx=_pcardIdx++;
-    const imgs=p.images||[];const img1=imgs[0]||"";const img2=imgs[1]||img1;
+    const imgs=p.images||[];const img1=imgs[0]||"";
+    const _ff=ffSizeFor(p);
+    const myFit=_ff&&!isSold(p)?(_ff.none?`<div class="pmyfit no">Not made in your size</div>`:_ff.oos?`<div class="pmyfit no">Your size ${_ff.best} is sold out</div>`:`<div class="pmyfit ok">✓ Your size: ${_ff.size}${_ff.swapped?" (closest in stock)":""}</div>`+(_ff.belt?`<div class="pmyfit belt">⚠ Loose at your waist · belt needed</div>`:"")):"";
+    const slides=imgs.slice(0,6);
     const bgs=(p.badges||[]).filter(b=>BM[b]).map(b=>`<span class="bdg ${BM[b].c}">${BM[b].t}</span>`).join("");
     const pr=p.offerPrice?`<span class="pnow">${inr(p.offerPrice)}</span><span class="pwas">${inr(p.price)}</span><span class="psave">-${Math.round((1-p.offerPrice/p.price)*100)}%</span>`:`<span class="pnow">${inr(p.price)}</span>`;
     const _now=new Date();
     const szs=(p.sizes||[]).slice(0,5).map(s=>{
-      if(!(p.oosizes||[]).includes(s))return `<span class="sz">${s}</span>`;
+      if(!(p.oosizes||[]).includes(s))return `<span class="sz${_ff&&!_ff.oos&&!_ff.none&&_ff.size===s?" mine":""}">${s}</span>`;
       const rdv=(p.sizeRestockDates||{})[s];
       if(rdv){const dt=new Date(rdv);
         if(!isNaN(dt)&&dt>_now)return `<span class="sz restock" title="Restocking ${dt.toLocaleDateString('en-IN',{day:'numeric',month:'short'})}">${s}</span>`;}
@@ -2794,15 +2980,15 @@ function pcardHTML(p){
     const restockNote=isSold(p)&&p.restockAt?`<div class="prestock" data-restock="${p.restockAt}" data-pid="${p.id}">Back in —</div>`:'';
     const rbl=p.reelUrl?`<div class="rl-btn" onclick="event.stopPropagation();window.open('${p.reelUrl}','_blank')">▶ Reel</div>`:'';
     const plink=`https://365dropstore.com/p/${p.id}`;
-    const cardClick=` onclick="openMo('${p.id}')"`;
+    const cardClick=` onclick="pcardOpen(this,'${p.id}')"`;
     const fitBand=p.fit?`<div class="pfitband">${p.fit.toUpperCase()} FIT</div>`:'';
     const saved=isWishlisted(p.id);
     return`<div class="pcard${isSold(p)?' so':''}"${cardClick}>
       <div class="pimg">
         <div class="pbadges">${bgs}</div>
         <div class="pwish${saved?' on':''}" onclick="event.stopPropagation();toggleWishlist('${p.id}')" title="Save">${saved?'♥':'♡'}</div>
-        <img class="pfront" src="${img1}" alt="${dispName(p)}, front view" loading="${_myIdx<4?'eager':'lazy'}" decoding="async" fetchpriority="${_myIdx<2?'high':'auto'}"/>
-        <img class="pback" src="${img2}" alt="${dispName(p)}, second view" loading="lazy"/>
+        <div class="pslides"><img class="pfront" src="${img1}" alt="${dispName(p)}, photo 1" loading="${_myIdx<4?'eager':'lazy'}" decoding="async" fetchpriority="${_myIdx<2?'high':'auto'}"/>${slides.slice(1).map((s,i)=>`<img src="${s}" alt="${dispName(p)}, photo ${i+2}" loading="lazy" decoding="async"/>`).join("")}</div>
+        ${slides.length>1?`<div class="pdots">${slides.map((_,i)=>`<i class="${i?"":"on"}"></i>`).join("")}</div><button class="pnav l" onclick="pcardNav(event,this,-1)" aria-label="Previous photo">‹</button><button class="pnav r" onclick="pcardNav(event,this,1)" aria-label="Next photo">›</button>`:""}
         ${fitBand}
         ${rbl}
         ${!isSold(p)?`<div class="pactions">
@@ -2810,7 +2996,7 @@ function pcardHTML(p){
           <div class="pshare" onclick="event.stopPropagation();shareProduct('${p.id}','${p.name.replace(/'/g,"\\'")}','${plink}')" title="Share">🔗</div>
         </div>`:''}
       </div>
-      <div class="pmeta"><div class="pname">${dispName(p)}</div><div class="pfit">${p.fit||''} · ${p.category}</div><div class="pprices">${pr}</div><div class="psizes">${szs}</div>${lowStock}${restockNote}${restockSoon.length?`<div class="pRestockBack">\u21bb ${restockSoon.join(", ")} back ${(()=>{const dt=new Date((p.sizeRestockDates||{})[restockSoon[0]]);return dt.toLocaleDateString("en-IN",{day:"numeric",month:"short"});})()}</div>`:''}</div>
+      <div class="pmeta"><div class="pname">${dispName(p)}</div><div class="pfit">${p.fit||''} · ${p.category}</div><div class="pprices">${pr}</div><div class="psizes">${szs}</div>${myFit}${lowStock}${restockNote}${restockSoon.length?`<div class="pRestockBack">\u21bb ${restockSoon.join(", ")} back ${(()=>{const dt=new Date((p.sizeRestockDates||{})[restockSoon[0]]);return dt.toLocaleDateString("en-IN",{day:"numeric",month:"short"});})()}</div>`:''}</div>
     </div>`;
 }
 let wishlist=LS.get("ds_wishlist",[])||[];
@@ -2832,7 +3018,8 @@ function dispName(p){
 function renderFitBtns(){
   const el=document.getElementById("fit-btns");
   if(!el)return;
-  const inGrid=p=>(p.images||[]).length&&!(p.badges||[]).includes("designer")&&!(p.badges||[]).includes("vault");
+  const _ffp=ffProfile(), _ffOn=_ffp&&ffOnlyMine;
+  const inGrid=p=>(p.images||[]).length&&!(p.badges||[]).includes("designer")&&!(p.badges||[]).includes("vault")&&(!_ffOn||ffMatches(p,_ffp));
   const fitsInUse=[...new Set(products.filter(inGrid).map(p=>p.fit).filter(Boolean))];
   const activeFit=fFits.length===1?fFits[0]:"";
   const totalCount=products.filter(inGrid).length;
@@ -3017,6 +3204,279 @@ function jumpToFit(fit){
   if(grid)grid.scrollIntoView({behavior:"smooth",block:"start"});
 }
 let gridPage=0;const GRID_PAGE_SIZE=12;
+/* ===== FIT FINDER (2026-10-24, editorial v3) =====
+   Every new visitor gets a full-screen finder: 01 swipe their waist (28–38″
+   in ½″ steps, or their usual jeans size), 02 cuts (Wide-Leg / Straight / Comfort / Baggy) with the
+   exact size and live stock for each. Saved on this device (ds_fit_mem, shared
+   with the product-page size finder), it drives the shop's "In my size" view,
+   "your size" on every card and the pre-selected size on every product page.
+   Sizes come from the admin size guides via _fsRecommend, never from guesses. */
+var FF_SIZES=[28,30,32,34,36,38];              // sizes we make
+var FF_MIN=28, FF_MAX=38;                       // waist input range (inches)
+var FF_BELT_FIT="Wide-Leg", FF_BELT_BELOW=29;   // founder's rule: Wide-Leg below a 29″ waist sits loose — belt needed, no fit returns
+var FF_LOG=false;                               // true once the fit_profiles table exists in Supabase
+var ffOnlyMine=(()=>{try{return localStorage.getItem("ds_ff_view")!=="all";}catch(e){return true;}})(); // "My size" vs "All sizes", remembered on the device
+var _ffDraft=null, _ffSource="", _ffStep=1;
+function ffProfile(){const m=_fsMem();if(!m||!(+m.waist>=20&&+m.waist<=60))return null;
+  return {waist:+m.waist,pref:"true",mode:m.mode==="usual"?"usual":"waist",cuts:Array.isArray(m.cuts)?m.cuts:null};}
+function ffInGrid(p){return (p.images||[]).length&&!(p.badges||[]).includes("designer")&&!(p.badges||[]).includes("vault");}
+function ffBelt(fit,waist){return fit===FF_BELT_FIT&&waist<FF_BELT_BELOW;}
+// The size this shopper should buy in product p:
+// {size,best,oos,swapped,band,none,belt} — none=true when we don't make this cut in their size; null if no guide.
+function ffSizeFor(p,prof){
+  prof=prof||ffProfile(); if(!p||!prof)return null;
+  const guide=resolveSizeGuideRows(p); if(!guide)return null;
+  const w=prof.waist, rec=_fsRecommend(guide,w,"true"); if(!rec||!rec.pick)return null;
+  const best=rec.pick, belt=ffBelt(p.fit,w);
+  // never call a size "yours" unless its range covers the waist (±0.5″)
+  if(!(w>=best.min-0.5&&w<=best.max+0.5))return {size:best.size,best:best.size,oos:true,none:true,swapped:false,band:best,belt};
+  const soldAll=isSold(p);
+  if(!soldAll&&!_fsStock(p,best.size).oos)return {size:best.size,best:best.size,oos:false,swapped:false,band:best,belt};
+  if(!soldAll){
+    const order=[rec.alt,...rec.bands.slice().sort((a,b)=>Math.abs(a.min-best.min)-Math.abs(b.min-best.min))].filter(Boolean);
+    const avail=order.find(b=>b.size!==best.size&&!_fsStock(p,b.size).oos&&w>=b.min-0.5&&w<=b.max+0.5);
+    if(avail)return {size:avail.size,best:best.size,oos:false,swapped:true,band:avail,belt};
+  }
+  return {size:best.size,best:best.size,oos:true,swapped:false,band:best,belt};
+}
+function ffMatches(p,prof){const r=ffSizeFor(p,prof);return !!(r&&!r.oos&&(!prof.cuts||!prof.cuts.length||prof.cuts.includes(p.fit)));}
+function ffSaveProfile(prof){
+  try{localStorage.setItem(_FS_MEM,JSON.stringify({waist:prof.waist,pref:"true",mode:prof.mode,cuts:prof.cuts,t:Date.now()}));}catch(e){}
+  ffLog({waist:prof.waist,pref:"true",mode:prof.mode,source:_ffSource||"shop"});
+}
+function ffDeviceId(){try{let id=localStorage.getItem("ds_fid");if(!id){id=(crypto.randomUUID?crypto.randomUUID():Date.now().toString(36)+Math.random().toString(36).slice(2));localStorage.setItem("ds_fid",id);}return id;}catch(e){return null;}}
+// Keeps a copy for us (fit_profiles): which waist, which sizes we suggested, and which order it led to.
+function ffLog(row){
+  if(!FF_LOG)return;
+  try{
+    const prof=ffProfile(); const sizes={};
+    if(prof&&typeof products!=="undefined")products.filter(ffInGrid).forEach(p=>{const r=ffSizeFor(p,prof);if(r&&!r.none&&p.fit&&!sizes[p.fit])sizes[p.fit]=r.best;});
+    if(prof&&prof.cuts)sizes._cuts=prof.cuts;
+    fetch(SUPABASE_URL+"/rest/v1/fit_profiles",{method:"POST",keepalive:true,
+      headers:{"Content-Type":"application/json","apikey":SUPABASE_ANON_KEY,"Authorization":"Bearer "+SUPABASE_ANON_KEY,"Prefer":"return=minimal"},
+      body:JSON.stringify(Object.assign({device_id:ffDeviceId(),sizes},row))}).catch(()=>{});
+  }catch(e){}
+}
+function ffLogOrder(order){
+  const prof=ffProfile(); if(!prof||!order)return;
+  ffLog({waist:prof.waist,pref:"true",mode:prof.mode,source:"order",order_id:order.orderId||null,
+    ordered:(order.items||[]).map(i=>({name:i.name,size:i.size,qty:i.qty}))});
+}
+function ffTrack(name){try{if(typeof plausible==="function")plausible(name);}catch(e){}}
+// The four cuts (admin's fit list ∩ size guides), each with this shopper's size and how many pairs fit.
+function ffCuts(prof){
+  const names=[...new Set([...(fits||[]),...Object.keys(sizeGuide||{})])].filter(f=>sizeGuide&&sizeGuide[f]);
+  return names.map(fit=>{
+    const live=products.filter(p=>ffInGrid(p)&&!isSold(p)&&p.fit===fit);
+    let size=null,n=0,none=false;
+    if(live.length){const tally={};live.forEach(p=>{const r=ffSizeFor(p,prof);if(!r)return;if(r.none){none=true;return;}tally[r.best]=(tally[r.best]||0)+1;if(!r.oos)n++;});
+      const top=Object.entries(tally).sort((a,b)=>b[1]-a[1])[0]; if(top){size=top[0];none=false;}}
+    else{const rec=_fsRecommend(sizeGuide[fit],prof.waist,"true");if(rec&&rec.pick&&prof.waist>=rec.pick.min-0.5&&prof.waist<=rec.pick.max+0.5)size=rec.pick.size;else none=true;}
+    const pick=live.find(p=>{const r=ffSizeFor(p,prof);return r&&!r.oos&&!r.none;})||live[0];
+    return {fit,size,n,styles:live.length,none:none&&!size,belt:ffBelt(fit,prof.waist),img:pick&&(pick.images||[])[0]||""};
+  });
+}
+// ---- UI (editorial v3) ----
+var FF_STEP_W=92, _ffStageT=0, _ffRaf=0;
+function ffStops(mode){if(mode==="usual")return FF_SIZES.slice();const a=[];for(let v=FF_MIN;v<=FF_MAX;v+=0.5)a.push(v);return a;}
+function ffFmt(v,mode){return mode==="usual"?`${v}`:(v%1?`${Math.floor(v)}<small>½</small>`:`${v}`)+`<sup>″</sup>`;}
+function ffStageImgs(){
+  const live=products.filter(p=>ffInGrid(p)&&!isSold(p)&&(p.images||[]).length);
+  const seen=new Set(), out=[];
+  live.sort((a,b)=>(a.order||99)-(b.order||99)).forEach(p=>{if(out.length<5&&!seen.has(p.fit)){seen.add(p.fit);out.push(p.images[0]);}});
+  live.forEach(p=>{if(out.length<5&&!out.includes(p.images[0]))out.push(p.images[0]);});
+  return out;
+}
+function ffOpen(source){
+  if(!window._productsReady||typeof products==="undefined"||!products.length){setTimeout(()=>ffOpen(source),300);return;}
+  const el=document.getElementById("ff"); if(!el)return;
+  _ffSource=source||"shop";
+  const p0=ffProfile();
+  _ffDraft=p0?{...p0}:{waist:32,pref:"true",mode:"waist",cuts:null};
+  _ffDraft.waist=Math.min(FF_MAX,Math.max(FF_MIN,_ffDraft.waist));
+  _ffStep=1;
+  try{localStorage.setItem("ds_ff_seen","1");}catch(e){}
+  const imgs=ffStageImgs();
+  el.innerHTML=`<div class="ff-sheet" id="ff-sheet" role="dialog" aria-modal="true" aria-labelledby="ff-h">
+    <div class="ff-stage" aria-hidden="true">${imgs.map((s,i)=>`<img src="${s}" alt="" class="${i?"":"on"}" ${i?'loading="lazy"':""}/>`).join("")}<span class="ff-brand">365 Drop Store · Fit finder</span></div>
+    <button class="ff-x" onclick="ffClose(${p0?"false":"true"})" aria-label="Close">✕</button>
+    <div class="ff-main"><div class="ff-scroll" id="ff-body"></div><div class="ff-foot" id="ff-foot"></div></div>
+  </div>`;
+  el.hidden=false; lockScroll();
+  el.onclick=e=>{if(e.target===el)ffClose(!p0);};
+  ffRender();
+  requestAnimationFrame(()=>el.classList.add("in"));
+  clearInterval(_ffStageT);
+  _ffStageT=setInterval(()=>{const st=document.querySelectorAll("#ff .ff-stage img");if(!st.length){clearInterval(_ffStageT);return;}
+    const i=[...st].findIndex(x=>x.classList.contains("on"));st[i].classList.remove("on");st[(i+1)%st.length].classList.add("on");},3600);
+  ffTrack("Fit finder opened");
+}
+function ffKick(){return `<div class="ff-kick">Fit finder <i class="on"></i><i class="${_ffStep===2?"on":""}"></i></div>`;}
+function ffRender(){
+  const body=document.getElementById("ff-body"), foot=document.getElementById("ff-foot"); if(!body)return;
+  const d=_ffDraft, p0=ffProfile(), sheet=document.getElementById("ff-sheet");
+  if(sheet)sheet.classList.toggle("s2",_ffStep===2);
+  if(_ffStep===1){
+    const stops=ffStops(d.mode);
+    body.innerHTML=`<div class="ff-anim">${ffKick()}
+      <h2 class="ff-h" id="ff-h">${d.mode==="usual"?"Your jeans size.":"Your waist."}</h2>
+      <p class="ff-sub">${d.mode==="usual"?"The number on the label of the jeans that fit you best.":"Swipe to your number. We'll pick your size in every cut."}</p></div>
+      <div class="ff-wheelwrap"><div class="ff-wheel" id="ff-wheel" tabindex="0" role="slider" aria-label="${d.mode==="usual"?"Jeans size":"Waist in inches"}" aria-valuemin="${stops[0]}" aria-valuemax="${stops[stops.length-1]}">
+        <div class="ff-pad"></div>${stops.map((v,i)=>`<div class="ff-n" data-v="${v}" data-i="${i}">${ffFmt(v,d.mode)}</div>`).join("")}<div class="ff-pad"></div>
+      </div><span class="ff-mark"></span></div>
+      <div class="ff-meta" id="ff-meta"></div>
+      <button class="ff-alt" onclick="ffMode('${d.mode==="usual"?"waist":"usual"}')">${d.mode==="usual"?"I know my waist in inches":"Don't know your waist? Use your jeans size"}</button>
+      ${d.mode==="usual"?"":`<p class="ff-help">No tape? Lay your best jeans flat, measure across the waistband, double it.</p>`}`;
+    foot.innerHTML=`<button class="ff-cta" onclick="ffNext()">Continue <span>→</span></button><button class="ff-skip" onclick="ffClose(${p0?"false":"true"})">${p0?"Cancel":"Not now"}</button>`;
+    ffWheelInit();
+    return;
+  }
+  const cuts=ffCuts(d);
+  if(!d.cuts){d.cuts=cuts.filter(c=>c.n>0).map(c=>c.fit);if(!d.cuts.length)d.cuts=cuts.filter(c=>!c.none).map(c=>c.fit);}
+  const chosen=cuts.filter(c=>d.cuts.includes(c.fit));
+  const total=chosen.reduce((s,c)=>s+c.n,0);
+  const beltOn=chosen.some(c=>c.belt&&!c.none);
+  const w=d.mode==="usual"?`size ${d.waist}`:`${Math.floor(d.waist)}${d.waist%1?"½":""}″`;
+  body.innerHTML=`<div class="ff-anim">${ffKick()}
+    <h2 class="ff-h" id="ff-h">Your size,<br>every cut.</h2>
+    <p class="ff-sub">For a ${w} waist. Tap the cuts you'd wear. <button class="ff-alt" style="margin:0;padding:0;font-size:14px" onclick="ffStepTo(1)">Change</button></p></div>
+    <div class="ff-cuts ff-anim" style="animation-delay:.06s">${cuts.map(c=>{
+      const on=d.cuts.includes(c.fit), bare=!c.img;
+      const ln=c.none?"Not made in your size yet":!c.styles?"Dropping soon":c.n?`${c.n} pair${c.n>1?"s":""} in your size`:"Your size is sold out";
+      return `<button class="ff-cut${on?" on":" off"}${bare?" bare":""}" onclick="ffToggleCut('${c.fit.replace(/'/g,"\\'")}')" aria-pressed="${on}">
+        ${bare?`<span class="soon">${c.fit}</span>`:`<img src="${c.img}" alt="${c.fit} jeans" loading="lazy"/>`}
+        <span class="chk">✓</span>
+        ${c.size&&!c.none?`<span class="fsz"><small>YOUR SIZE</small>${c.size}</span>`:""}
+        <span class="tx"><span class="nm">${c.fit}</span><span class="ln">${ln}</span>${c.belt&&!c.none?`<span class="belt">Belt needed</span>`:""}</span></button>`;}).join("")}</div>
+    <p class="ff-swipe">Swipe for all ${cuts.length} cuts <span>→</span></p>
+    ${beltOn?`<p class="ff-note"><b>Wide-Leg at ${w}</b> sits loose. Wear it with a belt. Fit-related returns aren't accepted on Wide-Leg below a ${FF_BELT_BELOW}″ waist.</p>`:""}`;
+  foot.innerHTML=total
+    ?`<button class="ff-cta" onclick="ffDone()">See my pairs <span>${total} →</span></button><button class="ff-skip" onclick="ffStepTo(1)">Back</button>`
+    :`<button class="ff-cta" onclick="ffDone()" ${chosen.length?"":"disabled"}>Save my size <span>→</span></button><button class="ff-skip" onclick="ffStepTo(1)">Back</button>`;
+}
+function ffWheelInit(){
+  const wh=document.getElementById("ff-wheel"); if(!wh)return;
+  const pad=Math.max(0,(wh.clientWidth-FF_STEP_W)/2);
+  wh.querySelectorAll(".ff-pad").forEach(p=>p.style.flexBasis=pad+"px");
+  const items=[...wh.querySelectorAll(".ff-n")], stops=items.map(x=>+x.dataset.v);
+  let idx=Math.max(0,stops.indexOf(_ffDraft.waist)); if(stops.indexOf(_ffDraft.waist)<0){idx=stops.reduce((b,v,i)=>Math.abs(v-_ffDraft.waist)<Math.abs(stops[b]-_ffDraft.waist)?i:b,0);_ffDraft.waist=stops[idx];}
+  wh.scrollLeft=idx*FF_STEP_W; ffWheelMark(idx);
+  wh.addEventListener("scroll",()=>{cancelAnimationFrame(_ffRaf);_ffRaf=requestAnimationFrame(()=>{
+    const i=Math.min(items.length-1,Math.max(0,Math.round(wh.scrollLeft/FF_STEP_W)));
+    if(stops[i]!==_ffDraft.waist){_ffDraft.waist=stops[i];_ffDraft.cuts=null;ffWheelMark(i);try{navigator.vibrate&&navigator.vibrate(4);}catch(e){}}
+  });},{passive:true});
+  items.forEach((it,i)=>it.addEventListener("click",()=>wh.scrollTo({left:i*FF_STEP_W,behavior:"smooth"})));
+  wh.addEventListener("keydown",e=>{const i=stops.indexOf(_ffDraft.waist);
+    if(e.key==="ArrowRight"||e.key==="ArrowUp"){e.preventDefault();wh.scrollTo({left:Math.min(items.length-1,i+1)*FF_STEP_W,behavior:"smooth"});}
+    if(e.key==="ArrowLeft"||e.key==="ArrowDown"){e.preventDefault();wh.scrollTo({left:Math.max(0,i-1)*FF_STEP_W,behavior:"smooth"});}});
+  // mouse drag on desktop; touch scrolls natively
+  wh.addEventListener("pointerdown",e=>{if(e.pointerType!=="mouse")return;window._ffDrag={wh,x:e.clientX,s:wh.scrollLeft};wh.style.scrollSnapType="none";});
+  if(!window._ffDragBound){window._ffDragBound=true;
+    window.addEventListener("pointermove",e=>{const g=window._ffDrag;if(g)g.wh.scrollLeft=g.s-(e.clientX-g.x);});
+    window.addEventListener("pointerup",()=>{const g=window._ffDrag;if(!g)return;window._ffDrag=null;g.wh.style.scrollSnapType="";g.wh.scrollTo({left:Math.round(g.wh.scrollLeft/FF_STEP_W)*FF_STEP_W,behavior:"smooth"});});}
+}
+function ffWheelMark(i){
+  const items=document.querySelectorAll("#ff-wheel .ff-n");
+  items.forEach((x,j)=>{x.classList.toggle("on",j===i);x.classList.toggle("near",Math.abs(j-i)===1);});
+  const wh=document.getElementById("ff-wheel"), d=_ffDraft;
+  if(wh){wh.setAttribute("aria-valuenow",d.waist);wh.setAttribute("aria-valuetext",d.mode==="usual"?`size ${d.waist}`:`${d.waist} inches`);}
+  const meta=document.getElementById("ff-meta");
+  if(meta){const prof={waist:d.waist,pref:"true",mode:d.mode,cuts:null};const n=products.filter(p=>ffInGrid(p)&&ffMatches(p,prof)).length;
+    meta.innerHTML=`${d.mode==="usual"?"":`<span>${Math.round(d.waist*2.54)} cm</span><span>·</span>`}<span><b>${n} pairs</b> fit you</span>`;}
+}
+function ffMode(m){_ffDraft.mode=m;if(m==="usual"){_ffDraft.waist=FF_SIZES.reduce((a,b)=>Math.abs(b-_ffDraft.waist)<Math.abs(a-_ffDraft.waist)?b:a);}_ffDraft.cuts=null;ffRender();}
+function ffNext(){ffStepTo(2);ffTrack("Fit finder waist set");}
+function ffStepTo(n){_ffStep=n;ffRender();const b=document.getElementById("ff-body");if(b)b.scrollTop=0;}
+function ffToggleCut(f){const c=_ffDraft.cuts||[];_ffDraft.cuts=c.includes(f)?c.filter(x=>x!==f):[...c,f];
+  const sc=document.querySelector("#ff .ff-cuts"), x=sc?sc.scrollLeft:0; ffRender();
+  const sc2=document.querySelector("#ff .ff-cuts"); if(sc2){sc2.scrollLeft=x;sc2.classList.remove("ff-anim");} const a=document.querySelector("#ff-body .ff-anim"); if(a)a.classList.remove("ff-anim");}
+function ffDone(){
+  const prof={waist:_ffDraft.waist,pref:"true",mode:_ffDraft.mode,cuts:(_ffDraft.cuts||[]).slice()};
+  ffSaveProfile(prof); ffSetOnlyMineSilently(true); ffTrack("Fit finder saved");
+  const src=_ffSource; ffClose();
+  if(src==="product"&&typeof ms!=="undefined"&&ms.p&&document.getElementById("ov").classList.contains("op")){openMo(ms.p.id,true);return;}
+  fFits=[];
+  renderGrid();
+  const shop=document.getElementById("shop"); if(shop)setTimeout(()=>shop.scrollIntoView({behavior:"smooth",block:"start"}),250);
+}
+function ffClose(skipped){
+  const el=document.getElementById("ff"); if(!el||el.hidden)return;
+  el.classList.remove("in"); unlockScroll(); clearInterval(_ffStageT);
+  if(skipped)ffTrack("Fit finder skipped");
+  setTimeout(()=>{el.hidden=true;el.innerHTML="";},450);
+  ffRenderBar();
+}
+document.addEventListener("keydown",e=>{if(e.key==="Escape"){const el=document.getElementById("ff");if(el&&!el.hidden){e.stopImmediatePropagation();ffClose(!ffProfile());}}},true);
+window.addEventListener("resize",()=>{const el=document.getElementById("ff");if(el&&!el.hidden&&_ffStep===1){const wh=document.getElementById("ff-wheel");if(!wh)return;const pad=Math.max(0,(wh.clientWidth-FF_STEP_W)/2);wh.querySelectorAll(".ff-pad").forEach(p=>p.style.flexBasis=pad+"px");const i=ffStops(_ffDraft.mode).indexOf(_ffDraft.waist);if(i>=0)wh.scrollLeft=i*FF_STEP_W;}});
+function ffSetOnlyMineSilently(v){ffOnlyMine=v;try{localStorage.setItem("ds_ff_view",v?"mine":"all");}catch(e){}}
+function ffSetOnlyMine(v){ffOnlyMine=v;try{localStorage.setItem("ds_ff_view",v?"mine":"all");}catch(e){}renderGrid();}
+function ffRenderBar(){
+  const bar=document.getElementById("ff-bar"); if(!bar)return;
+  const prof=ffProfile();
+  if(!prof){bar.className="ff-bar ask";bar.hidden=false;bar.onclick=()=>ffOpen("bar");
+    bar.innerHTML=`<span class="ffb-t"><b>Find your size</b>Two swipes. Every cut.</span><span class="ffb-go">Start →</span>`;return;}
+  bar.className="ff-bar";bar.hidden=false;bar.onclick=null;
+  const mine=products.filter(p=>ffInGrid(p)&&ffMatches(p,prof)).length;
+  const cuts=prof.cuts&&prof.cuts.length?prof.cuts.join(" · "):"All cuts";
+  const wtxt=prof.mode==="usual"?"Size "+prof.waist:Math.floor(prof.waist)+(prof.waist%1?"½":"")+"″ waist";
+  bar.innerHTML=`<span class="ffb-t"><b>${wtxt}</b>${mine} pair${mine===1?"":"s"} in your size · ${cuts}</span>
+    <span class="ffb-seg" role="group" aria-label="Which sizes to show"><button class="${ffOnlyMine?"on":""}" aria-pressed="${ffOnlyMine}" onclick="ffSetOnlyMine(true)">My size</button><button class="${ffOnlyMine?"":"on"}" aria-pressed="${!ffOnlyMine}" onclick="ffSetOnlyMine(false)">All sizes</button></span>
+    <button class="ffb-edit" onclick="ffOpen('bar')">Edit</button>`;
+}
+// Show the finder once to every new visitor, after the intro and only when nothing else is open.
+function ffMaybeAuto(){
+  let tries=0;
+  const t=setInterval(()=>{
+    if(++tries>60){clearInterval(t);return;}
+    try{
+      if(ffProfile()||localStorage.getItem("ds_ff_seen")){clearInterval(t);return;}
+      const pn=location.pathname||"/";
+      if(!(pn==="/"||pn==="/index.html"||pn==="/wide-leg-jeans"||pn==="/straight-jeans")||location.hash||/[?&](track|checkout|payment|razorpay)/i.test(location.search)){clearInterval(t);return;}
+      if(!window._productsReady)return;
+      const bi=document.getElementById("bi"); if(bi&&bi.isConnected&&getComputedStyle(bi).display!=="none")return;
+      if(document.querySelector("#ov.op,.cdrawer.op,#sov.op,.fdrawer.op,#ff:not([hidden])")){return;}
+      clearInterval(t); setTimeout(()=>{if(!ffProfile()&&!document.querySelector("#ov.op,.cdrawer.op,#sov.op"))ffOpen("auto");},1200);
+    }catch(e){clearInterval(t);}
+  },500);
+}
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",ffMaybeAuto);else setTimeout(ffMaybeAuto,0);
+// Product page block: your size for this cut, or the ask.
+function ffMoBlock(p){
+  const prof=ffProfile();
+  if(!prof){return `<div class="mo-myfit ask" onclick="ffOpen('product')"><span class="i">?</span><div><b>Not sure of your size?</b> Swipe your waist once and we'll pick your exact size here and on every pair. <button>Find my size</button></div></div>`;}
+  const r=ffSizeFor(p,prof); if(!r)return "";
+  const who=prof.mode==="usual"?`you wear ${prof.waist}`:`your waist is ${prof.waist}″`;
+  const band=r.band&&Number.isFinite(r.band.min)?` (cut for ${r.band.min}–${r.band.max}″)`:"";
+  let msg,big=r.size;
+  if(r.none){msg=`We don't make this cut in your size yet.`;big="–";}
+  else if(r.oos)msg=`Your size here is <b>${r.best}</b>${band}, and it's sold out right now.`;
+  else if(r.swapped)msg=`Your best size, ${r.best}, is sold out. <b>${r.size}</b> is the closest fit in stock${band}.`;
+  else msg=`<b>Your size in this cut</b>${band}. Selected for you.`;
+  const belt=r.belt&&!r.none?`<span class="bw">At ${prof.waist}${prof.mode==="usual"?"":"″"} this Wide-Leg sits loose. Wear it with a belt. Fit-related returns aren't accepted on Wide-Leg below a ${FF_BELT_BELOW}″ waist.</span>`:"";
+  return `<div class="mo-myfit"><span class="i"><small>YOUR SIZE</small>${big}</span><div>${msg} Because ${who}. <button onclick="ffOpen('product')">Change</button>${belt}</div></div>`;
+}
+/* ----- swipe galleries ----- */
+// Shop cards: current slide → dots; open the product page on the photo the shopper was looking at.
+function _pslideIdx(track){return track&&track.clientWidth?Math.round(track.scrollLeft/track.clientWidth):0;}
+document.addEventListener("scroll",e=>{
+  const t=e.target; if(!t||!t.classList||!t.classList.contains("pslides"))return;
+  const i=_pslideIdx(t), dots=t.parentElement.querySelectorAll(".pdots i");
+  dots.forEach((d,j)=>d.classList.toggle("on",j===i));
+},true);
+function pcardOpen(el,id){const t=el.querySelector(".pslides");const i=_pslideIdx(t);openMo(id);if(i>0)requestAnimationFrame(()=>goSlide(i,true));}
+function pcardNav(e,btn,d){e.stopPropagation();const t=btn.parentElement.querySelector(".pslides");if(!t)return;const n=t.children.length;const i=Math.min(n-1,Math.max(0,_pslideIdx(t)+d));t.scrollTo({left:i*t.clientWidth,behavior:"smooth"});}
+// Product page: the photo track scrolls natively; this keeps dots, thumbs and lazy images in step.
+function moGalleryInit(){
+  const t=document.getElementById("motrack"); if(!t)return;
+  t.addEventListener("scroll",()=>{cancelAnimationFrame(t._raf);t._raf=requestAnimationFrame(()=>{const i=_pslideIdx(t);if(i!==ms.idx)_moMark(i);});},{passive:true});
+}
+function _moMark(i){
+  ms.idx=i; const imgs=document.querySelectorAll("#motrack img");
+  [i-1,i,i+1].forEach(j=>{const im=imgs[j];if(im&&!im.getAttribute("src")&&im.dataset.src)im.src=im.dataset.src;});
+  imgs.forEach((im,j)=>im.classList.toggle("active",j===i));
+  document.querySelectorAll(".car-dots .cdot").forEach((d,j)=>d.classList.toggle("act",j===i));
+  document.querySelectorAll(".mocar-thumbs .mthumb").forEach((d,j)=>d.classList.toggle("act",j===i));
+}
 function renderGrid(){
   gridPage=0;_pcardIdx=0;
   const srt=document.getElementById("srt").value;
@@ -3028,6 +3488,8 @@ function renderGrid(){
   // the filter chip's own count already uses.
   if(fSizes.length)list=list.filter(p=>(p.sizes||[]).some(s=>fSizes.includes(s)&&!(p.oosizes||[]).includes(s)));
   if(fFits.length)list=list.filter(p=>fFits.includes(p.fit));
+  // Fit finder: "In my size" = jeans whose recommended size for this shopper is in stock
+  const _ffp=ffProfile(); if(_ffp&&ffOnlyMine)list=list.filter(p=>ffMatches(p,_ffp));
   if(fShade)list=list.filter(p=>{const s=shadeOf(p);return s&&s.k===fShade;});
   list=list.filter(p=>eff(p)<=fMaxPrice);
   if(srt==="low")list.sort((a,b)=>eff(a)-eff(b));else if(srt==="high")list.sort((a,b)=>eff(b)-eff(a));else if(srt==="new")list.sort((a,b)=>(b.addedAt||0)-(a.addedAt||0));else list.sort((a,b)=>(a.order||99)-(b.order||99));
@@ -3043,11 +3505,12 @@ function renderGrid(){
   const visible=list.slice(0,GRID_PAGE_SIZE);
   const remaining=list.length-GRID_PAGE_SIZE;
   const grid=document.getElementById("pgrid");
-  grid.innerHTML=visible.length?visible.map(pcardHTML).join(""):`<div class="np">No products match your filters.</div>`;
+  grid.innerHTML=visible.length?visible.map(pcardHTML).join(""):(_ffp&&ffOnlyMine?`<div class="np">No pairs in your size and cuts match these filters right now. <button class="ffb-edit" style="color:#A8321F" onclick="ffSetOnlyMine(false)">Show all sizes</button></div>`:`<div class="np">No products match your filters.</div>`);
   const lmEl=document.getElementById("load-more-wrap");
   if(lmEl)lmEl.innerHTML=remaining>0?`<button class="btn-loadmore" onclick="loadMoreProducts()">Load ${Math.min(remaining,GRID_PAGE_SIZE)} more styles ↓</button>`:'';
   const cnt=document.getElementById("shopall-count");if(cnt)cnt.textContent=list.length?`· ${list.length} item${list.length>1?'s':''}`:'';
   renderFitBtns();
+  ffRenderBar();
   if(typeof rebuildStickyBuy==="function")rebuildStickyBuy();
   renderHeroGrid();
   renderDesignerSection();
@@ -3102,7 +3565,7 @@ function renderDesignerSection(){
     const bullets=whyBullets.length?whyBullets:[
       "CONSTRUCTION::Heavier fabric weight than our regular denim line",
       "PRODUCTION::Limited run — not restocked once sold",
-      "FINISH::Hand-checked in our Delhi studio before it ships"
+      "FINISH::Hand-checked by the founders before it ships"
     ];
     return `<div class="des-card" onclick="openVaultModal('${p.id}')">
       <div class="des-mosaic">
@@ -3162,7 +3625,7 @@ function openVaultModal(id){
   const bullets=whyBullets.length?whyBullets:[
     "CONSTRUCTION::Heavier fabric weight than our regular denim line",
     "PRODUCTION::Limited run — not restocked once sold",
-    "FINISH::Hand-checked in our Delhi studio before it ships"
+    "FINISH::Hand-checked by the founders before it ships"
   ];
   document.getElementById("vault-why-rows").innerHTML=bullets.map((b,i)=>{
     const hasTag=b.includes("::");
@@ -3470,12 +3933,12 @@ function getSoldCount(pid){
 }
 function renderMoSizes(p){
   if(!(p.sizes||[]).length)return'';
-  const chips=p.sizes.map((s,i)=>{const oos=(p.oosizes||[]).includes(s);const fa=(p.sizes).findIndex(z=>!(p.oosizes||[]).includes(z));const sel=!oos&&i===fa;
+  const _ffr=ffSizeFor(p);
+  const chips=p.sizes.map((s,i)=>{const oos=(p.oosizes||[]).includes(s);const sel=!oos&&s===ms.size;const mine=_ffr&&!_ffr.none&&_ffr.size===s?" mine":"";
     if(oos){const hasRestock=(p.sizeRestockDates||{})[s]&&new Date((p.sizeRestockDates||{})[s])>new Date();if(hasRestock)return`<button class="chip restock-chip" onclick="selectOosSize(this,'${s}')" title="Restocking soon">${s}</button>`;return`<button class="chip oos-chip" onclick="selectOosSize(this,'${s}')" title="Out of stock — tap to see measurements"><s>${s}</s></button>`;}
-    return`<button class="chip${sel?' sel':''}" onclick="pick('size','${s}',this)">${s}</button>`;
+    return`<button class="chip${sel?' sel':''}${mine}" onclick="pick('size','${s}',this)">${s}</button>`;
   }).join('');
-  const fsBtn=p.fitStudioEnabled?`<button class="fs-trigger" onclick="openFitStudio()">📏 Not sure of your size? Find it in 15 seconds</button>`:"";
-  return`<span class="mol">Size</span><div class="chips">${chips}</div><div id="mo-size-rec" class="mo-size-rec"></div><div id="mo-notify-host"></div>${fsBtn}`;
+  return`<span class="mol">Size</span>${ffMoBlock(p)}<div class="chips">${chips}</div><div id="mo-size-rec" class="mo-size-rec"></div><div id="mo-notify-host"></div>`;
 }
 // Single source of truth for "which size-guide rows apply to this product" --
 // used by both the existing per-size recommendation (getSizeRec, below) and
@@ -3834,11 +4297,12 @@ function openMo(id,noPush){
   const p=products.find(x=>x.id===id);if(!p)return;
   trackRecentView(id);
   if(typeof fbq==="function")fbq("track","ViewContent",{content_name:p.name,content_ids:[p.id],content_type:"product",value:eff(p),currency:"INR"});
-  ms={p,size:((p.sizes||[]).find(s=>!(p.oosizes||[]).includes(s)))||"",color:(p.colors||[])[0]||"",qty:1,idx:0};
+  const _ffm=ffSizeFor(p);
+  ms={p,size:(_ffm&&!_ffm.oos&&!_ffm.none?_ffm.size:"")||((p.sizes||[]).find(s=>!(p.oosizes||[]).includes(s)))||"",color:(p.colors||[])[0]||"",qty:1,idx:0};
   const sold=p.badges&&p.badges.includes("sold");
   const imgs=p.images||[];
   const pr=p.offerPrice?`<span class="monow">${inr(p.offerPrice)}</span><span class="mowas">${inr(p.price)}</span><span class="mosave">Save ${inr(p.price-p.offerPrice)}</span>`:`<span class="monow">${inr(p.price)}</span>`;
-  const carImgs=imgs.map((s,i)=>i===0?`<img src="${s}" alt="${dispName(p)}" class="active"/>`:`<img data-src="${s}" alt="${dispName(p)}"/>`).join("");
+  const carImgs=`<div class="mo-track" id="motrack">`+imgs.map((s,i)=>i<2?`<img src="${s}" alt="${dispName(p)}, photo ${i+1}"${i===0?' class="active"':''}/>`:`<img data-src="${s}" alt="${dispName(p)}, photo ${i+1}"/>`).join("")+`</div>`;
   const thumbs=imgs.length>1?`<div class="mocar-thumbs">${imgs.map((s,i)=>`<div class="mthumb${i===0?' act':''}${i===0?' main-tag':''}" onclick="goSlide(${i})"><img src="${s}" alt="${dispName(p)} thumbnail"/></div>`).join("")}</div>`:'';
   const arrows=imgs.length>1?`<button class="car-arr car-prev" onclick="slideDir(-1)">‹</button><button class="car-arr car-next" onclick="slideDir(1)">›</button>`:'';
   const dots=imgs.length>1?`<div class="car-dots">${imgs.map((_,i)=>`<button class="cdot${i===0?' act':''}" onclick="goSlide(${i})"></button>`).join("")}</div>`:'';
@@ -3872,6 +4336,7 @@ function openMo(id,noPush){
       <div class="qrow"><span class="mol" style="margin:0">Qty</span><div class="stepper"><button onclick="stp(-1)">−</button><span id="mqty">1</span><button onclick="stp(1)">+</button></div></div>
       <button class="moadd btn ${sold?'btn-g':'btn-w'}" onclick="addCart()" ${sold?'disabled':''}>${sold?'Sold Out':'Add to Bag · '+inr(eff(p))}</button>
       <div class="mo-trust"><span class="trust-line">${trustLineHtml()}</span></div>
+      <p class="mo-colour">🎨 Want to see the real colour first? <a href="https://wa.me/${WA}?text=${encodeURIComponent("Hi! Can you send me a daylight video of "+dispName(p)+"? "+plink)}" target="_blank" rel="noopener">Ask us for a daylight video on WhatsApp</a>. If it looks different when it arrives, exchange within 7 days (₹200 fee).</p>
       ${descFull}${shipHtml}
     </div>
     ${moRelatedHtml(p)}`;
@@ -3892,12 +4357,11 @@ function openMo(id,noPush){
   // sticky mobile buy bar
   showStickyBuy(p);
   moApplyView(p,noPush);
+  moGalleryInit();
 }
 function openSizeChart(id){const p=products.find(x=>x.id===id);if(!p)return;const scSrc=p.sizeChartImg||globalSc;if(!scSrc)return;const d=document.createElement('div');d.style.cssText='position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.9);display:flex;align-items:center;justify-content:center;padding:20px;cursor:pointer;z-index:9999';d.onclick=()=>d.remove();d.innerHTML=`<div style="background:var(--bg2);border-radius:12px;padding:16px;max-width:700px;width:100%;max-height:90vh;overflow-y:auto"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><h3 style="font-family:var(--dsp);font-size:20px;color:var(--white)">SIZE CHART</h3><button onclick="this.closest('[style]').remove()" style="background:var(--glass);border:1px solid var(--line);color:var(--white);width:34px;height:34px;border-radius:8px;font-size:20px;cursor:pointer">×</button></div><img src="${scSrc}" style="width:100%;border-radius:8px;image-rendering:crisp-edges" alt="Size chart" onclick="event.stopPropagation();window.open(this.src,'_blank')" title="Tap to open full size"/><p style="text-align:center;font-size:12px;color:var(--off);margin-top:8px">Tap the chart to open it full size</p></div>`;document.body.appendChild(d);}
 function toggleExp(row){row.classList.toggle("open");row.nextElementSibling.classList.toggle("open");}
-function goSlide(i){ms.idx=i;const imgs=document.querySelectorAll("#mocarimgs img");const dots=document.querySelectorAll(".car-dots .cdot");const thumbs=document.querySelectorAll(".mocar-thumbs .mthumb");
-  [i-1,i,i+1].forEach(j=>{if(j<0||j>=imgs.length)return;const im=imgs[j];if(!im.src&&im.dataset.src)im.src=im.dataset.src;});
-  imgs.forEach((im,j)=>im.classList.toggle("active",j===i));dots.forEach((d,j)=>d.classList.toggle("act",j===i));thumbs.forEach((t,j)=>t.classList.toggle("act",j===i));}
+function goSlide(i,instant){const t=document.getElementById("motrack");if(t)t.scrollTo({left:i*t.clientWidth,behavior:instant?"auto":"smooth"});_moMark(i);}
 function toggleImgZoom(e){var w=e.target.closest(".mocar-imgs");if(!w)return;if(w.classList.contains("zoomed")){w.classList.remove("zoomed");var img=w.querySelector("img.active");if(img)img.style.transform="";}else{w.classList.add("zoomed");var img=w.querySelector("img.active");if(img)img.style.transform="scale(2)";}}
 function slideDir(d){const n=(ms.p.images||[]).length;if(n<2)return;ms.idx=(ms.idx+d+n)%n;goSlide(ms.idx);}
 function pick(k,v,el){ms[k]=v;[...el.parentElement.children].forEach(c=>c.classList.remove("sel"));el.classList.add("sel");}
@@ -3941,7 +4405,7 @@ window.addEventListener("popstate",function(){
     if(typeof products!=="undefined"&&products.some(x=>String(x.id)===pid)){_moDepth=Math.max(0,_moDepth-1);openMo(pid,true);}
   }else if(ov&&ov.classList.contains("op")&&ov.classList.contains("as-page")){_moDepth=0;_moHide();}
 });
-function showStickyBuy(p){const sbb=document.getElementById("stickyBuyBar");if(!sbb||window.innerWidth>768)return;const sold=p.badges&&p.badges.includes("sold");if(sold){sbb.classList.remove("visible");return;}document.getElementById("sbbName").textContent=p.name;document.getElementById("sbbPrice").textContent=inr(eff(p));sbb.dataset.pid=p.id;sbb.classList.add("visible");}
+function showStickyBuy(p){const sbb=document.getElementById("stickyBuyBar");if(!sbb||window.innerWidth>768)return;const sold=p.badges&&p.badges.includes("sold");if(sold){sbb.classList.remove("visible");return;}document.getElementById("sbbName").textContent=dispName(p);document.getElementById("sbbPrice").textContent=inr(eff(p));sbb.dataset.pid=p.id;sbb.classList.add("visible");}
 function addFromStickyBar(){const sbb=document.getElementById("stickyBuyBar");if(!sbb)return;const pid=sbb.dataset.pid;if(pid&&ms&&ms.p&&ms.p.id===pid)addCart();}
 
 // CART
@@ -4185,6 +4649,7 @@ function proceedToPayment(){
   }
 }
 async function placeCodOrder(order,cfg){
+  ffLogOrder(order);
   const btn=document.getElementById("ck-pay-btn-review");
   const errEl=document.getElementById("ck-err-review");
   if(btn){btn.disabled=true;btn.textContent="Placing order...";}
@@ -4366,6 +4831,7 @@ async function startRazorpayPayment(order, chargeAmount){
   _watchRzpClose(_att);
 }
 async function finalizeOrder(order,paymentId,rzpResponse){
+  ffLogOrder(order);
   if(typeof fbq==="function")fbq("track","Purchase",pixelItems(order.items,order.total));
   order.status="paid";order.paymentId=paymentId;
   let saved=true;
@@ -4732,7 +5198,7 @@ function svClose(){clearTimeout(_sv.timer);document.getElementById('sviewer').cl
   h.addEventListener("animationend",()=>{h.classList.remove("glitch");if(fallbackT){clearTimeout(fallbackT);fallbackT=null;}});
   function tick(){if(!document.hidden&&h.getBoundingClientRect().bottom>0){h.classList.add("glitch");fallbackT=setTimeout(()=>h.classList.remove("glitch"),450);}setTimeout(tick,5500+Math.random()*4500);}setTimeout(tick,3800);})();
 // SCI-FI boot intro runner (self-contained; gated by inline script + sessionStorage)
-(function runBoot(){const b=document.getElementById("boot");if(!b)return;const ro=document.getElementById("boot-readout");const lines=["> INITIALIZING DROP PROTOCOL","> SYNCING INVENTORY <span class='ok'>OK</span>","> SECURE CHANNEL <span class='ok'>READY</span>","> MIDDLEMEN DETECTED <span class='ok'>0</span>","> WELCOME TO THE DROP<span class='cur'> _</span>"];let i=0;function type(){if(i<lines.length&&ro){ro.innerHTML=lines.slice(0,i+1).join("\n");i++;setTimeout(type,300);}}setTimeout(type,560);let done=false;function finish(){if(done)return;done=true;try{localStorage.setItem("ds_boot_ts",String(Date.now()));}catch(e){}b.classList.add("lift");document.documentElement.style.overflow="";document.body.style.overflow="";setTimeout(()=>{if(b&&b.parentNode)b.remove();},650);}b.addEventListener("click",finish);setTimeout(finish,2050);})();
+(function runBoot(){const b=document.getElementById("boot");if(!b)return;const ro=document.getElementById("boot-readout");const lines=["> INITIALIZING DROP PROTOCOL","> SYNCING INVENTORY <span class='ok'>OK</span>","> SECURE CHANNEL <span class='ok'>READY</span>","> QUALITY CHECK <span class='ok'>PASSED</span>","> WELCOME TO THE DROP<span class='cur'> _</span>"];let i=0;function type(){if(i<lines.length&&ro){ro.innerHTML=lines.slice(0,i+1).join("\n");i++;setTimeout(type,300);}}setTimeout(type,560);let done=false;function finish(){if(done)return;done=true;try{localStorage.setItem("ds_boot_ts",String(Date.now()));}catch(e){}b.classList.add("lift");document.documentElement.style.overflow="";document.body.style.overflow="";setTimeout(()=>{if(b&&b.parentNode)b.remove();},650);}b.addEventListener("click",finish);setTimeout(finish,2050);})();
 /* ===== HERO BG: reactive constellation (cursor-aware) ===== */
 (function(){
   if(window.matchMedia&&window.matchMedia("(prefers-reduced-motion:reduce)").matches)return;
@@ -4959,7 +5425,7 @@ async function loadPublished(){
     "> initialising drop protocol ........ <ok>OK</ok>",
     "> loading DROP 001 · DELHI ......... <ok>OK</ok>",
     "> securing WhatsApp checkout ....... <ok>OK</ok>",
-    "> middlemen detected ............... <ok>0</ok>",
+    "> quality check .................. <ok>passed</ok>",
     "> SYSTEM ONLINE. CLOTHING OR NOTHING."
   ];
   let li=0,ci=0,buf="";
@@ -5043,7 +5509,34 @@ async function loadPublished(){
     }
   }
   setTimeout(build,400);
-  window.rebuildHeroShowcase=build;
+  window.rebuildHeroShowcase=function(){build();renderHeroProduct();};
+  // Product-first hero (phones). Same pick as the showcase: admin's hero
+  // product, else the bestseller, else the first live product.
+  function renderHeroProduct(){
+    const box=document.getElementById("hpf");if(!box)return;
+    const all=typeof products!=="undefined"?products:[];
+    const live=all.filter(p=>(p.images||[]).length&&!(p.badges||[]).includes("sold"));
+    if(!live.length){setTimeout(renderHeroProduct,300);return;}
+    const s=(typeof siteContent!=="undefined")?siteContent:{};
+    const feat=live.find(p=>p.id===(s.heroP1||"DR-001"))||live.find(p=>(p.badges||[]).includes("best"))||live[0];
+    const nm=typeof dispName==="function"?dispName(feat):feat.name;
+    const img=document.getElementById("hpf-img");
+    img.src=(feat.images||[])[0];img.alt=nm+", "+(feat.fit||"")+" jeans";
+    const sold=typeof getSoldCount==="function"?getSoldCount(feat.id):0;
+    document.getElementById("hpf-tag").textContent=(feat.badges||[]).includes("best")?"Bestseller":(sold>0?sold+" sold":"");
+    document.getElementById("hpf-name").textContent=nm;
+    document.getElementById("hpf-meta").textContent=[feat.fit,(feat.sizes||[]).length?"Waist "+feat.sizes[0]+"–"+feat.sizes[feat.sizes.length-1]:""].filter(Boolean).join(" · ");
+    const now=typeof eff==="function"?eff(feat):(feat.offerPrice||feat.price);
+    document.getElementById("hpf-price").innerHTML=inr(now)+(feat.offerPrice&&feat.price>now?"<s>"+inr(feat.price)+"</s>":"");
+    const open=()=>openMo(feat.id);
+    document.getElementById("hpf-media").onclick=open;document.getElementById("hpf-buy").onclick=open;
+    const inGrid=p=>(p.images||[]).length&&!(p.badges||[]).includes("designer")&&!(p.badges||[]).includes("vault");
+    const fitsIn=[...new Set(all.filter(inGrid).map(p=>p.fit).filter(Boolean))];
+    document.getElementById("hpf-fits").innerHTML=fitsIn.map(f=>`<button type="button" data-fit="${f.replace(/"/g,"&quot;")}">${f}<small>${all.filter(p=>inGrid(p)&&p.fit===f).length}</small></button>`).join("");
+    document.querySelectorAll("#hpf-fits button").forEach(b=>b.onclick=()=>pickFitTab(b.dataset.fit));
+    box.hidden=false;document.getElementById("hero").classList.add("has-hpf");
+  }
+  setTimeout(renderHeroProduct,400);
   window.scMiniClick=function(el){
     const src=el.getAttribute('src');const main=document.getElementById('sc-main');if(main)main.src=src;
     const pid=el.getAttribute('data-pid')||window._scFeatId||"";
@@ -5754,7 +6247,7 @@ setTimeout(function(){
       <div class="vb-price" id="vault-price">—</div>
       <div class="vb-meta" id="vault-meta">—</div>
       <button class="vb-cta" id="vault-cta" onclick="vaultGoToPurchase()">View Sizes &amp; Add to Bag</button>
-      <div class="vb-note">Free shipping · Hand-checked in our Delhi studio before dispatch · Easy exchange within 7 days</div>
+      <div class="vb-note">Free shipping · Hand-checked before dispatch · 7-day size exchange</div>
     </div>
     <div class="vault-why">
       <div class="vault-why-h">Why this piece</div>

@@ -7,16 +7,18 @@
 //
 // FILE LOCATION: netlify/edge-functions/fit-landing.ts (from repo root)
 
+// "From ₹…" is the cheapest live product of that fit. Re-check it in Supabase
+// whenever prices change (last checked 2026-10-18: Wide-Leg ₹1,099, Straight ₹999).
 const PAGES: Record<string, { h1: string; title: string; desc: string }> = {
   "/wide-leg-jeans": {
     h1: "Wide-Leg Jeans for Men",
-    title: "Wide-Leg Jeans for Men · From ₹999 | 365 Drop Store",
-    desc: "Wide-leg jeans for men, made in Delhi. Heavy washes, limited drops, free shipping across India and COD available.",
+    title: "Wide-Leg Jeans for Men · From ₹1,099 | 365 Drop Store",
+    desc: "Wide-leg jeans for men, picked and checked in Delhi. Heavy washes, limited drops, free shipping across India and partial COD.",
   },
   "/straight-jeans": {
     h1: "Straight Fit Jeans for Men",
     title: "Straight Fit Jeans for Men · From ₹999 | 365 Drop Store",
-    desc: "Straight fit jeans for men, made in Delhi. Limited drops, free shipping across India and COD available.",
+    desc: "Straight fit jeans for men, picked and checked in Delhi. Limited drops, free shipping across India and partial COD.",
   },
 };
 

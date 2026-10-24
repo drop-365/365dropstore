@@ -91,7 +91,7 @@ export default async (request, context) => {
   const desc = escHtml(
     product.description
       ? product.description.substring(0, 160)
-      : `${product.name} — premium ${String(product.fit || "").toLowerCase()} ${String(product.category || "jeans").toLowerCase()} for men, made in Delhi. Free shipping across India.`
+      : `${product.name} — premium ${String(product.fit || "").toLowerCase()} ${String(product.category || "jeans").toLowerCase()} for men, quality-checked in Delhi. Free shipping across India.`
   );
   const image =
     product.images && product.images.length > 0
@@ -203,7 +203,7 @@ export default async (request, context) => {
     "@type": "Product",
     name: dispName(product.name),
     image: (product.images && product.images.length ? product.images.slice(0, 5) : [image]),
-    description: product.description || `${product.name} — premium ${String(product.fit || "").toLowerCase()} jeans for men, made in Delhi.`,
+    description: product.description || `${product.name} — premium ${String(product.fit || "").toLowerCase()} jeans for men, quality-checked in Delhi.`,
     sku: product.id,
     category: product.category || "Jeans",
     brand: { "@type": "Brand", name: "365 Drop Store" },
