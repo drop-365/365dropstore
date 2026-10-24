@@ -1759,17 +1759,31 @@ body:hover .cursor-glow{opacity:1}
 .ff-cta:active{transform:scale(.985)}
 .ff-cta:disabled{background:#BDB7AE;cursor:not-allowed}
 .ff-skip{align-self:center;background:none;border:0;color:#8A847C;font:500 13px/1 var(--bod);cursor:pointer;padding:6px}
-/* shop bar */
-.ff-bar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:#141312;color:#F6F3EE;border-radius:18px;padding:12px 14px;margin:0 0 16px}
+/* shop bar: always visible, hard to miss — personalises, never hides products by default */
+.ff-bar{position:relative;display:flex;align-items:center;gap:14px;flex-wrap:wrap;color:#fff;border-radius:20px;padding:16px 16px 16px 18px;margin:0 0 18px;overflow:hidden;
+  background:radial-gradient(120% 140% at 100% 0%,rgba(255,255,255,.16),transparent 55%),linear-gradient(135deg,#D2412E,#A82E1F);box-shadow:0 12px 30px rgba(192,57,43,.28)}
 .ff-bar[hidden]{display:none}
-.ff-bar .ffb-t{flex:1;min-width:160px;font-size:13px;line-height:1.35;color:#BDB7AE}
-.ff-bar .ffb-t b{display:block;font-family:var(--dsp);font-size:20px;letter-spacing:.01em;text-transform:uppercase;color:#fff;font-weight:400}
-.ff-bar .ffb-seg{display:flex;background:rgba(255,255,255,.08);border-radius:999px;padding:3px;gap:2px}
-.ff-bar .ffb-seg button{border:0;background:transparent;color:#D8D3CB;border-radius:999px;padding:9px 12px;font:600 12.5px/1 var(--bod);cursor:pointer;white-space:nowrap}
-.ff-bar .ffb-seg button.on{background:#F6F3EE;color:#141312}
-.ff-bar .ffb-edit{border:0;background:none;color:#fff;font:600 12.5px/1 var(--bod);text-decoration:underline;text-decoration-color:#C0392B;text-underline-offset:4px;text-decoration-thickness:2px;cursor:pointer;padding:6px 2px}
-.ff-bar.ask{cursor:pointer;background:#141312}
-.ff-bar.ask .ffb-go{background:#F6F3EE;color:#141312;border-radius:999px;padding:10px 14px;font:600 12.5px/1 var(--bod);white-space:nowrap}
+.ff-bar::after{content:"";position:absolute;right:-30px;bottom:-40px;width:150px;height:150px;border-radius:50%;border:18px solid rgba(255,255,255,.07);pointer-events:none}
+.ff-bar .ffb-ic{flex:0 0 46px;height:46px;border-radius:14px;background:rgba(255,255,255,.16);display:grid;place-items:center}
+.ff-bar .ffb-ic svg{width:24px;height:24px}
+.ff-bar .ffb-t{flex:1;min-width:180px;font-size:13px;line-height:1.4;color:rgba(255,255,255,.86)}
+.ff-bar .ffb-t b{display:block;font-family:var(--dsp);font-size:22px;line-height:1.05;letter-spacing:.01em;text-transform:uppercase;color:#fff;font-weight:400;margin-bottom:3px}
+.ff-bar .ffb-act{display:flex;align-items:center;gap:12px;position:relative;z-index:1}
+.ff-bar .ffb-go{border:0;background:#fff;color:#141312;border-radius:999px;padding:13px 18px;font:700 13.5px/1 var(--bod);cursor:pointer;white-space:nowrap;box-shadow:0 6px 16px rgba(0,0,0,.18);animation:ffpulse 2.4s ease-in-out 3}
+.ff-bar .ffb-go.ghost{background:transparent;color:#fff;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.75);animation:none}
+@keyframes ffpulse{0%,100%{transform:none}50%{transform:scale(1.04)}}
+.ff-bar .ffb-edit{border:0;background:none;color:#fff;font:600 12.5px/1 var(--bod);text-decoration:underline;text-underline-offset:4px;cursor:pointer;padding:6px 2px;opacity:.9}
+.ff-bar.ask{cursor:pointer}
+@media(max-width:600px){.ff-bar .ffb-act{width:100%}.ff-bar .ffb-go{flex:1;text-align:center;padding:14px 16px}}
+/* in-feed size card (after the 4th product, only until the shopper has a size) */
+.ff-incard{grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:center;gap:14px 18px;background:#141312;color:#F6F3EE;border-radius:20px;padding:20px 18px;margin:4px 0}
+.ff-incard .t{flex:1;min-width:200px}
+.ff-incard .t b{display:block;font-family:var(--dsp);font-size:26px;line-height:1;text-transform:uppercase;color:#fff;font-weight:400}
+.ff-incard .t span{display:block;font-size:13px;color:#BDB7AE;margin-top:6px;line-height:1.4}
+.ff-incard .w{display:flex;flex-wrap:wrap;gap:8px}
+.ff-incard .w button{min-width:48px;border:1px solid rgba(255,255,255,.22);background:transparent;color:#fff;border-radius:999px;padding:11px 12px;font:700 14px/1 var(--bod);cursor:pointer;transition:background .15s,color .15s}
+.ff-incard .w button:hover,.ff-incard .w button:active{background:#fff;color:#141312}
+.ff-incard .w small{flex-basis:100%;font-size:11.5px;color:#8A847C}
 /* "your size" on cards */
 .psizes .sz.mine{background:#141312;color:#fff;border-color:#141312}
 .pmyfit{font-size:12px;font-weight:600;margin-top:6px}
@@ -3215,7 +3229,7 @@ var FF_SIZES=[28,30,32,34,36,38];              // sizes we make
 var FF_MIN=28, FF_MAX=38;                       // waist input range (inches)
 var FF_BELT_FIT="Wide-Leg", FF_BELT_BELOW=29;   // founder's rule: Wide-Leg below a 29″ waist sits loose — belt needed, no fit returns
 var FF_LOG=false;                               // true once the fit_profiles table exists in Supabase
-var ffOnlyMine=(()=>{try{return localStorage.getItem("ds_ff_view")!=="all";}catch(e){return true;}})(); // "My size" vs "All sizes", remembered on the device
+var ffOnlyMine=false;                           // every page load shows ALL products; "Show only my size" is opt-in for this visit
 var _ffDraft=null, _ffSource="", _ffStep=1;
 function ffProfile(){const m=_fsMem();if(!m||!(+m.waist>=20&&+m.waist<=60))return null;
   return {waist:+m.waist,pref:"true",mode:m.mode==="usual"?"usual":"waist",cuts:Array.isArray(m.cuts)?m.cuts:null};}
@@ -3287,12 +3301,13 @@ function ffStageImgs(){
   live.forEach(p=>{if(out.length<5&&!out.includes(p.images[0]))out.push(p.images[0]);});
   return out;
 }
-function ffOpen(source){
-  if(!window._productsReady||typeof products==="undefined"||!products.length){setTimeout(()=>ffOpen(source),300);return;}
+function ffOpen(source,presetWaist){
+  if(!window._productsReady||typeof products==="undefined"||!products.length){setTimeout(()=>ffOpen(source,presetWaist),300);return;}
   const el=document.getElementById("ff"); if(!el)return;
   _ffSource=source||"shop";
   const p0=ffProfile();
   _ffDraft=p0?{...p0}:{waist:32,pref:"true",mode:"waist",cuts:null};
+  if(presetWaist){_ffDraft.waist=+presetWaist;_ffDraft.mode="waist";_ffDraft.cuts=null;}
   _ffDraft.waist=Math.min(FF_MAX,Math.max(FF_MIN,_ffDraft.waist));
   _ffStep=1;
   try{localStorage.setItem("ds_ff_seen","1");}catch(e){}
@@ -3392,7 +3407,7 @@ function ffToggleCut(f){const c=_ffDraft.cuts||[];_ffDraft.cuts=c.includes(f)?c.
   const sc2=document.querySelector("#ff .ff-cuts"); if(sc2){sc2.scrollLeft=x;sc2.classList.remove("ff-anim");} const a=document.querySelector("#ff-body .ff-anim"); if(a)a.classList.remove("ff-anim");}
 function ffDone(){
   const prof={waist:_ffDraft.waist,pref:"true",mode:_ffDraft.mode,cuts:(_ffDraft.cuts||[]).slice()};
-  ffSaveProfile(prof); ffSetOnlyMineSilently(true); ffTrack("Fit finder saved");
+  ffSaveProfile(prof); ffOnlyMine=false; ffTrack("Fit finder saved");
   const src=_ffSource; ffClose();
   if(src==="product"&&typeof ms!=="undefined"&&ms.p&&document.getElementById("ov").classList.contains("op")){openMo(ms.p.id,true);return;}
   fFits=[];
@@ -3408,20 +3423,26 @@ function ffClose(skipped){
 }
 document.addEventListener("keydown",e=>{if(e.key==="Escape"){const el=document.getElementById("ff");if(el&&!el.hidden){e.stopImmediatePropagation();ffClose(!ffProfile());}}},true);
 window.addEventListener("resize",()=>{const el=document.getElementById("ff");if(el&&!el.hidden&&_ffStep===1){const wh=document.getElementById("ff-wheel");if(!wh)return;const pad=Math.max(0,(wh.clientWidth-FF_STEP_W)/2);wh.querySelectorAll(".ff-pad").forEach(p=>p.style.flexBasis=pad+"px");const i=ffStops(_ffDraft.mode).indexOf(_ffDraft.waist);if(i>=0)wh.scrollLeft=i*FF_STEP_W;}});
-function ffSetOnlyMineSilently(v){ffOnlyMine=v;try{localStorage.setItem("ds_ff_view",v?"mine":"all");}catch(e){}}
-function ffSetOnlyMine(v){ffOnlyMine=v;try{localStorage.setItem("ds_ff_view",v?"mine":"all");}catch(e){}renderGrid();}
+function ffSetOnlyMine(v){ffOnlyMine=v;renderGrid();const b=document.getElementById("ff-bar");if(b)b.scrollIntoView({behavior:"smooth",block:"start"});}
+const FF_TAPE='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="8" width="20" height="8" rx="2"/><path d="M6 8v3M10 8v4M14 8v3M18 8v4"/></svg>';
 function ffRenderBar(){
   const bar=document.getElementById("ff-bar"); if(!bar)return;
   const prof=ffProfile();
   if(!prof){bar.className="ff-bar ask";bar.hidden=false;bar.onclick=()=>ffOpen("bar");
-    bar.innerHTML=`<span class="ffb-t"><b>Find your size</b>Two swipes. Every cut.</span><span class="ffb-go">Start →</span>`;return;}
+    bar.innerHTML=`<span class="ffb-ic">${FF_TAPE}</span><span class="ffb-t"><b>Not sure of your size?</b>Tell us your waist once. We'll mark every pair that fits you.</span><span class="ffb-act"><button class="ffb-go">Find my size · 10 sec →</button></span>`;return;}
   bar.className="ff-bar";bar.hidden=false;bar.onclick=null;
-  const mine=products.filter(p=>ffInGrid(p)&&ffMatches(p,prof)).length;
+  const mine=products.filter(p=>ffInGrid(p)&&ffMatches(p,prof)).length, all=products.filter(ffInGrid).length;
+  const w=prof.mode==="usual"?"Size "+prof.waist:Math.floor(prof.waist)+(prof.waist%1?"½":"")+"″ waist";
   const cuts=prof.cuts&&prof.cuts.length?prof.cuts.join(" · "):"All cuts";
-  const wtxt=prof.mode==="usual"?"Size "+prof.waist:Math.floor(prof.waist)+(prof.waist%1?"½":"")+"″ waist";
-  bar.innerHTML=`<span class="ffb-t"><b>${wtxt}</b>${mine} pair${mine===1?"":"s"} in your size · ${cuts}</span>
-    <span class="ffb-seg" role="group" aria-label="Which sizes to show"><button class="${ffOnlyMine?"on":""}" aria-pressed="${ffOnlyMine}" onclick="ffSetOnlyMine(true)">My size</button><button class="${ffOnlyMine?"":"on"}" aria-pressed="${!ffOnlyMine}" onclick="ffSetOnlyMine(false)">All sizes</button></span>
-    <button class="ffb-edit" onclick="ffOpen('bar')">Edit</button>`;
+  bar.innerHTML=ffOnlyMine
+    ?`<span class="ffb-ic">${FF_TAPE}</span><span class="ffb-t"><b>Showing your ${mine} pairs</b>${w} · ${cuts}</span><span class="ffb-act"><button class="ffb-go ghost" onclick="ffSetOnlyMine(false)">Show all ${all} →</button><button class="ffb-edit" onclick="ffOpen('bar')">Edit</button></span>`
+    :`<span class="ffb-ic">${FF_TAPE}</span><span class="ffb-t"><b>${w} · ${mine} pairs fit you</b>Every pair below shows your size. ${cuts}.</span><span class="ffb-act"><button class="ffb-go" onclick="ffSetOnlyMine(true)">Show only my size →</button><button class="ffb-edit" onclick="ffOpen('bar')">Edit</button></span>`;
+}
+// In-feed card after the 4th product, until the shopper has told us their size. Tapping a number
+// opens the finder already set to it.
+function ffInCardHTML(){
+  return `<div class="ff-incard" onclick="event.stopPropagation()"><div class="t"><b>Which size fits you?</b><span>Tap your waist. We'll mark the pairs that fit, in every cut.</span></div>
+    <div class="w">${FF_SIZES.map(n=>`<button onclick="ffOpen('incard',${n})">${n}″</button>`).join("")}<small>Not sure? <a href="#" onclick="event.preventDefault();ffOpen('incard')" style="color:#fff">Use your jeans size</a></small></div></div>`;
 }
 // Show the finder once to every new visitor, after the intro and only when nothing else is open.
 function ffMaybeAuto(){
@@ -3439,7 +3460,8 @@ function ffMaybeAuto(){
     }catch(e){clearInterval(t);}
   },500);
 }
-if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",ffMaybeAuto);else setTimeout(ffMaybeAuto,0);
+// No pop-up on page load (2026-10-24): it blocks the catalogue on entry and Google penalises entry
+// pop-ups on mobile. The finder is offered in the shop bar, an in-feed card and on product pages.
 // Product page block: your size for this cut, or the ask.
 function ffMoBlock(p){
   const prof=ffProfile();
@@ -3505,7 +3527,7 @@ function renderGrid(){
   const visible=list.slice(0,GRID_PAGE_SIZE);
   const remaining=list.length-GRID_PAGE_SIZE;
   const grid=document.getElementById("pgrid");
-  grid.innerHTML=visible.length?visible.map(pcardHTML).join(""):(_ffp&&ffOnlyMine?`<div class="np">No pairs in your size and cuts match these filters right now. <button class="ffb-edit" style="color:#A8321F" onclick="ffSetOnlyMine(false)">Show all sizes</button></div>`:`<div class="np">No products match your filters.</div>`);
+  grid.innerHTML=visible.length?visible.map((p,i)=>pcardHTML(p)+(i===3&&!_ffp?ffInCardHTML():"")).join(""):(_ffp&&ffOnlyMine?`<div class="np">No pairs in your size and cuts match these filters right now. <button class="ffb-edit" style="color:#A8321F" onclick="ffSetOnlyMine(false)">Show all sizes</button></div>`:`<div class="np">No products match your filters.</div>`);
   const lmEl=document.getElementById("load-more-wrap");
   if(lmEl)lmEl.innerHTML=remaining>0?`<button class="btn-loadmore" onclick="loadMoreProducts()">Load ${Math.min(remaining,GRID_PAGE_SIZE)} more styles ↓</button>`:'';
   const cnt=document.getElementById("shopall-count");if(cnt)cnt.textContent=list.length?`· ${list.length} item${list.length>1?'s':''}`:'';
