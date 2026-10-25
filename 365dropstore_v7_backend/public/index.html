@@ -277,7 +277,7 @@ header.sc .nav{height:58px}
 /* Product-first hero — phones only */
 .hpf{display:none}
 @media(max-width:768px){
-  #hero .hleft{padding:16px 16px 28px}
+  #hero.has-hpf .hleft{padding:16px 16px 28px}
   .hpf:not([hidden]){display:grid;gap:12px;width:100%;order:-1;margin-bottom:22px}
   .hpf-media{position:relative;display:block;width:100%;aspect-ratio:4/5;max-width:100%;padding:0;border:0;border-radius:18px;overflow:hidden;background:#E3DFD8;cursor:pointer}
   .hpf-media img{width:100%;height:100%;object-fit:cover;display:block}
@@ -5534,8 +5534,12 @@ async function loadPublished(){
   window.rebuildHeroShowcase=function(){build();renderHeroProduct();};
   // Product-first hero (phones). Same pick as the showcase: admin's hero
   // product, else the bestseller, else the first live product.
+  // Founder's call (2026-10-25): phones show the original hero (calendar, video,
+  // stats), same as desktop. Set to true to bring back the product-photo hero.
+  const HERO_PRODUCT_ON_PHONES=false;
   function renderHeroProduct(){
     const box=document.getElementById("hpf");if(!box)return;
+    if(!HERO_PRODUCT_ON_PHONES){box.hidden=true;const h=document.getElementById("hero");if(h)h.classList.remove("has-hpf");return;}
     const all=typeof products!=="undefined"?products:[];
     const live=all.filter(p=>(p.images||[]).length&&!(p.badges||[]).includes("sold"));
     if(!live.length){setTimeout(renderHeroProduct,300);return;}
