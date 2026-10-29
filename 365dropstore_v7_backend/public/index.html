@@ -447,6 +447,7 @@ header.sc .nav{height:58px}
 
 /* ===== COLOUR PALETTE FILTER (added 2026-09-03) ===== */
 .shadebar{margin-bottom:18px}
+.fswatch{display:flex;flex-wrap:wrap;gap:8px}
 .sb-lab{font-size:11px;letter-spacing:.16em;font-weight:700;color:var(--off);margin-bottom:9px;display:flex;align-items:center;gap:10px}
 .sb-lab small{font-size:10px;letter-spacing:.08em;font-weight:600;color:#B8860B;text-transform:none}
 .sb-row{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
@@ -1704,7 +1705,7 @@ body:hover .cursor-glow{opacity:1}
 .ff-kick{display:flex;align-items:center;gap:10px;font:600 11px/1 var(--bod);letter-spacing:.2em;text-transform:uppercase;color:#8A847C;margin:0 0 12px}
 .ff-kick i{display:block;height:2px;width:22px;border-radius:2px;background:#D9D3CA}
 .ff-kick i.on{background:#C0392B}
-.ff-h{font-family:var(--dsp);font-size:clamp(40px,11vw,64px);line-height:.92;letter-spacing:-.005em;text-transform:uppercase;margin:0;color:#141312}
+.ff-h{font-family:var(--dsp);font-size:clamp(34px,9vw,54px);line-height:.92;letter-spacing:-.005em;text-transform:uppercase;margin:0;color:#141312}
 .ff-sub{color:#6F6A63;font-size:14px;line-height:1.45;margin:10px 0 0;max-width:34ch}
 .ff-anim{animation:ffin .55s cubic-bezier(.16,1,.3,1) both}
 @keyframes ffin{from{opacity:0;transform:translateX(28px)}to{opacity:1;transform:none}}
@@ -1916,7 +1917,6 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
     <div class="mb-track-row"><input id="mb-track-phone" type="tel" inputmode="numeric" maxlength="14" placeholder="10-digit mobile" onkeydown="if(event.key==='Enter')mbQuickTrack()"/><button onclick="mbQuickTrack()">Find</button></div>
     <a class="mb-track-alt" onclick="closeMob();openOrderTracker()">Have an Order ID? Track with it →</a>
   </div>
-  <a class="mb-vault" href="/vault/"><span class="mb-vault-k">LIMITED EDITION</span><span class="mb-vault-t">VAULT 001</span><span class="mb-vault-s">2 designs · limited pieces →</span></a>
   <a class="mb-wa" href="https://wa.me/919990905969?text=Hi%20365%20Drop%20Store%2C%20I%20need%20help%20with%20size%2Forder" target="_blank" rel="noopener">💬 WhatsApp us — size help &amp; orders</a>
   <a onclick="closeMob();goTo('#shop')">Shop</a><a onclick="closeMob();goTo('#story')">Our Story</a><a onclick="closeMob();goTo('#reviews')">Reviews</a><a onclick="closeMob();goTo('#nl')">Early Access</a>
 </nav>
@@ -1924,7 +1924,7 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
 <!-- nav -->
 <header id="nav"><div class="w nav">
   <div class="nbrand" role="img" aria-label="365 Drop Store"><svg class="brand-block" viewBox="0 1.16 175.20 51.84" aria-hidden="true" focusable="false"><g fill="#C0392B"><path transform="translate(0.00 52.00) scale(0.02832 -0.02832)" d="M484 -20Q251 -20 145.0 103.0Q39 226 39 474V658H400V473Q400 403 417.5 354.5Q435 306 496 306Q558 306 575.0 358.5Q592 411 592 530V574Q592 665 561.5 733.0Q531 801 442 801Q431 801 422.5 800.5Q414 800 408 799V1115Q499 1115 547.0 1155.5Q595 1196 595 1291Q595 1440 509 1440Q453 1440 433.5 1396.5Q414 1353 414 1286V1233H50Q49 1245 48.5 1262.0Q48 1279 48 1295Q48 1537 161.0 1650.0Q274 1763 507 1763Q957 1763 957 1295Q957 1165 922.0 1080.5Q887 996 792 962Q867 926 903.0 870.0Q939 814 950.0 731.0Q961 648 961 530Q961 266 850.5 123.0Q740 -20 484 -20Z"/><path transform="translate(27.66 52.00) scale(0.02832 -0.02832)" d="M529 -16Q346 -16 242.5 46.5Q139 109 96.5 235.0Q54 361 54 549V1025Q54 1208 69.5 1348.0Q85 1488 134.0 1583.0Q183 1678 280.0 1727.0Q377 1776 539 1776Q650 1776 746.0 1737.5Q842 1699 901.0 1622.5Q960 1546 960 1431V1241H621V1277Q621 1321 616.5 1365.0Q612 1409 594.0 1438.0Q576 1467 533 1467Q474 1467 451.0 1434.5Q428 1402 428 1341V988Q453 1035 503.0 1063.5Q553 1092 625 1092Q771 1092 849.5 1033.5Q928 975 958.0 859.0Q988 743 988 569Q988 393 945.0 261.5Q902 130 801.5 57.0Q701 -16 529 -16ZM516 308Q578 308 590.0 360.5Q602 413 602 495V637Q602 781 521 781Q428 781 428 656V438Q428 308 516 308Z"/><path transform="translate(55.32 52.00) scale(0.02832 -0.02832)" d="M506 -25Q303 -25 174.5 75.5Q46 176 46 384V646H412V495Q412 448 417.5 404.0Q423 360 443.0 332.0Q463 304 506 304Q563 304 581.0 342.5Q599 381 599 441V787Q599 830 593.5 872.0Q588 914 569.0 942.0Q550 970 508 970Q408 970 408 825H85V1761H924V1431H419V1183Q445 1215 489.5 1239.5Q534 1264 594 1264Q714 1264 789.5 1218.0Q865 1172 905.5 1090.0Q946 1008 961.5 900.0Q977 792 977 668Q977 509 960.5 381.5Q944 254 895.5 163.0Q847 72 753.5 23.5Q660 -25 506 -25Z"/></g><rect x="91.98" y="2.16" width="3" height="49.84" fill="currentColor"/><g fill="currentColor"><path transform="translate(103.98 24.58) scale(0.01274 -0.01274)" d="M78 0V1760H562Q752 1760 848.0 1654.5Q944 1549 944 1346V522Q944 272 856.5 136.0Q769 0 550 0ZM432 311H493Q590 311 590 405V1313Q590 1401 566.5 1426.5Q543 1452 471 1452H432Z"/><path transform="translate(119.85 24.58) scale(0.01274 -0.01274)" d="M78 0V1760H618Q753 1760 822.0 1698.5Q891 1637 914.5 1526.5Q938 1416 938 1267Q938 1123 901.5 1037.0Q865 951 764 918Q847 901 880.5 835.5Q914 770 914 666V0H567V689Q567 766 535.5 784.5Q504 803 434 803V0ZM436 1108H521Q594 1108 594 1267Q594 1370 578.0 1402.0Q562 1434 518 1434H436Z"/><path transform="translate(135.28 24.58) scale(0.01274 -0.01274)" d="M498 -16Q287 -16 175.5 111.5Q64 239 64 480V1316Q64 1542 174.5 1659.0Q285 1776 498 1776Q711 1776 821.5 1659.0Q932 1542 932 1316V480Q932 239 820.5 111.5Q709 -16 498 -16ZM501 308Q581 308 581 463V1322Q581 1452 503 1452Q415 1452 415 1319V461Q415 379 435.0 343.5Q455 308 501 308Z"/><path transform="translate(150.97 24.58) scale(0.01274 -0.01274)" d="M78 0V1760H543Q689 1760 774.5 1695.0Q860 1630 897.0 1510.0Q934 1390 934 1224Q934 1064 903.0 945.5Q872 827 792.5 762.0Q713 697 567 697H424V0ZM424 1013H444Q542 1013 564.0 1068.0Q586 1123 586 1230Q586 1330 564.5 1384.5Q543 1439 463 1439H424Z"/><path transform="translate(103.98 52.00) scale(0.01274 -0.01274)" d="M496 -16Q255 -16 148.5 104.0Q42 224 42 486V658H390V438Q390 377 408.5 342.5Q427 308 473 308Q521 308 539.5 336.0Q558 364 558 428Q558 509 542.0 563.5Q526 618 486.5 667.5Q447 717 377 783L219 933Q42 1100 42 1315Q42 1540 146.5 1658.0Q251 1776 449 1776Q691 1776 792.5 1647.0Q894 1518 894 1255H536V1376Q536 1412 515.5 1432.0Q495 1452 460 1452Q418 1452 398.5 1428.5Q379 1405 379 1368Q379 1331 399.0 1288.0Q419 1245 478 1189L681 994Q742 936 793.0 871.5Q844 807 875.0 721.5Q906 636 906 513Q906 265 814.5 124.5Q723 -16 496 -16Z"/><path transform="translate(119.02 52.00) scale(0.01274 -0.01274)" d="M229 0V1422H20V1760H790V1422H581V0Z"/><path transform="translate(132.34 52.00) scale(0.01274 -0.01274)" d="M498 -16Q287 -16 175.5 111.5Q64 239 64 480V1316Q64 1542 174.5 1659.0Q285 1776 498 1776Q711 1776 821.5 1659.0Q932 1542 932 1316V480Q932 239 820.5 111.5Q709 -16 498 -16ZM501 308Q581 308 581 463V1322Q581 1452 503 1452Q415 1452 415 1319V461Q415 379 435.0 343.5Q455 308 501 308Z"/><path transform="translate(148.03 52.00) scale(0.01274 -0.01274)" d="M78 0V1760H618Q753 1760 822.0 1698.5Q891 1637 914.5 1526.5Q938 1416 938 1267Q938 1123 901.5 1037.0Q865 951 764 918Q847 901 880.5 835.5Q914 770 914 666V0H567V689Q567 766 535.5 784.5Q504 803 434 803V0ZM436 1108H521Q594 1108 594 1267Q594 1370 578.0 1402.0Q562 1434 518 1434H436Z"/><path transform="translate(163.46 52.00) scale(0.01274 -0.01274)" d="M78 0V1760H782V1420H436V1077H768V746H436V343H805V0Z"/></g></svg></div>
-  <div class="nlinks"><a onclick="goTo('#shop')">Shop</a><a onclick="goTo('#story')">Our Story</a><a onclick="goTo('#reviews')">Reviews</a><a onclick="openOrderTracker()">Track Order</a><a onclick="goTo('#nl')">Early Access</a><a href="/vault/" style="border:1px solid #C0392B;color:#C0392B;border-radius:20px;padding:6px 12px">Vault 001</a></div>
+  <div class="nlinks"><a onclick="goTo('#shop')">Shop</a><a onclick="goTo('#story')">Our Story</a><a onclick="goTo('#reviews')">Reviews</a><a onclick="openOrderTracker()">Track Order</a><a onclick="goTo('#nl')">Early Access</a></div>
   <div class="nright">
     <button class="hbtn" onclick="openSrch()" aria-label="Search" title="Search"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg></button>
     <button class="hbtn hbtn-track" onclick="openOrderTracker()" aria-label="Track your order" title="Track your order"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7.5 12 3l9 4.5v9L12 21l-9-4.5z"/><path d="M3 7.5 12 12l9-4.5M12 12v9"/></svg></button>
@@ -2035,6 +2035,7 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
   <div class="fdbody">
     <div class="fsec"><h4>SIZE</h4><div class="fchips" id="flt-sizes"></div></div>
     <div class="fsec"><h4>FIT</h4><div class="fchk" id="flt-fits"></div></div>
+    <div class="fsec"><h4>COLOUR <small style="font-weight:600;letter-spacing:.04em;text-transform:none;color:#B8860B;margin-left:6px">light \u2192 dark</small></h4><div class="fswatch" id="flt-shades"></div></div>
     <div class="fsec"><h4>PRICE</h4>
       <input type="range" class="pslider" id="price-slider" min="0" max="5000" value="5000" oninput="updatePrice(this.value)"/>
       <div class="pll"><span>₹0</span><span id="price-val">Under ₹5,000</span></div>
@@ -2043,21 +2044,7 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
   </div>
 </aside>
 
-<!-- ===== DESIGNER COLLECTION — luxury showcase, auto-populated from products with 'designer' badge ===== -->
-<section class="des-sec" id="designer-sec" style="display:none">
-  <div class="w">
-    <div class="des-eyebrow">DESIGNER COLLECTION · LIMITED EDITION</div>
-    <h2 class="des-title">CRAFTED DIFFERENT.</h2>
-    <p class="des-sub">Hand-picked designer articles. Premium fabric, elevated cuts — produced in limited numbers. When these are gone, they don't come back.</p>
-    <div class="des-grid" id="des-grid"></div>
-  </div>
-</section>
 
-<!-- ═══════════════════════════════════════
-     VAULT DOOR TEASER — links to /vault/
-     All CSS scoped under .vault-door-* to avoid any collision
-     with existing site classes.
-     ═══════════════════════════════════════ -->
 <style>
 /* ── Star Wall strip — short band, not a hero ── */
 .cst-strip{padding:26px 0}
@@ -2083,85 +2070,7 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
   .cst-act{align-items:flex-start;text-align:left;padding:14px 20px 0;flex-direction:row;align-items:center;gap:14px}
   .cst-count-lbl{display:none}
 }
-
-.vd-pane{position:relative;flex:1;width:50%;height:100%;display:block;overflow:hidden}
-.vd-pane .vd-real-img{width:100%;transition:transform .6s ease}
-.vd-pane:hover .vd-real-img{transform:scale(1.04)}
-.vd-chip{position:absolute;left:12px;right:12px;bottom:12px;display:none;justify-content:space-between;align-items:center;gap:8px;background:rgba(14,14,12,.82);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:9px 12px;color:#F6F3EE;font:600 12px/1.2 ui-monospace,monospace;letter-spacing:.03em}
-.vd-chip.on{display:flex}.vd-chip b{color:#E85D45;font-size:13px;white-space:nowrap}.vd-chip span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.vd-buy{margin:18px 0 6px}
-.vd-price{display:flex;align-items:baseline;gap:10px}.vd-price b{font-family:var(--dsp);font-size:40px;color:#F6F3EE;letter-spacing:.02em;line-height:1}.vd-price span{font:12px ui-monospace,monospace;color:#8A8783;letter-spacing:.06em;text-transform:uppercase}
-.vd-sizes{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0 10px}.vd-sizes span{font:600 11px ui-monospace,monospace;color:#F6F3EE;border:1px solid #3a3a36;border-radius:4px;padding:5px 8px}.vd-sizes span.out{color:#55534f;text-decoration:line-through;border-color:#252523}
-.vd-trust{font:11px ui-monospace,monospace;color:#8A8783;letter-spacing:.05em}
-.vault-door-cta.vd-cta-solid{background:#C0392B;border-color:#C0392B;color:#fff;font-size:12px;padding:15px 24px;margin-top:14px}
-.vault-door-cta.vd-cta-solid:hover{background:#E85D45;border-color:#E85D45}
-@media(max-width:960px){.vd-price b{font-size:34px}.vault-door-cta.vd-cta-solid{width:100%;justify-content:center}}
-.vault-door{background:#0E0E0C;border-top:1px solid #222;border-bottom:1px solid #222;margin:0;position:relative;overflow:hidden}
-.vault-door-inner{max-width:1280px;margin:0 auto;display:grid;grid-template-columns:1.2fr 0.8fr;min-height:400px;position:relative;z-index:1}
-.vault-door-img{position:relative;overflow:hidden;min-height:400px;background:linear-gradient(160deg,#161614,#0E0E0C 60%)}
-.vd-real-imgs{position:absolute;inset:0;display:flex;gap:2px}
-.vd-real-img{flex:1;width:50%;height:100%;object-fit:cover;object-position:top center;display:block;background:#161614}
-.vd-real-imgs::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(14,14,12,0.55) 0%,rgba(14,14,12,0) 22%,rgba(14,14,12,0) 78%,rgba(14,14,12,0.55) 100%);pointer-events:none}
-.vault-door-copy{padding:44px;display:flex;flex-direction:column;justify-content:center;gap:12px}
-.vault-door-copy .vd-tag{font-family:ui-monospace,monospace;font-size:10px;color:#8A8783;text-transform:uppercase;letter-spacing:0.08em;line-height:2}
-.vault-door-copy h2{font-family:var(--dsp);font-size:40px;color:#F6F3EE;line-height:0.92;letter-spacing:0.01em;text-transform:none}
-.vault-door-copy h2 em{font-style:italic}
-.vault-door-copy p{font-size:13px;color:#8A8783;line-height:1.7;max-width:360px}
-.vault-door-cd{display:flex;gap:16px;margin:6px 0 4px;font-family:ui-monospace,monospace}
-.vd-live-msg{font-family:var(--dsp);font-size:22px;letter-spacing:0.03em;color:#E85D45;text-shadow:0 0 20px rgba(232,93,69,0.4);animation:vd-live-pulse 1.6s ease-in-out infinite}
-@keyframes vd-live-pulse{0%,100%{opacity:1}50%{opacity:0.72}}
-.vd-cd-unit{display:flex;flex-direction:column;align-items:center}
-.vd-cd-num{font-size:22px;font-weight:600;color:#F6F3EE;font-variant-numeric:tabular-nums}
-.vd-cd-lbl{font-size:8px;color:#8A8783;letter-spacing:0.08em;margin-top:2px}
-.vault-door-cta{display:inline-flex;align-items:center;gap:8px;padding:12px 20px;background:transparent;color:#F6F3EE;font-family:ui-monospace,monospace;font-size:11px;text-transform:uppercase;letter-spacing:0.08em;text-decoration:none;width:fit-content;border:1px solid #C0392B;transition:background 0.3s}
-.vault-door-cta:hover{background:rgba(192,57,43,0.1)}
-.vault-door-img .vd-locked{position:absolute;inset:0;overflow:hidden}
-.vault-door-img .vd-locked-svg{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:70%;height:auto;opacity:0.5}
-.vault-door-img .vd-locked-grid{position:absolute;inset:0;pointer-events:none;background-image:linear-gradient(rgba(192,57,43,0.06) 1px,transparent 1px),linear-gradient(90deg,rgba(192,57,43,0.06) 1px,transparent 1px);background-size:28px 28px}
-.vault-door-img .vd-locked-scan{position:absolute;left:0;right:0;height:2px;background:rgba(192,57,43,0.55);box-shadow:0 0 16px rgba(192,57,43,0.4),0 0 40px rgba(192,57,43,0.15);animation:vd-locked-sweep 4s ease-in-out infinite}
-@keyframes vd-locked-sweep{0%{top:0%}50%{top:100%}100%{top:0%}}
-.vault-door-img .vd-locked-hud{position:absolute;font-family:ui-monospace,monospace;font-size:9px;color:rgba(138,135,131,0.7);letter-spacing:0.08em;padding:16px}
-.vault-door-img .vd-locked-hud--tl{top:0;left:0}
-.vault-door-img .vd-locked-hud--tr{top:0;right:0;color:#C0392B}
-.vault-door-img .vd-locked-hud--bl{bottom:0;left:0}
-.vault-door-img .vd-locked-hud--br{bottom:0;right:0;color:#C0392B}
-.vault-door-img .vd-locked-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:10px;z-index:3;text-align:center}
-.vault-door-img .vd-lock-icon{width:48px;height:48px;border:1px solid rgba(192,57,43,0.35);border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(14,14,12,0.5)}
-.vault-door-img .vd-lock-text{font-family:ui-monospace,monospace;font-size:11px;color:#F6F3EE;letter-spacing:0.12em}
-.vault-door-img .vd-lock-sub{font-family:ui-monospace,monospace;font-size:9px;color:#C0392B;letter-spacing:0.08em}
-@media(max-width:960px){
-  .vault-door-inner{grid-template-columns:1fr}
-  .vault-door-img{min-height:280px}
-  .vault-door-copy{padding:28px 20px}
-  .vault-door-copy h2{font-size:32px}
-}
 </style>
-<section class="vault-door">
-  <div class="vault-door-inner">
-    <div class="vault-door-img">
-      <div class="vd-locked">
-        <div class="vd-real-imgs">
-          <a class="vd-pane" id="vd-pane-1" href="/vault/"><img id="vd-img-1" class="vd-real-img" alt="Vault edition 1"><span class="vd-chip" id="vd-chip-1"></span></a>
-          <a class="vd-pane" id="vd-pane-2" href="/vault/"><img id="vd-img-2" class="vd-real-img" alt="Vault edition 2"><span class="vd-chip" id="vd-chip-2"></span></a>
-        </div>
-      </div>
-    </div>
-    <div class="vault-door-copy">
-      <div class="vd-tag"><span id="vd-kicker-1">VAULT 001 — 2 DESIGNS</span><br><span id="vd-kicker-2">12 PIECES EACH</span></div>
-      <h2><span id="vd-h1a">Two forms.</span><br><em id="vd-h1b">Open now.</em></h2>
-      <p id="vd-body">Our heaviest wide-leg denim, picked for weight and fall. Two designs, 12 pieces each, checked by the founders before each one ships.</p>
-      <div class="vault-door-cd" id="vd-countdown" style="display:block">
-        <div class="vd-live-msg" id="vd-live-msg">THE VAULT IS OPEN. 12 PIECES PER DESIGN.</div>
-      </div>
-      <div class="vd-buy" id="vd-buy" style="display:none">
-        <div class="vd-price"><b id="vd-price">₹1,899</b><span id="vd-price-note">each · 2 designs</span></div>
-        <div class="vd-sizes" id="vd-sizes"></div>
-        <div class="vd-trust">Free shipping · 7-day size exchange · Founder-checked</div>
-      </div>
-      <a href="/vault/" class="vault-door-cta vd-cta-solid" id="vd-cta">SHOP THE VAULT →</a>
-    </div>
-  </div>
-</section>
 
 <!-- new arrivals: placed right after the hero, ahead of the main grid --
      this is deliberately one of the first things a visitor sees, not a
@@ -2192,87 +2101,6 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
 <section class="sec" id="new-arrivals" style="padding:32px 0;display:none"><div class="w"><h2 style="font-family:var(--dsp);font-size:clamp(22px,4vw,30px);margin-bottom:16px">NEW ARRIVALS</h2><div class="rv-strip" id="na-strip"></div></div></section>
 
 <script>
-(function(){
-  var vdInterval=null;
-  function getTarget(){
-    // Reads the admin-set date from Edit Site -> "Vault Drop Countdown".
-    // Falls back to 9 PM today only if the admin hasn't set one.
-    try{
-      if(typeof siteContent!=="undefined"&&siteContent.vaultDropDate){
-        var d=new Date(siteContent.vaultDropDate);
-        if(!isNaN(d))return d;
-      }
-    }catch(e){}
-    // No admin date: treat the vault as open rather than inventing a deadline.
-    return new Date(0);
-  }
-  function build(){
-    if(vdInterval){clearInterval(vdInterval);vdInterval=null;}
-    var target=getTarget();
-    function tick(){
-      var diff = target - new Date();
-      var hEl=document.getElementById('vd-h'), mEl=document.getElementById('vd-m'), sEl=document.getElementById('vd-s');
-      if (!hEl||!mEl||!sEl) return;
-      if (diff <= 0){
-        hEl.textContent='00'; mEl.textContent='00'; sEl.textContent='00';
-        var sub=document.getElementById('vd-lock-sub'); if(sub) sub.textContent='LIVE NOW';
-        if(vdInterval){clearInterval(vdInterval);vdInterval=null;}
-        return;
-      }
-      var h = Math.floor(diff/3600000);
-      var m = Math.floor((diff%3600000)/60000);
-      var s = Math.floor((diff%60000)/1000);
-      hEl.textContent = String(h).padStart(2,'0');
-      mEl.textContent = String(m).padStart(2,'0');
-      sEl.textContent = String(s).padStart(2,'0');
-    }
-    tick();
-    vdInterval=setInterval(tick,1000);
-  }
-  // Deferred to next tick — same pattern as the site's own drop countdown
-  // (see window.rebuildDropCountdown below). Without this, siteContent
-  // hasn't loaded yet at this point in the page and every visitor would
-  // see the hardcoded 9pm fallback regardless of what's saved in admin.
-  setTimeout(build, 0);
-  window.rebuildVaultCountdown = build;
-})();
-
-/* Fetch the first two "Vault" badged products and show their real
-   first photo here — replaces the old abstract locked-silhouette
-   placeholder. If fewer than 2 exist, the second slot just stays empty. */
-(async function(){
-  try{
-    const SBu='https://fhiivshoikcnanbvdtxm.supabase.co',
-          SKu='sb_publishable_LPwVp36pEOfQIEchjefMfw_SmGNcxUt';
-    const res=await fetch(SBu+'/rest/v1/products?select=id,name,images,badges,price,offer_price,sizes,oosizes',{headers:{apikey:SKu,Authorization:'Bearer '+SKu}});
-    const rows=await res.json();
-    const vaultItems=(rows||[]).filter(p=>Array.isArray(p.badges)&&p.badges.includes('vault')).slice(0,2);
-    const inr=n=>'₹'+Number(n).toLocaleString('en-IN');
-    const priceOf=p=>Number(p.offer_price||p.price||0);
-    const clean=n=>String(n||'').replace(/^365-?\s*WD[- ]?/i,'').replace(/-/g,' ').trim();
-    vaultItems.forEach((p,i)=>{
-      const img=document.getElementById('vd-img-'+(i+1)), pane=document.getElementById('vd-pane-'+(i+1)), chip=document.getElementById('vd-chip-'+(i+1));
-      if(img&&p.images&&p.images[0]) img.src=p.images[0];
-      if(img) img.alt=p.name||'Vault edition';
-      if(pane) pane.href='/vault/#vp-'+encodeURIComponent(p.id);
-      if(chip&&priceOf(p)){chip.innerHTML='<span>'+clean(p.name)+'</span><b>'+inr(priceOf(p))+'</b>';chip.classList.add('on');}
-    });
-    const p2=document.getElementById('vd-pane-2'); if(!vaultItems[1]&&p2) p2.style.display='none';
-    if(vaultItems.length){
-      const prices=vaultItems.map(priceOf).filter(Boolean);
-      const lo=Math.min(...prices), hi=Math.max(...prices);
-      document.getElementById('vd-price').textContent=lo===hi?inr(lo):inr(lo)+'–'+inr(hi);
-      document.getElementById('vd-price-note').textContent=(lo===hi?'each · ':'')+vaultItems.length+' design'+(vaultItems.length>1?'s':'');
-      // sizes: a size counts as available if at least one design has it in stock
-      const all=[...new Set(vaultItems.flatMap(p=>p.sizes||[]))].sort((a,b)=>parseFloat(a)-parseFloat(b));
-      const inStock=sz=>vaultItems.some(p=>(p.sizes||[]).includes(sz)&&!(p.oosizes||[]).includes(sz));
-      document.getElementById('vd-sizes').innerHTML=all.map(sz=>'<span class="'+(inStock(sz)?'':'out')+'">'+sz+'</span>').join('');
-      document.getElementById('vd-buy').style.display='';
-      const cta=document.getElementById('vd-cta'); if(cta&&!(siteContent&&siteContent.vault&&siteContent.vault.teaser&&siteContent.vault.teaser.cta)) cta.textContent='SHOP THE VAULT · '+inr(lo)+' →';
-    }
-  }catch(e){ console.error('Vault teaser images failed to load:',e); }
-})();
-
 /* ── Star Wall strip ──────────────────────────────────────────
    Pulls the live star count from the same Edge Function the full
    wall uses. The strip stays hidden until that call succeeds and
@@ -2383,7 +2211,6 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
 
 <!-- shop -->
 <section class="sec" id="shop" style="padding-top:32px"><div class="w">
-<div id="shadebar" class="shadebar"></div>
   <div class="shop-trust"><span class="trust-line js-trust"></span></div>
   <div class="rev-trust-strip" id="revTrustStrip" onclick="goTo('#reviews')" style="display:none">
     <span class="rts-score">5.0</span>
@@ -2577,7 +2404,7 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
 const WA="919990905969";const LS={get:(k,d=null)=>{try{return JSON.parse(localStorage.getItem(k))??d}catch{return d}},set:(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch{}}};
 const inr=n=>"₹"+Number(n).toLocaleString("en-IN");const eff=p=>p.offerPrice??p.price;
 const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
-const BM={new:{c:"b-new",t:"New"},best:{c:"b-best",t:"Bestseller"},ltd:{c:"b-ltd",t:"Limited"},off:{c:"b-off",t:"Offer"},sold:{c:"b-so",t:"Sold Out"},designer:{c:"b-des",t:"Designer"},vault:{c:"b-des",t:"Vault"}};
+const BM={new:{c:"b-new",t:"New"},best:{c:"b-best",t:"Bestseller"},ltd:{c:"b-ltd",t:"Limited"},off:{c:"b-off",t:"Offer"},sold:{c:"b-so",t:"Sold Out"},designer:{c:"b-des",t:"Designer"},vault:{c:"b-des",t:"Designer"}};
 const ALL_SIZES=["28","30","32","34","36","S","M","L","XL","XXL"];
 
 // DEFAULT DATA
@@ -2718,25 +2545,19 @@ function shadeOf(p){
   return (p&&p.shade&&SHADE_BY_KEY[p.shade])?SHADE_BY_KEY[p.shade]:null;
 }
 function buildShadeBar(){
-  const el=document.getElementById("shadebar");if(!el)return;
-  const counts={};let unset=0;
-  products.forEach(p=>{if(!(p.images||[]).length)return;const s=shadeOf(p);if(s)counts[s.k]=(counts[s.k]||0)+1;else unset++;});
-  try{ if(unset&&typeof _adminPw!=="undefined"&&_adminPw)
-    console.log(unset+" product(s) have no colour set — Admin > Products > Colour Family"); }catch(e){}
+  const el=document.getElementById("flt-shades");if(!el)return;
+  const counts={};
+  products.forEach(p=>{if(!(p.images||[]).length)return;const s=shadeOf(p);if(s)counts[s.k]=(counts[s.k]||0)+1;});
   const avail=SHADES.filter(s=>counts[s.k]>0).sort((a,b)=>b.L-a.L);
-  if(avail.length<2){el.innerHTML="";return;}
-  el.innerHTML='<div class="sb-lab">HAVE A COLOUR IN MIND?<small>light \u2192 dark</small></div><div class="sb-row">'
-    +'<button class="sw sw-all'+(fShade?"":" on")+'" onclick="pickShade(\'\')" aria-pressed="'+(fShade?"false":"true")+'">All</button>'
-    +avail.map(s=>'<button class="sw'+(fShade===s.k?" on":"")+'" onclick="pickShade(\''+s.k+'\')"'
+  if(avail.length<2){el.parentNode.style.display="none";return;}
+  el.parentNode.style.display="";
+  el.innerHTML=avail.map(s=>'<button class="sw'+(fShade===s.k?" on":"")+'" onclick="pickShade(\''+s.k+'\')"'
       +' aria-pressed="'+(fShade===s.k?"true":"false")+'" title="'+s.n+' \u00b7 '+counts[s.k]+'">'
-      +'<i style="background:'+s.hex+'"></i><span>'+s.n+'</span><b>'+counts[s.k]+'</b></button>').join("")
-    +'</div>';
+      +'<i style="background:'+s.hex+'"></i><span>'+s.n+'</span><b>'+counts[s.k]+'</b></button>').join("");
 }
 function pickShade(k){
   fShade=(fShade===k)?"":k;
-  buildShadeBar();renderGrid();
-  const g=document.getElementById("shop");
-  if(g&&fShade)g.scrollIntoView({behavior:"smooth",block:"start"});
+  buildShadeBar();renderGrid();showAF();
 }
 
 // PARTICLES (greyscale only)
@@ -2819,25 +2640,6 @@ function applySiteContent(){
   const stP1=document.getElementById("story-p1");if(stP1)stP1.textContent=s.storyP1||DSite.storyP1;
   const stP2=document.getElementById("story-p2");if(stP2)stP2.textContent=s.storyP2||DSite.storyP2;
 
-  // Vault Door teaser (homepage) — reuses siteContent.vault.teaser, edited from
-  // the same "Vault Content" admin tab as the Vault page itself. Falls back to
-  // hardcoded copy already in the HTML if never set.
-  if(s.vault&&s.vault.teaser){
-    const t=s.vault.teaser;
-    const setT=(id,val)=>{ if(!val)return; const el=document.getElementById(id); if(el)el.innerHTML=val; };
-    setT("vd-file-tag",t.fileTag);
-    setT("vd-enc-tag",t.encTag);
-    setT("vd-lock-label",t.lockLabel);
-    setT("vd-lock-sub",t.lockSub);
-    setT("vd-res-tag",t.resTag);
-    setT("vd-ed-tag",t.edTag);
-    setT("vd-kicker-1",t.kicker1);
-    setT("vd-kicker-2",t.kicker2);
-    setT("vd-h1a",t.h1a);
-    setT("vd-h1b",t.h1b);
-    setT("vd-body",t.body);
-    setT("vd-cta",t.cta);
-  }
   if(s.trust){const tg=document.getElementById("trust-grid");if(tg){const items=s.trust.split("\n").filter(l=>l.trim()).slice(0,4);if(items.length)tg.innerHTML=items.map(l=>{const[ic,ti,su]=l.split("|").map(x=>(x||"").trim());return`<div class="titem"><div class="tic">${ic}</div><div><div class="tit">${ti}</div><div class="tis">${su}</div></div></div>`;}).join("");}}
   applyGallery("ed-img",s.edImgs,s.edImg);
   applyGallery("story-img",s.stImgs,s.stImg);
@@ -2960,10 +2762,10 @@ function togFS(s){if(fSizes.includes(s))fSizes=fSizes.filter(x=>x!==s);else fSiz
 function togFF(f){if(fFits.includes(f))fFits=fFits.filter(x=>x!==f);else fFits.push(f);buildFilterUI();renderGrid();showAF();}
 function updatePrice(v){fMaxPrice=Number(v);document.getElementById("price-val").textContent="Under "+inr(v);renderGrid();showAF();}
 function setCat(c){fCat=c;["all","jeans","t-shirts"].forEach(id=>{const b=document.getElementById("fb-"+id);if(b)b.classList.remove("act");});const bt=document.getElementById("fb-"+c.toLowerCase().replace(/\s+/g,"-"));if(bt)bt.classList.add("act");renderGrid();showAF();}
-function clearAllFilters(){fCat="All";fSizes=[];fFits=[];fMaxPrice=5000;document.getElementById("price-slider").value=5000;document.getElementById("price-val").textContent="Under ₹5,000";setCat("All");buildFilterUI();renderGrid();showAF();}
+function clearAllFilters(){fCat="All";fSizes=[];fFits=[];fShade="";buildShadeBar();fMaxPrice=5000;document.getElementById("price-slider").value=5000;document.getElementById("price-val").textContent="Under ₹5,000";setCat("All");buildFilterUI();renderGrid();showAF();}
 function openFilters(){document.getElementById("fdrawer").classList.add("op");document.getElementById("fscrim").classList.add("op");}
 function closeFilters(){document.getElementById("fdrawer").classList.remove("op");document.getElementById("fscrim").classList.remove("op");}
-function showAF(){const tags=[];if(fCat!=="All")tags.push({l:fCat,c:()=>setCat("All")});fSizes.forEach(s=>tags.push({l:"Size: "+s,c:()=>togFS(s)}));fFits.forEach(f=>tags.push({l:f,c:()=>togFF(f)}));if(fMaxPrice<5000)tags.push({l:"Under "+inr(fMaxPrice),c:()=>{fMaxPrice=5000;document.getElementById("price-slider").value=5000;document.getElementById("price-val").textContent="Under ₹5,000";renderGrid();showAF();}});const chipsHTML=tags.map((t,i)=>`<div class="aft">${t.l} <span class="afx" onclick="cAF(${i})">×</span></div>`).join("");const viewAllHTML=tags.length?`<button class="btn btn-attract" style="font-size:12px;padding:8px 16px;margin-left:4px" onclick="clearAllFilters()">View all ${products.filter(p=>!isSold(p)).length} styles →</button>`:'';document.getElementById("active-filters").innerHTML=chipsHTML+viewAllHTML;const bot=document.getElementById("active-filters-bottom");if(bot)bot.innerHTML=viewAllHTML;window._afc=tags.map(t=>t.c);}
+function showAF(){const tags=[];if(fCat!=="All")tags.push({l:fCat,c:()=>setCat("All")});fSizes.forEach(s=>tags.push({l:"Size: "+s,c:()=>togFS(s)}));fFits.forEach(f=>tags.push({l:f,c:()=>togFF(f)}));if(fShade&&SHADE_BY_KEY[fShade])tags.push({l:SHADE_BY_KEY[fShade].n,c:()=>pickShade(fShade)});if(fMaxPrice<5000)tags.push({l:"Under "+inr(fMaxPrice),c:()=>{fMaxPrice=5000;document.getElementById("price-slider").value=5000;document.getElementById("price-val").textContent="Under ₹5,000";renderGrid();showAF();}});const chipsHTML=tags.map((t,i)=>`<div class="aft">${t.l} <span class="afx" onclick="cAF(${i})">×</span></div>`).join("");const viewAllHTML=tags.length?`<button class="btn btn-attract" style="font-size:12px;padding:8px 16px;margin-left:4px" onclick="clearAllFilters()">View all ${products.filter(p=>!isSold(p)).length} styles →</button>`:'';document.getElementById("active-filters").innerHTML=chipsHTML+viewAllHTML;const bot=document.getElementById("active-filters-bottom");if(bot)bot.innerHTML=viewAllHTML;window._afc=tags.map(t=>t.c);}
 function cAF(i){if(window._afc&&window._afc[i])window._afc[i]();}
 
 // GRID
@@ -3010,7 +2812,7 @@ function pcardHTML(p){
           <div class="pshare" onclick="event.stopPropagation();shareProduct('${p.id}','${p.name.replace(/'/g,"\\'")}','${plink}')" title="Share">🔗</div>
         </div>`:''}
       </div>
-      <div class="pmeta"><div class="pname">${dispName(p)}</div><div class="pfit">${p.fit||''} · ${p.category}</div><div class="pprices">${pr}</div><div class="psizes">${szs}</div>${myFit}${lowStock}${restockNote}${restockSoon.length?`<div class="pRestockBack">\u21bb ${restockSoon.join(", ")} back ${(()=>{const dt=new Date((p.sizeRestockDates||{})[restockSoon[0]]);return dt.toLocaleDateString("en-IN",{day:"numeric",month:"short"});})()}</div>`:''}</div>
+      <div class="pmeta"><div class="pname">${dispName(p)}</div><div class="pfit">${p.fit||''} · ${p.category}</div><div class="pprices">${pr}</div>${lowStock}${restockNote}${restockSoon.length?`<div class="pRestockBack">\u21bb ${restockSoon.join(", ")} back ${(()=>{const dt=new Date((p.sizeRestockDates||{})[restockSoon[0]]);return dt.toLocaleDateString("en-IN",{day:"numeric",month:"short"});})()}</div>`:''}</div>
     </div>`;
 }
 let wishlist=LS.get("ds_wishlist",[])||[];
@@ -3033,7 +2835,7 @@ function renderFitBtns(){
   const el=document.getElementById("fit-btns");
   if(!el)return;
   const _ffp=ffProfile(), _ffOn=_ffp&&ffOnlyMine;
-  const inGrid=p=>(p.images||[]).length&&!(p.badges||[]).includes("designer")&&!(p.badges||[]).includes("vault")&&(!_ffOn||ffMatches(p,_ffp));
+  const inGrid=p=>(p.images||[]).length&&(!_ffOn||ffMatches(p,_ffp));
   const fitsInUse=[...new Set(products.filter(inGrid).map(p=>p.fit).filter(Boolean))];
   const activeFit=fFits.length===1?fFits[0]:"";
   const totalCount=products.filter(inGrid).length;
@@ -3044,7 +2846,7 @@ function renderFitBtns(){
     }).join("");
 }
 window.pickFitTab=function(fit){
-  fFits=[fit];fSizes=[];fMaxPrice=5000;fCat="All";
+  fFits=[fit];fSizes=[];fShade="";fMaxPrice=5000;fCat="All";
   document.getElementById("price-slider").value=5000;
   document.getElementById("price-val").textContent="Under \u20B95,000";
   setCat("All");buildFilterUI();renderGrid();
@@ -3233,7 +3035,7 @@ var ffOnlyMine=false;                           // every page load shows ALL pro
 var _ffDraft=null, _ffSource="", _ffStep=1;
 function ffProfile(){const m=_fsMem();if(!m||!(+m.waist>=20&&+m.waist<=60))return null;
   return {waist:+m.waist,pref:"true",mode:m.mode==="usual"?"usual":"waist",cuts:Array.isArray(m.cuts)?m.cuts:null};}
-function ffInGrid(p){return (p.images||[]).length&&!(p.badges||[]).includes("designer")&&!(p.badges||[]).includes("vault");}
+function ffInGrid(p){return (p.images||[]).length;}
 function ffBelt(fit,waist){return fit===FF_BELT_FIT&&waist<FF_BELT_BELOW;}
 // The size this shopper should buy in product p:
 // {size,best,oos,swapped,band,none,belt} — none=true when we don't make this cut in their size; null if no guide.
@@ -3334,7 +3136,7 @@ function ffRender(){
   if(_ffStep===1){
     const stops=ffStops(d.mode);
     body.innerHTML=`<div class="ff-anim">${ffKick()}
-      <h2 class="ff-h" id="ff-h">${d.mode==="usual"?"Your jeans size.":"Your waist."}</h2>
+      <h2 class="ff-h" id="ff-h">${d.mode==="usual"?"Your jeans size.":"Your waist in inches."}</h2>
       <p class="ff-sub">${d.mode==="usual"?"The number on the label of the jeans that fit you best.":"Swipe to your number. We'll pick your size in every cut."}</p></div>
       <div class="ff-wheelwrap"><div class="ff-wheel" id="ff-wheel" tabindex="0" role="slider" aria-label="${d.mode==="usual"?"Jeans size":"Waist in inches"}" aria-valuemin="${stops[0]}" aria-valuemax="${stops[stops.length-1]}">
         <div class="ff-pad"></div>${stops.map((v,i)=>`<div class="ff-n" data-v="${v}" data-i="${i}">${ffFmt(v,d.mode)}</div>`).join("")}<div class="ff-pad"></div>
@@ -3427,6 +3229,7 @@ function ffSetOnlyMine(v){ffOnlyMine=v;renderGrid();const b=document.getElementB
 const FF_TAPE='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="8" width="20" height="8" rx="2"/><path d="M6 8v3M10 8v4M14 8v3M18 8v4"/></svg>';
 function ffRenderBar(){
   const bar=document.getElementById("ff-bar"); if(!bar)return;
+  bar.hidden=true; bar.innerHTML=""; bar.onclick=null; return; // main page carries no size UI; fit finder lives on product pages
   const prof=ffProfile();
   if(!prof){bar.className="ff-bar ask";bar.hidden=false;bar.onclick=()=>ffOpen("bar");
     bar.innerHTML=`<span class="ffb-ic">${FF_TAPE}</span><span class="ffb-t"><b>Not sure of your size?</b>Tell us your waist once. We'll mark every pair that fits you.</span><span class="ffb-act"><button class="ffb-go">Find my size · 10 sec →</button></span>`;return;}
@@ -3503,8 +3306,6 @@ function renderGrid(){
   gridPage=0;_pcardIdx=0;
   const srt=document.getElementById("srt").value;
   let list=[...products].filter(p=>fCat==="All"||p.category===fCat);
-  // Exclude designer products from the regular grid — they have their own section
-  list=list.filter(p=>!(p.badges||[]).includes("designer")&&!(p.badges||[]).includes("vault"));
   // A size filter means "show me what I can actually buy in this size" —
   // must also exclude sizes that are listed but sold out (oosizes), same rule
   // the filter chip's own count already uses.
@@ -3527,7 +3328,7 @@ function renderGrid(){
   const visible=list.slice(0,GRID_PAGE_SIZE);
   const remaining=list.length-GRID_PAGE_SIZE;
   const grid=document.getElementById("pgrid");
-  grid.innerHTML=visible.length?visible.map((p,i)=>pcardHTML(p)+(i===3&&!_ffp?ffInCardHTML():"")).join(""):(_ffp&&ffOnlyMine?`<div class="np">No pairs in your size and cuts match these filters right now. <button class="ffb-edit" style="color:#A8321F" onclick="ffSetOnlyMine(false)">Show all sizes</button></div>`:`<div class="np">No products match your filters.</div>`);
+  grid.innerHTML=visible.length?visible.map(p=>pcardHTML(p)).join(""):(_ffp&&ffOnlyMine?`<div class="np">No pairs in your size and cuts match these filters right now. <button class="ffb-edit" style="color:#A8321F" onclick="ffSetOnlyMine(false)">Show all sizes</button></div>`:`<div class="np">No products match your filters.</div>`);
   const lmEl=document.getElementById("load-more-wrap");
   if(lmEl)lmEl.innerHTML=remaining>0?`<button class="btn-loadmore" onclick="loadMoreProducts()">Load ${Math.min(remaining,GRID_PAGE_SIZE)} more styles ↓</button>`:'';
   const cnt=document.getElementById("shopall-count");if(cnt)cnt.textContent=list.length?`· ${list.length} item${list.length>1?'s':''}`:'';
@@ -3535,7 +3336,6 @@ function renderGrid(){
   ffRenderBar();
   if(typeof rebuildStickyBuy==="function")rebuildStickyBuy();
   renderHeroGrid();
-  renderDesignerSection();
 }
 function loadMoreProducts(){
   gridPage++;
@@ -5547,12 +5347,12 @@ async function loadPublished(){
     const sold=typeof getSoldCount==="function"?getSoldCount(feat.id):0;
     document.getElementById("hpf-tag").textContent=(feat.badges||[]).includes("best")?"Bestseller":(sold>0?sold+" sold":"");
     document.getElementById("hpf-name").textContent=nm;
-    document.getElementById("hpf-meta").textContent=[feat.fit,(feat.sizes||[]).length?"Waist "+feat.sizes[0]+"–"+feat.sizes[feat.sizes.length-1]:""].filter(Boolean).join(" · ");
+    document.getElementById("hpf-meta").textContent=feat.fit||"";
     const now=typeof eff==="function"?eff(feat):(feat.offerPrice||feat.price);
     document.getElementById("hpf-price").innerHTML=inr(now)+(feat.offerPrice&&feat.price>now?"<s>"+inr(feat.price)+"</s>":"");
     const open=()=>openMo(feat.id);
     document.getElementById("hpf-media").onclick=open;document.getElementById("hpf-buy").onclick=open;
-    const inGrid=p=>(p.images||[]).length&&!(p.badges||[]).includes("designer")&&!(p.badges||[]).includes("vault");
+    const inGrid=p=>(p.images||[]).length;
     const fitsIn=[...new Set(all.filter(inGrid).map(p=>p.fit).filter(Boolean))];
     document.getElementById("hpf-fits").innerHTML=fitsIn.map(f=>`<button type="button" data-fit="${f.replace(/"/g,"&quot;")}">${f}<small>${all.filter(p=>inGrid(p)&&p.fit===f).length}</small></button>`).join("");
     document.querySelectorAll("#hpf-fits button").forEach(b=>b.onclick=()=>pickFitTab(b.dataset.fit));

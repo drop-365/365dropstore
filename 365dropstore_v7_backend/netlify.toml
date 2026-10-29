@@ -20,6 +20,20 @@
   path = "/sitemap.xml"
   function = "sitemap"
 
+# Vault dissolved (Oct 2026): the two designer pieces now live in the main grid
+# with a "Designer" tag. force=true so the old /vault/index.html file can't shadow this.
+[[redirects]]
+  from = "/vault"
+  to = "/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/vault/*"
+  to = "/"
+  status = 301
+  force = true
+
 # Clean product URLs — serve index.html so the JS app handles /p/{id} routes
 [[redirects]]
   from = "/p/*"
