@@ -442,10 +442,10 @@ header.sc .nav{height:58px}
 @media(max-width:640px){#sp-toast{left:12px;right:84px;max-width:none;bottom:calc(76px + env(safe-area-inset-bottom,0px))}}
 
 /* ===== COLOUR PALETTE FILTER (added 2026-09-03) ===== */
-.shadebar{margin-bottom:18px}
+
 .sb-lab{font-size:11px;letter-spacing:.16em;font-weight:700;color:var(--off);margin-bottom:9px;display:flex;align-items:center;gap:10px}
 .sb-lab small{font-size:10px;letter-spacing:.08em;font-weight:600;color:#B8860B;text-transform:none}
-.sb-row{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.sb-row{display:flex;flex-wrap:wrap;gap:8px}
 .sb-row::-webkit-scrollbar{display:none}
 .sw{display:inline-flex;align-items:center;gap:7px;flex:0 0 auto;padding:6px 11px 6px 7px;border:1px solid var(--line);
   background:rgba(255,255,255,.6);border-radius:22px;cursor:pointer;font-size:12px;color:var(--ink);
@@ -2036,6 +2036,7 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
   <div class="fdbody">
     <div class="fsec"><h4>SIZE</h4><div class="fchips" id="flt-sizes"></div></div>
     <div class="fsec"><h4>FIT</h4><div class="fchk" id="flt-fits"></div></div>
+    <div class="fsec" id="fsec-colour" style="display:none"><h4>COLOUR <small style="font-weight:600;letter-spacing:.04em;text-transform:none;color:#B8860B;margin-left:6px">light → dark</small></h4><div id="shadebar" class="shadebar"></div></div>
     <div class="fsec"><h4>PRICE</h4>
       <input type="range" class="pslider" id="price-slider" min="0" max="5000" value="5000" oninput="updatePrice(this.value)"/>
       <div class="pll"><span>₹0</span><span id="price-val">Under ₹5,000</span></div>
@@ -2230,7 +2231,6 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
 
 <!-- shop -->
 <section class="sec" id="shop" style="padding-top:32px"><div class="w">
-<div id="shadebar" class="shadebar"></div>
   <div class="shop-trust"><span class="trust-line js-trust"></span></div>
   <div class="rev-trust-strip" id="revTrustStrip" onclick="goTo('#reviews')" style="display:none">
     <span class="rts-score">5.0</span>
@@ -2566,13 +2566,15 @@ function shadeOf(p){
 }
 function buildShadeBar(){
   const el=document.getElementById("shadebar");if(!el)return;
+  const sec=document.getElementById("fsec-colour");
   const counts={};let unset=0;
   products.forEach(p=>{if(!(p.images||[]).length)return;const s=shadeOf(p);if(s)counts[s.k]=(counts[s.k]||0)+1;else unset++;});
   try{ if(unset&&typeof _adminPw!=="undefined"&&_adminPw)
     console.log(unset+" product(s) have no colour set — Admin > Products > Colour Family"); }catch(e){}
   const avail=SHADES.filter(s=>counts[s.k]>0).sort((a,b)=>b.L-a.L);
-  if(avail.length<2){el.innerHTML="";return;}
-  el.innerHTML='<div class="sb-lab">HAVE A COLOUR IN MIND?<small>light \u2192 dark</small></div><div class="sb-row">'
+  if(avail.length<2){el.innerHTML="";if(sec)sec.style.display="none";return;}
+  if(sec)sec.style.display="";
+  el.innerHTML='<div class="sb-row">'
     +'<button class="sw sw-all'+(fShade?"":" on")+'" onclick="pickShade(\'\')" aria-pressed="'+(fShade?"false":"true")+'">All</button>'
     +avail.map(s=>'<button class="sw'+(fShade===s.k?" on":"")+'" onclick="pickShade(\''+s.k+'\')"'
       +' aria-pressed="'+(fShade===s.k?"true":"false")+'" title="'+s.n+' \u00b7 '+counts[s.k]+'">'
@@ -2581,9 +2583,7 @@ function buildShadeBar(){
 }
 function pickShade(k){
   fShade=(fShade===k)?"":k;
-  buildShadeBar();renderGrid();
-  const g=document.getElementById("shop");
-  if(g&&fShade)g.scrollIntoView({behavior:"smooth",block:"start"});
+  buildShadeBar();renderGrid();fdUpdateCount();
 }
 
 // PARTICLES (greyscale only)
