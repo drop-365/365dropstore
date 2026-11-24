@@ -3156,6 +3156,7 @@ function ffOpen(source,presetWaist){
   _ffSource=source||"shop";
   const p0=ffProfile();
   _ffDraft=p0?{...p0}:{waist:32,pref:"true",mode:"waist",cuts:null};
+  _ffDraft.mode="waist"; // 2026-11-25: waist-only — the jeans-size ("usual") entry mode is retired
   if(presetWaist){_ffDraft.waist=+presetWaist;_ffDraft.mode="waist";_ffDraft.cuts=null;}
   _ffDraft.waist=Math.min(FF_MAX,Math.max(FF_MIN,_ffDraft.waist));
   _ffStep=1;
@@ -3189,8 +3190,7 @@ function ffRender(){
         <div class="ff-pad"></div>${stops.map((v,i)=>`<div class="ff-n" data-v="${v}" data-i="${i}">${ffFmt(v,d.mode)}</div>`).join("")}<div class="ff-pad"></div>
       </div><span class="ff-mark"></span></div>
       <div class="ff-meta" id="ff-meta"></div>
-      <button class="ff-alt" onclick="ffMode('${d.mode==="usual"?"waist":"usual"}')">${d.mode==="usual"?"I know my waist in inches":"Don't know your waist? Use your jeans size"}</button>
-      ${d.mode==="usual"?"":`<p class="ff-help">No tape? Lay your best jeans flat, measure across the waistband, double it.</p>`}`;
+      <p class="ff-help">No tape? Lay your best jeans flat, measure across the waistband, double it.</p>`;
     foot.innerHTML=`<button class="ff-cta" onclick="ffNext()">Continue <span>→</span></button><button class="ff-skip" onclick="ffClose(${p0?"false":"true"})">${p0?"Cancel":"Not now"}</button>`;
     ffWheelInit();
     return;
@@ -3317,7 +3317,6 @@ function ffMaybeAuto(){
 // pop-ups on mobile. The finder is offered in the shop bar, an in-feed card and on product pages.
 // Product page block: your size for this cut, or the ask.
 function ffMoBlock(p){
-  return ""; // retired 2026-11-24 - no auto prompt on the product page
   const prof=ffProfile();
   if(!prof){return `<div class="mo-myfit ask" onclick="ffOpen('product')"><span class="i">?</span><div><b>Not sure of your size?</b> Swipe your waist once and we'll pick your exact size here and on every pair. <button>Find my size</button></div></div>`;}
   const r=ffSizeFor(p,prof); if(!r)return "";
@@ -4170,12 +4169,20 @@ function renderNewArrivals(){
   const sec=document.getElementById("new-arrivals");
   const strip=document.getElementById("na-strip");
   if(!sec||!strip)return;
-  const cutoff=Date.now()-14*86400000;
-  const items=products
+  // 2026-11-25: widened from 14 days / 4+ items — with no recent uploads the
+  // section was disappearing entirely. Falls back to the newest products by
+  // display order if nothing was added in the last 60 days, so the row
+  // always has something to show once there are a few products at all.
+  const cutoff=Date.now()-60*86400000;
+  let items=products
     .filter(p=>(p.images||[]).length && typeof p.addedAt==="number" && p.addedAt>=cutoff)
     .sort((a,b)=>b.addedAt-a.addedAt)
     .slice(0,8);
-  if(items.length<4){sec.style.display="none";return;}
+  if(items.length<1){
+    items=products.filter(p=>(p.images||[]).length&&!(p.badges||[]).includes("sold"))
+      .sort((a,b)=>(a.order||99)-(b.order||99)).slice(0,8);
+  }
+  if(items.length<1){sec.style.display="none";return;}
   sec.style.display="block";
   strip.innerHTML=items.map(p=>`<div class="rv-item" onclick="openMo('${p.id}')"><img src="${(p.images||[])[0]||''}" alt="" loading="lazy"/><div class="rv-name">${dispName(p)}</div><div class="rv-price">${inr(eff(p))}</div></div>`).join("");
 }
