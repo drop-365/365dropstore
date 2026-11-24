@@ -3263,7 +3263,15 @@ function ffWheelMark(i){
     meta.innerHTML=`${d.mode==="usual"?"":`<span>${Math.round(d.waist*2.54)} cm</span><span>·</span>`}<span><b>${n} pairs</b> fit you</span>`;}
 }
 function ffMode(m){_ffDraft.mode=m;if(m==="usual"){_ffDraft.waist=FF_SIZES.reduce((a,b)=>Math.abs(b-_ffDraft.waist)<Math.abs(a-_ffDraft.waist)?b:a);}_ffDraft.cuts=null;ffRender();}
-function ffNext(){ffStepTo(2);ffTrack("Fit finder waist set");}
+function ffNext(){
+  // 2026-11-26: Fit Finder's only live entry point is a single product page
+  // now (the shop bar and in-feed card are retired). Checking a waist there
+  // should just answer "what's my size in THIS jean" — not open a
+  // catalogue-wide "swipe through every cut" screen. Save and jump straight
+  // back to the product, where its own size is already shown.
+  if(_ffSource==="product"){_ffDraft.cuts=null;ffDone();return;}
+  ffStepTo(2);ffTrack("Fit finder waist set");
+}
 function ffStepTo(n){_ffStep=n;ffRender();const b=document.getElementById("ff-body");if(b)b.scrollTop=0;}
 function ffToggleCut(f){const c=_ffDraft.cuts||[];_ffDraft.cuts=c.includes(f)?c.filter(x=>x!==f):[...c,f];
   const sc=document.querySelector("#ff .ff-cuts"), x=sc?sc.scrollLeft:0; ffRender();
