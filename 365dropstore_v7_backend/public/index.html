@@ -3481,6 +3481,89 @@ document.addEventListener("scroll",e=>{
   const i=_pslideIdx(t), dots=t.parentElement.querySelectorAll(".pdots i");
   dots.forEach((d,j)=>d.classList.toggle("on",j===i));
 },true);
+/* ── Keep decoded image memory flat, however far the shopper scrolls ──
+   A phone decodes every photo it scrolls past into an uncompressed
+   bitmap and then holds on to it. Walking the whole shop — 87 products,
+   a page 32 screens tall — took the page from 12MB of bitmaps to 63MB,
+   and it never came back down. iOS answers that by first throwing away
+   the page's images (the screen goes white and the footer jumps up
+   because the page suddenly got shorter) and then killing the tab
+   outright (the screen goes black). That is the crash.
+
+   Making each photo smaller helped but could not fix it on its own,
+   because the total still grew with every card scrolled past. So we
+   also give memory back: a card more than about two screens away from
+   the viewport releases its photos, and takes them back the moment the
+   shopper heads towards it again. Peak memory then depends on how big
+   the window is, not on how long the catalogue is or how far down the
+   page someone has travelled.
+
+   This is safe to do here because every card is sized by CSS — the
+   grid cell and the .pslides box both have their own dimensions — so a
+   card holding no photo keeps exactly its space and nothing on the page
+   moves. Coming back is quick too: the file is still in the browser's
+   disk cache, and Netlify serves the resized copies with a long cache
+   life, so it is usually a cache read rather than a download.
+
+   Only the product grid is virtualised. The review and recently-viewed
+   strips scroll sideways, which would confuse an IntersectionObserver
+   watching the viewport, and after resizing they hold a few MB between
+   them — not worth the risk. */
+(function(){
+  if(!("IntersectionObserver" in window))return;
+  // A 1x1 transparent SVG: valid, instant, and costs no decode.
+  const BLANK="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width%3D'1'%20height%3D'1'%2F%3E";
+  const io=new IntersectionObserver(es=>{
+    es.forEach(e=>{
+      const card=e.target;
+      if(e.isIntersecting){
+        card.querySelectorAll("img[data-keep]").forEach(im=>{
+          im.setAttribute("src",im.dataset.keep);im.removeAttribute("data-keep");
+        });
+        card.querySelectorAll("video[data-keep]").forEach(v=>{
+          v.setAttribute("src",v.dataset.keep);v.removeAttribute("data-keep");
+          const pr=v.play();if(pr&&pr.catch)pr.catch(()=>{});
+        });
+      }else{
+        card.querySelectorAll("img").forEach(im=>{
+          const src=im.getAttribute("src");
+          // Leave alone: already released, or a slide still waiting on
+          // its first load (those carry data-src, handled further down).
+          if(!src||src===BLANK||im.dataset.keep||im.dataset.src)return;
+          im.dataset.keep=src;im.setAttribute("src",BLANK);
+        });
+        card.querySelectorAll("video").forEach(v=>{
+          const src=v.getAttribute("src");
+          if(!src||v.dataset.keep)return;
+          try{v.pause();}catch(e){}
+          v.dataset.keep=src;v.removeAttribute("src");
+          try{v.load();}catch(e){}   // actually drops the decoded frames
+        });
+      }
+    });
+  // One screen of headroom above and below, so three screens of photos
+  // are live at any time. That is enough that normal scrolling — and
+  // scrolling back up — never shows a gap, while peak memory stays a
+  // function of the window size instead of the length of the catalogue.
+  },{rootMargin:"100% 0px"});
+
+  function watchCards(root){
+    (root&&root.querySelectorAll?root:document).querySelectorAll("#pgrid .pcard").forEach(c=>{
+      if(c._vz)return;c._vz=1;io.observe(c);
+    });
+  }
+  // Cards arrive in batches from infinite scroll and are rebuilt whenever a
+  // filter changes, so watch the grid rather than hooking every render path.
+  const grid=document.getElementById("pgrid");
+  if(grid&&"MutationObserver" in window){
+    new MutationObserver(()=>watchCards(document)).observe(grid,{childList:true});
+  }
+  if(document.readyState==="loading")
+    document.addEventListener("DOMContentLoaded",()=>watchCards(document));
+  else watchCards(document);
+  window._watchCards=watchCards;
+})();
+
 /* Grid cards keep photos 2-6 as data-src until the shopper shows interest
    in that particular card — a swipe on the strip, a hover, or opening it.
    One delegated listener covers every card, including ones added later by
