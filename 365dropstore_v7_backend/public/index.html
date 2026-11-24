@@ -2154,10 +2154,44 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
     .catch(e=>console.warn('Star Wall strip skipped:',e));
 
   function startSky(){
+    // 2026-11-24: this loop ran forever at full frame rate and was the other
+    // half of the mid-scroll crash on phones.
+    //
+    //   * It called getBoundingClientRect() on EVERY frame, which forces the
+    //     browser to recompute layout — the most expensive thing you can ask
+    //     for during a scroll. A ResizeObserver answers the same question for
+    //     free, only when the size actually changes.
+    //   * It built 48 CanvasGradient objects per frame (two backdrops plus one
+    //     glow per star) — roughly 2,900 allocations a second, each thrown away
+    //     immediately. The backdrops are now rebuilt only on resize, and the
+    //     star glows are pre-rendered once into three small sprites that get
+    //     stamped with drawImage.
+    //   * There was no "is this strip even on screen" check and no
+    //     document.hidden check, so it kept running while the shopper was far
+    //     down the grid or had switched apps entirely.
+    //   * It is decoration, so it now holds to 30fps and sits out completely
+    //     when the OS asks for reduced motion.
+    const reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion:reduce)').matches;
     const ctx=cv.getContext('2d');
-    let W=0,H=0,DPR=1,stars=[],dust=[];
+    let W=0,H=0,DPR=1,stars=[],dust=[],bgGrad=null,nebGrad=null,glow={};
     const GOLDEN=Math.PI*(3-Math.sqrt(5));
     const sd=(n,s)=>{const x=Math.sin(n*127.1+s*311.7)*43758.5453;return x-Math.floor(x);};
+    const BASES={fresh:'231,76,60',repeat:'232,199,122',plain:'228,238,255'};
+
+    // One glow sprite per colour, drawn once up front. Replaces 46
+    // createRadialGradient calls on every single frame.
+    (function buildGlow(){
+      Object.keys(BASES).forEach(k=>{
+        const base=BASES[k],R=24,spr=document.createElement('canvas');
+        spr.width=spr.height=R*2;
+        const g2=spr.getContext('2d');
+        const sg=g2.createRadialGradient(R,R,0,R,R,R);
+        sg.addColorStop(0,'rgba('+base+',1)');
+        sg.addColorStop(1,'rgba('+base+',0)');
+        g2.fillStyle=sg;g2.beginPath();g2.arc(R,R,R,0,7);g2.fill();
+        glow[k]=spr;
+      });
+    })();
 
     function build(){
       stars=[];
@@ -2168,38 +2202,44 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
         stars.push({x:W*0.42+Math.cos(ang)*rad+(a-.5)*8,
                     y:H*0.5+Math.sin(ang)*rad*0.7+(b-.5)*6,
                     r:0.9+c*1.3,tw:a*Math.PI*2,tws:0.5+b*0.9,
-                    fresh:i>N-3,repeat:i%9===0});
+                    kind:i>N-3?'fresh':(i%9===0?'repeat':'plain')});
       }
       dust=[];
       for(let i=0;i<90;i++)
         dust.push({x:sd(i,7)*W,y:sd(i,8)*H,r:sd(i,9)*0.7+0.2,
                    a:sd(i,10)*0.4+0.08,tw:sd(i,11)*Math.PI*2,tws:0.3+sd(i,12)*0.6});
+      // Backdrops depend only on the canvas size, so build them here, not per frame.
+      bgGrad=ctx.createRadialGradient(W*0.42,H*0.5,0,W*0.42,H*0.5,Math.max(W,H)*0.7);
+      bgGrad.addColorStop(0,'#0C1228');bgGrad.addColorStop(1,'#080C18');
+      nebGrad=ctx.createRadialGradient(W*0.38,H*0.45,0,W*0.38,H*0.45,W*0.5);
+      nebGrad.addColorStop(0,'rgba(79,209,232,0.07)');nebGrad.addColorStop(1,'rgba(0,0,0,0)');
     }
     function resize(){
       const r=cv.getBoundingClientRect();
       if(r.width<2||r.height<2)return;
+      if(Math.abs(r.width-W)<1&&Math.abs(r.height-H)<1)return;
       W=r.width;H=r.height;DPR=Math.min(window.devicePixelRatio||1,2);
       cv.width=Math.round(W*DPR);cv.height=Math.round(H*DPR);
       ctx.setTransform(DPR,0,0,DPR,0,0);
       build();
     }
     window.addEventListener('resize',resize);
+    if('ResizeObserver' in window){try{new ResizeObserver(resize).observe(cv);}catch(e){}}
+
+    // Animate only while the strip is actually on screen and the tab is in front.
+    let onScreen=true,running=false,last=0;
+    const FRAME=1000/30;
+    if('IntersectionObserver' in window){
+      new IntersectionObserver(es=>{onScreen=es[0].isIntersecting;if(onScreen)wake();},{threshold:0}).observe(cv);
+    }
+    document.addEventListener('visibilitychange',()=>{if(!document.hidden)wake();});
 
     const t0=performance.now();
-    function draw(now){
-      const r=cv.getBoundingClientRect();
-      if(Math.abs(r.width-W)>1||Math.abs(r.height-H)>1)resize();
-      if(!W||!H){requestAnimationFrame(draw);return;}
-      const t=(now-t0)/1000;
 
+    function paint(t){
       ctx.clearRect(0,0,W,H);
-      const g=ctx.createRadialGradient(W*0.42,H*0.5,0,W*0.42,H*0.5,Math.max(W,H)*0.7);
-      g.addColorStop(0,'#0C1228');g.addColorStop(1,'#080C18');
-      ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
-
-      const ng=ctx.createRadialGradient(W*0.38,H*0.45,0,W*0.38,H*0.45,W*0.5);
-      ng.addColorStop(0,'rgba(79,209,232,0.07)');ng.addColorStop(1,'rgba(0,0,0,0)');
-      ctx.fillStyle=ng;ctx.beginPath();ctx.arc(W*0.38,H*0.45,W*0.5,0,7);ctx.fill();
+      ctx.fillStyle=bgGrad;ctx.fillRect(0,0,W,H);
+      ctx.fillStyle=nebGrad;ctx.beginPath();ctx.arc(W*0.38,H*0.45,W*0.5,0,7);ctx.fill();
 
       dust.forEach(d=>{
         const tw=0.65+Math.sin(t*d.tws+d.tw)*0.35;
@@ -2207,12 +2247,13 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
         ctx.fillStyle='rgba(205,220,250,'+(d.a*tw)+')';ctx.fill();
       });
 
-      const linkMax=Math.min(W,H)*0.2;
+      const linkMax=Math.min(W,H)*0.2, linkMax2=linkMax*linkMax;
       ctx.lineWidth=1;
       for(let i=0;i<stars.length;i++)for(let j=i+1;j<stars.length;j++){
         const a=stars[i],b=stars[j];
-        const d=Math.hypot(a.x-b.x,a.y-b.y);
-        if(d<linkMax){
+        const ddx=a.x-b.x,ddy=a.y-b.y,d2=ddx*ddx+ddy*ddy;
+        if(d2<linkMax2){
+          const d=Math.sqrt(d2);
           ctx.strokeStyle='rgba(140,190,240,'+(0.1*(1-d/linkMax))+')';
           ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();
         }
@@ -2220,20 +2261,23 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
 
       stars.forEach(s=>{
         const tw=0.65+Math.sin(t*s.tws+s.tw)*0.35;
-        const base=s.fresh?'231,76,60':(s.repeat?'232,199,122':'228,238,255');
-        const gr=s.r*5;
-        const sg=ctx.createRadialGradient(s.x,s.y,0,s.x,s.y,gr);
-        sg.addColorStop(0,'rgba('+base+','+(tw*0.5)+')');
-        sg.addColorStop(1,'rgba('+base+',0)');
-        ctx.fillStyle=sg;ctx.beginPath();ctx.arc(s.x,s.y,gr,0,7);ctx.fill();
+        const base=BASES[s.kind],gr=s.r*5,spr=glow[s.kind];
+        if(spr){ctx.globalAlpha=tw*0.5;ctx.drawImage(spr,s.x-gr,s.y-gr,gr*2,gr*2);ctx.globalAlpha=1;}
         ctx.beginPath();ctx.arc(s.x,s.y,Math.max(0.7,s.r),0,7);
         ctx.fillStyle='rgba('+base+','+tw+')';ctx.fill();
       });
+    }
 
+    function draw(now){
+      if(document.hidden||!onScreen){running=false;return;}
+      if(now-last>=FRAME){last=now;if(W&&H)paint((now-t0)/1000);}
       requestAnimationFrame(draw);
     }
+    function wake(){if(running||document.hidden||!onScreen)return;running=true;last=0;requestAnimationFrame(draw);}
+
     resize();
-    requestAnimationFrame(draw);
+    if(reduce){if(W&&H)paint(0);}   // one static frame, no loop at all
+    else wake();
   }
 })();
 </script>
@@ -2430,6 +2474,34 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
 <div id="admin-mount"></div><!-- owner admin is loaded here on /admin/ (see openAdmin) -->
 
 <script>
+/* ── Image sizing ──────────────────────────────────────────────────
+   2026-11-24: product photos come off R2 at full size — 600x800 and up.
+   That is only ~96KB on the wire, but the browser has to decode each one
+   into an uncompressed bitmap to draw it, and 600x800 decodes to about
+   1.9MB of memory. We then paint them as 98px review thumbnails and
+   ~170px grid cards on a phone.
+
+   A dozen cards was enough to hold 50MB+ of decoded bitmaps, and Safari
+   responds to that by discarding the tab and reloading it — which is
+   exactly the "scrolling down and it jumps back to the top" crash.
+
+   _ix() asks Netlify's Image CDN for roughly the size we actually draw,
+   so the decoded bitmap shrinks with the square of the width: asking for
+   400px instead of 600px is less than half the memory, and 240px for a
+   review thumb is a tenth of it. Netlify caches each size at the edge.
+
+   The transform only exists once the site is deployed, so on localhost
+   (and anywhere else) this returns the original URL untouched and
+   everything still works, just without the saving. */
+const _IXON=/(^|\.)365dropstore\.com$|\.netlify\.app$/.test(location.hostname);
+function _ix(u,w){
+  if(!u||typeof u!=="string")return u||"";
+  if(!_IXON)return u;
+  if(!/^https?:\/\//.test(u))return u;          // same-origin asset, already right-sized
+  if(/\.svg(\?|$)/i.test(u))return u;            // vectors don't need resizing
+  if(u.indexOf("/.netlify/images")!==-1)return u; // don't double-wrap
+  return "/.netlify/images?url="+encodeURIComponent(u)+"&w="+w+"&fit=cover&q=72";
+}
 const WA="919990905969";const LS={get:(k,d=null)=>{try{return JSON.parse(localStorage.getItem(k))??d}catch{return d}},set:(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch{}}};
 const inr=n=>"₹"+Number(n).toLocaleString("en-IN");const eff=p=>p.offerPrice??p.price;
 const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
@@ -2596,29 +2668,75 @@ function pickShade(k){
 }
 
 // PARTICLES (greyscale only)
+//
+// 2026-11-24: this is pure background decoration, and it was a main cause of
+// Safari killing the tab mid-scroll on phones. Three problems, all fixed here:
+//
+//   1. The link pass is O(n^2) — 90 particles means 4,005 pair checks every
+//      frame — and it re-parsed the palette hex INSIDE that loop, so a single
+//      frame allocated ~24,000 throwaway strings. At 60fps that is well over a
+//      million short-lived strings a second of pure garbage for the collector
+//      to chase. The palette is now parsed once, and again only if it changes.
+//   2. It never stopped. No document.hidden check, no "is the hero still on
+//      screen" check — so it kept burning a whole frame budget behind the
+//      product grid, while scrolling was already busy decoding photos.
+//   3. On a phone it draws behind the content on a screen too small to notice
+//      it, at a real cost in memory and battery. The other full-screen canvas
+//      (#particle-net) already opts out of mobile for exactly this reason;
+//      this one now does the same.
 (function(){
-  const cv=document.getElementById("pc"),ctx=cv.getContext("2d");let w,h,pts;
+  const cv=document.getElementById("pc"); if(!cv)return;
+  const mob=window.matchMedia&&window.matchMedia("(max-width:768px)").matches;
+  const reduce=window.matchMedia&&window.matchMedia("(prefers-reduced-motion:reduce)").matches;
+  if(mob||reduce){cv.style.display="none";return;}
+  const ctx=cv.getContext("2d");let w,h,pts;
   function sz(){w=cv.width=innerWidth;h=cv.height=innerHeight;
     const n=Math.min(90,Math.floor(w/14));
     pts=Array.from({length:n},()=>({x:Math.random()*w,y:Math.random()*h,vx:(Math.random()-.5)*.2,vy:(Math.random()-.5)*.2,r:Math.random()*2.2+.3,red:Math.random()<.22}));}
   sz();addEventListener("resize",sz);
   let mx=-999,my=-999;document.addEventListener("mousemove",e=>{mx=e.clientX;my=e.clientY;});
-  (function loop(){
+
+  // Palette colours, parsed once; re-parsed only when the palette changes.
+  let _palKey="",_redFill="",_lineRGB="192,57,43";
+  function pal(){
+    const gc=window._palGlow||'#C0392B';
+    if(gc===_palKey)return;
+    _palKey=gc;
+    const r=parseInt(gc.slice(1,3),16),g=parseInt(gc.slice(3,5),16),b=parseInt(gc.slice(5,7),16);
+    _redFill="rgba("+r+","+g+","+b+",.3)";
+    _lineRGB=r+","+g+","+b;
+  }
+
+  // Animate only while the hero is on screen and the tab is in front.
+  let onScreen=true,running=false;
+  const hero=document.getElementById("hero");
+  if("IntersectionObserver" in window&&hero){
+    new IntersectionObserver(es=>{onScreen=es[0].isIntersecting;if(onScreen)wake();},{threshold:0}).observe(hero);
+  }
+  document.addEventListener("visibilitychange",()=>{if(!document.hidden)wake();});
+
+  function wake(){if(running||document.hidden||!onScreen)return;running=true;requestAnimationFrame(loop);}
+  function loop(){
+    if(document.hidden||!onScreen){running=false;ctx.clearRect(0,0,w,h);return;}
+    pal();
     ctx.clearRect(0,0,w,h);
     for(const p of pts){
       const dx=mx-p.x,dy=my-p.y,dist=Math.sqrt(dx*dx+dy*dy);
       if(dist<100){p.vx-=dx/dist*.022;p.vy-=dy/dist*.022;}
       p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>w)p.vx*=-1;if(p.y<0||p.y>h)p.vy*=-1;p.vx*=.999;p.vy*=.999;
       ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,7);
-      const _gc=window._palGlow||'#C0392B';const _r=parseInt(_gc.slice(1,3),16),_g=parseInt(_gc.slice(3,5),16),_b=parseInt(_gc.slice(5,7),16);ctx.fillStyle=p.red?`rgba(${_r},${_g},${_b},.3)`:"rgba(20,19,18,.12)";ctx.fill();
+      ctx.fillStyle=p.red?_redFill:"rgba(20,19,18,.12)";ctx.fill();
     }
+    // Compare squared distances so Math.sqrt only runs for pairs that draw.
     for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++){
-      const dx=pts[i].x-pts[j].x,dy=pts[i].y-pts[j].y,d=Math.sqrt(dx*dx+dy*dy);
-      if(d<130){ctx.beginPath();ctx.moveTo(pts[i].x,pts[i].y);ctx.lineTo(pts[j].x,pts[j].y);
-        const _gc2=window._palGlow||'#C0392B';const _r2=parseInt(_gc2.slice(1,3),16),_g2=parseInt(_gc2.slice(3,5),16),_b2=parseInt(_gc2.slice(5,7),16);ctx.strokeStyle=`rgba(${_r2},${_g2},${_b2},${.07*(1-d/130)})`;ctx.lineWidth=.5;ctx.stroke();}
+      const dx=pts[i].x-pts[j].x,dy=pts[i].y-pts[j].y,d2=dx*dx+dy*dy;
+      if(d2<16900){const d=Math.sqrt(d2);
+        ctx.beginPath();ctx.moveTo(pts[i].x,pts[i].y);ctx.lineTo(pts[j].x,pts[j].y);
+        ctx.strokeStyle="rgba("+_lineRGB+","+(.07*(1-d/130))+")";ctx.lineWidth=.5;ctx.stroke();}
     }
     requestAnimationFrame(loop);
-  })();
+  }
+  wake();
 })();
 
 // INIT
@@ -2731,7 +2849,7 @@ function renderHeroShowcase(){return;
   sc.innerHTML=prods.map(p=>{
     const badgeHtml=(p.badges||[]).filter(b=>BM[b]&&b!=='best').map(b=>`<span class="bdg ${BM[b].c}">${BM[b].t}</span>`).join("");
     return`<div class="hprod" onclick="openMo('${p.id}')">
-      <img src="${(p.images||[])[0]||''}" alt="${dispName(p)} jeans"/>
+      <img src="${_ix((p.images||[])[0]||'',400)}" alt="${dispName(p)} jeans"/>
       <div class="hprod-info"><span class="hprod-name">${dispName(p)}</span><span class="hprod-price">${inr(eff(p))}</span></div>
       ${badgeHtml?`<div style="position:absolute;top:12px;left:12px;display:flex;flex-direction:column;gap:4px;z-index:2">${badgeHtml}</div>`:''}
       <button class="hprod-shop" onclick="event.stopPropagation();openMo('${p.id}')">Quick view →</button>
@@ -2859,7 +2977,7 @@ function pcardHTML(p){
       <div class="pimg">
         <div class="pbadges">${bgs}</div>
         <div class="pwish${saved?' on':''}" onclick="event.stopPropagation();toggleWishlist('${p.id}')" title="Save">${saved?'♥':'♡'}</div>
-        <div class="pslides"><img class="pfront" src="${img1}" alt="${dispName(p)}, photo 1" loading="${_myIdx<4?'eager':'lazy'}" decoding="async" fetchpriority="${_myIdx<2?'high':'auto'}"/>${slides.slice(1).map((s,i)=>`<img src="${s}" alt="${dispName(p)}, photo ${i+2}" loading="lazy" decoding="async"/>`).join("")}</div>
+        <div class="pslides" data-lazyslides="1"><img class="pfront" src="${_ix(img1,400)}" alt="${dispName(p)}, photo 1" loading="${_myIdx<4?'eager':'lazy'}" decoding="async" fetchpriority="${_myIdx<2?'high':'auto'}"/>${slides.slice(1).map((s,i)=>`<img data-src="${_ix(s,400)}" alt="${dispName(p)}, photo ${i+2}" loading="lazy" decoding="async"/>`).join("")}</div>
         ${slides.length>1?`<div class="pdots">${slides.map((_,i)=>`<i class="${i?"":"on"}"></i>`).join("")}</div><button class="pnav l" onclick="pcardNav(event,this,-1)" aria-label="Previous photo">‹</button><button class="pnav r" onclick="pcardNav(event,this,1)" aria-label="Next photo">›</button>`:""}
         ${fitBand}
         ${rbl}
@@ -2970,7 +3088,7 @@ function renderHeroGrid(){
       const igBtn=reelUrl?`<div class="vig" onclick="event.stopPropagation();window.open('${reelUrl.replace(/'/g,"\\'")}','_blank','noopener')" title="View on Instagram">${IG_ICON}</div>`:"";
       const buyBtn=p?`<div class="vbuy" onclick="event.stopPropagation();openMo('${pidSafe}')">Buy Now</div>`:"";
       return`<div class="tile tile-video${featCls(true)}" onclick="toggleTileVideo(event,this)">
-        <video muted loop playsinline autoplay preload="metadata" poster="${((p&&p.images&&p.images[0])||'').replace(/"/g,'&quot;')}" src="${t.videoUrl.replace(/"/g,'&quot;')}"></video>
+        <video muted loop playsinline autoplay preload="metadata" poster="${_ix((p&&p.images&&p.images[0])||'',400).replace(/"/g,'&quot;')}" src="${t.videoUrl.replace(/"/g,'&quot;')}"></video>
         <div class="vplay" onclick="toggleTileVideo(event,this)">${PLAY_ICON}</div>
         <div class="vsound" onclick="toggleTileSound(event,this)">${SOUND_OFF_ICON}</div>
         ${igBtn}
@@ -2985,7 +3103,7 @@ function renderHeroGrid(){
       const buyBtn=p?`<div class="vbuy" onclick="event.stopPropagation();openMo('${pidSafe}')">Buy Now</div>`:"";
       // primary tap goes to the product page, on-site — Instagram is the small optional icon only, never the default action
       return`<div class="tile tile-image${featCls(true)}" ${pidSafe?`onclick="openMo('${pidSafe}')"`:""}>
-        <div class="img-wrap"><img class="fill" src="${t.imageUrl.replace(/"/g,'&quot;')}" alt="${(p?p.name:'').replace(/"/g,'&quot;')}"/>${HOV_HUD}</div>
+        <div class="img-wrap"><img class="fill" src="${_ix(t.imageUrl,500).replace(/"/g,'&quot;')}" alt="${(p?p.name:'').replace(/"/g,'&quot;')}"/>${HOV_HUD}</div>
         ${igBtn}
         ${buyBtn}
       </div>`;
@@ -3176,7 +3294,7 @@ function ffOpen(source,presetWaist){
   const reviewing=(_ffSource==="product"&&typeof ms!=="undefined")?ms.p:null;
   const imgs=ffStageImgs(reviewing);
   el.innerHTML=`<div class="ff-sheet" id="ff-sheet" role="dialog" aria-modal="true" aria-labelledby="ff-h">
-    <div class="ff-stage" aria-hidden="true">${imgs.map((s,i)=>`<img src="${s}" alt="" class="${i?"":"on"}" ${i?'loading="lazy"':""}/>`).join("")}<span class="ff-brand">365 Drop Store · Fit finder</span></div>
+    <div class="ff-stage" aria-hidden="true">${imgs.map((s,i)=>`<img src="${_ix(s,500)}" alt="" class="${i?"":"on"}" ${i?'loading="lazy"':""}/>`).join("")}<span class="ff-brand">365 Drop Store · Fit finder</span></div>
     <button class="ff-x" onclick="ffClose(${p0?"false":"true"})" aria-label="Close">✕</button>
     <div class="ff-main"><div class="ff-scroll" id="ff-body"></div><div class="ff-foot" id="ff-foot"></div></div>
   </div>`;
@@ -3222,7 +3340,7 @@ function ffRender(){
       const on=d.cuts.includes(c.fit), bare=!c.img;
       const ln=c.none?"Not made in your size yet":!c.styles?"Dropping soon":c.n?`${c.n} pair${c.n>1?"s":""} in your size`:"Your size is sold out";
       return `<button class="ff-cut${on?" on":" off"}${bare?" bare":""}" onclick="ffToggleCut('${c.fit.replace(/'/g,"\\'")}')" aria-pressed="${on}">
-        ${bare?`<span class="soon">${c.fit}</span>`:`<img src="${c.img}" alt="${c.fit} jeans" loading="lazy"/>`}
+        ${bare?`<span class="soon">${c.fit}</span>`:`<img src="${_ix(c.img,400)}" alt="${c.fit} jeans" loading="lazy"/>`}
         <span class="chk">✓</span>
         ${c.size&&!c.none?`<span class="fsz"><small>YOUR SIZE</small>${c.size}</span>`:""}
         <span class="tx"><span class="nm">${c.fit}</span><span class="ln">${ln}</span>${c.belt&&!c.none?`<span class="belt">Belt needed</span>`:""}</span></button>`;}).join("")}</div>
@@ -3360,6 +3478,21 @@ document.addEventListener("scroll",e=>{
   const i=_pslideIdx(t), dots=t.parentElement.querySelectorAll(".pdots i");
   dots.forEach((d,j)=>d.classList.toggle("on",j===i));
 },true);
+/* Grid cards keep photos 2-6 as data-src until the shopper shows interest
+   in that particular card — a swipe on the strip, a hover, or opening it.
+   One delegated listener covers every card, including ones added later by
+   infinite scroll, so there is nothing to re-bind on each batch. */
+(function(){
+  const go=e=>{
+    const st=e.target.closest?e.target.closest(".pslides[data-lazyslides]"):null;
+    if(!st)return;
+    st.removeAttribute("data-lazyslides");
+    _hydrate(st);
+  };
+  ["touchstart","pointerdown","mouseover"].forEach(ev=>
+    document.addEventListener(ev,go,{passive:true,capture:true}));
+  document.addEventListener("scroll",go,{passive:true,capture:true});
+})();
 function pcardOpen(el,id){const t=el.querySelector(".pslides");const i=_pslideIdx(t);openMo(id);if(i>0)requestAnimationFrame(()=>goSlide(i,true));}
 function pcardNav(e,btn,d){e.stopPropagation();const t=btn.parentElement.querySelector(".pslides");if(!t)return;const n=t.children.length;const i=Math.min(n-1,Math.max(0,_pslideIdx(t)+d));t.scrollTo({left:i*t.clientWidth,behavior:"smooth"});}
 // Product page: the photo track scrolls natively; this keeps dots, thumbs and lazy images in step.
@@ -3485,9 +3618,9 @@ function renderDesignerSection(){
     const lotNo=String(idx+1).padStart(2,"0");
     const extraCount=(p.images||[]).length-3;
     const mosaicHtml=imgs.length
-      ?`<div class="m-hero"><img src="${imgs[0]}" alt="${p.name}" loading="lazy"/></div>
-         ${imgs.slice(1,3).map(im=>`<div class="m-thumb"><img src="${im}" alt="" loading="lazy"/></div>`).join("")}
-         ${extraCount>0?`<div class="m-thumb"><img src="${imgs[3]}" alt="" loading="lazy"/><span class="m-count">+${extraCount}</span></div>`:imgs[3]?`<div class="m-thumb"><img src="${imgs[3]}" alt="" loading="lazy"/></div>`:""}`
+      ?`<div class="m-hero"><img src="${_ix(imgs[0],400)}" alt="${p.name}" loading="lazy"/></div>
+         ${imgs.slice(1,3).map(im=>`<div class="m-thumb"><img src="${_ix(im,400)}" alt="" loading="lazy"/></div>`).join("")}
+         ${extraCount>0?`<div class="m-thumb"><img src="${_ix(imgs[3],400)}" alt="" loading="lazy"/><span class="m-count">+${extraCount}</span></div>`:imgs[3]?`<div class="m-thumb"><img src="${_ix(imgs[3],400)}" alt="" loading="lazy"/></div>`:""}`
       :`<div class="m-hero"></div>`;
     // "why this piece" — pulls from admin-set story text (pipe-separated bullets); falls back to generic craft copy
     const whyBullets=(p.story||"").split("|").map(s=>s.trim()).filter(Boolean);
@@ -3534,8 +3667,8 @@ function openVaultModal(id){
   document.getElementById("vault-tag").textContent=`EDITION Nº ${String(idx+1).padStart(2,"0")} · ${(p.fit||p.category||"").toString().toUpperCase()} · DESIGNER ARTICLE`;
   const labels=["FRONT / PRIMARY","DETAIL / CLOSE-UP","ON-BODY / FIT","FLAT / ARCHIVE"];
   const platesHtml=imgs.length
-    ?`<div class="v-plate"><img src="${imgs[0]}" alt=""/><span class="vp-label">${labels[0]}</span><span class="vp-id">${p.id}</span></div>
-       <div class="v-plate-grid">${imgs.slice(1,4).map((im,i)=>`<div class="v-plate"><img src="${im}" alt=""/><span class="vp-label">${labels[i+1]||"DETAIL"}</span></div>`).join("")}</div>`
+    ?`<div class="v-plate"><img src="${_ix(imgs[0],400)}" alt=""/><span class="vp-label">${labels[0]}</span><span class="vp-id">${p.id}</span></div>
+       <div class="v-plate-grid">${imgs.slice(1,4).map((im,i)=>`<div class="v-plate"><img src="${_ix(im,400)}" alt=""/><span class="vp-label">${labels[i+1]||"DETAIL"}</span></div>`).join("")}</div>`
     :"";
   document.getElementById("vault-plates").innerHTML=platesHtml;
   const priceHtml=p.offerPrice
@@ -3807,8 +3940,8 @@ function renderRevs(){
         +_revEsc(o.t.n)+' <b>'+o.n+'</b></button>').join("")):"";
   }
   document.getElementById("revg").innerHTML=_shown.map(r=>{
-    if(r.img&&r.text)return `<div class="revcard revcombo" onclick="openImgReview('${r.id}')"><div class="rc-photo"><span class="rc-badge">📷 CUSTOMER PHOTO</span><div class="rev-zoom">&#9906;</div><img src="${r.img}" alt="Customer review photo"/></div><div class="rc-body"><div class="revstars">${"★".repeat(r.stars||5)}</div><p class="revtext">"${_revEsc(r.text)}"</p><div class="revwho">${_revEsc(r.who)}</div><div class="revloc">${_revEsc(r.where)}</div></div></div>`;
-    if(r.img)return `<div class="revcard imgrev" onclick="openImgReview('${r.id}')"><div class="rev-zoom">&#9906;</div><img src="${r.img}" alt="Customer review"/></div>`;
+    if(r.img&&r.text)return `<div class="revcard revcombo" onclick="openImgReview('${r.id}')"><div class="rc-photo"><span class="rc-badge">📷 CUSTOMER PHOTO</span><div class="rev-zoom">&#9906;</div><img src="${_ix(r.img,500)}" alt="Customer review photo" loading="lazy" decoding="async"/></div><div class="rc-body"><div class="revstars">${"★".repeat(r.stars||5)}</div><p class="revtext">"${_revEsc(r.text)}"</p><div class="revwho">${_revEsc(r.who)}</div><div class="revloc">${_revEsc(r.where)}</div></div></div>`;
+    if(r.img)return `<div class="revcard imgrev" onclick="openImgReview('${r.id}')"><div class="rev-zoom">&#9906;</div><img src="${_ix(r.img,500)}" alt="Customer review" loading="lazy" decoding="async"/></div>`;
     return `<div class="revcard"><div class="revstars">${"★".repeat(r.stars||5)}</div><p class="revtext">"${_revEsc(r.text)}"</p><div class="revwho">${_revEsc(r.who)}</div><div class="revloc">${_revEsc(r.where)}</div></div>`;
   }).join("");
   const _mr=document.getElementById("revmore");
@@ -3841,7 +3974,7 @@ function renderUgc(){
   wrap.style.display="block";
   const STEP=8, shown=ugcExpanded?all:all.slice(0,STEP);
   document.getElementById("ugcCount").textContent=all.length+" real customer photo"+(all.length>1?"s":"");
-  document.getElementById("ugcGrid").innerHTML=shown.map((r,i)=>`<div class="ugc-tile" onclick="openUgc(${i})"><img src="${r.img}" alt="${_revEsc(r.who||"Customer")} wearing 365 Drop Store" loading="lazy"/>${r.who?`<div class="ugc-cap">${_revEsc(r.who)}</div>`:""}</div>`).join("");
+  document.getElementById("ugcGrid").innerHTML=shown.map((r,i)=>`<div class="ugc-tile" onclick="openUgc(${i})"><img src="${_ix(r.img,260)}" alt="${_revEsc(r.who||"Customer")} wearing 365 Drop Store" loading="lazy" decoding="async"/>${r.who?`<div class="ugc-cap">${_revEsc(r.who)}</div>`:""}</div>`).join("");
   const left=all.length-shown.length;
   document.getElementById("ugcMore").innerHTML=left>0
     ?`<button class="btn-revmore" onclick="ugcExpanded=true;renderUgc()">See all ${all.length} photos &darr;</button>`
@@ -4235,7 +4368,7 @@ function renderNewArrivals(){
   }
   if(items.length<1){sec.style.display="none";return;}
   sec.style.display="block";
-  strip.innerHTML=items.map(p=>`<div class="rv-item" onclick="openMo('${p.id}')"><img src="${(p.images||[])[0]||''}" alt="" loading="lazy"/><div class="rv-name">${dispName(p)}</div><div class="rv-price">${inr(eff(p))}</div></div>`).join("");
+  strip.innerHTML=items.map(p=>`<div class="rv-item" onclick="openMo('${p.id}')"><img src="${_ix((p.images||[])[0]||'',240)}" alt="" loading="lazy" decoding="async"/><div class="rv-name">${dispName(p)}</div><div class="rv-price">${inr(eff(p))}</div></div>`).join("");
 }
 function renderRecentlyViewed(){var sec=document.getElementById("recently-viewed");var strip=document.getElementById("rv-strip");if(!sec||!strip)return;var items=recentlyViewed.map(function(pid){return products.find(function(p){return p.id===pid})}).filter(Boolean).slice(0,6);if(items.length<2){sec.style.display="none";return;}sec.style.display="block";strip.innerHTML=items.map(function(p){return '<div class="rv-item" onclick="openMo(\''+p.id+'\')"><img src="'+(p.images&&p.images[0]||'')+'" alt="" loading="lazy"/><div class="rv-name">'+p.name+'</div><div class="rv-price">'+inr(eff(p))+'</div></div>'}).join("");}
 function openMo(id,noPush){
@@ -4247,8 +4380,8 @@ function openMo(id,noPush){
   const sold=p.badges&&p.badges.includes("sold");
   const imgs=p.images||[];
   const pr=p.offerPrice?`<span class="monow">${inr(p.offerPrice)}</span><span class="mowas">${inr(p.price)}</span><span class="mosave">Save ${inr(p.price-p.offerPrice)}</span>`:`<span class="monow">${inr(p.price)}</span>`;
-  const carImgs=`<div class="mo-track" id="motrack">`+imgs.map((s,i)=>i<2?`<img src="${s}" alt="${dispName(p)}, photo ${i+1}"${i===0?' class="active"':''}/>`:`<img data-src="${s}" alt="${dispName(p)}, photo ${i+1}"/>`).join("")+`</div>`;
-  const thumbs=imgs.length>1?`<div class="mocar-thumbs">${imgs.map((s,i)=>`<div class="mthumb${i===0?' act':''}${i===0?' main-tag':''}" onclick="goSlide(${i})"><img src="${s}" alt="${dispName(p)} thumbnail"/></div>`).join("")}</div>`:'';
+  const carImgs=`<div class="mo-track" id="motrack">`+imgs.map((s,i)=>i<2?`<img src="${_ix(s,900)}" alt="${dispName(p)}, photo ${i+1}"${i===0?' class="active"':''}/>`:`<img data-src="${_ix(s,900)}" alt="${dispName(p)}, photo ${i+1}"/>`).join("")+`</div>`;
+  const thumbs=imgs.length>1?`<div class="mocar-thumbs">${imgs.map((s,i)=>`<div class="mthumb${i===0?' act':''}${i===0?' main-tag':''}" onclick="goSlide(${i})"><img src="${_ix(s,160)}" alt="${dispName(p)} thumbnail" loading="lazy" decoding="async"/></div>`).join("")}</div>`:'';
   const arrows=imgs.length>1?`<button class="car-arr car-prev" onclick="slideDir(-1)">‹</button><button class="car-arr car-next" onclick="slideDir(1)">›</button>`:'';
   const dots=imgs.length>1?`<div class="car-dots">${imgs.map((_,i)=>`<button class="cdot${i===0?' act':''}" onclick="goSlide(${i})"></button>`).join("")}</div>`:'';
   const reelHtml=p.reelUrl?`<a href="${p.reelUrl}" target="_blank" rel="noopener" class="mo-reel">▶ Watch Reel on Instagram</a>`:'';
@@ -4306,7 +4439,28 @@ function openMo(id,noPush){
 }
 function openSizeChart(id){const p=products.find(x=>x.id===id);if(!p)return;const scSrc=p.sizeChartImg||globalSc;if(!scSrc)return;const d=document.createElement('div');d.style.cssText='position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.9);display:flex;align-items:center;justify-content:center;padding:20px;cursor:pointer;z-index:9999';d.onclick=()=>d.remove();d.innerHTML=`<div style="background:var(--bg2);border-radius:12px;padding:16px;max-width:700px;width:100%;max-height:90vh;overflow-y:auto"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><h3 style="font-family:var(--dsp);font-size:20px;color:var(--white)">SIZE CHART</h3><button onclick="this.closest('[style]').remove()" style="background:var(--glass);border:1px solid var(--line);color:var(--white);width:34px;height:34px;border-radius:8px;font-size:20px;cursor:pointer">×</button></div><img src="${scSrc}" style="width:100%;border-radius:8px;image-rendering:crisp-edges" alt="Size chart" onclick="event.stopPropagation();window.open(this.src,'_blank')" title="Tap to open full size"/><p style="text-align:center;font-size:12px;color:var(--off);margin-top:8px">Tap the chart to open it full size</p></div>`;document.body.appendChild(d);}
 function toggleExp(row){row.classList.toggle("open");row.nextElementSibling.classList.toggle("open");}
-function goSlide(i,instant){const t=document.getElementById("motrack");if(t)t.scrollTo({left:i*t.clientWidth,behavior:instant?"auto":"smooth"});_moMark(i);}
+/* Swap a deferred <img data-src> over to a real src.
+   Photos past the first one are held back so opening a page does not
+   decode five full-size bitmaps per product; they load the moment the
+   shopper actually goes looking for them. */
+function _hydrate(scope,upto){
+  if(!scope)return;
+  const q=[...scope.querySelectorAll("img[data-src]")];
+  (typeof upto==="number"?q.slice(0,upto):q).forEach(im=>{
+    im.src=im.dataset.src;im.removeAttribute("data-src");
+  });
+}
+function goSlide(i,instant){
+  const t=document.getElementById("motrack");
+  // Load this slide and the next one before scrolling, so the photo is
+  // there when the swipe lands instead of arriving as a blank panel.
+  // (Until now nothing ever read these data-src attributes at all, so
+  //  photos 3 and beyond simply never appeared.)
+  if(t){const im=[...t.querySelectorAll("img")];[i,i+1].forEach(k=>{
+    const el=im[k];if(el&&el.dataset.src){el.src=el.dataset.src;el.removeAttribute("data-src");}
+  });}
+  if(t)t.scrollTo({left:i*t.clientWidth,behavior:instant?"auto":"smooth"});_moMark(i);
+}
 function toggleImgZoom(e){var w=e.target.closest(".mocar-imgs");if(!w)return;if(w.classList.contains("zoomed")){w.classList.remove("zoomed");var img=w.querySelector("img.active");if(img)img.style.transform="";}else{w.classList.add("zoomed");var img=w.querySelector("img.active");if(img)img.style.transform="scale(2)";}}
 function slideDir(d){const n=(ms.p.images||[]).length;if(n<2)return;ms.idx=(ms.idx+d+n)%n;goSlide(ms.idx);}
 function pick(k,v,el){ms[k]=v;[...el.parentElement.children].forEach(c=>c.classList.remove("sel"));el.classList.add("sel");}
@@ -4340,7 +4494,7 @@ function moRelatedHtml(p){
   const same=pool.filter(x=>x.fit&&x.fit===p.fit), rest=pool.filter(x=>!(x.fit&&x.fit===p.fit));
   const pick=same.concat(rest).slice(0,4);
   if(!pick.length)return "";
-  return `<div class="mo-related"><h3>YOU MAY ALSO LIKE</h3><div class="mo-rel-grid">${pick.map(x=>`<div class="mo-rel-card" onclick="openMo('${String(x.id).replace(/'/g,"")}')"><div class="mri"><img src="${x.images[0]}" alt="${_revEsc(x.name)}" loading="lazy"/></div><div class="mrn">${_revEsc(x.name)}</div><div class="mrp">${inr(eff(x))}</div></div>`).join("")}</div></div>`;
+  return `<div class="mo-related"><h3>YOU MAY ALSO LIKE</h3><div class="mo-rel-grid">${pick.map(x=>`<div class="mo-rel-card" onclick="openMo('${String(x.id).replace(/'/g,"")}')"><div class="mri"><img src="${_ix(x.images[0],400)}" alt="${_revEsc(x.name)}" loading="lazy" decoding="async"/></div><div class="mrn">${_revEsc(x.name)}</div><div class="mrp">${inr(eff(x))}</div></div>`).join("")}</div></div>`;
 }
 window.addEventListener("popstate",function(){
   if(window._otOpen||window._otIgnorePop)return;   // Back press that belongs to the order tracker
@@ -4361,7 +4515,7 @@ function renderCart(){
   {const _n=cart.reduce((s,i)=>s+i.qty,0),_c=document.getElementById("ccount");_c.textContent=_n>99?"99+":_n;_c.style.display=_n?"":"none";}
   const box=document.getElementById("cditems");
   if(!cart.length){box.innerHTML=`<div class="cdempty"><span>🛍️</span>Your bag is empty.<br>Pick a fit from the drop.</div>`;}
-  else box.innerHTML=cart.map(i=>`<div class="cdit"><img src="${i.image}" alt="${i.name}"/><div class="cin"><div class="cinm">${i.name}</div><div class="ciop">${i.size} · ${i.color} · x${i.qty}</div><div class="cipr">${inr(i.price*i.qty)}</div></div><button class="cirm" onclick="rmItem('${i.key}')">Remove</button></div>`).join("");
+  else box.innerHTML=cart.map(i=>`<div class="cdit"><img src="${_ix(i.image,240)}" alt="${i.name}" loading="lazy"/><div class="cin"><div class="cinm">${i.name}</div><div class="ciop">${i.size} · ${i.color} · x${i.qty}</div><div class="cipr">${inr(i.price*i.qty)}</div></div><button class="cirm" onclick="rmItem('${i.key}')">Remove</button></div>`).join("");
   document.getElementById("ctot").textContent=inr(cart.reduce((s,i)=>s+i.price*i.qty,0));
   if(typeof renderIgPicks==="function"&&window._igPicks)renderIgPicks();
 }
@@ -4445,7 +4599,7 @@ function _submitCheckoutDetailsInner(){
   const wallOptin=_wallEl?!!_wallEl.checked:true;
   window._pendingOrder={orderId,name,phone,email,addr,pin,items:cart.map(i=>({id:i.id,name:i.name,size:i.size,color:i.color,qty:i.qty,price:i.price})),total:sub,status:"pending",placedAt:Date.now(),wallOptin};
   // populate the review screen
-  document.getElementById("ck-review-items").innerHTML=cart.map(i=>`<div style="display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)"><img src="${i.image}" style="width:50px;height:65px;object-fit:cover;border-radius:6px"/><div style="flex:1"><div style="font-weight:700;font-size:13px">${i.name}</div><div style="font-size:12px;color:var(--off)">${i.size} · ${i.color} · x${i.qty}</div></div><div style="font-weight:700;font-size:13px">${inr(i.price*i.qty)}</div></div>`).join("");
+  document.getElementById("ck-review-items").innerHTML=cart.map(i=>`<div style="display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)"><img src="${_ix(i.image,140)}" loading="lazy" style="width:50px;height:65px;object-fit:cover;border-radius:6px"/><div style="flex:1"><div style="font-weight:700;font-size:13px">${i.name}</div><div style="font-size:12px;color:var(--off)">${i.size} · ${i.color} · x${i.qty}</div></div><div style="font-weight:700;font-size:13px">${inr(i.price*i.qty)}</div></div>`).join("");
   document.getElementById("ck-review-info").innerHTML=`<b>${name}</b><br/>${phone}${email?'<br/>'+email:''}<br/>${addr} — ${pin}`;
   // NOTE: the old #ck-review-total element was removed from the markup when
   // the payment-method summary (#ck-pay-summary, via renderPaySummary()) was
@@ -4874,7 +5028,7 @@ function nlSub(e){e.preventDefault();const v=document.getElementById("nli").valu
 // SEARCH / NAV
 function openSrch(){document.getElementById("sov").classList.add("op");setTimeout(()=>document.getElementById("sin").focus(),100);}
 function closeSrch(){document.getElementById("sov").classList.remove("op");}
-function doSrch(q){const r=document.getElementById("sres");if(!q.trim()){r.innerHTML="";return;}const hits=products.filter(p=>p.name.toLowerCase().includes(q.toLowerCase())||p.category.toLowerCase().includes(q.toLowerCase())||(p.fit||"").toLowerCase().includes(q.toLowerCase()));if(!hits.length){r.innerHTML=`<p style="color:var(--off);grid-column:1/-1">No results for "${q}"</p>`;return;}r.innerHTML=hits.map(p=>`<div class="pcard" onclick="closeSrch();openMo('${p.id}')"><div class="pimg"><img class="pfront" src="${(p.images||[])[0]||''}" alt="${p.name}" loading="lazy"/></div><div class="pmeta"><div class="pname">${dispName(p)}</div><div class="pprices"><span class="pnow">${inr(eff(p))}</span></div></div></div>`).join("");}
+function doSrch(q){const r=document.getElementById("sres");if(!q.trim()){r.innerHTML="";return;}const hits=products.filter(p=>p.name.toLowerCase().includes(q.toLowerCase())||p.category.toLowerCase().includes(q.toLowerCase())||(p.fit||"").toLowerCase().includes(q.toLowerCase()));if(!hits.length){r.innerHTML=`<p style="color:var(--off);grid-column:1/-1">No results for "${q}"</p>`;return;}r.innerHTML=hits.map(p=>`<div class="pcard" onclick="closeSrch();openMo('${p.id}')"><div class="pimg"><img class="pfront" src="${_ix((p.images||[])[0]||'',400)}" alt="${p.name}" loading="lazy" decoding="async"/></div><div class="pmeta"><div class="pname">${dispName(p)}</div><div class="pprices"><span class="pnow">${inr(eff(p))}</span></div></div></div>`).join("");}
 function openMob(){document.getElementById("mbnav").classList.add("op");document.getElementById("mob-scm").classList.add("op");}
 function closeMob(){document.getElementById("mbnav").classList.remove("op");document.getElementById("mob-scm").classList.remove("op");}
 
@@ -5123,7 +5277,7 @@ function lbClose(){document.getElementById('lb').classList.remove('op');unlockSc
 
 
 // ===== STORY UPDATES (Instagram model) =====
-function renderStoriesRail(){const w=document.getElementById('srail-wrap');const r=document.getElementById('srail');if(!w||!r)return;if(!stories.length){w.style.display='none';return;}w.style.display='block';r.innerHTML=stories.map((s,i)=>`<div class="story-c" onclick="openStoryViewer(${i})"><div class="story-ring"><img class="story-av" src="${s.img}" alt="" loading="lazy"/></div><span class="story-lbl">${(s.label||'Update').replace(/</g,'&lt;')}</span></div>`).join('');}
+function renderStoriesRail(){const w=document.getElementById('srail-wrap');const r=document.getElementById('srail');if(!w||!r)return;if(!stories.length){w.style.display='none';return;}w.style.display='block';r.innerHTML=stories.map((s,i)=>`<div class="story-c" onclick="openStoryViewer(${i})"><div class="story-ring"><img class="story-av" src="${_ix(s.img,160)}" alt="" loading="lazy"/></div><span class="story-lbl">${(s.label||'Update').replace(/</g,'&lt;')}</span></div>`).join('');}
 let _sv={i:0,timer:null};
 function openStoryViewer(i){if(!stories.length)return;_sv.i=i;document.getElementById('sviewer').classList.add('op');lockScroll();svRender();}
 function svRender(){const s=stories[_sv.i];if(!s){svClose();return;}document.getElementById('sv-img').src=s.img;document.getElementById('sv-cap').textContent=s.caption||'';document.getElementById('sv-cap').style.display=s.caption?'block':'none';document.getElementById('sv-date').textContent=s.date||'';const av=document.getElementById('sv-av');av.src=(typeof LOGO_SRC!=='undefined'&&LOGO_SRC)?LOGO_SRC:s.img;
@@ -5447,7 +5601,7 @@ async function loadPublished(){
       const pid1=(!s.heroThumb1&&others[0])?others[0].id:"";
       const pid2=(!s.heroThumb2&&others[1])?others[1].id:"";
       const items=[[t1,pid1],[t2,pid2]].filter(x=>x[0]);
-      mini.innerHTML=items.map(([src,pid],i)=>{return`<img src="${src}" alt="product ${i+1}" data-pid="${pid}" onclick="scMiniClick(this)" style="cursor:pointer"/>`;}).join("");
+      mini.innerHTML=items.map(([src,pid],i)=>{return`<img src="${_ix(src,200)}" alt="product ${i+1}" data-pid="${pid}" onclick="scMiniClick(this)" style="cursor:pointer"/>`;}).join("");
     }
     if(spec){
       spec.innerHTML=`<div>FIT <b>${(feat.fit||"\u2014").toUpperCase()}</b></div><div>SIZES <b>${(feat.sizes||[]).length}</b></div><div>WASH <b>${((feat.colors||[])[0]||"\u2014").toUpperCase()}</b></div>`;
@@ -5834,7 +5988,7 @@ function openReviewForm(pid){
     <h3 style="font-family:var(--dsp);font-size:22px;margin-bottom:4px">RATE YOUR PURCHASE</h3>
     <p style="color:var(--off);font-size:13px;margin-bottom:16px">Your feedback helps other customers and means a lot to us.</p>
     <div class="rf-prod">
-      <img src="${(p.images||[])[0]||''}" alt="${p.name||''}"/>
+      <img src="${_ix((p.images||[])[0]||'',400)}" alt="${p.name||''}" loading="lazy"/>
       <div class="rf-prod-info">
         <div class="rf-prod-name">${p.name||''}</div>
         <div class="rf-prod-fit">${p.fit||''} · ${p.category||''}</div>
