@@ -1877,6 +1877,76 @@ body:hover .cursor-glow{opacity:1}
   #hero .hstats{gap:22px;margin-top:4px}
   #hero .hstat .lbl{font-size:10.5px}
 }
+
+/* ─────────────────────────────────────────────────────────────────────
+   Touch feel (2026-11-25)
+
+   The shop is almost entirely used on a phone, and nothing on it responded
+   to being touched: a card looked identical before, during and after a tap,
+   so every press felt like a guess until the next screen arrived.
+
+   One idea, applied consistently: things you can touch behave like objects.
+   A product card tips very slightly towards the thumb and settles back, the
+   way a stiff swatch of denim would if you pressed one corner. Buttons and
+   size chips give under the finger and come back. That is the whole effect.
+
+   Deliberately NOT WebGL. A 3D canvas would put real GPU and memory load
+   back on exactly the phones that were running out of it earlier today.
+   Everything here is transform and opacity only, which the compositor
+   handles on the GPU without allocating anything per card, so it costs
+   nothing at rest and nothing per extra product in the grid.
+
+   No will-change anywhere on purpose: setting it on cards would promote all
+   87 of them to their own compositing layer, which is the memory problem in
+   a different coat. The transforms composite fine without it.
+   ───────────────────────────────────────────────────────────────────── */
+#pgrid .pcard{
+  transition:transform .42s cubic-bezier(.22,1.08,.36,1),
+             box-shadow .42s cubic-bezier(.22,1,.36,1),
+             border-color .35s var(--ease);
+  transform:perspective(900px);
+}
+/* Pressed: tips toward wherever the thumb landed (--px/--py run -1..1),
+   sinks a little, and the shadow tightens as it gets closer to the page. */
+#pgrid .pcard.pressing{
+  transition-duration:.11s;
+  transform:perspective(900px)
+            rotateX(calc(var(--py,0) * -5.5deg))
+            rotateY(calc(var(--px,0) * 5.5deg))
+            scale(.974);
+  box-shadow:0 4px 14px -6px rgba(20,19,18,.26);
+}
+/* Buttons and size chips: give under the finger, spring back.
+   .14s down, .3s back — pressing should feel immediate, releasing should
+   feel elastic. */
+.btn,.chip,.btn-loadmore,.moadd,.hpf-buy,.hpf-all{
+  transition:transform .3s cubic-bezier(.22,1.1,.36,1), opacity .2s, background .2s, border-color .2s, color .2s;
+}
+.btn:active,.btn-loadmore:active,.moadd:active,.hpf-buy:active,.hpf-all:active{
+  transform:scale(.957);transition-duration:.1s;
+}
+.chip:active{transform:scale(.93);transition-duration:.1s}
+/* The heart on a card is small, so it gets a bigger, bouncier confirmation. */
+.pwish:active{transform:scale(.82);transition-duration:.09s}
+
+@media (prefers-reduced-motion:reduce){
+  #pgrid .pcard,#pgrid .pcard.pressing{transform:none;transition:none}
+  .btn:active,.chip:active,.btn-loadmore:active,.moadd:active,.pwish:active,
+  .hpf-buy:active,.hpf-all:active{transform:none}
+}
+
+/* Add to bag: show the piece going into the bag.
+   A confirmation toast tells you something happened; watching the actual
+   photo travel to the bag icon tells you WHAT happened and WHERE it went,
+   which is the thing people check for. The flyer is one absolutely
+   positioned image that removes itself when it lands — transform and
+   opacity only, nothing retained. */
+.bagfly{position:fixed;z-index:999;border-radius:10px;object-fit:cover;pointer-events:none;
+  box-shadow:0 14px 34px -10px rgba(20,19,18,.4);
+  transition:transform .5s cubic-bezier(.5,-0.08,.3,1), opacity .5s ease-in, border-radius .5s}
+@keyframes bagBump{0%{transform:scale(1)}38%{transform:scale(1.26)}68%{transform:scale(.94)}100%{transform:scale(1)}}
+.bag-bump{animation:bagBump .5s cubic-bezier(.22,1.2,.36,1)}
+@media (prefers-reduced-motion:reduce){.bagfly{display:none}.bag-bump{animation:none}}
 </style>
 <script defer data-domain="365dropstore.com" src="https://plausible.io/js/script.js"></script>
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
@@ -3624,6 +3694,107 @@ document.addEventListener("scroll",e=>{
   window._watchCards=watchCards;
 })();
 
+/* ── Touch feel: where the thumb lands, and a tap you can feel ────────
+   Companion to the "Touch feel" block in the stylesheet. One delegated
+   listener pair on the document covers every card, including the ones
+   infinite scroll adds later, so there is nothing to re-bind per batch and
+   no per-card listener to leak.
+
+   The card tips towards the touch point rather than tipping a fixed amount,
+   which is what makes it read as a physical object instead of an animation:
+   press the top-left corner and that corner goes down.
+
+   Haptics: navigator.vibrate gives a 7ms tick on Android and Chrome. iOS
+   Safari does not implement it at all and there is no web API that will
+   buzz an iPhone, so iOS gets the visual press only — worth knowing rather
+   than wondering why it feels different on the two platforms. */
+(function(){
+  const reduce=window.matchMedia&&window.matchMedia("(prefers-reduced-motion:reduce)").matches;
+  let pressed=null;
+
+  function tick(ms){
+    // Some browsers expose vibrate but throw without a user gesture; these
+    // only ever run inside one, and a missing buzz must never break a tap.
+    try{ if(navigator.vibrate)navigator.vibrate(ms); }catch(e){}
+  }
+  window.hapticTick=tick;
+
+  function down(e){
+    if(reduce)return;
+    const card=e.target.closest&&e.target.closest("#pgrid .pcard");
+    if(!card)return;
+    const r=card.getBoundingClientRect();
+    const pt=e.touches?e.touches[0]:e;
+    // -1 .. 1 from the centre of the card, clamped so a touch on the very
+    // edge does not tip it further than one in the corner.
+    const px=Math.max(-1,Math.min(1,((pt.clientX-r.left)/r.width-.5)*2));
+    const py=Math.max(-1,Math.min(1,((pt.clientY-r.top)/r.height-.5)*2));
+    card.style.setProperty("--px",px.toFixed(3));
+    card.style.setProperty("--py",py.toFixed(3));
+    card.classList.add("pressing");
+    pressed=card;
+  }
+  function up(){
+    if(!pressed)return;
+    pressed.classList.remove("pressing");
+    pressed=null;
+  }
+  document.addEventListener("pointerdown",down,{passive:true,capture:true});
+  ["pointerup","pointercancel","pointerleave","scroll"].forEach(ev=>
+    document.addEventListener(ev,up,{passive:true,capture:true}));
+
+  /* A tap that commits to something gets a tick; browsing does not, so the
+     buzz keeps meaning "that worked" instead of becoming background noise. */
+  document.addEventListener("click",e=>{
+    const t=e.target.closest&&e.target.closest(
+      "#mo .chip, .moadd, .btn-loadmore, .pwish, .hpf-buy, .ff-opt, .fs-size");
+    if(t)tick(t.classList.contains("moadd")?[9,28,9]:7);
+  },{passive:true,capture:true});
+})();
+
+/* Sends a copy of the product photo from wherever it is on screen into the
+   bag icon in the header. Starts from the image the shopper is actually
+   looking at (the open product page, or that product's card in the grid) so
+   the thing that moves is the thing they just chose. */
+function flyToBag(p){
+  if(window.matchMedia&&window.matchMedia("(prefers-reduced-motion:reduce)").matches)return;
+  const bag=document.querySelector(".hbtn-bag");
+  if(!bag)return;
+  const src=document.querySelector("#motrack img.active")
+         ||document.querySelector("#motrack img")
+         ||document.querySelector(`#pgrid .pcard[onclick*="${p.id}"] img`)
+         ||document.querySelector("#pgrid .pcard img");
+  if(!src||!src.getAttribute("src"))return;
+  const from=src.getBoundingClientRect();
+  if(from.width<8||from.height<8)return;
+  const to=bag.getBoundingClientRect();
+
+  const fly=document.createElement("img");
+  fly.src=src.getAttribute("src");
+  fly.className="bagfly";
+  fly.alt="";
+  fly.style.left=from.left+"px";fly.style.top=from.top+"px";
+  fly.style.width=from.width+"px";fly.style.height=from.height+"px";
+  document.body.appendChild(fly);
+
+  // Next frame, so the browser has a start position to animate away from.
+  requestAnimationFrame(()=>{requestAnimationFrame(()=>{
+    const dx=(to.left+to.width/2)-(from.left+from.width/2);
+    const dy=(to.top+to.height/2)-(from.top+from.height/2);
+    fly.style.transform=`translate(${dx}px, ${dy}px) scale(.08)`;
+    fly.style.opacity=".25";
+    fly.style.borderRadius="50%";
+  });});
+
+  const land=()=>{
+    fly.remove();
+    bag.classList.remove("bag-bump");void bag.offsetWidth;bag.classList.add("bag-bump");
+    setTimeout(()=>bag.classList.remove("bag-bump"),520);
+  };
+  fly.addEventListener("transitionend",land,{once:true});
+  setTimeout(()=>{if(fly.isConnected)land();},760);   // never strand the flyer
+}
+
 /* Grid cards keep photos 2-6 as data-src until the shopper shows interest
    in that particular card — a swipe on the strip, a hover, or opening it.
    One delegated listener covers every card, including ones added later by
@@ -4698,7 +4869,15 @@ function unbuyableInCart(){
 function addCart(){const{p,size,color,qty}=ms;
   const problem=stockProblem(p,size);
   if(problem){showToast(problem,false);if(typeof showSizeRec==="function")showSizeRec(p,size,true);return;}
-  if(typeof fbq==="function")fbq("track","AddToCart",{content_name:p.name,content_ids:[p.id],content_type:"product",value:eff(p),currency:"INR"});const key=p.id+size+color;const ex=cart.find(i=>i.key===key);if(ex)ex.qty+=qty;else cart.push({key,id:p.id,name:p.name,price:eff(p),image:(p.images||[])[0]||"",size,color,qty,link:"https://365dropstore.com/p/"+p.id});LS.set("ds_cart",cart);closeMo();renderCart();openCart();}
+  try{flyToBag(p);}catch(e){}
+  if(typeof fbq==="function")fbq("track","AddToCart",{content_name:p.name,content_ids:[p.id],content_type:"product",value:eff(p),currency:"INR"});const key=p.id+size+color;const ex=cart.find(i=>i.key===key);if(ex)ex.qty+=qty;else cart.push({key,id:p.id,name:p.name,price:eff(p),image:(p.images||[])[0]||"",size,color,qty,link:"https://365dropstore.com/p/"+p.id});LS.set("ds_cart",cart);closeMo();renderCart();
+  /* Let the photo reach the bag before the drawer slides over it. The two
+     were firing at the same instant, so the flight played underneath the
+     drawer and nobody ever saw it — one action should read as one sequence:
+     the piece goes in, the bag reacts, then the bag opens. */
+  if(window.matchMedia&&window.matchMedia("(prefers-reduced-motion:reduce)").matches)openCart();
+  else setTimeout(openCart,580);
+}
 function rmItem(key){cart=cart.filter(i=>i.key!==key);LS.set("ds_cart",cart);renderCart();}
 function renderCart(){
   {const _n=cart.reduce((s,i)=>s+i.qty,0),_c=document.getElementById("ccount");_c.textContent=_n>99?"99+":_n;_c.style.display=_n?"":"none";}
