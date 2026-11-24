@@ -1723,6 +1723,8 @@ body:hover .cursor-glow{opacity:1}
 .ff-n sup{font-size:.42em;vertical-align:.95em;margin-left:1px}
 .ff-n small{font-size:.5em}
 .ff-mark{position:absolute;left:50%;bottom:-10px;width:6px;height:6px;border-radius:50%;background:#C0392B;transform:translateX(-50%)}
+.ff-unit{display:flex;align-items:center;justify-content:center;gap:7px;margin:14px 0 0;font:600 11.5px/1 var(--bod);letter-spacing:.04em;text-transform:uppercase;color:#C0392B}
+.ff-unit svg{width:15px;height:15px}
 .ff-meta{display:flex;justify-content:center;gap:14px;margin:22px 0 0;font:500 13px/1 var(--bod);color:#8A847C}
 .ff-meta b{color:#141312;font-weight:600}
 .ff-alt{align-self:center;margin:16px 0 0;border:0;background:none;font:600 13px/1 var(--bod);color:#141312;text-decoration:underline;text-decoration-color:#C0392B;text-underline-offset:5px;text-decoration-thickness:2px;cursor:pointer;padding:6px}
@@ -3143,7 +3145,10 @@ function ffCuts(prof){
 var FF_STEP_W=92, _ffStageT=0, _ffRaf=0;
 function ffStops(mode){if(mode==="usual")return FF_SIZES.slice();const a=[];for(let v=FF_MIN;v<=FF_MAX;v+=0.5)a.push(v);return a;}
 function ffFmt(v,mode){return mode==="usual"?`${v}`:(v%1?`${Math.floor(v)}<small>½</small>`:`${v}`)+`<sup>″</sup>`;}
-function ffStageImgs(){
+function ffStageImgs(reviewing){
+  // Opened from a product page: show that product's own photos, not an
+  // unrelated rotating set — the shopper should see what they're reviewing.
+  if(reviewing&&(reviewing.images||[]).length)return reviewing.images.slice(0,5);
   const live=products.filter(p=>ffInGrid(p)&&!isSold(p)&&(p.images||[]).length);
   const seen=new Set(), out=[];
   live.sort((a,b)=>(a.order||99)-(b.order||99)).forEach(p=>{if(out.length<5&&!seen.has(p.fit)){seen.add(p.fit);out.push(p.images[0]);}});
@@ -3161,7 +3166,8 @@ function ffOpen(source,presetWaist){
   _ffDraft.waist=Math.min(FF_MAX,Math.max(FF_MIN,_ffDraft.waist));
   _ffStep=1;
   try{localStorage.setItem("ds_ff_seen","1");}catch(e){}
-  const imgs=ffStageImgs();
+  const reviewing=(_ffSource==="product"&&typeof ms!=="undefined")?ms.p:null;
+  const imgs=ffStageImgs(reviewing);
   el.innerHTML=`<div class="ff-sheet" id="ff-sheet" role="dialog" aria-modal="true" aria-labelledby="ff-h">
     <div class="ff-stage" aria-hidden="true">${imgs.map((s,i)=>`<img src="${s}" alt="" class="${i?"":"on"}" ${i?'loading="lazy"':""}/>`).join("")}<span class="ff-brand">365 Drop Store · Fit finder</span></div>
     <button class="ff-x" onclick="ffClose(${p0?"false":"true"})" aria-label="Close">✕</button>
@@ -3189,6 +3195,7 @@ function ffRender(){
       <div class="ff-wheelwrap"><div class="ff-wheel" id="ff-wheel" tabindex="0" role="slider" aria-label="${d.mode==="usual"?"Jeans size":"Waist in inches"}" aria-valuemin="${stops[0]}" aria-valuemax="${stops[stops.length-1]}">
         <div class="ff-pad"></div>${stops.map((v,i)=>`<div class="ff-n" data-v="${v}" data-i="${i}">${ffFmt(v,d.mode)}</div>`).join("")}<div class="ff-pad"></div>
       </div><span class="ff-mark"></span></div>
+      <div class="ff-unit">${FF_TAPE}<span>Waist in inches (″)</span></div>
       <div class="ff-meta" id="ff-meta"></div>
       <p class="ff-help">No tape? Lay your best jeans flat, measure across the waistband, double it.</p>`;
     foot.innerHTML=`<button class="ff-cta" onclick="ffNext()">Continue <span>→</span></button><button class="ff-skip" onclick="ffClose(${p0?"false":"true"})">${p0?"Cancel":"Not now"}</button>`;
