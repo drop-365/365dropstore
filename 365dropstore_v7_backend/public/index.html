@@ -313,6 +313,11 @@ header.sc .nav{height:58px}
 
 /* FAQ/policies */
 .lm-auto{display:inline-flex;align-items:center;gap:10px;font-family:var(--bod);font-size:13px;letter-spacing:.04em;color:var(--off)}
+/* Fallback once infinite scroll hits its auto-load cap (see LM_AUTO_MAX) —
+   further pages need a tap, so scrolling alone can never pull in the whole
+   catalogue's photos at once. */
+.btn-loadmore{padding:14px 36px;border-radius:30px;font-family:var(--dsp);font-size:18px;letter-spacing:.04em;background:var(--white);color:#fff;border:none;cursor:pointer;transition:.2s}
+.btn-loadmore:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(20,19,18,.2)}
 .lm-spin{width:16px;height:16px;border-radius:50%;border:2px solid rgba(0,0,0,.15);border-top-color:var(--off);animation:lmspin .7s linear infinite}
 @keyframes lmspin{to{transform:rotate(360deg)}}
 @media(prefers-reduced-motion:reduce){.lm-spin{animation:none}}
@@ -3362,7 +3367,7 @@ function _moMark(i){
   document.querySelectorAll(".mocar-thumbs .mthumb").forEach((d,j)=>d.classList.toggle("act",j===i));
 }
 function renderGrid(){
-  gridPage=0;_pcardIdx=0;
+  gridPage=0;_pcardIdx=0;_lmAutoCount=0;if(_lmObserver){const lw=document.getElementById("load-more-wrap");if(lw)_lmObserver.unobserve(lw);}
   const srt=document.getElementById("srt").value;
   let list=[...products].filter(p=>fCat==="All"||p.category===fCat);
   // Exclude designer products from the regular grid — they have their own section
@@ -3410,21 +3415,33 @@ function loadMoreProducts(){
   const grid=document.getElementById("pgrid");
   grid.insertAdjacentHTML("beforeend",next.map(pcardHTML).join(""));
   const remaining=list.length-start-next.length;
-  if(lmEl)lmEl.innerHTML=remaining>0?'<div class="lm-auto" id="lm-auto"><span class="lm-spin"></span>Loading more styles…</div>':'';
+  if(lmEl){
+    if(remaining<=0)lmEl.innerHTML='';
+    else if(_lmAutoCount>=LM_AUTO_MAX)lmEl.innerHTML=`<button class="btn-loadmore" onclick="loadMoreProducts()">Load ${Math.min(remaining,GRID_PAGE_SIZE)} more styles ↓</button>`;
+    else lmEl.innerHTML='<div class="lm-auto" id="lm-auto"><span class="lm-spin"></span>Loading more styles…</div>';
+  }
 }
 // Infinite scroll: the sentinel below the grid triggers the next page once
 // it nears the viewport, instead of waiting for a click.
-// 2026-11-25: a fast scroll could re-trigger this many times before the
-// previous batch had even rendered, piling up dozens of cards/images in one
-// go and crashing the tab on iOS Safari. _lmBusy makes it load one page,
-// let the browser settle, then allow the next trigger.
-let _lmObserver=null,_lmBusy=false;
+// 2026-11-25: a fast, continuous scroll could re-trigger this many times a
+// second, piling up cards/images fast enough to crash the tab on iOS
+// Safari. Two independent limits, not just a single-frame guard:
+//  - a real 700ms cooldown between auto-loads (not just "not mid-render"),
+//    so a continuous swipe can't re-trigger on every settle;
+//  - a hard cap of 2 automatic pages — after that the sentinel goes back to
+//    a manual "Load more" button, so scrolling alone can never pull in the
+//    whole catalogue's photos at once, no matter how long someone scrolls.
+let _lmObserver=null,_lmBusy=false,_lmLastAt=0,_lmAutoCount=0;
+const LM_AUTO_COOLDOWN_MS=700,LM_AUTO_MAX=2;
 function lmObserve(){
   const el=document.getElementById("load-more-wrap"); if(!el)return;
+  if(_lmAutoCount>=LM_AUTO_MAX){if(_lmObserver)_lmObserver.unobserve(el);return;}
   if(!_lmObserver){
     _lmObserver=new IntersectionObserver(es=>{
       if(!es[0].isIntersecting||_lmBusy)return;
-      _lmBusy=true;
+      if(Date.now()-_lmLastAt<LM_AUTO_COOLDOWN_MS)return;
+      if(_lmAutoCount>=LM_AUTO_MAX){_lmObserver.unobserve(el);return;}
+      _lmBusy=true;_lmLastAt=Date.now();_lmAutoCount++;
       loadMoreProducts();
       requestAnimationFrame(()=>requestAnimationFrame(()=>{_lmBusy=false;}));
     },{rootMargin:"300px 0px"});
