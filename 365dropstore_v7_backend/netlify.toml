@@ -26,6 +26,13 @@
   to = "/index.html"
   status = 200
 
+# Vault 001 was folded into the regular shop on 2026-11-24; send any old
+# links or bookmarks home instead of a 404.
+[[redirects]]
+  from = "/vault/*"
+  to = "/"
+  status = 301
+
 # Fit landing pages for search — the JS app pre-filters the shop; the
 # fit-landing edge function sets the title, description, canonical and h1.
 [[redirects]]
