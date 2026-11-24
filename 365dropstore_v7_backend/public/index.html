@@ -2500,7 +2500,10 @@ function _ix(u,w){
   if(!/^https?:\/\//.test(u))return u;          // same-origin asset, already right-sized
   if(/\.svg(\?|$)/i.test(u))return u;            // vectors don't need resizing
   if(u.indexOf("/.netlify/images")!==-1)return u; // don't double-wrap
-  return "/.netlify/images?url="+encodeURIComponent(u)+"&w="+w+"&fit=cover&q=72";
+  // fit=contain scales proportionally. Do NOT use fit=cover here: with a
+  // width and no height it crops to that width at the ORIGINAL height
+  // (600x800 -> 240x800), which both mangles the photo and saves nothing.
+  return "/.netlify/images?url="+encodeURIComponent(u)+"&w="+w+"&fit=contain&q=72";
 }
 const WA="919990905969";const LS={get:(k,d=null)=>{try{return JSON.parse(localStorage.getItem(k))??d}catch{return d}},set:(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch{}}};
 const inr=n=>"₹"+Number(n).toLocaleString("en-IN");const eff=p=>p.offerPrice??p.price;
