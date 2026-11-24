@@ -32,6 +32,7 @@
   from = "/vault/*"
   to = "/"
   status = 301
+  force = true
 
 # Fit landing pages for search — the JS app pre-filters the shop; the
 # fit-landing edge function sets the title, description, canonical and h1.
