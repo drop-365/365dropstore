@@ -927,7 +927,10 @@ button,a,.btn,[onclick]{-webkit-tap-highlight-color:transparent}
 .modal{color:var(--off);font-size:14px;line-height:1.65;margin:14px 0 18px}
 .mol{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--off);font-weight:700;display:block;margin-bottom:8px}
 .chips{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:16px}
-.chip{border:1.5px solid rgba(0,0,0,.1);padding:9px 14px;font-size:13px;font-weight:500;transition:.18s;cursor:pointer;border-radius:99px;background:var(--bg2);color:var(--w2)}
+/* 44px minimum: these are the size buttons on a product page, tapped with a
+   thumb on a phone. They were ~34px tall, under both Apple's and Google's
+   minimum, which is why picking a size needs a careful aim. */
+.chip{border:1.5px solid rgba(0,0,0,.1);padding:9px 14px;font-size:13px;font-weight:500;transition:.18s;cursor:pointer;border-radius:99px;background:var(--bg2);color:var(--w2);min-height:44px;min-width:46px;display:inline-flex;align-items:center;justify-content:center}
 .chip.sel,.chip:hover{border-color:#141312;background:#141312;color:#F8F7F4}
 .chip.oos-chip{opacity:.55;cursor:pointer!important;border-color:#DDD!important;background:#F5F5F2!important;color:#999!important;position:relative}
 .chip.oos-chip.sel{border-color:#C0392B!important;opacity:.7}
@@ -1839,6 +1842,41 @@ body:hover .cursor-glow{opacity:1}
 .pnav.l{left:8px}.pnav.r{right:8px}
 @media(pointer:fine){.pcard:hover .pnav{display:grid}}
 @media(prefers-reduced-motion:reduce){.ff,.ff-sheet{transition:none}}
+
+/* ─────────────────────────────────────────────────────────────────────
+   Hero density on phones (2026-11-25)
+
+   Measured on a 375x812 screen: the hero was 1,743px tall — 2.1 full
+   screens — and the first jean did not appear until 2,792px down, about
+   3.4 screens of scrolling. For a denim shop, that is a long time to show
+   someone no denim, and the two buttons that actually lead somewhere
+   ("Shop the drop", "The story") sat below the fold.
+
+   Nothing is deleted here and the hero keeps its shape: the tear-off
+   calendar, the wordmark, the line of copy, the trust chips, the buttons
+   and the stats are all still there. The spacing between them is simply
+   tightened and the calendar scaled down, so the buttons come up onto the
+   first screen and the products arrive a screen sooner.
+
+   The one element hidden on phones is the terminal strip
+   ("DROP_001 // 111 UNITS LIVE · 55 STYLES · STATUS ONLINE"). It repeats
+   what the stats row underneath already says, in a monospace voice that
+   belongs to a different kind of site, and it costs ~80px at the exact
+   point where the buttons need the room. It still shows on tablet and
+   desktop, where there is space for it.
+   ───────────────────────────────────────────────────────────────────── */
+@media (max-width:768px){
+  #hero .tc-cal{--tc-w:112px;--tc-h:150px;margin-bottom:12px;transform:scale(.92);transform-origin:top center}
+  #hero .hey{margin-bottom:6px}
+  #hero .hh1{margin:6px 0 8px;line-height:.92}
+  #hero .hsub{margin:0 0 12px;font-size:14.5px;line-height:1.5}
+  #hero .hero-trust{margin:0 0 12px}
+  #hero #termstrip{display:none}
+  #hero .hctas{margin:0 0 16px;gap:10px}
+  #hero .hctas .btn{min-height:48px}          /* thumb-sized, like the size chips */
+  #hero .hstats{gap:22px;margin-top:4px}
+  #hero .hstat .lbl{font-size:10.5px}
+}
 </style>
 <script defer data-domain="365dropstore.com" src="https://plausible.io/js/script.js"></script>
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
@@ -1992,7 +2030,12 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
           <div class="tc-tag">CLOTHING OR NOTHING</div>
         </div>
       </div>
-      <div class="tc-cd">Next sheet tears in <b data-tc="cd">00:00:00</b></div>
+      <!-- 2026-11-25: "Next sheet tears in 23:14:36" removed. It was the
+           fourth urgency signal on one screen, alongside "111 UNITS LIVE",
+           "Only 2 sizes left" and the LIMITED badges — and unlike those it
+           counted down to nothing a shopper could act on, which teaches
+           people to discount the real scarcity messages too. The calendar
+           itself stays; it is the brand mark. -->
     </div>
     <div class="hey rvh hd1"><span class="dot"></span> DROP 001 · DELHI · LIVE NOW</div>
     <div id="dropcount" class="dropcount rvh hd2" aria-hidden="true" style="display:none">
@@ -2774,7 +2817,15 @@ document.getElementById("yr").textContent=new Date().getFullYear();
 const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target);}}),{threshold:.07});
 document.querySelectorAll(".sr").forEach(el=>io.observe(el));
 // SCI-FI decode-scramble headings
-function decodeText(el){if(el._dec)return;el._dec=1;const final=el.textContent;if(window.matchMedia&&window.matchMedia("(prefers-reduced-motion:reduce)").matches){el.textContent=final;return;}const G="ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#%&/<>*+";let f=0;clearInterval(el._iv);el._iv=setInterval(()=>{f++;const shown=Math.floor(f*0.9);let out="";for(let i=0;i<final.length;i++){const c=final[i];if(c===" "||c==="\n"){out+=c;}else if(i<shown){out+=c;}else{out+=G[Math.floor(Math.random()*G.length)];}}el.textContent=out;if(shown>=final.length){clearInterval(el._iv);el.textContent=final;}},26);}
+/* 2026-11-25: the scramble-in effect used to spell each section heading out
+   of random characters. Caught on video mid-animation it read "SHOP FOI >
+   TH ZO/62" and "WORD ON THE V617&H" — for several hundred milliseconds, and
+   longer on a slow phone, the headings that tell a shopper where they are
+   were nonsense. That is a real comprehension cost (and a screen-reader one)
+   for decoration. Headings now appear as themselves; the .sr fade-in already
+   gives the section a sense of arrival. Kept as a function because several
+   call sites and an observer below still call it. */
+function decodeText(el){if(!el||el._dec)return;el._dec=1;}
 const decIO=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){decodeText(e.target);decIO.unobserve(e.target);}}),{threshold:.55});
 document.querySelectorAll("[data-dec]").forEach(el=>decIO.observe(el));
 let _scrollLockCount=0;
@@ -4344,7 +4395,14 @@ function getOosMessage(p,size){
 }
 function showSizeRec(p,size,isOos){
   const el=document.getElementById("mo-size-rec");if(!el)return;
-  const bagBtn=document.querySelector('#mo .moact');
+  // 2026-11-25: this read '.moact' — a class that exists nowhere in the
+  // page. querySelector returned null every single time, so every branch
+  // below that greys the button out, blocks taps on it, or relabels it
+  // "Out of Stock" / "Restocking 3 Dec" has never once run. The button has
+  // always looked and behaved like a normal Add to Bag, whatever the stock.
+  // That typo is why sold-out sizes could be ordered. The real class is
+  // .moadd (see the modal's buy row).
+  const bagBtn=document.querySelector('#mo .moadd');
   if(!p||p.sizeGuideMode==="off"){
     el.innerHTML='';
     // size guide off doesn't affect OOS gating — still block Add to Bag for OOS sizes
@@ -6193,6 +6251,18 @@ function closeReviewForm(){
   function showSP(){
     var rr=pool();
     if(!rr.length){spTimer=setTimeout(showSP,20000);return;}
+    /* 2026-11-25: this toast is pinned to the bottom of the screen, so it
+       sits on top of whatever is down there. Now that the hero's buttons
+       are on the first screen, that turned out to be "Shop the drop" —
+       a testimonial covering the main call to action, which is the one
+       thing a floating panel must never do. Wait until the shopper has
+       moved past the hero buttons; social proof is more use once they are
+       actually looking at product anyway. */
+    var cta=document.querySelector("#hero .hctas");
+    if(cta){
+      var r=cta.getBoundingClientRect();
+      if(r.bottom>0&&r.top<window.innerHeight){spTimer=setTimeout(showSP,4000);return;}
+    }
     var r=rr[spIdx%rr.length];spIdx++;spRid=r.id||"";
     var el=document.getElementById("sp-toast");if(!el)return;
     var img=document.getElementById("sp-img");
