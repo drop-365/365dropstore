@@ -3713,9 +3713,16 @@ document.addEventListener("scroll",e=>{
   let pressed=null;
 
   function tick(ms){
-    // Some browsers expose vibrate but throw without a user gesture; these
-    // only ever run inside one, and a missing buzz must never break a tap.
-    try{ if(navigator.vibrate)navigator.vibrate(ms); }catch(e){}
+    try{
+      if(!navigator.vibrate)return;
+      // Chrome doesn't throw when vibrate is called without a real user
+      // gesture — it refuses and writes an error to the console. A genuine
+      // tap always carries one, but a programmatic .click() (automation, a
+      // test, a script) does not, and those were filling the console with
+      // errors that would hide a real one. Ask first instead of being told off.
+      if(navigator.userActivation && !navigator.userActivation.isActive)return;
+      navigator.vibrate(ms);
+    }catch(e){}
   }
   window.hapticTick=tick;
 
