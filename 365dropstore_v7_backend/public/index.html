@@ -645,7 +645,16 @@ button,a,.btn,[onclick]{-webkit-tap-highlight-color:transparent}
 
 /* PRODUCT GRID */
 .pgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
-.pcard{position:relative;cursor:pointer;border-radius:14px;overflow:hidden;background:var(--bg2);border:1px solid rgba(20,19,18,.07);transition:.35s var(--ease);box-shadow:0 2px 14px rgba(20,19,18,.06)}
+/* content-visibility lets the browser skip layout, paint and compositing
+   for cards that are off-screen, which is where most of a long grid lives.
+   Releasing the photos (see the virtualiser in the script below) frees the
+   image memory; this frees the rendering memory that goes with drawing 80+
+   cards. contain-intrinsic-size keeps a placeholder box so the scrollbar and
+   page height stay honest, and the "auto" keyword tells the browser to
+   remember each card's real height once it has been rendered, so nothing
+   jumps when you scroll back. Safari 18+/Chrome support it; older browsers
+   ignore the two lines and simply render as before. */
+.pcard{position:relative;cursor:pointer;border-radius:14px;overflow:hidden;background:var(--bg2);border:1px solid rgba(20,19,18,.07);transition:.35s var(--ease);box-shadow:0 2px 14px rgba(20,19,18,.06);content-visibility:auto;contain-intrinsic-size:auto 420px}
 .pcard:hover{border-color:rgba(192,57,43,.18);box-shadow:0 20px 48px -12px rgba(20,19,18,.13),0 0 0 1px rgba(192,57,43,.08)}
 .pimg{position:relative;aspect-ratio:3/4;overflow:hidden;background:var(--bg3)}
 .pfront,.pback{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:.6s var(--ease)}
@@ -3623,7 +3632,14 @@ function renderGrid(){
   const grid=document.getElementById("pgrid");
   grid.innerHTML=visible.length?visible.map((p,i)=>pcardHTML(p)+(i===3&&!_ffp?ffInCardHTML():"")).join(""):(_ffp&&ffOnlyMine?`<div class="np">No pairs in your size and cuts match these filters right now. <button class="ffb-edit" style="color:#A8321F" onclick="ffSetOnlyMine(false)">Show all sizes</button></div>`:`<div class="np">No products match your filters.</div>`);
   const lmEl=document.getElementById("load-more-wrap");
-  if(lmEl)lmEl.innerHTML=remaining>0?'<div class="lm-auto" id="lm-auto"><span class="lm-spin"></span>Loading more styles…</div>':'';
+  // 2026-11-25: always render a real button, never a bare spinner. The
+  // sentinel below the grid ends up thousands of pixels ABOVE the viewport
+  // once the shopper scrolls on into the reviews, and an IntersectionObserver
+  // only fires on a change — so it could never fire again. The spinner then
+  // span forever and the other 60-odd products were simply unreachable.
+  // The observer still auto-loads the first couple of pages; the button is
+  // there underneath it so there is always a way forward.
+  if(lmEl)lmEl.innerHTML=remaining>0?`<button class="btn-loadmore" onclick="loadMoreProducts()">Load ${Math.min(remaining,GRID_PAGE_SIZE)} more styles ↓</button>`:'';
   lmObserve();
   const cnt=document.getElementById("shopall-count");if(cnt)cnt.textContent=list.length?`· ${list.length} item${list.length>1?'s':''}`:'';
   renderFitBtns();
@@ -3644,8 +3660,7 @@ function loadMoreProducts(){
   const remaining=list.length-start-next.length;
   if(lmEl){
     if(remaining<=0)lmEl.innerHTML='';
-    else if(_lmAutoCount>=LM_AUTO_MAX)lmEl.innerHTML=`<button class="btn-loadmore" onclick="loadMoreProducts()">Load ${Math.min(remaining,GRID_PAGE_SIZE)} more styles ↓</button>`;
-    else lmEl.innerHTML='<div class="lm-auto" id="lm-auto"><span class="lm-spin"></span>Loading more styles…</div>';
+    else lmEl.innerHTML=`<button class="btn-loadmore" onclick="loadMoreProducts()">Load ${Math.min(remaining,GRID_PAGE_SIZE)} more styles ↓</button>`;
   }
 }
 // Infinite scroll: the sentinel below the grid triggers the next page once
@@ -4339,15 +4354,15 @@ function showSizeRec(p,size,isOos){
     }
     return;
   }
-  // 2026-11-25: once Fit Finder has told this shopper their own size for
-  // this product (the block right above), the generic per-size measurement
-  // card used to show underneath it too — a different waist range for a
-  // different (often unselected) size, reading as a second, conflicting
-  // suggestion. Skip it whenever a personalized match already covers this
-  // product; it stays for everyone who hasn't used Fit Finder yet.
-  const prof=ffProfile();
-  const hasPersonalMatch=!!(prof&&(r=>r&&!r.none)(ffSizeFor(p,prof)));
-  const rec=hasPersonalMatch?null:getSizeRec(p,size);
+  // 2026-11-25: this card shows the actual waist measurement for the size
+  // the shopper has tapped — "Waist 32" — which is the single most useful
+  // number on the page and the thing people check before buying. An earlier
+  // change hid it whenever Fit Finder already had a personal match, on the
+  // grounds that two size messages read as conflicting advice. That was the
+  // wrong trade: it removed a fact to avoid a wording problem. The card is
+  // back for everyone. Fit Finder's block above answers "which size is
+  // mine"; this one answers "what does the size I just tapped measure".
+  const rec=getSizeRec(p,size);
   if(!rec){el.innerHTML='';}
   else el.innerHTML=`<div class="size-rec-card${isOos?' oos-rec':''}">
     <div class="rec-label">Waist ${rec.waist}"</div>
@@ -4593,8 +4608,38 @@ window.addEventListener("popstate",function(){
 function showStickyBuy(p){const sbb=document.getElementById("stickyBuyBar");if(!sbb||window.innerWidth>768)return;const sold=p.badges&&p.badges.includes("sold");if(sold){sbb.classList.remove("visible");return;}document.getElementById("sbbName").textContent=dispName(p);document.getElementById("sbbPrice").textContent=inr(eff(p));sbb.dataset.pid=p.id;sbb.classList.add("visible");}
 function addFromStickyBar(){const sbb=document.getElementById("stickyBuyBar");if(!sbb)return;const pid=sbb.dataset.pid;if(pid&&ms&&ms.p&&ms.p.id===pid)addCart();}
 
+/* Is this exact product+size actually buyable right now?
+   Returns null when it is fine, or a sentence explaining why not.
+   2026-11-25: until now the ONLY thing stopping an out-of-stock order was
+   the Add to Bag button being greyed out in showSizeRec(). That is a
+   presentation detail, not a rule — Fit Studio's fsAddToBag() calls
+   addCart() directly and never passes the button, a bag restored from
+   localStorage can hold a size that sold out since, and stock can change
+   while the page sits open. So the check lives here, where every path has
+   to go through it, and again on the server before the order is written. */
+function stockProblem(p,size){
+  if(!p)return "That piece is no longer available.";
+  const live=(typeof products!=="undefined"&&products.find(x=>x.id===p.id))||p;
+  if((live.badges||[]).includes("sold"))return _abItemName(live.name)+" is sold out.";
+  const sizes=live.sizes||[];
+  if(sizes.length&&!size)return "Please pick a size first.";
+  if(size&&sizes.length&&!sizes.includes(size))return "Size "+size+" isn't made for this piece.";
+  if(size&&(live.oosizes||[]).includes(size))return "Size "+size+" just sold out.";
+  return null;
+}
+/* Anything in the bag that can no longer be bought. Used before checkout so
+   a sell-out that happened after the item went in the bag is caught too. */
+function unbuyableInCart(){
+  return cart.map(i=>{
+    const p=(typeof products!=="undefined"&&products.find(x=>x.id===i.id))||null;
+    const why=p?stockProblem(p,i.size):null;
+    return why?{item:i,why}:null;
+  }).filter(Boolean);
+}
 // CART
 function addCart(){const{p,size,color,qty}=ms;
+  const problem=stockProblem(p,size);
+  if(problem){showToast(problem,false);if(typeof showSizeRec==="function")showSizeRec(p,size,true);return;}
   if(typeof fbq==="function")fbq("track","AddToCart",{content_name:p.name,content_ids:[p.id],content_type:"product",value:eff(p),currency:"INR"});const key=p.id+size+color;const ex=cart.find(i=>i.key===key);if(ex)ex.qty+=qty;else cart.push({key,id:p.id,name:p.name,price:eff(p),image:(p.images||[])[0]||"",size,color,qty,link:"https://365dropstore.com/p/"+p.id});LS.set("ds_cart",cart);closeMo();renderCart();openCart();}
 function rmItem(key){cart=cart.filter(i=>i.key!==key);LS.set("ds_cart",cart);renderCart();}
 function renderCart(){
@@ -4674,6 +4719,15 @@ function _submitCheckoutDetailsInner(){
   if(email&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){showErr("Enter a valid email address.");return;}
   if(!addr||addr.length<8){showErr("Please enter your full delivery address.");return;}
   if(!/^\d{6}$/.test(pin)){showErr("Enter a valid 6-digit pincode.");return;}
+  // Last gate before money changes hands: something in the bag may have sold
+  // out while the shopper was filling this form in, or been added through a
+  // path that skipped the button. Name the piece rather than failing vaguely.
+  const dead=typeof unbuyableInCart==="function"?unbuyableInCart():[];
+  if(dead.length){
+    showErr(dead[0].why+" Please remove it from your bag to continue.");
+    try{renderCart();openCart();}catch(e){}
+    return;
+  }
   if(errEl)errEl.style.display="none";
   // build the order object and show review screen before payment
   const orderId="DS-"+uid().toUpperCase();
