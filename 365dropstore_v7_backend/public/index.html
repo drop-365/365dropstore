@@ -656,7 +656,12 @@ button,a,.btn,[onclick]{-webkit-tap-highlight-color:transparent}
    ignore the two lines and simply render as before. */
 .pcard{position:relative;cursor:pointer;border-radius:14px;overflow:hidden;background:var(--bg2);border:1px solid rgba(20,19,18,.07);transition:.35s var(--ease);box-shadow:0 2px 14px rgba(20,19,18,.06);content-visibility:auto;contain-intrinsic-size:auto 420px}
 .pcard:hover{border-color:rgba(192,57,43,.18);box-shadow:0 20px 48px -12px rgba(20,19,18,.13),0 0 0 1px rgba(192,57,43,.08)}
-.pimg{position:relative;aspect-ratio:3/4;overflow:hidden;background:var(--bg3)}
+/* 2026-11-26: 2/3, not 3/4. On a 375px phone a card is 165px wide, so this is
+   the difference between 220px and 247px of denim. These are wide-leg jeans —
+   people buy them on the fall of the leg and the length, which is what the
+   shorter frame was cropping. It is also what the shop's own reviews talk
+   about most after fabric. */
+.pimg{position:relative;aspect-ratio:2/3;overflow:hidden;background:var(--bg3)}
 .pfront,.pback{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:.6s var(--ease)}
 .pback{opacity:0}
 @media(hover:none){.pback{display:none!important}}
@@ -3104,7 +3109,10 @@ function pcardHTML(p){
     const rbl=p.reelUrl?`<div class="rl-btn" onclick="event.stopPropagation();window.open('${p.reelUrl}','_blank')">▶ Reel</div>`:'';
     const plink=`https://365dropstore.com/p/${p.id}`;
     const cardClick=` onclick="pcardOpen(this,'${p.id}')"`;
-    const fitBand=p.fit?`<div class="pfitband">${p.fit.toUpperCase()} FIT</div>`:'';
+    // 2026-11-26: the "WIDE-LEG FIT" band across the bottom of the photo said
+    // exactly what the ".pfit" line directly beneath it already says
+    // ("Wide-Leg · Jeans") — the same fact twice, one of them painted over the
+    // hem of the jeans. Dropped the band; the text line stays.
     const saved=isWishlisted(p.id);
     return`<div class="pcard${isSold(p)?' so':''}"${cardClick}>
       <div class="pimg">
@@ -3112,7 +3120,7 @@ function pcardHTML(p){
         <div class="pwish${saved?' on':''}" onclick="event.stopPropagation();toggleWishlist('${p.id}')" title="Save">${saved?'♥':'♡'}</div>
         <div class="pslides" data-lazyslides="1"><img class="pfront" src="${_ix(img1,400)}" alt="${dispName(p)}, photo 1" loading="${_myIdx<4?'eager':'lazy'}" decoding="async" fetchpriority="${_myIdx<2?'high':'auto'}"/>${slides.slice(1).map((s,i)=>`<img data-src="${_ix(s,400)}" alt="${dispName(p)}, photo ${i+2}" loading="lazy" decoding="async"/>`).join("")}</div>
         ${slides.length>1?`<div class="pdots">${slides.map((_,i)=>`<i class="${i?"":"on"}"></i>`).join("")}</div><button class="pnav l" onclick="pcardNav(event,this,-1)" aria-label="Previous photo">‹</button><button class="pnav r" onclick="pcardNav(event,this,1)" aria-label="Next photo">›</button>`:""}
-        ${fitBand}
+        
         ${rbl}
         ${!isSold(p)?`<div class="pactions">
           <div class="patc" data-label="Add to Bag" onclick="event.stopPropagation();openMo('${p.id}')">Add to Bag</div>
