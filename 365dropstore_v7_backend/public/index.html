@@ -323,6 +323,14 @@ header.sc .nav{height:58px}
 @media(prefers-reduced-motion:reduce){.lm-spin{animation:none}}
 /* FAQ cards */
 .mo-sold-count{font-size:12px;color:var(--glow,#C0392B);font-weight:600;margin:6px 0 2px;font-family:var(--mono,monospace);letter-spacing:.02em}
+/* Three short facts that wrap to two lines on a narrow phone rather than
+   being truncated. Quiet by design: they answer a worry, they don't sell. */
+.mo-pay{display:flex;flex-wrap:wrap;justify-content:center;gap:6px 10px;margin:11px 0 2px}
+.mo-pay .pf{display:inline-flex;align-items:center;gap:5px;font-size:12px;line-height:1.35;
+  color:var(--off);background:var(--bg2);border:1px solid var(--line);border-radius:999px;
+  padding:5px 10px}
+.mo-pay .pf i{font-style:normal;font-size:12px;opacity:.9}
+.mo-pay .pf b{color:var(--white);font-weight:600}
 .mo-trust{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--off);margin:10px 0 2px;text-align:center;justify-content:center}
 .mo-trust b{color:var(--white)}
 /* Order tracker cards */
@@ -671,7 +679,15 @@ button,a,.btn,[onclick]{-webkit-tap-highlight-color:transparent}
 .pwish{position:absolute;top:8px;right:8px;z-index:3;width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.85);display:flex;align-items:center;justify-content:center;font-size:16px;color:#141312;cursor:pointer;transition:.2s}
 .pwish.on{color:#C0392B}
 .pwish:hover{background:var(--bg2);color:var(--red)}
-.pfitband{position:absolute;bottom:0;left:0;right:0;background:rgba(12,11,10,.85);color:rgba(255,255,255,.95);font-size:10.5px;font-weight:700;letter-spacing:.08em;text-align:center;padding:7px 0;z-index:2}
+/* .pfitband removed 2026-11-26 along with the markup that used it — it
+   duplicated the .pfit line under the photo and covered the hem. */
+/* Two classes, so this beats .share-btn wherever that rule sits in the file.
+   .share-btn also sets flex:1, which stretches it to fill the row whatever
+   width says — so the flex has to be unset too, not just the width. */
+.mo-share{display:flex;justify-content:center;margin:2px 0 6px}
+.mo-share .share-quiet{flex:0 0 auto;width:auto;padding:7px 14px;font-size:12.5px;
+  opacity:.72;background:transparent}
+.mo-share .share-quiet:hover{opacity:1}
 .bdg{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:4px 8px;border-radius:5px}
 /* ===== ADMIN-WIDE SCI-FI SHELL =====
    Every rule here is ancestor-scoped under #ap -- the confirmed real admin
@@ -4214,6 +4230,26 @@ function renderFooterFits(){
 // ONE place to change the trust claim — hero, shop grid and product page all read this.
 // Keep it TRUE: it's a public claim to customers (Consumer Protection / CCPA dark-pattern rules).
 var TRUST_LINE={big:"1,000+",text:"happy customers",sub:"Free shipping across India"};  // owner-stated total incl. unrecorded offline sales
+/* 2026-11-26: the row under Add to Bag used to repeat the hero's social proof
+   ("1,000+ happy customers · Free shipping"). At the moment someone is deciding
+   to pay a shop they have never used, the useful facts are not how many other
+   people are happy — it is whether they have to send money up front and what
+   happens if the size is wrong. Both answers were only on the FAQ page.
+
+   A 2026 Journal of Retailing study run with a fashion retailer found that
+   showing payment options on the product page raises purchase likelihood on its
+   own. In India, where COD is often what makes a small brand safe to try, that
+   belongs next to the button rather than three screens away.
+
+   Wording taken from the shop's own trust section, unchanged: "Partial COD -
+   ₹149 now, rest on delivery" and "Size Exchange - 7 days". */
+function payFactsHtml(){
+  return [
+    ['\u{1F69A}','Free shipping'],
+    ['\u{1F4B5}','Partial COD &mdash; <b>₹149 now</b>, rest on delivery'],
+    ['\u21BA','7-day size exchange <b>₹200</b>']
+  ].map(([i,t])=>'<span class="pf"><i>'+i+'</i><span>'+t+'</span></span>').join('');
+}
 function trustLineHtml(){return '<span class="tl-ico">✓</span><span><b>'+TRUST_LINE.big+'</b> '+TRUST_LINE.text+'</span><span class="tl-sep">·</span><span class="tl-sub">'+TRUST_LINE.sub+'</span>';}
 function trustChipsHtml(){return '<span class="tc"><i>✓</i><b>'+TRUST_LINE.big+'</b>&nbsp;'+TRUST_LINE.text+'</span><span class="tc"><i>✓</i>'+TRUST_LINE.sub+'</span>';}
 function applyTrustLines(){document.querySelectorAll(".js-trust").forEach(el=>{el.innerHTML=el.closest(".hero-trust")?trustChipsHtml():trustLineHtml();});}
@@ -4731,8 +4767,11 @@ function openMo(id,noPush){
   const dots=imgs.length>1?`<div class="car-dots">${imgs.map((_,i)=>`<button class="cdot${i===0?' act':''}" onclick="goSlide(${i})"></button>`).join("")}</div>`:'';
   const reelHtml=p.reelUrl?`<a href="${p.reelUrl}" target="_blank" rel="noopener" class="mo-reel">▶ Watch Reel on Instagram</a>`:'';
   const plink=`https://365dropstore.com/p/${p.id}`;
+  // 2026-11-26: this was a full-width button sitting between the price and the
+  // size picker — a secondary action at primary weight, planted in the middle of
+  // the buying decision. Same action, quiet treatment, out of the way.
   const shareHtml=`<div class="mo-share">
-    <button class="share-btn" style="width:100%" onclick="shareProduct('${p.id}','${(p.name||"").replace(/'/g,"\\'")}','${plink}')">🔗 Share Product</button>
+    <button class="share-btn share-quiet" onclick="shareProduct('${p.id}','${(p.name||"").replace(/'/g,"\\'")}','${plink}')">🔗 Share</button>
 
   </div>`;
   const _scImg=p.sizeChartImg||globalSc||'';const scHtml=_scImg?`<div onclick="openSizeChart('${p.id}')" style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--accsub);cursor:pointer;margin-bottom:14px;padding:10px;background:var(--glass);border:1px solid var(--line);border-radius:8px;">📏 <span>View Size Chart</span> <span style="margin-left:auto;color:var(--off)">↗</span></div>`:'';
@@ -4758,7 +4797,7 @@ function openMo(id,noPush){
       ${scHtml}
       <div class="qrow"><span class="mol" style="margin:0">Qty</span><div class="stepper"><button onclick="stp(-1)">−</button><span id="mqty">1</span><button onclick="stp(1)">+</button></div></div>
       <button class="moadd btn ${sold?'btn-g':'btn-w'}" onclick="addCart()" ${sold?'disabled':''}>${sold?'Sold Out':'Add to Bag · '+inr(eff(p))}</button>
-      <div class="mo-trust"><span class="trust-line">${trustLineHtml()}</span></div>
+      <div class="mo-pay">${payFactsHtml()}</div>
       <p class="mo-colour">🎨 Want to see the real colour first? <a href="https://wa.me/${WA}?text=${encodeURIComponent("Hi! Can you send me a daylight video of "+dispName(p)+"? "+plink)}" target="_blank" rel="noopener">Ask us for a daylight video on WhatsApp</a>. If it looks different when it arrives, exchange within 7 days (₹200 fee).</p>
       ${descFull}${shipHtml}
     </div>
