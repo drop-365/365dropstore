@@ -325,6 +325,17 @@ header.sc .nav{height:58px}
 .mo-sold-count{font-size:12px;color:var(--glow,#C0392B);font-weight:600;margin:6px 0 2px;font-family:var(--mono,monospace);letter-spacing:.02em}
 /* Three short facts that wrap to two lines on a narrow phone rather than
    being truncated. Quiet by design: they answer a worry, they don't sell. */
+/* The measurements as a sheet rather than a run-on sentence. Labels stay
+   quiet; the numbers are what people came for, so they get the ink and
+   tabular figures so they line up down the column. */
+.mo-specs{display:grid;grid-template-columns:auto 1fr;gap:7px 16px;margin:12px 0 2px;
+  padding:13px 15px;background:var(--bg2);border:1px solid var(--line);border-radius:11px}
+.mo-specs dt{font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--off);
+  align-self:center}
+.mo-specs dd{margin:0;font-size:14px;font-weight:600;color:var(--white);
+  font-variant-numeric:tabular-nums;line-height:1.35}
+.mo-lede{font-size:14px;line-height:1.55;color:var(--w2);margin:8px 0 0}
+.mo-measured{font-size:11.5px;color:var(--off);margin:7px 0 0;letter-spacing:.02em}
 .mo-pay{display:flex;flex-wrap:wrap;justify-content:center;gap:6px 10px;margin:11px 0 2px}
 .mo-pay .pf{display:inline-flex;align-items:center;gap:5px;font-size:12px;line-height:1.35;
   color:var(--off);background:var(--bg2);border:1px solid var(--line);border-radius:999px;
@@ -3615,7 +3626,12 @@ function ffMaybeAuto(){
 // Product page block: your size for this cut, or the ask.
 function ffMoBlock(p){
   const prof=ffProfile();
-  if(!prof){return `<div class="mo-myfit ask" onclick="ffOpen('product')"><span class="i">?</span><div><b>Not sure of your size?</b> Swipe your waist once and we'll pick your exact size here and on every pair. <button>Find my size</button></div></div>`;}
+  // 2026-11-26: was "Not sure of your size? Swipe your waist once and we'll
+  // pick your exact size here and on every pair. [Find my size]" — two
+  // sentences selling a feature, inside a heavy black box sitting directly on
+  // top of another heavy black box. The question and the button are the whole
+  // message; what the tool does is better shown by using it.
+  if(!prof){return `<div class="mo-myfit ask" onclick="ffOpen('product')"><span class="i">?</span><div><b>Not sure of your size?</b> <button>Find my size</button></div></div>`;}
   const r=ffSizeFor(p,prof); if(!r)return "";
   const who=prof.mode==="usual"?`you wear ${prof.waist}`:`your waist is ${prof.waist}″`;
   const band=r.band&&Number.isFinite(r.band.min)?` (cut for ${r.band.min}–${r.band.max}″)`:"";
@@ -4359,6 +4375,11 @@ function openImgReview(id){const withPhoto=reviews.filter(r=>r.img&&!isUgc(r));c
 
 // MODAL — with full description, shipping info, share, size chart image
 
+/* Below this, the badge says more about how new the shop is than about the
+   jeans. The counts are real paid units, so nothing here invents anything —
+   it just stops a true number arguing the wrong way on a page whose actual
+   proof is 67 five-star reviews. The same rule the New Arrivals strip uses. */
+const SOLD_BADGE_MIN=5;
 function getSoldCount(pid){
   const p=products.find(x=>x.id===pid);
   // Real numbers only. 0 = unknown, caller hides the badge.
@@ -4366,6 +4387,96 @@ function getSoldCount(pid){
   // (Previously fabricated a hash-derived 12-49 value — removed 2026-09-02.)
   if(p&&window._realSold&&window._realSold[p.name]>0)return window._realSold[p.name];
   return (p&&p.soldCount>0)?p.soldCount:0;
+}
+/* ── Specs out of the description sentence ─────────────────────────────
+   Every description is written to the same shape by hand:
+
+     Model wearing 30 (Waist Range 32) GREEN AURA (olive) - Leg Opening 23,
+     Length 43 (all size) ! 100% cotton non stretch. (HAND MEASURED SIZE CHART)
+
+   Shown as that one run-on line it is the messiest thing on the page, and the
+   three facts customers actually ask about — leg opening, length, fabric — are
+   buried inside it. Pulled apart they read as a spec table, which is what a
+   denim buyer is looking for anyway.
+
+   Deliberately conservative: if any of leg opening, length or fabric cannot be
+   found, this returns null and the caller prints the original sentence
+   unchanged. Nothing is invented and nothing is silently dropped — leftover
+   text (e.g. "only size 30 has 43 length") is carried through as a note. */
+function specsFromDesc(desc, p){
+  const raw=String(desc||"").trim();
+  if(!raw) return null;
+  let rest=raw;
+  const take=(re)=>{const m=rest.match(re); if(!m)return null; rest=rest.replace(m[0]," "); return m;};
+  const clean=v=>String(v||"").replace(/\s+/g," ").replace(/^[-\u2013\u2014\s]+|[-\u2013\u2014\s]+$/g,"").trim();
+  /* 42(all sizes) -> 42" (all sizes). Values arrive as a bare number, a
+     number glued to a bracket, or already carrying their own inch marks. */
+  const inches=v=>{
+    let c=clean(v);
+    if(/inch/i.test(c)) return c;
+    c=c.replace(/^([\d.]+)(?=\s*\()/,'$1" ');               // 42(all sizes)
+    if(/^[\d.]+$/.test(c)) c+='"';                            // bare 42
+    return c.replace(/"\s*\(/,'" (').replace(/\s{2,}/g," ");
+  };
+
+  // Template A — the wide-leg sheet: leg opening, length, fabric.
+  const legm=take(/Leg\s*(?:Opening|Bottom)\s*:?\s*([^,;!.]*?)\s*(?=,|;|!|\.|Length|$)/i);
+  const lenm=take(/Length\s*:?\s*([^!]*?)\s*(?=!|\.\s|\.$|$)/i);
+  // Template B — the straight-fit sheet: who the model is, so you can judge
+  // the fit against your own build.
+  const wears=take(/(?:Model\s+wearing|I'?m\s+wearing)\s*([\d.]+)/i);
+  const range=take(/\(\s*waist\s*range\s*([\d.]+)\s*\)/i);
+  const usual=take(/usually\s+wears?\s+size\s*([\d.]+)\s*\*?/i);
+  const hgt  =take(/height\s*([0-9]\s*'\s*[0-9]{0,2})/i);
+  const mywst=take(/(?:my\s+)?waist\s+is\s*([\d.]+)/i);
+  const tts  =take(/true\s+to\s+size/i);
+  const fabm =take(/(\d{2,3}\s*%\s*cotton[^.!()]*)/i);
+
+  const rows=[];
+  if(legm &&clean(legm[1])) rows.push(["Leg opening", inches(legm[1])]);
+  if(lenm &&clean(lenm[1])) rows.push(["Length",      inches(lenm[1])]);
+  if(fabm &&clean(fabm[1])) rows.push(["Fabric",      clean(fabm[1]).replace(/non\s*stretch/i,"non-stretch")]);
+  if(tts)                   rows.push(["Fit",         "True to size"]);
+
+  // One line about the model, however the sheet happened to describe him.
+  if(wears){
+    let v="Size "+clean(wears[1]);
+    if(range) v+=" \u00b7 waist range "+clean(range[1]);
+    else if(usual) v+=" \u00b7 usually "+clean(usual[1]);
+    if(hgt)   v+=" \u00b7 "+clean(hgt[1]).replace(/\s+/g,"")+'"';
+    if(mywst&&!range) v+=" \u00b7 waist "+clean(mywst[1])+'"';
+    rows.push(["Model wears", v]);
+  } else if(hgt||usual){
+    rows.push(["Model", [usual?("usually "+clean(usual[1])):"",
+                         hgt?clean(hgt[1]).replace(/\s+/g,"")+'"':""].filter(Boolean).join(" \u00b7 ")]);
+  }
+
+  // Two facts is the floor. Below that the sentence says it better.
+  if(rows.length<2) return null;
+
+  /* The descriptive wording is pulled out by where it sits, not by removing
+     everything else — subtracting matches left debris like '( ) / - "PS :-'
+     on the page, which is worse than the sentence it replaced.
+
+     Two places it lives:
+       A  between the waist-range bracket and "Leg Opening"  (wide-leg sheets)
+       B  after "PS :-"                                       (straight-fit sheets) */
+  let note="";
+  const psm=raw.match(/PS\s*:?-?\s*(.+)$/is);
+  const midm=raw.match(/\)\s*(.+?)\s*-?\s*Leg\s*Opening/is);
+  if(psm) note=psm[1];
+  else if(midm) note=midm[1];
+  note=clean(note)
+        .replace(/\(?\s*hand\s*measured[^)]*\)?/ig,"")
+        .replace(/\(\s*\)|\(\s*fixed\s*tight\s*waist\s*\)/ig,"")
+        .replace(/^[\s.,!*/"'\u2013\u2014-]+|[\s.,!*/"'\u2013\u2014-]+$/g,"")
+        .replace(/\s{2,}/g," ");
+  // Drop it when it only restates the product's own name, shade or cut.
+  const words=w=>String(w||"").toLowerCase().replace(/[^a-z0-9']+/g," ").trim().split(/\s+/).filter(Boolean);
+  const known=new Set([...words(p&&p.name),...words(p&&p.shade),...words(p&&p.fit),...words(p&&p.category)]);
+  if(note.length<14 || words(note).filter(w=>!known.has(w)&&w.length>2).length<3) note="";
+
+  return {rows, note, handMeasured:/hand\s*measured/i.test(raw)};
 }
 function renderMoSizes(p){
   if(!(p.sizes||[]).length)return'';
@@ -4788,8 +4899,15 @@ function openMo(id,noPush){
       <div class="mocat">${p.category} · ${p.fit||''}</div>
       <h1 class="moname">${dispName(p)}</h1>
       <div class="moprices">${pr}</div>
-      ${getSoldCount(p.id)>0?`<div class="mo-sold-count">🔥 ${getSoldCount(p.id)} sold</div>`:''}
-      <p class="modal">${p.desc}</p>
+      ${getSoldCount(p.id)>=SOLD_BADGE_MIN?`<div class="mo-sold-count">${getSoldCount(p.id)} sold</div>`:''}
+      ${(()=>{const sp=specsFromDesc(p.desc,p);
+        if(!sp) return `<p class="modal">${p.desc||''}</p>`;
+        return (sp.note?`<p class="mo-lede">${sp.note}</p>`:'')
+          +`<dl class="mo-specs">`
+          +sp.rows.map(([k,v])=>`<dt>${k}</dt><dd>${v}</dd>`).join('')
+          +`</dl>`
+          +(sp.handMeasured?`<p class="mo-measured">Measured by hand, pair by pair</p>`:'');
+      })()}
       ${reelHtml}
       ${shareHtml}
       ${renderMoSizes(p)}
@@ -4798,7 +4916,6 @@ function openMo(id,noPush){
       <div class="qrow"><span class="mol" style="margin:0">Qty</span><div class="stepper"><button onclick="stp(-1)">−</button><span id="mqty">1</span><button onclick="stp(1)">+</button></div></div>
       <button class="moadd btn ${sold?'btn-g':'btn-w'}" onclick="addCart()" ${sold?'disabled':''}>${sold?'Sold Out':'Add to Bag · '+inr(eff(p))}</button>
       <div class="mo-pay">${payFactsHtml()}</div>
-      <p class="mo-colour">🎨 Want to see the real colour first? <a href="https://wa.me/${WA}?text=${encodeURIComponent("Hi! Can you send me a daylight video of "+dispName(p)+"? "+plink)}" target="_blank" rel="noopener">Ask us for a daylight video on WhatsApp</a>. If it looks different when it arrives, exchange within 7 days (₹200 fee).</p>
       ${descFull}${shipHtml}
     </div>
     ${moRelatedHtml(p)}`;
