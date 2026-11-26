@@ -11,6 +11,27 @@
 [functions]
   node_bundler = "esbuild"
 
+# ─────────────────────────────────────────────────────────────────────
+#  Image CDN
+#
+#  Product photos live in a public Cloudflare R2 bucket at full size —
+#  600x800 and up, around 96KB each on the wire but roughly 1.9MB each
+#  once the browser decodes them into a bitmap it can draw.
+#
+#  The shop shows them as ~170px grid cards on a phone and 98px review
+#  thumbnails. Decoding a dozen full-size photos to paint thumbnails is
+#  what pushed Safari past its per-tab memory budget and made it reload
+#  the page out from under the shopper mid-scroll.
+#
+#  Allowlisting the bucket here lets the storefront request
+#  /.netlify/images?url=...&w=400, so Netlify re-encodes to the size we
+#  actually draw and caches the result at the edge.
+# ─────────────────────────────────────────────────────────────────────
+[images]
+  remote_images = [
+    "https://pub-439f2b6b71214b70a749ab163b863494\\.r2\\.dev/.*"
+  ]
+
 # Edge Functions — product OG meta injection for social sharing & SEO
 [[edge_functions]]
   path = "/p/*"
