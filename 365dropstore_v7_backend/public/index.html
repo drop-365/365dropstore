@@ -1123,6 +1123,12 @@ footer{background:#141312;border-top:none;padding:56px 0 28px}
 .ckview.active{display:flex}
 .ckview-details{padding:20px 22px;gap:14px}
 .ckview-placed{padding:32px 22px;align-items:center;text-align:center;gap:10px}
+.tamper-note{text-align:left;margin:14px 0 2px;padding:14px 15px;border:1px solid rgba(20,19,18,.14);border-radius:12px;background:rgba(20,19,18,.035);font-size:12.5px;line-height:1.6;color:#141312}
+.tamper-note>b{display:block;font-size:13px;margin-bottom:7px}
+.tamper-note p{margin:0 0 7px}
+.tamper-note p:last-child{margin-bottom:0}
+.tamper-note ul{margin:0 0 7px;padding-left:17px}
+.tamper-note li{margin:2px 0}
 .ckback{align-self:flex-start;font-size:13px;color:var(--off);cursor:pointer;background:none;border:none;padding:0;margin-bottom:2px}
 .ckback:hover{color:#141312}
 .ckform-note{font-size:12.5px;color:var(--off);line-height:1.5;background:var(--glass,rgba(20,19,18,.03));border:1px solid var(--line);border-radius:8px;padding:10px 12px}
@@ -2009,7 +2015,7 @@ fbq('track','PageView');
 </script>
 <noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=2018974752158259&ev=PageView&noscript=1"/></noscript>
 <!-- End Meta Pixel -->
-<script type="application/ld+json">{"@context": "https://schema.org", "@type": "ClothingStore", "name": "365 Drop Store", "alternateName": "365dropstore", "url": "https://365dropstore.com/", "logo": "https://365dropstore.com/icon-512.png", "description": "Premium wide-leg, baggy and straight denim jeans for men, picked and quality-checked in Delhi.", "telephone": "+91-9990905969", "priceRange": "₹999 – ₹1,599", "address": {"@type": "PostalAddress", "streetAddress": "E-42/2A Subhash Vihar", "addressLocality": "Delhi", "postalCode": "110053", "addressRegion": "Delhi", "addressCountry": "IN"}, "areaServed": "IN", "sameAs": ["https://instagram.com/365dropstore", "https://www.youtube.com/@365_drop_store"], "slogan": "Clothing or Nothing"}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "ClothingStore", "name": "365 Drop Store", "alternateName": "365dropstore", "url": "https://365dropstore.com/", "logo": "https://365dropstore.com/icon-512.png", "description": "Premium wide-leg, baggy and straight denim jeans for men, picked and quality-checked in Delhi.", "telephone": "+91-9990905969", "priceRange": "₹1,099 – ₹1,699", "address": {"@type": "PostalAddress", "streetAddress": "E-42/2A Subhash Vihar", "addressLocality": "Delhi", "postalCode": "110053", "addressRegion": "Delhi", "addressCountry": "IN"}, "areaServed": "IN", "sameAs": ["https://instagram.com/365dropstore", "https://www.youtube.com/@365_drop_store"], "slogan": "Clothing or Nothing"}</script>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebSite", "name": "365 Drop Store", "url": "https://365dropstore.com/"}</script>
 </head>
 <body>
@@ -2187,7 +2193,7 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
 <!-- trust -->
 <div class="trust"><div class="w tgrid" id="trust-grid">
   <div class="titem"><div class="tic">📦</div><div><div class="tit">Pan India</div><div class="tis">3–5 day delivery</div></div></div>
-  <div class="titem"><div class="tic">💰</div><div><div class="tit">Partial COD</div><div class="tis">₹149 now, rest on delivery</div></div></div>
+  <div class="titem"><div class="tic">💰</div><div><div class="tit">Partial COD</div><div class="tis">₹199 now, rest on delivery</div></div></div>
   <div class="titem"><div class="tic">✆</div><div><div class="tit">WhatsApp Orders</div><div class="tis">Direct with founder</div></div></div>
   <div class="titem"><div class="tic">📹</div><div><div class="tit">Easy Returns</div><div class="tis">Record unboxing, exchange free</div></div></div>
 </div></div>
@@ -2619,6 +2625,14 @@ if(h.indexOf("review-")!==-1){window._pendingReviewId=h.replace("#review-","").t
     <div style="font-size:38px">✓</div>
     <h4 style="font-family:var(--dsp);font-size:22px">Payment Confirmed</h4>
     <p style="color:var(--off);font-size:13.5px;line-height:1.6">Order ID <strong id="ck-orderid" style="color:#141312"></strong><br/>Your payment went through and your order is placed. We'll pack and dispatch within 24 hours — you can check your order status anytime using your Order ID and phone number.</p>
+    <div class="tamper-note">
+      <b>Before you accept the parcel &mdash; 30 seconds</b>
+      <p>Every 365 Drop parcel leaves us sealed with our own tape. When the delivery agent hands it over, look at it first:</p>
+      <ul><li>Is the tape cut, torn, or taped over a second time?</li><li>Does the packet look opened, re-packed, or lighter than it should?</li></ul>
+      <p><b>If anything looks off, do not accept it.</b> Tell the agent you are refusing delivery because the seal is broken. The parcel comes straight back to us and we re-ship or refund you in full &mdash; you pay nothing.</p>
+      <p>Once a tampered parcel is accepted at the door, we are not able to take responsibility for what is inside it, and we cannot cover the cost.</p>
+      <p>If you do accept it, please record an unboxing video before opening. That video is what settles any claim, for you and for us.</p>
+    </div>
     <button class="btn btn-g" onclick="closeCart()" style="margin-top:8px">Done</button>
     <button class="btn btn-w" onclick="closeCart();openOrderTracker(document.getElementById('ck-orderid').textContent);" style="margin-top:8px">Track This Order</button>
   </div>
@@ -2668,7 +2682,7 @@ const ALL_SIZES=["28","30","32","34","36","S","M","L","XL","XXL"];
 // DEFAULT DATA
 const DP=[];
 const DR=[{id:"R1",stars:5,text:"The wide-leg fit is exactly what I wanted. Quality way above the price. Heavyweight denim that actually lasts.",who:"Aryan M.",where:"Delhi"},{id:"R2",stars:5,text:"Denim feels premium and heavy. Got compliments the same day I wore it. Delivered in 4 days.",who:"Simran K.",where:"Gurgaon"},{id:"R3",stars:5,text:"Small brand, real founder. Replied on WhatsApp instantly. Will order every drop.",who:"Rohit V.",where:"Noida"}];
-const DSite={ann:"Drop 001 · Delhi · WhatsApp-only checkout · Pan India shipping",heroH1:"365 DROP|STORE|",heroSub:"Premium denim, picked and wear-tested by us in Delhi. Wide-leg, baggy, straight. Dropped limited, worn everywhere.",heroP1:"DR-001",heroP2:"DR-003",trust:"📦|Pan India|3-5 day delivery\n💰|Partial COD|₹149 now, rest on delivery\n✆|WhatsApp Orders|Direct with founder\n📹|Size Exchange|7 days · ₹200 · unboxing video",edH2:"Small runs. No compromise.",edP:"Every drop is small on purpose. Some fits come back, most don't. Get drop alerts on WhatsApp.",storyH2:"Started in a bedroom. Worn everywhere.",storyP1:"365 Drop Store started the way real things do — one person, no safety net, and zero tolerance for the same five fits everyone else was selling.",storyP2:"Heavy washes. Honest cuts. Limited drops. You're not buying mass production — you're buying the drop.",shipping:"Delivery in 3-5 working days|Free shipping all over India|Only damaged or defective items can be returned|Unboxing video required for all return claims|Size exchange available for ₹200 fee|Item must be returned in original condition|Check size before ordering",marquee:"365 DROP|CLOTHING OR NOTHING|PREMIUM DENIM|DELHI DROPS|LIMITED RUNS",stats:"365|Days dropping,\u221E|Ways to wear,5.0★|67 Google reviews",phone:"+91 9990905969",email:"365dropstore@gmail.com",address:"E-42/2A Subhash Vihar, Delhi 110053",insta:"https://instagram.com/365dropstore",fb:"https://facebook.com/fazalsaifi2"};
+const DSite={ann:"Drop 001 · Delhi · WhatsApp-only checkout · Pan India shipping",heroH1:"365 DROP|STORE|",heroSub:"Premium denim, picked and wear-tested by us in Delhi. Wide-leg, baggy, straight. Dropped limited, worn everywhere.",heroP1:"DR-001",heroP2:"DR-003",trust:"📦|Pan India|3-5 day delivery\n💰|Partial COD|₹199 now, rest on delivery\n✆|WhatsApp Orders|Direct with founder\n📹|Size Exchange|7 days · ₹200 · unboxing video",edH2:"Small runs. No compromise.",edP:"Every drop is small on purpose. Some fits come back, most don't. Get drop alerts on WhatsApp.",storyH2:"Started in a bedroom. Worn everywhere.",storyP1:"365 Drop Store started the way real things do — one person, no safety net, and zero tolerance for the same five fits everyone else was selling.",storyP2:"Heavy washes. Honest cuts. Limited drops. You're not buying mass production — you're buying the drop.",shipping:"Delivery in 3-5 working days|Free shipping all over India|Only damaged or defective items can be returned|Unboxing video required for all return claims|Size exchange available for ₹200 fee|Item must be returned in original condition|Check size before ordering",marquee:"365 DROP|CLOTHING OR NOTHING|PREMIUM DENIM|DELHI DROPS|LIMITED RUNS",stats:"365|Days dropping,\u221E|Ways to wear,5.0★|67 Google reviews",phone:"+91 9990905969",email:"365dropstore@gmail.com",address:"E-42/2A Subhash Vihar, Delhi 110053",insta:"https://instagram.com/365dropstore",fb:"https://facebook.com/fazalsaifi2"};
 const DBanner={text:"🔥 FLASH SALE — First 200 orders get ₹200 OFF. Use code DROP200 on WhatsApp.",show:false};
 const DFits=["Baggy","Straight","Slim","Oversized","Cargo","Wide-Leg","Relaxed"];
 
@@ -2713,7 +2727,7 @@ function normalizeHeroGrid(raw){
 }
 let heroGrid=normalizeHeroGrid(LS.get("ds_hero_grid",null));
 const DEFAULT_FAQ=[
-  {q:"How do I pay?",a:"Three ways. (1) Online checkout via Razorpay — UPI, cards, netbanking, wallets — order confirmed instantly. (2) Partial COD — pay ₹149 online now, the rest in cash when it arrives. (3) Order on WhatsApp — message us and pay by UPI or bank transfer directly with the founder. Same price, same shipping, every method."},
+  {q:"How do I pay?",a:"Three ways. (1) Online checkout via Razorpay — UPI, cards, netbanking, wallets — order confirmed instantly. (2) Partial COD — pay ₹199 online now, the rest in cash when it arrives. (3) Order on WhatsApp — message us and pay by UPI or bank transfer directly with the founder. Same price, same shipping, every method."},
   {q:"When does it ship?",a:"Orders are dispatched within 24 hours. Delivery takes 3–5 days Pan India, tracked and shipped free on every order. Delhi NCR customers often receive same-day or next-day."},
   {q:"What if it doesn't fit?",a:"Size exchange within 7 days of delivery: same style, different size, ₹200 exchange fee. It also applies if the colour you receive looks different from the photos. Just record an unboxing video (it protects both of us). Returns only for damaged or defective items, handled on WhatsApp."},
   {q:"How do I know my size?",a:"Every product page has a size guide with exact waist and length measurements. Still unsure? Message on WhatsApp with your height, weight, and usual size — the founder picks your fit personally."}
@@ -4258,11 +4272,11 @@ var TRUST_LINE={big:"1,000+",text:"happy customers",sub:"Free shipping across In
    belongs next to the button rather than three screens away.
 
    Wording taken from the shop's own trust section, unchanged: "Partial COD -
-   ₹149 now, rest on delivery" and "Size Exchange - 7 days". */
+   ₹199 now, rest on delivery" and "Size Exchange - 7 days". */
 function payFactsHtml(){
   return [
     ['\u{1F69A}','Free shipping'],
-    ['\u{1F4B5}','Partial COD &mdash; <b>₹149 now</b>, rest on delivery'],
+    ['\u{1F4B5}','Partial COD &mdash; <b>₹199 now</b>, rest on delivery'],
     ['\u21BA','7-day size exchange <b>₹200</b>']
   ].map(([i,t])=>'<span class="pf"><i>'+i+'</i><span>'+t+'</span></span>').join('');
 }
